@@ -38,6 +38,14 @@ app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
 
 
 # -------------------------------
+# FIX HOMEPAGE (ROOT URL)
+# -------------------------------
+@app.route("/")
+def home():
+    return redirect("/subjects")  # homepage now works and redirects to planet screen
+
+
+# -------------------------------
 # SUBJECTS PAGE (PLANET GRID)
 # -------------------------------
 @app.route("/subjects")
@@ -173,10 +181,11 @@ def ask():
 
 
 # -------------------------------
-# RUN SERVER
+# RUN SERVER (LOCAL ONLY)
 # -------------------------------
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 

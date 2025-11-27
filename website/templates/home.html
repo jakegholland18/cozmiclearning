@@ -1,37 +1,46 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<!-- ⭐ ANIMATED HERO SECTION -->
 <div class="home-hero fade-in">
 
-    <!-- HERO TITLE -->
-    <h1 class="home-title">Welcome to <span>Homework Buddy</span> ✏️</h1>
+    <h1 class="home-title">
+        Welcome to <span>Homework Buddy</span> ✏️
+    </h1>
 
     <p class="home-subtitle">
-        Ask questions, explore subjects, and let your Study Buddy guide your adventure!
+        Explore learning planets, ask anything, and let your Study Buddy guide your adventure!
     </p>
 
-    <!-- FLOATING CHARACTER PREVIEW (cute!) -->
+    <!-- FLOATING CHARACTER PREVIEW -->
     <div class="home-preview">
         <img src="/static/nova-circuit.png" class="float-char tilt-float"/>
         <img src="/static/princess-everly-dawn.png" class="float-char small-spin"/>
         <img src="/static/valor-strike.png" class="float-char slow-bounce"/>
     </div>
 
+    <div style="margin-top: 30px;">
+        <a href="/subjects" class="btn btn-glow">Start Your Adventure 🚀</a>
+    </div>
+
 </div>
 
 
 <!-- ⭐ MAIN CARD SECTION -->
-<div class="card fade-in" style="margin-top:40px;">
+<div class="card fade-in" style="margin-top:50px;">
 
-    <h2 style="text-align:center; margin-bottom:10px;">Your Adventure Starts Here! 🚀</h2>
-    <p style="text-align:center; margin-bottom:20px;">
-        Choose a subject, pick your grade level, and ask anything you need help with.
+    <h2 style="text-align:center; margin-bottom:10px;">
+        Need Help Right Now?
+    </h2>
+
+    <p style="text-align:center; margin-bottom:25px; font-size:1.1rem; opacity:0.9;">
+        Jump straight into a question — your Study Buddy is ready!
     </p>
 
     <form action="/subject" method="POST" class="home-form">
 
         <label>Grade Level:</label>
-        <input type="text" name="grade" required>
+        <input type="text" name="grade" placeholder="ex: 4, 7, 10, or 'college'" required>
 
         <label>Subject:</label>
         <select name="subject" required>
@@ -48,16 +57,21 @@
         </select>
 
         <label>Your Question:</label>
-        <textarea name="question" rows="4" required></textarea>
+        <textarea name="question" rows="4" placeholder="Ask anything you're confused about..." required></textarea>
 
-        <button class="btn">Ask Your Study Buddy</button>
+        <button class="btn" style="margin-top:10px;">
+            Ask Your Study Buddy ✨
+        </button>
 
     </form>
 
-    <div style="text-align:center; margin-top:20px;">
-        <a href="/choose-character" class="btn">Choose Your Character</a>
+    <div style="text-align:center; margin-top:25px;">
+        <a href="/choose-character" class="btn">
+            Choose Your Buddy 🎨
+        </a>
     </div>
 
 </div>
 
 {% endblock %}
+
