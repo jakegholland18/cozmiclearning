@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Grade</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .grade-title {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 2.8rem;
+            color: #004aad;
+            text-shadow: 0 0 12px rgba(0,0,0,0.2);
+        }
+
+        .grade-container {
+            margin-top: 60px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .grade-box {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #003a75;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transition: 0.3s;
+        }
+
+        .grade-box:hover {
+            transform: translateY(-8px) scale(1.05);
+            background: #eaf4ff;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<h1 class="grade-title">Choose Your Grade for {{ subject.title() }}</h1>
+
+<div class="grade-container">
+    {% for g in range(1, 13) %}
+        <div class="grade-box" onclick="goToQuestion({{ g }})">
+            Grade {{ g }}
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+function goToQuestion(grade) {
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get("subject");
+    window.location.href = `/ask-question?subject=${subject}&grade=${grade}`;
+}
+</script>
+
+</body>
+</html>
