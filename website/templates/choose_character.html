@@ -8,8 +8,9 @@
     {% for id, char in characters.items() %}
     <div class="character-card" onclick="selectCharacter('{{ id }}')">
         
-        <img src="/static/{{ id }}.png" 
-             class="character-universal character-float">
+        <!-- FIXED: Correct image path -->
+        <img src="/static/characters/{{ id }}.png" 
+             class="character-img character-float">
 
         <div class="character-name">
             {{ char.name }}
@@ -21,19 +22,23 @@
 
 <script>
 function selectCharacter(id) {
-    // Send POST request manually using fetch
     fetch("/select-character", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "character=" + id
     })
-    .then(() => {
-        window.location.href = "/dashboard"; 
-    });
+    .then(res => {
+        if (res.ok) {
+            window.location.href = "/dashboard";
+        } else {
+            alert("Error selecting character.");
+        }
+    })
 }
 </script>
 
 {% endblock %}
+
 
 
 
