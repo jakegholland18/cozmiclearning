@@ -161,12 +161,40 @@ def subjects():
     return render_template("subjects.html", planets=planets, character=session["character"])
 
 
+# ============================================================
+# CHOOSE CHARACTER (FIXED)
+# ============================================================
+
+@app.route("/choose_character")
+@app.route("/choose-character")
+def choose_character():
+    init_user()
+    characters = get_all_characters()
+    return render_template("choose_character.html", characters=characters)
+
+
+@app.route("/select-character", methods=["POST"])
+def select_character():
+    init_user()
+    chosen = request.form.get("character")
+    session["character"] = chosen
+    return redirect("/dashboard")
+
+
+# ============================================================
+# CHOOSE GRADE
+# ============================================================
+
 @app.route("/choose-grade")
 def choose_grade():
     init_user()
     subject = request.args.get("subject")
     return render_template("subject_select_form.html", subject=subject)
 
+
+# ============================================================
+# ASK QUESTION PAGE
+# ============================================================
 
 @app.route("/ask-question")
 def ask_question():
@@ -191,7 +219,6 @@ def subject_answer():
     session["progress"].setdefault(subject, {"questions": 0, "correct": 0})
     session["progress"][subject]["questions"] += 1
 
-    # CLEAN, CORRECT MAPPING
     subject_map = {
         "num_forge": math_helper.explain_math,
         "atom_sphere": science_helper.explain_science,
@@ -302,7 +329,7 @@ def buy_item(item_id):
 
 
 # ============================================================
-# PARENT DASHBOARD  (CORRECT FIX)
+# PARENT DASHBOARD  (Correct route)
 # ============================================================
 @app.route("/parent_dashboard")
 def parent_dashboard():
@@ -332,4 +359,5 @@ def parent_dashboard():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
+
 
