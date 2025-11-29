@@ -1,111 +1,71 @@
 {% extends "layout.html" %}
-
-{% block title %}Student Dashboard | Homework Buddy{% endblock %}
-
-{% block page_title %}Student Dashboard{% endblock %}
-{% block page_subtitle %}Jump back into your missions and keep your streak alive.{% endblock %}
-
 {% block content %}
-<div class="grid-2">
-    <!-- LEFT COLUMN -->
-    <div class="stack gap-lg">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Today’s Progress</h2>
-                <span class="badge-soft">Live</span>
-            </div>
-            <div class="stats-row">
-                <div class="stat">
-                    <div class="stat-label">Missions Completed</div>
-                    <div class="stat-value">3</div>
-                    <div class="stat-sub">+1 vs yesterday</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Study Time</div>
-                    <div class="stat-value">42 min</div>
-                    <div class="stat-sub">Goal: 60 min</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Streak</div>
-                    <div class="stat-value">5 days</div>
-                    <div class="stat-sub">Keep it going 🔥</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Quick Actions</h2>
-            </div>
-            <div class="quick-actions">
-                <a href="/ask" class="qa-btn primary">Ask a Homework Question</a>
-                <a href="/select-grade" class="qa-btn">Pick My Grade</a>
-                <a href="/subjects" class="qa-btn">Choose a Subject</a>
-            </div>
-        </div>
+<div class="card fade-in">
 
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Recent Missions</h2>
-            </div>
-            <div class="missions-list">
-                <div class="mission-item">
-                    <div>
-                        <div class="mission-title">Algebra: Solving 2-Step Equations</div>
-                        <div class="mission-meta">Completed • 15 min • Difficulty: Medium</div>
-                    </div>
-                    <span class="mission-tag">Math</span>
-                </div>
-                <div class="mission-item">
-                    <div>
-                        <div class="mission-title">Reading: Main Idea Practice</div>
-                        <div class="mission-meta">In Progress • 8 min so far</div>
-                    </div>
-                    <span class="mission-tag">ELA</span>
-                </div>
-                <div class="mission-item">
-                    <div>
-                        <div class="mission-title">History: World War II Overview</div>
-                        <div class="mission-meta">Completed • 20 min</div>
-                    </div>
-                    <span class="mission-tag">History</span>
-                </div>
-            </div>
-        </div>
+    <!-- TITLE -->
+    <h1 class="page-title">Student Dashboard</h1>
+
+    <!-- CHARACTER SECTION -->
+    {% if character %}
+    <div class="dashboard-character">
+
+        <h2>Your Study Buddy</h2>
+
+        <!-- Consistent Size + Floating -->
+        <img src="/static/{{ character }}.png"
+             class="character-large character-float">
+
+        <p class="character-tagline">
+            {{ character.replace('_',' ').title() }} is excited to keep learning with you!
+        </p>
+
+        <!-- Continue Button -->
+        <a href="/buddy" class="btn btn-glow">Continue Learning</a>
+
     </div>
 
-    <!-- RIGHT COLUMN -->
-    <div class="stack gap-lg">
-        <div class="card highlight">
-            <div class="card-header">
-                <h2 class="card-title">Continue Your Journey</h2>
-            </div>
-            <p class="card-text">
-                Pick up where you left off in your learning timeline.
-            </p>
-            <div class="timeline-list">
-                <button class="timeline-pill">Ancient Civilizations</button>
-                <button class="timeline-pill">Roman Coliseum</button>
-                <button class="timeline-pill">Age of Exploration</button>
-                <button class="timeline-pill">Wild West</button>
-                <button class="timeline-pill">World War II</button>
-                <button class="timeline-pill">Space & Beyond</button>
-            </div>
+    {% else %}
+    <p class="no-character">
+        You haven't chosen a Study Buddy yet.  
+        <a href="/choose-character">Pick one here</a>.
+    </p>
+    {% endif %}
+
+    <!-- PROGRESS BOXES -->
+    <div class="stats-row">
+
+        <div class="stat-box">
+            <h3>⭐ XP</h3>
+            <p>{{ xp }}</p>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2 class="card-title">Tips from Homework Buddy</h2>
-            </div>
-            <ul class="tips-list">
-                <li>Break big assignments into tiny missions.</li>
-                <li>Explain your answer out loud like you’re teaching a friend.</li>
-                <li>Take a 3-minute stretch break every 20 minutes.</li>
-            </ul>
+        <div class="stat-box">
+            <h3>🏆 Level</h3>
+            <p>{{ level }}</p>
         </div>
+
+        <div class="stat-box">
+            <h3>📘 Subjects Learned</h3>
+            <p>{{ subjects_count }}</p>
+        </div>
+
     </div>
+
+    <!-- PROGRESS REPORT PLACEHOLDER -->
+    <h2 class="section-title">📊 Progress Report</h2>
+
+    <p class="progress-description">
+        Coming soon! This area will show grades, mastery levels, strengths and weaknesses,
+        and parent-friendly analytics.
+    </p>
+
 </div>
+
 {% endblock %}
+
+
+
 
 
 

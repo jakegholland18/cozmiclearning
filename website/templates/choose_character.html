@@ -1,51 +1,43 @@
 {% extends "layout.html" %}
-
-{% block title %}Choose Your Guide | Homework Buddy{% endblock %}
-
-{% block page_title %}Choose Your Guide{% endblock %}
-{% block page_subtitle %}
-Pick the character who will travel through learning with you.
-{% endblock %}
-
 {% block content %}
-<div class="character-grid">
 
-    {% for char in characters %}
+<h1 class="page-title fade-in">Choose Your Study Buddy</h1>
 
-    <form method="POST" action="{{ url_for('select_character') }}" class="character-card">
+<div class="character-grid fade-in">
 
-        {# SUPPORTS object OR string #}
-        <input type="hidden" name="character_id"
-               value="{{ char.id if char.id is defined else char }}">
+    {% for id, char in characters.items() %}
+    <div class="character-card" onclick="selectCharacter('{{ id }}')">
+        
+        <!-- FIXED: Correct image path -->
+        <img src="/static/characters/{{ id }}.png" 
+             class="character-img character-float">
 
-        <div class="character-avatar-lg">
-            <span class="character-initial-lg">
-                {{ char.short if char.short is defined else char[0] | upper }}
-            </span>
+        <div class="character-name">
+            {{ char.name }}
         </div>
-
-        <div class="character-main">
-            <div class="character-name-lg">
-                {{ char.name if char.name is defined else char.replace('_', ' ').title() }}
-            </div>
-
-            <div class="character-role">
-                {{ char.role if char.role is defined else "Guide" }}
-            </div>
-        </div>
-
-        <button type="submit" class="btn-primary full-width">
-            Select
-        </button>
-
-    </form>
-
+    </div>
     {% endfor %}
 
 </div>
+
+<script>
+function selectCharacter(id) {
+    fetch("/select-character", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "character=" + id
+    })
+    .then(res => {
+        if (res.ok) {
+            window.location.href = "/dashboard";
+        } else {
+            alert("Error selecting character.");
+        }
+    })
+}
+</script>
+
 {% endblock %}
-
-
 
 
 

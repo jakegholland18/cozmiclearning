@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Flask, render_template, request, redirect, session, flash, url_for
+from flask import Flask, render_template, request, redirect, session, flash
 from datetime import datetime, timedelta
 
 # Make sure Python can see /modules
@@ -66,7 +66,7 @@ app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
 
 
 # ============================================================
-# INIT USER
+# INIT USER SESSION
 # ============================================================
 def init_user():
     defaults = {
@@ -76,7 +76,7 @@ def init_user():
         "streak": 1,
         "last_visit": str(datetime.today().date()),
         "inventory": [],
-        "character": None,
+        "character": "valor_strike",
         "usage_minutes": 0,
         "progress": {
             "num_forge": {"questions": 0, "correct": 0},
@@ -118,7 +118,7 @@ def update_streak():
 
 
 # ============================================================
-# XP / LEVEL SYSTEM
+# XP & LEVEL-UP SYSTEM
 # ============================================================
 def add_xp(amount):
     session["xp"] += amount
@@ -137,58 +137,76 @@ def add_xp(amount):
 @app.route("/")
 def home():
     init_user()
-    return redirect("/dashboard")
+    return redirect("/subjects")
 
 
-# -------------------------------
-# SELECT CHARACTER
-# -------------------------------
+@app.route("/subjects")
+def subjects():
+    init_user()
+
+    planets = [
+        ("chrono_core", "chrono_core.png", "ChronoCore"),
+        ("num_forge", "num_forge.png", "NumForge"),
+        ("atom_sphere", "atom_sphere.png", "AtomSphere"),
+        ("story_verse", "story_verse.png", "StoryVerse"),
+        ("ink_haven", "ink_haven.png", "InkHaven"),
+        ("faith_realm", "faith_realm.png", "FaithRealm"),
+        ("coin_quest", "coin_quest.png", "CoinQuest"),
+        ("stock_star", "stock_star.png", "StockStar"),
+        ("terra_nova", "terra_nova.png", "TerraNova"),
+        ("power_grid", "power_grid.png", "PowerGrid"),
+        ("truth_forge", "truth_forge.png", "TruthForge")
+    ]
+
+    return render_template("subjects.html", planets=planets, character=session["character"])
+
+
+# ============================================================
+# CHOOSE CHARACTER (FIXED)
+# ============================================================
+
+@app.route("/choose_character")
 @app.route("/choose-character")
 def choose_character():
     init_user()
     characters = get_all_characters()
-
-    return render_template(
-        "choose_character.html",
-        characters=characters,
-        selected_character=session.get("character"),
-        active_page="characters"
-    )
+    return render_template("choose_character.html", characters=characters)
 
 
 @app.route("/select-character", methods=["POST"])
 def select_character():
     init_user()
-
-    chosen = request.form.get("character")  # OPTION A — backend expects "character"
-
-    if not chosen:
-        flash("Please select a character.", "error")
-        return redirect(url_for("choose_character"))
-
+    chosen = request.form.get("character")
     session["character"] = chosen
-    return redirect(url_for("dashboard"))
+    return redirect("/dashboard")
 
 
-# -------------------------------
-# ASK QUESTION
-# -------------------------------
+# ============================================================
+# CHOOSE GRADE
+# ============================================================
+
+@app.route("/choose-grade")
+def choose_grade():
+    init_user()
+    subject = request.args.get("subject")
+    return render_template("subject_select_form.html", subject=subject)
+
+
+# ============================================================
+# ASK QUESTION PAGE
+# ============================================================
+
 @app.route("/ask-question")
 def ask_question():
     init_user()
     subject = request.args.get("subject")
     grade = request.args.get("grade")
-    return render_template(
-        "ask_question.html",
-        subject=subject,
-        grade=grade,
-        selected_character=session["character"]
-    )
+    return render_template("ask_question.html", subject=subject, grade=grade, character=session["character"])
 
 
-# -------------------------------
-# SUBJECT ANSWERING LOGIC
-# -------------------------------
+# ============================================================
+# SUBJECT → AI ANSWER LOGIC
+# ============================================================
 @app.route("/subject", methods=["POST"])
 def subject_answer():
     init_user()
@@ -215,21 +233,20 @@ def subject_answer():
         "story_verse": text_helper.summarize_text
     }
 
-    answer = subject_map.get(subject, lambda *_: "Unknown subject.")(question, grade, character)
+    if subject in subject_map:
+        answer = subject_map[subject](question, grade, character)
+    else:
+        answer = "I'm not sure what planet this question belongs to."
 
     add_xp(20)
     session["tokens"] += 2
 
-    return render_template(
-        "subject.html",
-        answer=answer,
-        selected_character=session["character"]
-    )
+    return render_template("subject.html", answer=answer, character=session["character"])
 
 
-# -------------------------------
+# ============================================================
 # STUDENT DASHBOARD
-# -------------------------------
+# ============================================================
 @app.route("/dashboard")
 def dashboard():
     init_user()
@@ -238,24 +255,23 @@ def dashboard():
     level = session["level"]
     tokens = session["tokens"]
     streak = session["streak"]
-    character = session.get("character")
+    character = session["character"]
 
     xp_to_next = level * 100
-    xp_percent = min(max(int((xp / xp_to_next) * 100), 0), 100)
+    xp_percent = int((xp / xp_to_next) * 100)
 
-    mission_items = [
-        {"title": "Math", "tag": "Puzzle Portals · Logic Lanes"},
-        {"title": "History", "tag": "Timeline Trek · Heroic Ages"},
-        {"title": "Science", "tag": "Lab Galaxy · Experiment Hub"},
-        {"title": "Reading", "tag": "StoryVerse · Lore Realms"},
-        {"title": "Writing", "tag": "Idea Forge · Draft Dock"},
-        {"title": "Test Prep", "tag": "Boss Battles · Victory Arena"},
+    missions = [
+        "Visit 2 different planets",
+        "Ask 1 science question",
+        "Earn 20 XP",
     ]
 
-    active_missions = [
-        {"title": "Solve 5 Algebra Problems", "badge": "🔥 Priority", "desc": "Translate → Solve → Victory"},
-        {"title": "History Summary", "badge": "✨ Quick Win", "desc": "Turn notes into storyline"},
-    ]
+    locked_characters = {
+        "Princess Everly": "Reach Level 3",
+        "Nova Circuit": "3-day streak",
+        "Agent Cluehart": "Earn 200 XP total",
+        "Buddy Barkston": "Buy for 100 tokens",
+    }
 
     return render_template(
         "dashboard.html",
@@ -263,42 +279,31 @@ def dashboard():
         level=level,
         tokens=tokens,
         streak=streak,
+        character=character,
         xp_percent=xp_percent,
         xp_to_next=xp_to_next,
-        selected_character=character,
-        mission_items=mission_items,
-        active_missions=active_missions,
-        active_page="student"
+        missions=missions,
+        locked_characters=locked_characters
     )
 
 
-# -------------------------------
+# ============================================================
 # INVENTORY
-# -------------------------------
+# ============================================================
 @app.route("/inventory")
 def inventory():
     init_user()
     items = [SHOP_ITEMS[i] for i in session["inventory"]]
-    return render_template(
-        "inventory.html",
-        inventory=items,
-        selected_character=session.get("character")
-    )
+    return render_template("inventory.html", inventory=items)
 
 
-# -------------------------------
+# ============================================================
 # SHOP
-# -------------------------------
+# ============================================================
 @app.route("/shop")
 def shop():
     init_user()
-    return render_template(
-        "shop.html",
-        items=SHOP_ITEMS,
-        tokens=session["tokens"],
-        inventory=session["inventory"],
-        selected_character=session.get("character")
-    )
+    return render_template("shop.html", items=SHOP_ITEMS, tokens=session["tokens"], inventory=session["inventory"])
 
 
 @app.route("/buy/<item_id>")
@@ -310,20 +315,22 @@ def buy_item(item_id):
         return redirect("/shop")
 
     item = SHOP_ITEMS[item_id]
-    if session["tokens"] < item["price"]:
+    price = item["price"]
+
+    if session["tokens"] < price:
         flash("Not enough Galaxy Tokens!", "error")
         return redirect("/shop")
 
-    session["tokens"] -= item["price"]
+    session["tokens"] -= price
     session["inventory"].append(item_id)
-
     flash(f"You bought {item['name']}!", "success")
+
     return redirect("/shop")
 
 
-# -------------------------------
-# PARENT DASHBOARD
-# -------------------------------
+# ============================================================
+# PARENT DASHBOARD  (Correct route)
+# ============================================================
 @app.route("/parent_dashboard")
 def parent_dashboard():
     init_user()
@@ -343,8 +350,7 @@ def parent_dashboard():
         xp=session["xp"],
         level=session["level"],
         tokens=session["tokens"],
-        selected_character=session.get("character"),
-        active_page="parent"
+        character=session["character"]
     )
 
 
@@ -353,3 +359,5 @@ def parent_dashboard():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
+
+

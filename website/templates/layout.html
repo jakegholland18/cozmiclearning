@@ -1,105 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
-    <title>{% block title %}Homework Buddy{% endblock %}</title>
+    <title>Homework Buddy</title>
 
-    <!-- Global Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- GLOBAL STYLES -->
+    <link rel="stylesheet" href="/static/style.css">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- OPTIONAL ANIMATION CSS -->
+    <link rel="stylesheet" href="/static/animations.css">
+
+    <style>
+        /* ----------- SIDEBAR ----------- */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            background: #0b1424;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+        }
+
+        .sidebar-title {
+            font-size: 1.6rem;
+            color: #bcdfff;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px #78aaff;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #e2eeff;
+            font-size: 1.2rem;
+            padding: 10px 12px;
+            border-radius: 10px;
+            transition: 0.25s;
+        }
+
+        .sidebar a:hover {
+            background: #1d2c49;
+            transform: translateX(5px);
+        }
+
+        /* ----------- MAIN CONTENT ----------- */
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        /* MOBILE */
+        @media(max-width: 900px) {
+            .sidebar {
+                width: 180px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px;
+            }
+        }
+
+        @media(max-width: 700px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+
 </head>
+
 <body>
-<div class="app-shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-icon">HB</div>
-            <div class="logo-text">
-                <div class="logo-title">Homework Buddy</div>
-                <div class="logo-sub">Learn like it’s a game</div>
-            </div>
-        </div>
+<!-- ========================= -->
+<!--        SIDEBAR MENU       -->
+<!-- ========================= -->
+<div class="sidebar">
+    <h2 class="sidebar-title">📚 Homework Buddy</h2>
 
-        <nav class="sidebar-nav">
-            <a href="{{ url_for('dashboard') }}" 
-               class="nav-item {% if active_page == 'student' %}active{% endif %}">
-                <span class="nav-dot"></span>
-                <span>Student Dashboard</span>
-            </a>
-
-            <a href="{{ url_for('parent_dashboard') }}" 
-               class="nav-item {% if active_page == 'parent' %}active{% endif %}">
-                <span class="nav-dot"></span>
-                <span>Parent View</span>
-            </a>
-
-            <a href="{{ url_for('choose_character') }}" 
-               class="nav-item {% if active_page == 'characters' %}active{% endif %}">
-                <span class="nav-dot"></span>
-                <span>Choose Character</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="sidebar-tagline">Powered by AI + Imagination</div>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT AREA -->
-    <main class="main-area">
-
-        <!-- TOP BAR -->
-        <header class="topbar">
-
-            <!-- LEFT SIDE -->
-            <div class="topbar-left">
-                <h1 class="page-title">
-                    {% block page_title %}Dashboard{% endblock %}
-                </h1>
-                <p class="page-subtitle">
-                    {% block page_subtitle %}
-                        Welcome back! Let’s tackle your next mission.
-                    {% endblock %}
-                </p>
-            </div>
-
-            <!-- RIGHT SIDE: Character Display -->
-            <div class="topbar-right">
-
-                {% if selected_character is defined and selected_character %}
-                    <div class="character-pill">
-                        <div class="character-avatar">
-                            <span class="character-initial">
-                                {{ selected_character[0] | upper }}
-                            </span>
-                        </div>
-
-                        <div class="character-info">
-                            <div class="character-name">
-                                {{ selected_character.replace('_', ' ').title() }}
-                            </div>
-                            <div class="character-label">Active Guide</div>
-                        </div>
-                    </div>
-
-                {% else %}
-                    <a href="{{ url_for('choose_character') }}" class="btn-ghost">
-                        Choose your guide
-                    </a>
-                {% endif %}
-
-            </div>
-        </header>
-
-        <!-- MAIN PAGE BODY -->
-        <section class="page-content">
-            {% block content %}{% endblock %}
-        </section>
-
-    </main>
+    <a href="/">🏠 Home</a>
+    <a href="/dashboard">📊 Student Dashboard</a>
+    <a href="/choose-character">🎨 Choose Buddy</a>
+    <a href="/parent_dashboard">👨‍👩‍👦 Parent Dashboard</a>
 </div>
+
+<!-- ========================= -->
+<!--      MAIN CONTENT AREA    -->
+<!-- ========================= -->
+<div class="main-content">
+    {% block content %}
+    {% endblock %}
+</div>
+
 </body>
 </html>
+
+
+
+
+
+
+
