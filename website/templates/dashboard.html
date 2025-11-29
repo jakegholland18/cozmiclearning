@@ -1,508 +1,338 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- AAA GAME DASHBOARD INTERFACE -->
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/animations.css">
 
-<div class="hb-stars"></div>
+<style>
+/* --------------------------------------------------------- */
+/*              CLEAN MARIO GALAXY DASHBOARD CSS             */
+/* --------------------------------------------------------- */
 
-<div class="hb-shell">
+.dashboard-wrapper {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    <!-- TOP BAR -->
-    <header class="hb-topbar">
-        <div class="hb-logo">
-            <div class="hb-logo-icon">HB</div>
-            <div class="hb-logo-text">
-                <div class="hb-logo-title">Homework Buddy</div>
-                <div class="hb-logo-sub">Cinema-mode learning · Story-driven study</div>
+/* -------- TITLE -------- */
+.dashboard-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #bfe6ff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #329fff;
+}
+
+/* -------- GRID LAYOUT -------- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 320px;
+    gap: 25px;
+}
+
+/* -------- LEFT PANEL (Subjects) -------- */
+.subject-panel {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+}
+
+.subject-panel h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #e3f2ff;
+}
+
+.subject-item {
+    background: rgba(255,255,255,0.15);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.subject-item:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.22);
+}
+
+.subject-title {
+    font-weight: bold;
+    color: #fff;
+}
+
+.subject-sub {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* -------- RIGHT PANEL (Missions) -------- */
+.mission-panel {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+}
+
+.mission-panel h3 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+}
+
+.mission-item {
+    background: rgba(255,255,255,0.15);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.mission-title {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* --------------------------------------------------------- */
+/*                      MARIO GALAXY HUB                     */
+/* --------------------------------------------------------- */
+
+.galaxy-container {
+    position: relative;
+    width: 580px;
+    height: 580px;
+    margin: 0 auto;
+}
+
+.galaxy-core {
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, #ff93e1, #b600d4);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 40px #ff45ff, 0 0 80px #e600ff;
+}
+
+.orbit-circle {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 450px;
+    height: 450px;
+    transform: translate(-50%, -50%);
+    border: 2px dashed rgba(255,255,255,0.25);
+    border-radius: 50%;
+}
+
+.planet-orbit {
+    position: absolute;
+    top: 0; left: 0;
+    width: 580px;
+    height: 580px;
+    border-radius: 50%;
+    animation: spinOrbit 40s linear infinite;
+}
+
+@keyframes spinOrbit { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); }
+}
+
+.planet-item {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform-origin: -230px center;
+    cursor: pointer;
+    text-align: center;
+}
+
+.planet-img {
+    width: 120px;
+    transition: 0.3s;
+    filter: drop-shadow(0 0 12px rgba(0,0,0,0.7));
+}
+
+.planet-item:hover .planet-img {
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 25px white);
+}
+
+.planet-tag {
+    margin-top: 8px;
+    color: #ffd86b;
+    font-size: 1.1rem;
+    text-shadow: 0 0 8px #ffcc55;
+}
+
+/* CHARACTER */
+.character-section {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.character-icon {
+    font-size: 3rem;
+}
+
+.character-name {
+    font-size: 1.4rem;
+    margin-top: 5px;
+    color: #fff;
+}
+</style>
+
+
+<!-- ============================================================ -->
+<!--                         DASHBOARD PAGE                        -->
+<!-- ============================================================ -->
+
+<div class="dashboard-wrapper">
+
+    <h2 class="dashboard-title">Math World · Neon Number City</h2>
+
+    <div class="dashboard-grid">
+
+        <!-- LEFT SUBJECT PANEL -->
+        <div class="subject-panel">
+            <h3>Choose Your Mission</h3>
+
+            <div class="subject-item" data-subject="math">
+                <div class="subject-title">Math</div>
+                <div class="subject-sub">Puzzle Portals · Logic Lanes</div>
+            </div>
+
+            <div class="subject-item" data-subject="history">
+                <div class="subject-title">History</div>
+                <div class="subject-sub">Timeline Trek · Heroic Ages</div>
+            </div>
+
+            <div class="subject-item" data-subject="science">
+                <div class="subject-title">Science</div>
+                <div class="subject-sub">Experiment Hub · Lab Galaxy</div>
+            </div>
+
+            <div class="subject-item" data-subject="reading">
+                <div class="subject-title">Reading</div>
+                <div class="subject-sub">StoryVerse · Lore Realms</div>
+            </div>
+
+            <div class="subject-item" data-subject="writing">
+                <div class="subject-title">Writing</div>
+                <div class="subject-sub">Idea Forge · Draft Dock</div>
+            </div>
+
+            <div class="subject-item" data-subject="testprep">
+                <div class="subject-title">Test Prep</div>
+                <div class="subject-sub">Boss Battles · Victory Arena</div>
             </div>
         </div>
 
-        <div class="hb-player-strip">
-            <div class="hb-pill">Player 1 · Student</div>
 
-            <div class="hb-xp-track">
-                <div class="hb-xp-label-row">
-                    <span>Level {{ level }}</span>
-                    <span>{{ xp }} XP</span>
-                </div>
-                <div class="hb-xp-bar">
-                    <!-- FIXED VARIABLE: xp_percent (from app.py) -->
-                    <div class="hb-xp-fill" style="--w: {{ xp_percent }}%; width: var(--w);"></div>
-                </div>
-            </div>
+        <!-- CENTER GALAXY -->
+        <div>
 
-            {% if character %}
-            <div class="hb-avatar-chip">
-                <div class="hb-avatar">{{ character[0:2].upper() }}</div>
-                <span>Guide: {{ character.replace('_',' ').title() }}</span>
-            </div>
-            {% endif %}
-        </div>
-    </header>
+            <div class="galaxy-container">
 
-    <!-- MAIN GRID -->
-    <main class="hb-grid">
+                <div class="galaxy-core"></div>
+                <div class="orbit-circle"></div>
 
-        <!-- SUBJECT PANEL (LEFT) -->
-        <section class="hb-panel hb-panel-subjects">
-            <div class="hb-panel-inner">
-                <div class="hb-panel-header">
-                    <div class="hb-panel-title-row">
-                        <div class="hb-panel-icon">📚</div>
-                        <div>
-                            <div class="hb-panel-title">Choose Your Mission</div>
-                            <div class="hb-panel-subtitle">Pick a subject world to enter</div>
-                        </div>
-                    </div>
-                    <div class="hb-chip-soft">Daily streak: {{ streak }} days</div>
-                </div>
+                <div class="planet-orbit">
 
-                <div class="hb-subject-list" id="hb-subject-list">
-
-                    <!-- CORE SUBJECT BUTTONS -->
-                    <button class="hb-subject-btn active" data-subject="math">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">➗</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">Math</span>
-                                <span class="hb-subject-tagline">Puzzle Portals · Logic Lanes</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+120 XP</span>
-                            <span class="hb-subject-streak">Sessions: 3</span>
-                        </div>
-                    </button>
-
-                    <button class="hb-subject-btn" data-subject="history">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">⏳</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">History</span>
-                                <span class="hb-subject-tagline">Timeline Trek · Heroic Ages</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+90 XP</span>
-                            <span class="hb-subject-streak">Sessions: 1</span>
-                        </div>
-                    </button>
-
-                    <button class="hb-subject-btn" data-subject="science">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">🔬</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">Science</span>
-                                <span class="hb-subject-tagline">Lab Galaxy · Experiment Hub</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+110 XP</span>
-                            <span class="hb-subject-streak">Sessions: 2</span>
-                        </div>
-                    </button>
-
-                    <button class="hb-subject-btn" data-subject="reading">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">📖</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">Reading</span>
-                                <span class="hb-subject-tagline">Story Realm · Lore Library</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+80 XP</span>
-                            <span class="hb-subject-streak">Sessions: 0</span>
-                        </div>
-                    </button>
-
-                    <button class="hb-subject-btn" data-subject="writing">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">✍️</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">Writing</span>
-                                <span class="hb-subject-tagline">Idea Forge · Draft Dock</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+95 XP</span>
-                            <span class="hb-subject-streak">Sessions: 1</span>
-                        </div>
-                    </button>
-
-                    <button class="hb-subject-btn" data-subject="testprep">
-                        <div class="hb-subject-main">
-                            <div class="hb-subject-icon">🎯</div>
-                            <div class="hb-subject-labels">
-                                <span class="hb-subject-name">Test Prep</span>
-                                <span class="hb-subject-tagline">Boss Battle · Practice Arena</span>
-                            </div>
-                        </div>
-                        <div class="hb-subject-meta">
-                            <span class="hb-subject-xp">+150 XP</span>
-                            <span class="hb-subject-streak">Sessions: 4</span>
-                        </div>
-                    </button>
-
-                </div>
-            </div>
-        </section>
-
-        <!-- CENTER STAGE -->
-        <section class="hb-panel">
-            <div class="hb-panel-inner hb-stage">
-
-                <div class="hb-hero-scene">
-
-                    <div class="hb-scene-label" id="hb-scene-label">
-                        Math World · Neon Number City
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(0deg);">
+                        <img src="/static/planets/num_forge.png" class="planet-img">
+                        <div class="planet-tag">NumForge</div>
                     </div>
 
-                    <!-- ⭐ 11-PLANET MARIO GALAXY HUB ⭐ -->
-                    <div class="dashboard-galaxy">
-
-                        <!-- ORBIT RINGS -->
-                        <div class="orbit-ring ring1"></div>
-                        <div class="orbit-ring ring2"></div>
-                        <div class="orbit-ring ring3"></div>
-
-                        <!-- INNER RING PLANETS -->
-                        <div class="planet-wrapper" data-subject="math"
-                            style="transform: translate(-50%, -50%) rotate(10deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/num_forge.png');"></div>
-                            <div class="planet-label">NumForge</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="science"
-                            style="transform: translate(-50%, -50%) rotate(130deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/atom_sphere.png');"></div>
-                            <div class="planet-label">AtomSphere</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="reading"
-                            style="transform: translate(-50%, -50%) rotate(250deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/story_verse.png');"></div>
-                            <div class="planet-label">StoryVerse</div>
-                        </div>
-
-                        <!-- MIDDLE RING PLANETS -->
-                        <div class="planet-wrapper" data-subject="writing"
-                            style="transform: translate(-50%, -50%) rotate(45deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/ink_haven.png');"></div>
-                            <div class="planet-label">InkHaven</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="history"
-                            style="transform: translate(-50%, -50%) rotate(135deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/chrono_core.png');"></div>
-                            <div class="planet-label">ChronoCore</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="testprep"
-                            style="transform: translate(-50%, -50%) rotate(225deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/power_grid.png');"></div>
-                            <div class="planet-label">PowerGrid</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="logic"
-                            style="transform: translate(-50%, -50%) rotate(315deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/truth_forge.png');"></div>
-                            <div class="planet-label">TruthForge</div>
-                        </div>
-
-                        <!-- OUTER RING PLANETS -->
-                        <div class="planet-wrapper" data-subject="bible"
-                            style="transform: translate(-50%, -50%) rotate(20deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/faith_realm.png');"></div>
-                            <div class="planet-label">FaithRealm</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="finance"
-                            style="transform: translate(-50%, -50%) rotate(120deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/coin_quest.png');"></div>
-                            <div class="planet-label">CoinQuest</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="economics"
-                            style="transform: translate(-50%, -50%) rotate(220deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/stock_star.png');"></div>
-                            <div class="planet-label">StockStar</div>
-                        </div>
-
-                        <div class="planet-wrapper" data-subject="geography"
-                            style="transform: translate(-50%, -50%) rotate(320deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/terra_nova.png');"></div>
-                            <div class="planet-label">TerraNova</div>
-                        </div>
-
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(33deg);">
+                        <img src="/static/planets/atom_sphere.png" class="planet-img">
+                        <div class="planet-tag">AtomSphere</div>
                     </div>
 
-                    <!-- CHARACTER -->
-                    <div class="hb-character-stand">
-                        <div class="hb-character-avatar" id="hb-character-avatar">🧠</div>
-                        <div class="hb-character-name" id="hb-character-name">
-                            {{ character.replace('_',' ').title() if character else "Nova Circuit" }}
-                        </div>
-                        <div class="hb-character-role" id="hb-character-role">
-                            Logic & Strategy Navigator
-                        </div>
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(66deg);">
+                        <img src="/static/planets/story_verse.png" class="planet-img">
+                        <div class="planet-tag">StoryVerse</div>
                     </div>
 
-                    <div class="hb-hero-footer">
-                        <span id="hb-scene-badge-left">Focus: Algebra</span>
-                        <span id="hb-scene-badge-right">Adaptive Difficulty</span>
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(99deg);">
+                        <img src="/static/planets/ink_haven.png" class="planet-img">
+                        <div class="planet-tag">InkHaven</div>
                     </div>
 
-                </div>
-
-                <!-- DIALOGUE PANEL -->
-                <div class="hb-dialogue-panel">
-                    <div class="hb-dialogue-avatar">💡</div>
-                    <div class="hb-dialogue-body">
-                        <div class="hb-dialogue-name-row">
-                            <div>
-                                <div class="hb-dialogue-name" id="hb-dialogue-name">Nova</div>
-                                <div class="hb-dialogue-role" id="hb-dialogue-role">Your co-pilot today</div>
-                            </div>
-                            <div class="hb-chip-soft">Tip: Tap a subject or planet to change worlds</div>
-                        </div>
-
-                        <div class="hb-dialogue-text" id="hb-dialogue-text">
-                            I'm ready whenever you are! Pick a subject or jump to a planet in our galaxy.
-                        </div>
-
-                        <div class="hb-dialogue-meta">
-                            <span>World: <strong id="hb-dialogue-world">Math · Neon Number City</strong></span>
-                            <span>Session mood: Focused</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- QUEST PANEL -->
-        <section class="hb-panel hb-panel-quests">
-            <div class="hb-panel-inner">
-                <div class="hb-panel-header">
-                    <div class="hb-panel-title-row">
-                        <div class="hb-panel-icon">📌</div>
-                        <div>
-                            <div class="hb-panel-title">Active Missions</div>
-                            <div class="hb-panel-subtitle">Your homework turned into quests</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hb-quest-list">
-
-                    <div class="hb-quest-item">
-                        <div>
-                            <div class="hb-quest-title">Solve 5 Algebra Problems</div>
-                            <div class="hb-quest-tagline">Translate → Solve → Victory</div>
-                        </div>
-                        <div class="hb-quest-meta">
-                            <div class="hb-quest-chip hb-quest-chip--hot">🔥 Priority</div>
-                        </div>
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(132deg);">
+                        <img src="/static/planets/chrono_core.png" class="planet-img">
+                        <div class="planet-tag">ChronoCore</div>
                     </div>
 
-                    <div class="hb-quest-item">
-                        <div>
-                            <div class="hb-quest-title">History Summary</div>
-                            <div class="hb-quest-tagline">Turn notes into storyline</div>
-                        </div>
-                        <div class="hb-quest-meta">
-                            <div class="hb-quest-chip hb-quest-chip--easy">✨ Quick Win</div>
-                        </div>
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(165deg);">
+                        <img src="/static/planets/power_grid.png" class="planet-img">
+                        <div class="planet-tag">PowerGrid</div>
+                    </div>
+
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(198deg);">
+                        <img src="/static/planets/truth_forge.png" class="planet-img">
+                        <div class="planet-tag">TruthForge</div>
+                    </div>
+
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(231deg);">
+                        <img src="/static/planets/faith_realm.png" class="planet-img">
+                        <div class="planet-tag">FaithRealm</div>
+                    </div>
+
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(264deg);">
+                        <img src="/static/planets/coin_quest.png" class="planet-img">
+                        <div class="planet-tag">CoinQuest</div>
+                    </div>
+
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(297deg);">
+                        <img src="/static/planets/stock_star.png" class="planet-img">
+                        <div class="planet-tag">StockStar</div>
+                    </div>
+
+                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(330deg);">
+                        <img src="/static/planets/terra_nova.png" class="planet-img">
+                        <div class="planet-tag">TerraNova</div>
                     </div>
 
                 </div>
 
             </div>
-        </section>
 
-    </main>
+            <div class="character-section">
+                <div class="character-icon">🧠</div>
+                <div class="character-name">
+                    {{ character.replace('_',' ').title() }}
+                </div>
+            </div>
 
-    <!-- FOOTER -->
-    <footer class="hb-footer">
-        <div class="hb-footer-left">
-            <a href="/ask" class="hb-btn-primary"><span>🎮 Start Mission</span></a>
-            <a href="/ask" class="hb-btn-secondary">⚡ Quick Help</a>
         </div>
 
-        <div class="hb-footer-right">
-            <span>Current mode: <strong>Focus Session</strong></span>
-        </div>
-    </footer>
 
+        <!-- RIGHT PANEL -->
+        <div class="mission-panel">
+
+            <h3>Active Missions</h3>
+
+            <div class="mission-item">
+                <div class="mission-title">Solve 5 Algebra Problems</div>
+                <div>🔥 Priority</div>
+            </div>
+
+            <div class="mission-item">
+                <div class="mission-title">History Summary</div>
+                <div>✨ Quick Win</div>
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- JS -->
-<script>
-
-    const subjectConfig = {
-        math: {
-            sceneLabel: "Math World · Neon Number City",
-            world: "Math · Neon Number City",
-            badgeLeft: "Focus: Algebra",
-            badgeRight: "Adaptive Difficulty",
-            avatar: "🧠",
-            characterName: "{{ character.replace('_',' ').title() if character else 'Nova Circuit' }}",
-            characterRole: "Logic & Strategy Navigator",
-            dialogue: "Numbers are puzzles wearing costumes. Let's solve them together.",
-        },
-        history: {
-            sceneLabel: "History World · Time Coliseum",
-            world: "History · Time Trek Arena",
-            badgeLeft: "Focus: Timelines",
-            badgeRight: "Era: Rome & More",
-            avatar: "🏛️",
-            characterName: "Creed Concord",
-            characterRole: "Chronicle Storyteller",
-            dialogue: "Every date is a clue to the bigger story.",
-        },
-        science: {
-            sceneLabel: "Science World · Quantum Lab",
-            world: "Science · Lab Galaxy",
-            badgeLeft: "Focus: Experiments",
-            badgeRight: "Cause & Effect",
-            avatar: "🧪",
-            characterName: "Valor Strike",
-            characterRole: "Experiment Co-Commander",
-            dialogue: "Hypothesis ready? Let's uncover why things work.",
-        },
-        reading: {
-            sceneLabel: "Reading World · Lore Library",
-            world: "Reading · Storyverse",
-            badgeLeft: "Focus: Themes",
-            badgeRight: "Character Motives",
-            avatar: "📚",
-            characterName: "Princess Everly Dawn",
-            characterRole: "Story Navigator",
-            dialogue: "Let's uncover hidden meaning in any passage.",
-        },
-        writing: {
-            sceneLabel: "Writing World · Idea Forge",
-            world: "Writing · Draft Dock",
-            badgeLeft: "Focus: Essays",
-            badgeRight: "Structure",
-            avatar: "✍️",
-            characterName: "Analytical Reed",
-            characterRole: "Idea Architect",
-            dialogue: "Tell me what you're trying to say — I’ll shape it.",
-        },
-        testprep: {
-            sceneLabel: "Boss Battle · Practice Arena",
-            world: "Test Prep · Arena",
-            badgeLeft: "Focus: Mixed Practice",
-            badgeRight: "Timed + Gentle",
-            avatar: "🎯",
-            characterName: "Sterling Chase",
-            characterRole: "Exam Strategist",
-            dialogue: "Let’s prep smarter, not harder.",
-        },
-
-        bible: {
-            sceneLabel: "FaithRealm · Story of Redemption",
-            world: "Bible · FaithRealm",
-            badgeLeft: "Focus: Big Story",
-            badgeRight: "Hope & Purpose",
-            avatar: "🌟",
-            characterName: "Creed Concord",
-            characterRole: "Faith Guide",
-            dialogue: "Let’s trace the big storyline from beginning to end.",
-        },
-        finance: {
-            sceneLabel: "CoinQuest · Money Missions",
-            world: "Finance · CoinQuest",
-            badgeLeft: "Focus: Money Sense",
-            badgeRight: "Real-Life Choices",
-            avatar: "💰",
-            characterName: "Sterling Chase",
-            characterRole: "Money Mentor",
-            dialogue: "Let’s make smart decisions with every dollar.",
-        },
-        economics: {
-            sceneLabel: "StockStar · Marketplace Orbit",
-            world: "Economics · StockStar",
-            badgeLeft: "Focus: Supply & Demand",
-            badgeRight: "Big Picture",
-            avatar: "📈",
-            characterName: "Sterling Chase",
-            characterRole: "Market Navigator",
-            dialogue: "Let’s see how tiny choices shape huge outcomes.",
-        },
-        geography: {
-            sceneLabel: "TerraNova · World Explorer",
-            world: "Geography · TerraNova",
-            badgeLeft: "Focus: Maps",
-            badgeRight: "Regions & Cultures",
-            avatar: "🌍",
-            characterName: "Harvest Huck",
-            characterRole: "Trail Guide",
-            dialogue: "Grab your map—let’s explore God’s green earth.",
-        },
-        logic: {
-            sceneLabel: "TruthForge · Logic Lab",
-            world: "Logic · TruthForge",
-            badgeLeft: "Focus: Arguments",
-            badgeRight: "Evidence & Reason",
-            avatar: "⚖️",
-            characterName: "Analytical Reed",
-            characterRole: "Logic Coach",
-            dialogue: "We’ll sort facts from feelings and find solid ground.",
-        },
-    };
-
-
-    /* DOM ELEMENTS */
-    const subjectButtons = document.querySelectorAll(".hb-subject-btn");
-    const dashboardPlanets = document.querySelectorAll(".dashboard-galaxy .planet-wrapper");
-
-    const sceneLabelEl = document.getElementById("hb-scene-label");
-    const badgeLeftEl = document.getElementById("hb-scene-badge-left");
-    const badgeRightEl = document.getElementById("hb-scene-badge-right");
-    const avatarEl = document.getElementById("hb-character-avatar");
-    const nameEl = document.getElementById("hb-character-name");
-    const roleEl = document.getElementById("hb-character-role");
-    const dialogueTextEl = document.getElementById("hb-dialogue-text");
-    const worldEl = document.getElementById("hb-dialogue-world");
-
-    function updateSubject(subject) {
-        const config = subjectConfig[subject];
-        if (!config) return;
-
-        sceneLabelEl.textContent = config.sceneLabel;
-        badgeLeftEl.textContent = config.badgeLeft;
-        badgeRightEl.textContent = config.badgeRight;
-
-        avatarEl.textContent = config.avatar;
-        nameEl.textContent = config.characterName;
-        roleEl.textContent = config.characterRole;
-
-        dialogueTextEl.textContent = config.dialogue;
-        worldEl.textContent = config.world;
-    }
-
-    /* LEFT SIDE BUTTONS */
-    subjectButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const subject = btn.dataset.subject;
-            updateSubject(subject);
-            subjectButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-        });
-    });
-
-    /* PLANET CLICK HANDLERS */
-    dashboardPlanets.forEach(planet => {
-        planet.addEventListener("click", () => {
-            const subject = planet.dataset.subject;
-            updateSubject(subject);
-        });
-    });
-
-</script>
 
 {% endblock %}
+
 
