@@ -1,203 +1,60 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Parent Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+{% extends "layout.html" %}
 
-    <style>
-        body {
-            background: radial-gradient(circle at top, #0b1630, #000814);
-            margin: 0;
-            padding: 0;
-            color: white;
-            font-family: "Poppins", sans-serif;
-        }
+{% block title %}Parent Dashboard | Homework Buddy{% endblock %}
 
-        .stars {
-            position: fixed;
-            inset: 0;
-            background: url('stars.png');
-            background-size: cover;
-            opacity: 0.35;
-            z-index: -1;
-            animation: drift 50s linear infinite;
-        }
+{% block page_title %}Parent Dashboard{% endblock %}
+{% block page_subtitle %}See how your learner is progressing at a glance.{% endblock %}
 
-        @keyframes drift {
-            from { transform: translateY(0); }
-            to { transform: translateY(-1800px); }
-        }
-
-        .dashboard-title {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 3rem;
-            color: #ffd86b;
-            text-shadow: 0 0 15px #ffbf39;
-        }
-
-        .dashboard-container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 40px auto;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-top: 20px;
-            color: #a8e3ff;
-            text-shadow: 0 0 10px #00c4ff;
-        }
-
-        .info-box {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            margin-top: 10px;
-            border-radius: 16px;
-            box-shadow: 0 0 10px rgba(0,180,255,0.3);
-        }
-
-        .stat-line {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-
-        .progress-row {
-            margin: 18px 0;
-        }
-
-        .progress-label {
-            font-size: 1.1rem;
-            margin-bottom: 6px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 18px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: inset 0 0 10px #00000080;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #5cd6ff, #00a6ff);
-            border-radius: 12px;
-            transition: width 0.6s ease;
-        }
-
-        .utilization-box {
-            margin-top: 20px;
-        }
-
-        .utilization-label {
-            margin-bottom: 8px;
-        }
-
-        .utilization-bar {
-            height: 22px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .utilization-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ffd255, #ff9f00);
-            transition: width 0.6s ease;
-        }
-
-        .back-btn {
-            display: block;
-            margin: 40px auto 10px;
-            text-align: center;
-            width: 200px;
-            padding: 12px;
-            border-radius: 12px;
-            background: #fff4c2;
-            color: #000;
-            text-decoration: none;
-            font-weight: 700;
-            box-shadow: 0 0 12px #ffcf49;
-        }
-
-        .back-btn:hover {
-            background: #ffe37a;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="stars"></div>
-
-<h1 class="dashboard-title">Parent Dashboard</h1>
-
-<div class="dashboard-container">
-
-    <!-- Student Overview -->
-    <h2 class="section-title">Student Overview</h2>
-    <div class="info-box">
-        <div class="stat-line">👤 <strong>Character:</strong> Valor Strike</div>
-        <div class="stat-line">🏅 <strong>XP:</strong> 120</div>
-        <div class="stat-line">⭐ <strong>Level:</strong> 3</div>
-        <div class="stat-line">💫 <strong>Galaxy Tokens:</strong> 50</div>
-    </div>
-
-    <!-- Subject Progress -->
-    <h2 class="section-title">Subject Progress</h2>
-
-    <div class="info-box">
-
-        <!-- Replace these rows with dynamic JS or backend later -->
-        <div class="progress-row">
-            <div class="progress-label">Math — 80%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: 80%;"></div></div>
+{% block content %}
+<div class="grid-2">
+    <div class="stack gap-lg">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Overview</h2>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-label">This Week’s Sessions</div>
+                    <div class="stat-value">7</div>
+                    <div class="stat-sub">Avg 35 min</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Questions Asked</div>
+                    <div class="stat-value">24</div>
+                    <div class="stat-sub">Curiosity level: High</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Focus Score</div>
+                    <div class="stat-value">88%</div>
+                    <div class="stat-sub">Based on session completion</div>
+                </div>
+            </div>
         </div>
 
-        <div class="progress-row">
-            <div class="progress-label">Science — 60%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
-        </div>
-
-        <div class="progress-row">
-            <div class="progress-label">History — 90%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: 90%;"></div></div>
-        </div>
-
-        <div class="progress-row">
-            <div class="progress-label">Bible — 70%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: 70%;"></div></div>
-        </div>
-
-        <div class="progress-row">
-            <div class="progress-label">Writing — 50%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width: 50%;"></div></div>
-        </div>
-
-    </div>
-
-    <!-- Utilization -->
-    <h2 class="section-title">Utilization Rate</h2>
-
-    <div class="info-box utilization-box">
-        <div class="utilization-label">
-            Total Active Use: <strong>45%</strong>
-        </div>
-        <div class="utilization-bar">
-            <div class="utilization-fill" style="width: 45%;"></div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Subject Breakdown</h2>
+            </div>
+            <ul class="subject-list">
+                <li><span>Math</span><span class="subject-pill good">Strong</span></li>
+                <li><span>Reading</span><span class="subject-pill watch">Needs Support</span></li>
+                <li><span>Science</span><span class="subject-pill steady">Steady</span></li>
+            </ul>
         </div>
     </div>
 
+    <div class="stack gap-lg">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Conversation Starters</h2>
+            </div>
+            <ul class="tips-list">
+                <li>“What was the coolest thing you learned today?”</li>
+                <li>“Which mission felt hardest? Let’s look at it together.”</li>
+                <li>“Show me one thing you’re proud of from Homework Buddy.”</li>
+            </ul>
+        </div>
+    </div>
 </div>
-
-<a href="dashboard.html" class="back-btn">⬅ Return to Student Dashboard</a>
-
-</body>
-</html>
+{% endblock %}
 

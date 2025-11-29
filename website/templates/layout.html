@@ -1,112 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
-    <title>Homework Buddy</title>
+    <title>{% block title %}Homework Buddy{% endblock %}</title>
 
-    <link rel="stylesheet" href="/static/style.css">
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-
-<!-- ========================= -->
-<!--      SIDEBAR (NEW)        -->
-<!-- ========================= -->
-<div class="sidebar">
-
-    <!-- Logo -->
-    <h2 class="sidebar-title">📚 Homework Buddy</h2>
-
-    <!-- NAV LINKS -->
-    <a href="/">🏠 Home</a>
-    <a href="/dashboard">🚀 Dashboard</a>
-    <a href="/choose-character">🎨 Choose Buddy</a>
-    <a href="/parent_dashboard">👨‍👩‍👦 Parent Dashboard</a>
-
-    <hr class="sidebar-divider">
-
-    <!-- ===================== -->
-    <!--    STUDENT SUMMARY    -->
-    <!-- ===================== -->
-    <div class="sidebar-section">
-        <h3 class="sidebar-heading">Player Stats</h3>
-
-        <div class="sidebar-chip">
-            Level {{ level }}
-        </div>
-
-        <div class="sidebar-xp-label">{{ xp }} XP</div>
-
-        <div class="hb-xp-bar">
-            <div class="hb-xp-fill" style="--xp: {{ xp_percent | default(0, true) }}%; width: var(--xp);"></div>
-        </div>
-
-        <div class="sidebar-chip">🔥 Streak: {{ streak }} days</div>
-
-        <div class="sidebar-chip">💰 Tokens: {{ tokens }}</div>
-
-        <div class="sidebar-character">
-            <div class="sidebar-character-icon">🧠</div>
-            <div class="sidebar-character-name">
-                {{ character.replace('_',' ').title() }}
+<div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">HB</div>
+            <div class="logo-text">
+                <div class="logo-title">Homework Buddy</div>
+                <div class="logo-sub">Learn like it’s a game</div>
             </div>
         </div>
-    </div>
 
-    <hr class="sidebar-divider">
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="nav-item {% if active_page == 'student' %}active{% endif %}">
+                <span class="nav-dot"></span>
+                <span>Student Dashboard</span>
+            </a>
+            <a href="{{ url_for('parent_dashboard') }}" class="nav-item {% if active_page == 'parent' %}active{% endif %}">
+                <span class="nav-dot"></span>
+                <span>Parent View</span>
+            </a>
+            <a href="{{ url_for('choose_character') }}" class="nav-item {% if active_page == 'characters' %}active{% endif %}">
+                <span class="nav-dot"></span>
+                <span>Choose Character</span>
+            </a>
+        </nav>
 
-    <!-- ===================== -->
-    <!--    CHOOSE MISSION     -->
-    <!-- ===================== -->
-    <div class="sidebar-section">
-        <h3 class="sidebar-heading">Choose Your Mission</h3>
-
-        {% for s in [
-            ("math","Math · Puzzle Portals"),
-            ("history","History · Timeline Trek"),
-            ("science","Science · Lab Galaxy"),
-            ("reading","Reading · StoryVerse"),
-            ("writing","Writing · Draft Dock"),
-            ("testprep","Test Prep · Arena")
-        ] %}
-        <div class="subject-mini" data-subject="{{ s[0] }}">
-            {{ s[1] }}
+        <div class="sidebar-footer">
+            <div class="sidebar-tagline">Powered by AI + Imagination</div>
         </div>
-        {% endfor %}
-    </div>
+    </aside>
 
-    <hr class="sidebar-divider">
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-area">
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">
+                    {% block page_title %}Dashboard{% endblock %}
+                </h1>
+                <p class="page-subtitle">
+                    {% block page_subtitle %}Welcome back! Let’s tackle your next mission.{% endblock %}
+                </p>
+            </div>
 
-    <!-- ===================== -->
-    <!--     ACTIVE QUESTS     -->
-    <!-- ===================== -->
-    <div class="sidebar-section">
-        <h3 class="sidebar-heading">Active Missions</h3>
+            <div class="topbar-right">
+                {% if selected_character %}
+                    <div class="character-pill">
+                        <div class="character-avatar">
+                            <span class="character-initial">
+                                {{ selected_character[0]|upper }}
+                            </span>
+                        </div>
+                        <div class="character-info">
+                            <div class="character-name">
+                                {{ selected_character.replace('_', ' ').title() }}
+                            </div>
+                            <div class="character-label">Active Guide</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('choose_character') }}" class="btn-ghost">
+                        Choose your guide
+                    </a>
+                {% endif %}
+            </div>
+        </header>
 
-        <div class="mission-mini">
-            Solve 5 Algebra Problems <br>
-            <small>🔥 Priority</small>
-        </div>
-
-        <div class="mission-mini">
-            History Summary <br>
-            <small>✨ Quick Win</small>
-        </div>
-    </div>
-
+        <!-- PAGE BODY -->
+        <section class="page-content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
 </div>
-
-<!-- ========================= -->
-<!--      MAIN CONTENT         -->
-<!-- ========================= -->
-<div class="main-content">
-    {% block content %}{% endblock %}
-</div>
-
 </body>
 </html>
+
 
 
 

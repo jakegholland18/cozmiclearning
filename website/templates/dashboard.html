@@ -1,105 +1,112 @@
 {% extends "layout.html" %}
+
+{% block title %}Student Dashboard | Homework Buddy{% endblock %}
+
+{% block page_title %}Student Dashboard{% endblock %}
+{% block page_subtitle %}Jump back into your missions and keep your streak alive.{% endblock %}
+
 {% block content %}
-
-<div class="galaxy-wrapper">
-
-    <!-- Page Title -->
-    <h1 class="galaxy-title">Choose Your World</h1>
-
-    <!-- Main Galaxy Hub -->
-    <div class="galaxy-container">
-
-        <!-- Character at Center -->
-        <div class="galaxy-center">
-            <div class="center-character-icon">🧠</div>
-            <div class="center-character-name">
-                {{ character.replace('_', ' ').title() }}
+<div class="grid-2">
+    <!-- LEFT COLUMN -->
+    <div class="stack gap-lg">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Today’s Progress</h2>
+                <span class="badge-soft">Live</span>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-label">Missions Completed</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-sub">+1 vs yesterday</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Study Time</div>
+                    <div class="stat-value">42 min</div>
+                    <div class="stat-sub">Goal: 60 min</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value">5 days</div>
+                    <div class="stat-sub">Keep it going 🔥</div>
+                </div>
             </div>
         </div>
 
-        <!-- Rotating Orbit -->
-        <div class="galaxy-orbit">
-            <!-- NumForge -->
-            <div class="planet" style="transform: rotate(0deg) translate(220px) rotate(0deg);" data-subject="math">
-                <img src="/static/planets/num_forge.png" class="planet-img">
-                <div class="planet-name">NumForge</div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Quick Actions</h2>
             </div>
-
-            <!-- AtomSphere -->
-            <div class="planet" style="transform: rotate(32deg) translate(220px) rotate(-32deg);" data-subject="science">
-                <img src="/static/planets/atom_sphere.png" class="planet-img">
-                <div class="planet-name">AtomSphere</div>
+            <div class="quick-actions">
+                <a href="/ask" class="qa-btn primary">Ask a Homework Question</a>
+                <a href="/select-grade" class="qa-btn">Pick My Grade</a>
+                <a href="/subjects" class="qa-btn">Choose a Subject</a>
             </div>
+        </div>
 
-            <!-- StoryVerse -->
-            <div class="planet" style="transform: rotate(64deg) translate(220px) rotate(-64deg);" data-subject="reading">
-                <img src="/static/planets/story_verse.png" class="planet-img">
-                <div class="planet-name">StoryVerse</div>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Recent Missions</h2>
             </div>
-
-            <!-- InkHaven -->
-            <div class="planet" style="transform: rotate(96deg) translate(220px) rotate(-96deg);" data-subject="writing">
-                <img src="/static/planets/ink_haven.png" class="planet-img">
-                <div class="planet-name">InkHaven</div>
+            <div class="missions-list">
+                <div class="mission-item">
+                    <div>
+                        <div class="mission-title">Algebra: Solving 2-Step Equations</div>
+                        <div class="mission-meta">Completed • 15 min • Difficulty: Medium</div>
+                    </div>
+                    <span class="mission-tag">Math</span>
+                </div>
+                <div class="mission-item">
+                    <div>
+                        <div class="mission-title">Reading: Main Idea Practice</div>
+                        <div class="mission-meta">In Progress • 8 min so far</div>
+                    </div>
+                    <span class="mission-tag">ELA</span>
+                </div>
+                <div class="mission-item">
+                    <div>
+                        <div class="mission-title">History: World War II Overview</div>
+                        <div class="mission-meta">Completed • 20 min</div>
+                    </div>
+                    <span class="mission-tag">History</span>
+                </div>
             </div>
-
-            <!-- ChronoCore -->
-            <div class="planet" style="transform: rotate(128deg) translate(220px) rotate(-128deg);" data-subject="history">
-                <img src="/static/planets/chrono_core.png" class="planet-img">
-                <div class="planet-name">ChronoCore</div>
-            </div>
-
-            <!-- PowerGrid -->
-            <div class="planet" style="transform: rotate(160deg) translate(220px) rotate(-160deg);" data-subject="testprep">
-                <img src="/static/planets/power_grid.png" class="planet-img">
-                <div class="planet-name">PowerGrid</div>
-            </div>
-
-            <!-- TruthForge -->
-            <div class="planet" style="transform: rotate(192deg) translate(220px) rotate(-192deg);" data-subject="logic">
-                <img src="/static/planets/truth_forge.png" class="planet-img">
-                <div class="planet-name">TruthForge</div>
-            </div>
-
-            <!-- FaithRealm -->
-            <div class="planet" style="transform: rotate(224deg) translate(220px) rotate(-224deg);" data-subject="bible">
-                <img src="/static/planets/faith_realm.png" class="planet-img">
-                <div class="planet-name">FaithRealm</div>
-            </div>
-
-            <!-- CoinQuest -->
-            <div class="planet" style="transform: rotate(256deg) translate(220px) rotate(-256deg);" data-subject="finance">
-                <img src="/static/planets/coin_quest.png" class="planet-img">
-                <div class="planet-name">CoinQuest</div>
-            </div>
-
-            <!-- StockStar -->
-            <div class="planet" style="transform: rotate(288deg) translate(220px) rotate(-288deg);" data-subject="economics">
-                <img src="/static/planets/stock_star.png" class="planet-img">
-                <div class="planet-name">StockStar</div>
-            </div>
-
-            <!-- TerraNova -->
-            <div class="planet" style="transform: rotate(320deg) translate(220px) rotate(-320deg);" data-subject="geography">
-                <img src="/static/planets/terra_nova.png" class="planet-img">
-                <div class="planet-name">TerraNova</div>
-            </div>
-
         </div>
     </div>
 
+    <!-- RIGHT COLUMN -->
+    <div class="stack gap-lg">
+        <div class="card highlight">
+            <div class="card-header">
+                <h2 class="card-title">Continue Your Journey</h2>
+            </div>
+            <p class="card-text">
+                Pick up where you left off in your learning timeline.
+            </p>
+            <div class="timeline-list">
+                <button class="timeline-pill">Ancient Civilizations</button>
+                <button class="timeline-pill">Roman Coliseum</button>
+                <button class="timeline-pill">Age of Exploration</button>
+                <button class="timeline-pill">Wild West</button>
+                <button class="timeline-pill">World War II</button>
+                <button class="timeline-pill">Space & Beyond</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Tips from Homework Buddy</h2>
+            </div>
+            <ul class="tips-list">
+                <li>Break big assignments into tiny missions.</li>
+                <li>Explain your answer out loud like you’re teaching a friend.</li>
+                <li>Take a 3-minute stretch break every 20 minutes.</li>
+            </ul>
+        </div>
+    </div>
 </div>
-
-<script>
-document.querySelectorAll(".planet").forEach(p => {
-    p.addEventListener("click", () => {
-        const subject = p.dataset.subject;
-        window.location.href = `/ask-question?subject=${subject}`;
-    });
-});
-</script>
-
 {% endblock %}
+
 
 
 

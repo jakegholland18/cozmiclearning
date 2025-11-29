@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 from datetime import datetime, timedelta
 
 # Make sure Python can see /modules
@@ -76,7 +76,7 @@ def init_user():
         "streak": 1,
         "last_visit": str(datetime.today().date()),
         "inventory": [],
-        "character": "valor_strike",
+        "character": None,   # No default character selected
         "usage_minutes": 0,
         "progress": {
             "num_forge": {"questions": 0, "correct": 0},
@@ -118,7 +118,7 @@ def update_streak():
 
 
 # ============================================================
-# XP & LEVEL-UP SYSTEM
+# XP / LEVEL SYSTEM
 # ============================================================
 def add_xp(amount):
     session["xp"] += amount
@@ -140,11 +140,6 @@ def home():
     return redirect("/dashboard")
 
 
-@app.route("/subjects")
-def subjects_redirect():
-    return redirect("/dashboard")
-
-
 # -------------------------------
 # SELECT CHARACTER
 # -------------------------------
@@ -152,7 +147,12 @@ def subjects_redirect():
 def choose_character():
     init_user()
     characters = get_all_characters()
-    return render_template("choose_character.html", characters=characters)
+    return render_template(
+        "choose_character.html",
+        characters=characters,
+        selected_character=session.get("character"),
+        active_page="characters"
+    )
 
 
 @app.route("/select-character", methods=["POST"])
@@ -171,10 +171,12 @@ def ask_question():
     init_user()
     subject = request.args.get("subject")
     grade = request.args.get("grade")
-    return render_template("ask_question.html",
-                           subject=subject,
-                           grade=grade,
-                           character=session["character"])
+    return render_template(
+        "ask_question.html",
+        subject=subject,
+        grade=grade,
+        selected_character=session["character"]
+    )
 
 
 # -------------------------------
@@ -206,39 +208,34 @@ def subject_answer():
         "story_verse": text_helper.summarize_text
     }
 
-    if subject in subject_map:
-        answer = subject_map[subject](question, grade, character)
-    else:
-        answer = "I'm not sure what planet this question belongs to."
+    answer = subject_map.get(subject, lambda *_: "Unknown subject.")(question, grade, character)
 
     add_xp(20)
     session["tokens"] += 2
 
-    return render_template("subject.html", answer=answer, character=session["character"])
+    return render_template(
+        "subject.html",
+        answer=answer,
+        selected_character=session["character"]
+    )
 
 
 # -------------------------------
-# NEW CLEAN DASHBOARD
+# STUDENT DASHBOARD
 # -------------------------------
 @app.route("/dashboard")
 def dashboard():
     init_user()
 
-    xp = session.get("xp", 0)
-    level = session.get("level", 1)
-    tokens = session.get("tokens", 0)
-    streak = session.get("streak", 1)
-    character = session.get("character", "valor_strike")
+    xp = session["xp"]
+    level = session["level"]
+    tokens = session["tokens"]
+    streak = session["streak"]
+    character = session.get("character")
 
     xp_to_next = level * 100
-    try:
-        xp_percent = int((xp / xp_to_next) * 100)
-    except:
-        xp_percent = 0
+    xp_percent = min(max(int((xp / xp_to_next) * 100), 0), 100)
 
-    xp_percent = min(max(xp_percent, 0), 100)
-
-    # Left-side list
     mission_items = [
         {"title": "Math", "tag": "Puzzle Portals · Logic Lanes"},
         {"title": "History", "tag": "Timeline Trek · Heroic Ages"},
@@ -248,18 +245,9 @@ def dashboard():
         {"title": "Test Prep", "tag": "Boss Battles · Victory Arena"},
     ]
 
-    # Right side missions
     active_missions = [
-        {
-            "title": "Solve 5 Algebra Problems",
-            "badge": "🔥 Priority",
-            "desc": "Translate → Solve → Victory"
-        },
-        {
-            "title": "History Summary",
-            "badge": "✨ Quick Win",
-            "desc": "Turn notes into storyline"
-        }
+        {"title": "Solve 5 Algebra Problems", "badge": "🔥 Priority", "desc": "Translate → Solve → Victory"},
+        {"title": "History Summary", "badge": "✨ Quick Win", "desc": "Turn notes into storyline"},
     ]
 
     return render_template(
@@ -270,9 +258,10 @@ def dashboard():
         streak=streak,
         xp_percent=xp_percent,
         xp_to_next=xp_to_next,
-        character=character,
+        selected_character=character,
         mission_items=mission_items,
-        active_missions=active_missions
+        active_missions=active_missions,
+        active_page="student"
     )
 
 
@@ -283,7 +272,11 @@ def dashboard():
 def inventory():
     init_user()
     items = [SHOP_ITEMS[i] for i in session["inventory"]]
-    return render_template("inventory.html", inventory=items)
+    return render_template(
+        "inventory.html",
+        inventory=items,
+        selected_character=session.get("character")
+    )
 
 
 # -------------------------------
@@ -296,7 +289,8 @@ def shop():
         "shop.html",
         items=SHOP_ITEMS,
         tokens=session["tokens"],
-        inventory=session["inventory"]
+        inventory=session["inventory"],
+        selected_character=session.get("character")
     )
 
 
@@ -309,15 +303,14 @@ def buy_item(item_id):
         return redirect("/shop")
 
     item = SHOP_ITEMS[item_id]
-
     if session["tokens"] < item["price"]:
         flash("Not enough Galaxy Tokens!", "error")
         return redirect("/shop")
 
     session["tokens"] -= item["price"]
     session["inventory"].append(item_id)
-    flash(f"You bought {item['name']}!", "success")
 
+    flash(f"You bought {item['name']}!", "success")
     return redirect("/shop")
 
 
@@ -343,7 +336,8 @@ def parent_dashboard():
         xp=session["xp"],
         level=session["level"],
         tokens=session["tokens"],
-        character=session["character"]
+        selected_character=session.get("character"),
+        active_page="parent"
     )
 
 
@@ -352,3 +346,4 @@ def parent_dashboard():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
+
