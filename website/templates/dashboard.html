@@ -26,7 +26,7 @@
                     <span>{{ xp }} XP</span>
                 </div>
                 <div class="hb-xp-bar">
-                    <!-- XP BAR USING CSS VARIABLE (VS CODE-FRIENDLY) -->
+                    <!-- VS Code safe CSS variable -->
                     <div class="hb-xp-fill" style="--w: {{ level_progress | default(0) }}%; width: var(--w);"></div>
                 </div>
             </div>
@@ -161,85 +161,83 @@
                     <!-- ⭐ 11-PLANET MARIO GALAXY HUB ⭐ -->
                     <div class="dashboard-galaxy">
 
-                        <!-- Outer orbit ring (visual only) -->
+                        <!-- Orbit Rings -->
                         <div class="orbit-ring ring1"></div>
-                        <!-- Middle orbit -->
                         <div class="orbit-ring ring2"></div>
-                        <!-- Inner orbit -->
                         <div class="orbit-ring ring3"></div>
 
-                        <!-- INNER RING (closer to character) -->
+                        <!-- INNER RING -->
                         <div class="planet-wrapper" data-subject="math"
-                             style="transform: translate(-50%, -50%) rotate(10deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/numforge.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(10deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/num_forge.png');"></div>
                             <div class="planet-label">NumForge</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="science"
-                             style="transform: translate(-50%, -50%) rotate(130deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/atomsphere.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(130deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/atom_sphere.png');"></div>
                             <div class="planet-label">AtomSphere</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="reading"
-                             style="transform: translate(-50%, -50%) rotate(250deg) translateX(170px);">
-                            <div class="planet" style="background-image: url('/static/planets/storyverse.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(250deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/story_verse.png');"></div>
                             <div class="planet-label">StoryVerse</div>
                         </div>
 
                         <!-- MIDDLE RING -->
                         <div class="planet-wrapper" data-subject="writing"
-                             style="transform: translate(-50%, -50%) rotate(45deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/inkhaven.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(45deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/ink_haven.png');"></div>
                             <div class="planet-label">InkHaven</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="history"
-                             style="transform: translate(-50%, -50%) rotate(135deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/chronocore.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(135deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/chrono_core.png');"></div>
                             <div class="planet-label">ChronoCore</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="testprep"
-                             style="transform: translate(-50%, -50%) rotate(225deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/powergrid.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(225deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/power_grid.png');"></div>
                             <div class="planet-label">PowerGrid</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="logic"
-                             style="transform: translate(-50%, -50%) rotate(315deg) translateX(230px);">
-                            <div class="planet" style="background-image: url('/static/planets/truthforge.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(315deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/truth_forge.png');"></div>
                             <div class="planet-label">TruthForge</div>
                         </div>
 
-                        <!-- OUTER RING (big cinematic ring) -->
+                        <!-- OUTER RING -->
                         <div class="planet-wrapper" data-subject="bible"
-                             style="transform: translate(-50%, -50%) rotate(20deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/faithrealm.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(20deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/faith_realm.png');"></div>
                             <div class="planet-label">FaithRealm</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="finance"
-                             style="transform: translate(-50%, -50%) rotate(120deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/coinquest.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(120deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/coin_quest.png');"></div>
                             <div class="planet-label">CoinQuest</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="economics"
-                             style="transform: translate(-50%, -50%) rotate(220deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/stockstar.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(220deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/stock_star.png');"></div>
                             <div class="planet-label">StockStar</div>
                         </div>
 
                         <div class="planet-wrapper" data-subject="geography"
-                             style="transform: translate(-50%, -50%) rotate(320deg) translateX(290px);">
-                            <div class="planet" style="background-image: url('/static/planets/terranova.png');"></div>
+                            style="transform: translate(-50%, -50%) rotate(320deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/terra_nova.png');"></div>
                             <div class="planet-label">TerraNova</div>
                         </div>
 
                     </div>
 
-                    <!-- CHARACTER -->
+                    <!-- Character -->
                     <div class="hb-character-stand">
                         <div class="hb-character-avatar" id="hb-character-avatar">🧠</div>
                         <div class="hb-character-name" id="hb-character-name">
@@ -257,7 +255,7 @@
 
                 </div>
 
-                <!-- DIALOGUE PANEL -->
+                <!-- Dialogue Panel -->
                 <div class="hb-dialogue-panel">
                     <div class="hb-dialogue-avatar">💡</div>
                     <div class="hb-dialogue-body">
@@ -270,13 +268,11 @@
                         </div>
 
                         <div class="hb-dialogue-text" id="hb-dialogue-text">
-                            I'm ready whenever you are! Pick a subject on the left or jump to a planet in our galaxy.
+                            I'm ready whenever you are! Pick a subject or jump to a planet in our galaxy.
                         </div>
 
                         <div class="hb-dialogue-meta">
-                            <span>
-                                World: <strong id="hb-dialogue-world">Math · Neon Number City</strong>
-                            </span>
+                            <span>World: <strong id="hb-dialogue-world">Math · Neon Number City</strong></span>
                             <span>Session mood: Focused</span>
                         </div>
                     </div>
@@ -341,8 +337,9 @@
 
 </div>
 
-<!-- JS FOR SUBJECT + PLANET SWITCHING -->
+<!-- JS -->
 <script>
+
     const subjectConfig = {
         math: {
             sceneLabel: "Math World · Neon Number City",
@@ -404,8 +401,6 @@
             characterRole: "Exam Strategist",
             dialogue: "Let’s prep smarter, not harder.",
         },
-
-        /* EXTRA PLANET WORLDS (UI-ONLY FOR NOW) */
         bible: {
             sceneLabel: "FaithRealm · Story of Redemption",
             world: "Bible · FaithRealm",
@@ -458,6 +453,8 @@
         },
     };
 
+
+    /* DOM ELEMENTS */
     const subjectButtons = document.querySelectorAll(".hb-subject-btn");
     const dashboardPlanets = document.querySelectorAll(".dashboard-galaxy .planet-wrapper");
 
@@ -472,7 +469,7 @@
 
     function updateSubject(subject) {
         const config = subjectConfig[subject];
-        if (!config) return;  // safety
+        if (!config) return;
 
         sceneLabelEl.textContent = config.sceneLabel;
         badgeLeftEl.textContent = config.badgeLeft;
@@ -486,7 +483,7 @@
         worldEl.textContent = config.world;
     }
 
-    /* LEFT-SIDE BUTTONS */
+    /* LEFT SIDE BUTTONS */
     subjectButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const subject = btn.dataset.subject;
@@ -496,24 +493,14 @@
         });
     });
 
-    /* PLANETS IN GALAXY HUB */
+    /* PLANET CLICK HANDLERS */
     dashboardPlanets.forEach(planet => {
         planet.addEventListener("click", () => {
             const subject = planet.dataset.subject;
             updateSubject(subject);
         });
     });
+
 </script>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
