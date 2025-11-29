@@ -21,99 +21,73 @@
     mix-blend-mode: screen;
 }
 
-/* High-tech visor (sleeker & sharper) */
+/* High-tech visor */
 .lio .char-mask {
-    top: 28px;
-    left: 44px;
-    width: 72px;
-    height: 26px;
-    border-radius: 16px;
     background: linear-gradient(90deg, #68d6ff, #0066cc);
+    border-radius: 16px;
     box-shadow: 0 0 15px rgba(0,150,255,0.65);
     overflow: hidden;
-    position: absolute;
 }
 
 /* Animated scanning effect */
 .lio .char-mask::after {
     content: "";
     position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
+    inset: 0;
+    transform: translateX(-100%);
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
     animation: visor-scan 2s infinite linear;
 }
 
 @keyframes visor-scan {
-    0% { left: -100%; }
-    100% { left: 120%; }
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(120%); }
 }
 
-/* Hair — refined stealth look */
+/* Hair — stealth look */
 .lio .char-hair {
-    top: -3px;
-    left: 34px;
-    width: 95px;
-    height: 50px;
-    border-radius: 45px;
     background: linear-gradient(#1d1d1d, #080808);
+    border-radius: 45px;
     box-shadow: 0 0 12px rgba(0,0,0,0.4);
-    position: absolute;
 }
 
-/* Futuristic chest emblem (small & subtle) */
+/* Futuristic chest emblem */
 .lio .char-emblem {
-    top: 102px;
-    left: 67px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
     background: radial-gradient(circle at 40% 40%, #00c6ff, #004b80);
+    border-radius: 50%;
     box-shadow: 0 0 10px rgba(0,150,255,0.5);
 }
 
-/* Tactical micro-cape (cloak-style, not superhero) */
+/* Tactical micro-cape */
 .lio .char-cape {
-    top: 78px;
-    left: 20px;
-    width: 120px;
-    height: 100px;
-    border-radius: 0 0 25px 25px;
     background: linear-gradient(#0a1829, #00050c);
     opacity: 0.55;
     filter: blur(1px);
 }
 
-/* Glowing agent trim lines on cloak */
+/* Glowing trim */
 .lio .char-cape::after {
     content: "";
     position: absolute;
-    bottom: 4px;
-    left: 15px;
-    width: 90px;
+    width: 90%;
     height: 4px;
+    bottom: 4px;
+    left: 5%;
     background: linear-gradient(90deg, #00aaff, transparent);
     opacity: 0.4;
     border-radius: 3px;
 }
 
-/* Pose: classy, confident agent stance */
-.lio .char-arm.left {
-    transform: rotate(-12deg);
-}
-.lio .char-arm.right {
-    transform: rotate(14deg);
-}
+/* Pose — confident agent stance */
+.lio .char-arm.left { transform: rotate(-12deg); }
+.lio .char-arm.right { transform: rotate(14deg); }
 
-.lio .char-leg.left {
-    transform: rotate(-2deg);
-}
-.lio .char-leg.right {
-    transform: rotate(3deg);
-}
+.lio .char-leg.left { transform: rotate(-2deg); }
+.lio .char-leg.right { transform: rotate(3deg); }
 
 /* Sleek boots */
 .lio .char-leg {
     background: linear-gradient(#0f1b2a, #000);
 }
+
 

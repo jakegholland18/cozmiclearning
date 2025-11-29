@@ -1,17 +1,36 @@
+/* ANALYTICAL REED — SMART HERO */
+
+/* Body — teal academic suit */
 .reed .char-body {
     background: linear-gradient(#4db6ac, #00695c);
+    position: relative;
 }
 
+/* Glasses — centered nerd-superhero frames */
 .reed .char-glasses {
-    top: 35px; left: 50px;
-    width: 60px; height: 20px;
-    border-radius: 6px;
+    background: transparent;
     border: 3px solid #b2ebf2;
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(178,235,242,0.6);
 }
 
+/* Book — white notebook tucked under the arm */
 .reed .char-book {
-    top: 120px; left: 65px;
-    width: 50px; height: 35px;
-    background: white;
+    background: #ffffff;
     border-radius: 4px;
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
+
+/* Arms — academic pose */
+.reed .char-arm.left {
+    transform: rotate(-10deg);
+}
+.reed .char-arm.right {
+    transform: rotate(12deg);
+}
+
+/* Legs — subtle confident stance */
+.reed .char-leg {
+    background: linear-gradient(#00695c, #004d40);
+}
+

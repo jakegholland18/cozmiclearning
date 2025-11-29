@@ -1,6 +1,4 @@
-/* ===========================================================
-   UNIVERSAL CHARACTER BASE — HIGH QUALITY 2D GAME STYLE
-=========================================================== */
+/* Base Character Structure */
 
 .character {
     position: relative;
@@ -11,9 +9,7 @@
     animation: float-buddy 3s ease-in-out infinite;
 }
 
-/* --------------------------------------------
-   HEAD
--------------------------------------------- */
+/* Head */
 .char-head {
     position: absolute;
     top: 0;
@@ -25,7 +21,7 @@
     z-index: 10;
 }
 
-/* Hair sits behind the head */
+/* Hair */
 .char-hair {
     position: absolute;
     top: -10px;
@@ -44,12 +40,12 @@
     left: 40px;
     width: 90px;
     height: 35px;
-    background: transparent;
     border-radius: 20px;
+    background: transparent;
     z-index: 11;
 }
 
-/* Crown / Headpiece */
+/* Crown */
 .char-crown {
     position: absolute;
     top: -15px;
@@ -60,9 +56,7 @@
     z-index: 12;
 }
 
-/* --------------------------------------------
-   TORSO & BODY
--------------------------------------------- */
+/* Body */
 .char-body {
     position: absolute;
     top: 65px;
@@ -70,21 +64,23 @@
     width: 110px;
     height: 120px;
     border-radius: 40px;
-    background: linear-gradient(#344, #122);
+    background: #345;
     z-index: 8;
 }
 
+/* Belt */
 .char-belt {
     position: absolute;
     top: 135px;
     left: 45px;
     width: 90px;
     height: 14px;
-    border-radius: 10px;
     background: transparent;
+    border-radius: 10px;
     z-index: 9;
 }
 
+/* Cape */
 .char-cape {
     position: absolute;
     top: 70px;
@@ -103,26 +99,24 @@
     left: 70px;
     width: 40px;
     height: 40px;
-    background: transparent;
     border-radius: 50%;
+    background: transparent;
     z-index: 15;
 }
 
-/* Coat / Jacket */
+/* Coat */
 .char-coat {
     position: absolute;
     top: 80px;
     left: 25px;
     width: 130px;
     height: 140px;
-    background: transparent;
     border-radius: 45px;
+    background: transparent;
     z-index: 7;
 }
 
-/* --------------------------------------------
-   SHOULDERS
--------------------------------------------- */
+/* Shoulders */
 .char-shoulder {
     position: absolute;
     top: 80px;
@@ -135,9 +129,7 @@
 .char-shoulder.left { left: 5px; }
 .char-shoulder.right { right: 5px; }
 
-/* --------------------------------------------
-   ARMS
--------------------------------------------- */
+/* Arms */
 .char-arm {
     position: absolute;
     top: 100px;
@@ -150,9 +142,7 @@
 .char-arm.left { left: 10px; }
 .char-arm.right { right: 10px; }
 
-/* --------------------------------------------
-   LEGS
--------------------------------------------- */
+/* Legs */
 .char-leg {
     position: absolute;
     top: 170px;
@@ -165,67 +155,11 @@
 .char-leg.left { left: 50px; }
 .char-leg.right { right: 50px; }
 
-/* --------------------------------------------
-   DOG PARTS
--------------------------------------------- */
-.dog-head, .dog-body, .dog-leg, .dog-snout, .dog-tail, .dog-ear {
-    position: absolute;
-    background: transparent;
-}
-
-.dog-head {
-    top: 40px; left: 55px;
-    width: 70px; height: 60px;
-    border-radius: 40px;
-    z-index: 10;
-}
-
-.dog-snout {
-    top: 75px; left: 70px;
-    width: 40px; height: 28px;
-    border-radius: 25px;
-    z-index: 11;
-}
-
-.dog-body {
-    top: 100px; left: 40px;
-    width: 100px; height: 65px;
-    border-radius: 40px;
-    z-index: 8;
-}
-
-.dog-ear {
-    width: 26px; height: 40px;
-    border-radius: 20px;
-    top: 25px;
-    z-index: 9;
-}
-.dog-ear.left { left: 40px; }
-.dog-ear.right { right: 40px; }
-
-.dog-leg {
-    width: 24px; height: 55px;
-    border-radius: 15px;
-    z-index: 7;
-}
-.dog-leg.front-left { top: 135px; left: 50px; }
-.dog-leg.front-right { top: 135px; right: 50px; }
-.dog-leg.back-left { top: 150px; left: 50px; }
-.dog-leg.back-right { top: 150px; right: 50px; }
-
-.dog-tail {
-    top: 120px; right: 20px;
-    width: 40px; height: 12px;
-    border-radius: 20px;
-    z-index: 6;
-}
-
-/* --------------------------------------------
-   FLOATING ANIMATION
--------------------------------------------- */
+/* Floating Animation */
 @keyframes float-buddy {
     0% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
     100% { transform: translateY(0); }
 }
+
 

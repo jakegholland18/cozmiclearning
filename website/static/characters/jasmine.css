@@ -21,15 +21,9 @@
 
 /* Flowing cosmic hair */
 .jasmine .char-hair {
-    position: absolute;
-    top: 0px;
-    left: 8px;
-    width: 140px;
-    height: 120px;
     background: linear-gradient(#1b2b7c, #231a7a);
     border-radius: 70px;
     box-shadow: 0 0 15px rgba(80,80,255,0.3);
-    z-index: 2;
 }
 
 /* Space gown — holographic shine */
@@ -45,8 +39,8 @@
 .jasmine .char-cape::after {
     content: "";
     position: absolute;
-    top: 10px; left: 20px;
-    width: 70%; height: 20%;
+    width: 70%;
+    height: 20%;
     background: radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%);
     opacity: 0.35;
     border-radius: 50%;
@@ -65,23 +59,17 @@
     box-shadow: 0 0 15px rgba(255,215,0,0.85);
 }
 
-/* Energy crown — glowing + animated */
+/* Energy crown */
 .jasmine .char-crown {
-    position: absolute;
-    top: -18px;
-    left: 55px;
-    width: 50px;
-    height: 28px;
     background: radial-gradient(circle, #ffe680, #f0b000);
     border-radius: 0 0 12px 12px;
     box-shadow:
         0 0 16px rgba(255,230,120,0.8),
         0 0 35px rgba(255,190,80,0.55);
-    z-index: 5;
     overflow: hidden;
 }
 
-/* Crown energy pulse */
+/* Crown animation */
 .jasmine .char-crown::after {
     content: "";
     position: absolute;
@@ -96,16 +84,18 @@
     100% { transform: translateX(120%); }
 }
 
-/* Arms — refined graceful positioning */
+/* Arms — gentle pose */
 .jasmine .char-arm.left {
     transform: rotate(-8deg);
 }
+
 .jasmine .char-arm.right {
     transform: rotate(12deg);
 }
 
-/* Subtle glowing trim on legs */
+/* Leg shading */
 .jasmine .char-leg {
     background: linear-gradient(#3a4aa8, #1f2a63);
 }
+
 

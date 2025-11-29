@@ -1,17 +1,38 @@
+/* STERLING CHASE — WALL STREET SPACE BROKER */
+
+/* Luxury black suit */
 .sterling .char-body {
-    background: linear-gradient(#263238, #000);
+    background: linear-gradient(#263238, #000000);
+    position: relative;
+    box-shadow: 0 0 14px rgba(180,180,200,0.15);
 }
 
+/* Designer sunglasses */
 .sterling .char-glasses {
-    top: 35px; left: 50px;
-    width: 60px; height: 20px;
+    background: rgba(255,255,255,0.05);
     border: 3px solid #eceff1;
     border-radius: 6px;
+    box-shadow: 0 0 10px rgba(236,239,241,0.5);
 }
 
+/* Bold red tie */
 .sterling .char-tie {
-    top: 105px; left: 75px;
-    width: 18px; height: 50px;
     background: linear-gradient(#c62828, #8e0000);
     border-radius: 8px;
+    box-shadow: 0 0 10px rgba(200,0,0,0.4);
 }
+
+/* Confident broker stance */
+.sterling .char-arm.left {
+    transform: rotate(-6deg);
+}
+
+.sterling .char-arm.right {
+    transform: rotate(8deg);
+}
+
+/* Premium tailored pants */
+.sterling .char-leg {
+    background: linear-gradient(#1c1f22, #000000);
+}
+

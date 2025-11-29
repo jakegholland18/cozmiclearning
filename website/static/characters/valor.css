@@ -1,31 +1,39 @@
+/* VALOR STRIKE — SPACE SUPER-SOLDIER HERO */
+
+/* Hero suit */
 .valor .char-body {
     background: linear-gradient(#b71c1c, #5a0000);
+    position: relative;
+    box-shadow: 0 0 18px rgba(255,40,40,0.25);
 }
 
+/* Chest emblem */
 .valor .char-emblem {
-    top: 105px;
-    left: 60px;
-    width: 40px;
-    height: 40px;
     background: radial-gradient(circle, #ffeb3b, #f57f17);
     border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255,230,60,0.6);
 }
 
+/* Visor / combat mask */
 .valor .char-mask {
-    top: 22px;
-    left: 42px;
-    width: 76px;
-    height: 30px;
-    border-radius: 20px;
     background: linear-gradient(#37474f, #263238);
+    border-radius: 20px;
+    box-shadow: 0 0 12px rgba(80,90,100,0.4);
 }
 
+/* Armored shoulders */
 .valor .char-shoulder {
-    top: 85px;
-    width: 36px;
-    height: 24px;
-    border-radius: 20px;
     background: linear-gradient(#cfd8dc, #78909c);
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(200,200,200,0.3);
 }
-.valor .char-shoulder.left { left: 15px;}
-.valor .char-shoulder.right { right: 15px;}
+
+/* Strong battle stance */
+.valor .char-arm.left  { transform: rotate(-6deg); }
+.valor .char-arm.right { transform: rotate(7deg); }
+
+/* Combat boots */
+.valor .char-leg {
+    background: linear-gradient(#3a0404, #000);
+}
+
