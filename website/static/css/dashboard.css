@@ -1,0 +1,406 @@
+/* =======================================================
+   GLOBAL PAGE WRAPPER STYLES
+======================================================= */
+
+.hb-shell {
+    width: 100%;
+    min-height: 100vh;
+    padding-bottom: 120px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* STAR BACKGROUND */
+.hb-stars {
+    position: fixed;
+    inset: 0;
+    background: url("/static/stars.png");
+    background-size: cover;
+    opacity: 0.45;
+    z-index: -1;
+    animation: hbStarsDrift 60s linear infinite;
+}
+
+@keyframes hbStarsDrift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-1200px); }
+}
+
+
+/* =======================================================
+   TOPBAR
+======================================================= */
+
+.hb-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 30px;
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.hb-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.hb-logo-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #0077ff, #00d4ff);
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 900;
+    font-size: 1.4rem;
+    box-shadow: 0 0 15px rgba(0,150,255,0.55);
+}
+
+.hb-logo-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.hb-logo-sub {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+
+/* PLAYER STRIP (XP & Character) */
+.hb-player-strip {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.hb-pill {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    box-shadow: 0 0 12px rgba(255,255,255,0.15);
+}
+
+/* XP BAR */
+.hb-xp-track {
+    min-width: 210px;
+}
+
+.hb-xp-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+
+.hb-xp-bar {
+    background: rgba(255,255,255,0.2);
+    height: 14px;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 200px;
+}
+
+.hb-xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00c6ff, #0077ff, #00d4ff);
+    border-radius: 10px;
+    width: var(--w);
+    transition: width 0.35s ease-out;
+}
+
+/* Avatar Chip */
+.hb-avatar-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.15);
+    padding: 8px 14px;
+    border-radius: 12px;
+}
+
+.hb-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #0077ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 700;
+}
+
+
+/* =======================================================
+   MAIN GRID LAYOUT
+======================================================= */
+
+.hb-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px;
+    gap: 25px;
+    padding: 35px;
+}
+
+
+/* =======================================================
+   LEFT PANEL (SUBJECTS)
+======================================================= */
+
+.hb-panel {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 22px rgba(0,0,0,0.35);
+}
+
+.hb-panel-inner {
+    padding: 25px;
+}
+
+
+/* Subject List */
+.hb-subject-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.hb-subject-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.3s ease;
+    width: 100%;
+    color: white;
+}
+
+.hb-subject-btn:hover,
+.hb-subject-btn.active {
+    background: rgba(0,150,255,0.35);
+    transform: translateX(4px);
+}
+
+.hb-subject-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.hb-subject-icon {
+    font-size: 1.4rem;
+}
+
+.hb-subject-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.hb-subject-tagline {
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+
+/* =======================================================
+   CENTER PANEL (MAIN STAGE)
+======================================================= */
+
+.hb-stage {
+    min-height: 650px;
+}
+
+/* SCENE TITLE */
+.hb-scene-label {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-top: 12px;
+    text-shadow: 0 0 15px #00c6ff;
+}
+
+
+/* =======================================================
+   MARIO GALAXY PLANET HUB
+======================================================= */
+
+.dashboard-galaxy {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: 20px auto;
+}
+
+/* Orbit Rings */
+.orbit-ring {
+    position: absolute;
+    inset: 0;
+    border: 2px dashed rgba(255,255,255,0.12);
+    border-radius: 50%;
+    animation: orbitSpin 30s linear infinite;
+}
+
+.ring2 { animation-duration: 38s; }
+.ring3 { animation-duration: 46s; }
+
+@keyframes orbitSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+
+/* PLANETS */
+.planet-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: auto;
+    cursor: pointer;
+    text-align: center;
+}
+
+.planet {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 0 25px rgba(255,255,255,0.4);
+    animation: floatPlanet 4s ease-in-out infinite;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.planet:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 45px white;
+}
+
+@keyframes floatPlanet {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
+}
+
+.planet-label {
+    margin-top: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffdd55;
+    text-shadow: 0 0 8px #ffa600;
+}
+
+
+/* =======================================================
+   CHARACTER STAND
+======================================================= */
+
+.hb-character-stand {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.hb-character-avatar {
+    font-size: 3rem;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.45));
+}
+
+.hb-character-name {
+    font-size: 1.3rem;
+    margin-top: 8px;
+}
+
+.hb-character-role {
+    opacity: 0.8;
+    font-size: 0.95rem;
+}
+
+
+/* =======================================================
+   DIALOGUE PANEL
+======================================================= */
+
+.hb-dialogue-panel {
+    margin-top: 30px;
+    background: rgba(255,255,255,0.14);
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.hb-dialogue-avatar {
+    font-size: 2rem;
+}
+
+.hb-dialogue-body {
+    margin-left: 10px;
+}
+
+.hb-dialogue-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.hb-dialogue-text {
+    margin-top: 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+
+/* =======================================================
+   QUEST PANEL (RIGHT)
+======================================================= */
+
+.hb-quest-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.hb-quest-item {
+    background: rgba(255,255,255,0.12);
+    padding: 15px;
+    border-radius: 12px;
+}
+
+
+/* =======================================================
+   FOOTER
+======================================================= */
+
+.hb-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 50px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    margin-top: 40px;
+}
+
+.hb-btn-primary,
+.hb-btn-secondary {
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.hb-btn-primary {
+    background: #00a3ff;
+}
+
+.hb-btn-secondary {
+    background: rgba(255,255,255,0.15);
+}

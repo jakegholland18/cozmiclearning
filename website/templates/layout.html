@@ -5,14 +5,19 @@
     <meta charset="UTF-8">
     <title>Homework Buddy</title>
 
-    <!-- GLOBAL STYLES -->
+    <!-- GLOBAL BASE STYLES -->
     <link rel="stylesheet" href="/static/style.css">
 
-    <!-- OPTIONAL ANIMATION CSS -->
+    <!-- ANIMATION FILE (OPTIONAL) -->
     <link rel="stylesheet" href="/static/animations.css">
 
+    <!-- NEW CINEMATIC DASHBOARD CSS -->
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+
     <style>
-        /* ----------- SIDEBAR ----------- */
+        /* ------------------------------
+           SIDEBAR (GLOBAL NAVIGATION)
+        ------------------------------ */
         .sidebar {
             width: 240px;
             height: 100vh;
@@ -25,6 +30,7 @@
             flex-direction: column;
             gap: 18px;
             box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+            z-index: 50;
         }
 
         .sidebar-title {
@@ -37,10 +43,11 @@
         .sidebar a {
             text-decoration: none;
             color: #e2eeff;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             padding: 10px 12px;
             border-radius: 10px;
             transition: 0.25s;
+            display: block;
         }
 
         .sidebar a:hover {
@@ -48,22 +55,26 @@
             transform: translateX(5px);
         }
 
-        /* ----------- MAIN CONTENT ----------- */
+        /* ------------------------------
+           MAIN CONTENT WRAPPER
+        ------------------------------ */
         .main-content {
             margin-left: 260px;
-            padding: 40px;
+            padding: 30px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* MOBILE */
+        /* ------------------------------
+           MOBILE RESPONSIVE
+        ------------------------------ */
         @media(max-width: 900px) {
             .sidebar {
-                width: 180px;
+                width: 190px;
             }
 
             .main-content {
-                margin-left: 200px;
-                padding: 20px;
+                margin-left: 210px;
             }
         }
 
@@ -75,14 +86,15 @@
                 flex-direction: row;
                 flex-wrap: wrap;
                 justify-content: center;
+                padding: 15px;
                 gap: 10px;
             }
 
             .main-content {
                 margin-left: 0;
-                padding: 20px;
             }
         }
+
     </style>
 
 </head>
@@ -105,12 +117,12 @@
 <!--      MAIN CONTENT AREA    -->
 <!-- ========================= -->
 <div class="main-content">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 </div>
 
 </body>
 </html>
+
 
 
 
