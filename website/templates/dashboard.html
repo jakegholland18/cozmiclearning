@@ -26,8 +26,8 @@
                     <span>{{ xp }} XP</span>
                 </div>
                 <div class="hb-xp-bar">
-                    <!-- VS Code safe CSS variable -->
-                    <div class="hb-xp-fill" style="--w: {{ level_progress | default(0) }}%; width: var(--w);"></div>
+                    <!-- FIXED VARIABLE: xp_percent (from app.py) -->
+                    <div class="hb-xp-fill" style="--w: {{ xp_percent }}%; width: var(--w);"></div>
                 </div>
             </div>
 
@@ -161,12 +161,12 @@
                     <!-- ⭐ 11-PLANET MARIO GALAXY HUB ⭐ -->
                     <div class="dashboard-galaxy">
 
-                        <!-- Orbit Rings -->
+                        <!-- ORBIT RINGS -->
                         <div class="orbit-ring ring1"></div>
                         <div class="orbit-ring ring2"></div>
                         <div class="orbit-ring ring3"></div>
 
-                        <!-- INNER RING -->
+                        <!-- INNER RING PLANETS -->
                         <div class="planet-wrapper" data-subject="math"
                             style="transform: translate(-50%, -50%) rotate(10deg) translateX(170px);">
                             <div class="planet" style="background-image: url('/static/planets/num_forge.png');"></div>
@@ -185,7 +185,7 @@
                             <div class="planet-label">StoryVerse</div>
                         </div>
 
-                        <!-- MIDDLE RING -->
+                        <!-- MIDDLE RING PLANETS -->
                         <div class="planet-wrapper" data-subject="writing"
                             style="transform: translate(-50%, -50%) rotate(45deg) translateX(230px);">
                             <div class="planet" style="background-image: url('/static/planets/ink_haven.png');"></div>
@@ -210,7 +210,7 @@
                             <div class="planet-label">TruthForge</div>
                         </div>
 
-                        <!-- OUTER RING -->
+                        <!-- OUTER RING PLANETS -->
                         <div class="planet-wrapper" data-subject="bible"
                             style="transform: translate(-50%, -50%) rotate(20deg) translateX(290px);">
                             <div class="planet" style="background-image: url('/static/planets/faith_realm.png');"></div>
@@ -237,7 +237,7 @@
 
                     </div>
 
-                    <!-- Character -->
+                    <!-- CHARACTER -->
                     <div class="hb-character-stand">
                         <div class="hb-character-avatar" id="hb-character-avatar">🧠</div>
                         <div class="hb-character-name" id="hb-character-name">
@@ -255,7 +255,7 @@
 
                 </div>
 
-                <!-- Dialogue Panel -->
+                <!-- DIALOGUE PANEL -->
                 <div class="hb-dialogue-panel">
                     <div class="hb-dialogue-avatar">💡</div>
                     <div class="hb-dialogue-body">
@@ -401,6 +401,7 @@
             characterRole: "Exam Strategist",
             dialogue: "Let’s prep smarter, not harder.",
         },
+
         bible: {
             sceneLabel: "FaithRealm · Story of Redemption",
             world: "Bible · FaithRealm",
@@ -504,3 +505,4 @@
 </script>
 
 {% endblock %}
+

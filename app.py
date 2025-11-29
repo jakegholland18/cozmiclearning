@@ -66,7 +66,7 @@ app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
 
 
 # ============================================================
-# INIT USER SESSION
+# INIT USER
 # ============================================================
 def init_user():
     defaults = {
@@ -134,38 +134,26 @@ def add_xp(amount):
 # ROUTES
 # ============================================================
 
+# -------------------------------
+# HOME → DASHBOARD (MAIN HUB)
+# -------------------------------
 @app.route("/")
 def home():
     init_user()
-    return redirect("/subjects")
+    return redirect("/dashboard")
 
 
+# -------------------------------
+# LEGACY /subjects → redirect
+# -------------------------------
 @app.route("/subjects")
-def subjects():
-    init_user()
-
-    planets = [
-        ("chrono_core", "chrono_core.png", "ChronoCore"),
-        ("num_forge", "num_forge.png", "NumForge"),
-        ("atom_sphere", "atom_sphere.png", "AtomSphere"),
-        ("story_verse", "story_verse.png", "StoryVerse"),
-        ("ink_haven", "ink_haven.png", "InkHaven"),
-        ("faith_realm", "faith_realm.png", "FaithRealm"),
-        ("coin_quest", "coin_quest.png", "CoinQuest"),
-        ("stock_star", "stock_star.png", "StockStar"),
-        ("terra_nova", "terra_nova.png", "TerraNova"),
-        ("power_grid", "power_grid.png", "PowerGrid"),
-        ("truth_forge", "truth_forge.png", "TruthForge")
-    ]
-
-    return render_template("subjects.html", planets=planets, character=session["character"])
+def subjects_redirect():
+    return redirect("/dashboard")
 
 
-# ============================================================
-# CHOOSE CHARACTER (FIXED)
-# ============================================================
-
-@app.route("/choose_character")
+# -------------------------------
+# SELECT CHARACTER
+# -------------------------------
 @app.route("/choose-character")
 def choose_character():
     init_user()
@@ -181,21 +169,9 @@ def select_character():
     return redirect("/dashboard")
 
 
-# ============================================================
-# CHOOSE GRADE
-# ============================================================
-
-@app.route("/choose-grade")
-def choose_grade():
-    init_user()
-    subject = request.args.get("subject")
-    return render_template("subject_select_form.html", subject=subject)
-
-
-# ============================================================
-# ASK QUESTION PAGE
-# ============================================================
-
+# -------------------------------
+# ASK QUESTION
+# -------------------------------
 @app.route("/ask-question")
 def ask_question():
     init_user()
@@ -204,9 +180,9 @@ def ask_question():
     return render_template("ask_question.html", subject=subject, grade=grade, character=session["character"])
 
 
-# ============================================================
-# SUBJECT → AI ANSWER LOGIC
-# ============================================================
+# -------------------------------
+# SUBJECT ANSWER
+# -------------------------------
 @app.route("/subject", methods=["POST"])
 def subject_answer():
     init_user()
@@ -244,9 +220,9 @@ def subject_answer():
     return render_template("subject.html", answer=answer, character=session["character"])
 
 
-# ============================================================
-# STUDENT DASHBOARD
-# ============================================================
+# -------------------------------
+# STUDENT DASHBOARD (Main Hub)
+# -------------------------------
 @app.route("/dashboard")
 def dashboard():
     init_user()
@@ -287,9 +263,9 @@ def dashboard():
     )
 
 
-# ============================================================
+# -------------------------------
 # INVENTORY
-# ============================================================
+# -------------------------------
 @app.route("/inventory")
 def inventory():
     init_user()
@@ -297,9 +273,9 @@ def inventory():
     return render_template("inventory.html", inventory=items)
 
 
-# ============================================================
+# -------------------------------
 # SHOP
-# ============================================================
+# -------------------------------
 @app.route("/shop")
 def shop():
     init_user()
@@ -328,9 +304,9 @@ def buy_item(item_id):
     return redirect("/shop")
 
 
-# ============================================================
-# PARENT DASHBOARD  (Correct route)
-# ============================================================
+# -------------------------------
+# PARENT DASHBOARD
+# -------------------------------
 @app.route("/parent_dashboard")
 def parent_dashboard():
     init_user()
@@ -359,5 +335,6 @@ def parent_dashboard():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
