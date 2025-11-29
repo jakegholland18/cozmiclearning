@@ -5,129 +5,79 @@ from modules.personality_helper import apply_personality
 
 
 # -----------------------------------------------------------
-# SOCRATIC TUTOR LAYER
-# -----------------------------------------------------------
-def socratic_layer(base_explanation: str, topic: str, grade_level: str):
-    """
-    Wraps any study material in a Socratic-style guided conversation.
-    """
-
-    return f"""
-A student wants help studying the topic "{topic}".
-
-Before giving the full quiz or flashcards, help them think on their own for a moment.
-
-Begin by gently restating what the topic is about in kid-friendly language,
-so the student feels understood and knows you're on the same page.
-
-Then offer a small hint about the kinds of ideas this topic involves.
-Make the hint simple, like pointing them toward the right corner of the idea.
-
-After that, ask a guiding question. 
-This question should get them thinking without pressure,
-like a gentle nudge to explore the idea in their own mind.
-
-Then offer a tiny bit of help, just enough so they don’t feel stuck,
-but still not revealing the actual content of the quiz or flashcards.
-
-Once you have guided their mind in these steps, 
-transition softly into the full explanation or practice below.
-
-Full Study Content:
-{base_explanation}
-
-End with a short, warm summary written at a grade {grade_level} level 
-that reassures the student that curiosity and practice will help them grow.
-"""
-
-
-# -----------------------------------------------------------
-# QUIZ PROMPT
+# Build QUIZ prompt using the new 6-section structure
 # -----------------------------------------------------------
 def build_quiz_prompt(topic: str, grade_level: str):
     """
-    Builds a calm, conversational quiz prompt.
-    No lists, numbers, or formatting.
+    Creates a quiz request using the new simplified 6-section answer model.
+    The AI will still output 6 sections because of shared_ai.py.
     """
 
     return f"""
-The student wants a study quiz about the topic "{topic}"
-at a grade {grade_level} level.
+Create a gentle study quiz for the topic "{topic}".
 
-Teach in a warm, gentle, conversational voice.
-Ask a few short quiz questions the way a friendly tutor might ask them
-while sitting with the student.
+Make the questions calm and short so a grade {grade_level} student can understand.
+Ask simple questions the way a tutor would talk while sitting beside the student.
 
-Leave a soft pause between each question so the student can think.
-Then, after a moment in the conversation, offer the answers
-in the same natural, spoken tone.
+The 6-section structure should still be used, but the explanation in the OVERVIEW
+and KEY FACTS sections should stay short and quiz-focused.
 
-Avoid lists, bullets, numbering, or headings.
-Just talk naturally.
+In the PRACTICE section, include a few quiz questions with short example answers.
 """
 
 
 # -----------------------------------------------------------
-# FLASHCARDS PROMPT
+# Build FLASHCARD prompt (6-section friendly)
 # -----------------------------------------------------------
 def build_flashcard_prompt(topic: str, grade_level: str):
     """
-    Builds conversational flashcards with NO structured formatting.
+    Creates a flashcard-style study guide under the 6-section format.
+    AI will still format final output using the 6 sections.
     """
 
     return f"""
-The student wants flashcards to review the topic "{topic}" 
-at a grade {grade_level} level.
+Create simple flashcards for the topic "{topic}" 
+for a grade {grade_level} student.
 
-Speak as though you are holding real cards
-and showing them one at a time in a calm, friendly way.
+Each flashcard should be explained inside the 6-section structure.
+Keep OVERVIEW and KEY FACTS gentle and simple.
 
-Each flashcard should feel like a simple question spoken out loud,
-followed gently by the answer.
-
-Avoid lists, numbers, bullets, headings, or formatting.
-Just speak naturally as though sitting beside the student.
+In the PRACTICE section, show 3–5 flashcard-style Q&A pairs
+spoken like a friendly tutor holding real cards.
 """
 
 
 # -----------------------------------------------------------
-# PUBLIC FUNCTIONS — WITH SOCRATIC TUTOR
+# PUBLIC FUNCTIONS — NO MORE SOCRATIC LAYER
+# (Because your new 6-section AI system handles structure)
 # -----------------------------------------------------------
 def generate_quiz(topic: str, grade_level="8", character=None):
     """
-    Creates a gentle Socratic-style quiz with personality layer.
+    Creates a gentle quiz using the new universal 6-section output.
     """
 
     if character is None:
-        character = "valor_strike"
+        character = "theo"  # default calm teacher
 
-    # Build base content
     base_prompt = build_quiz_prompt(topic, grade_level)
 
-    # Wrap in Socratic tutor
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-
     # Add character personality
-    enriched_prompt = apply_personality(character, guided_prompt)
+    enriched_prompt = apply_personality(character, base_prompt)
 
-    # Send to AI
+    # Send through new 6-section study_buddy model
     return study_buddy_ai(enriched_prompt, grade_level, character)
 
 
 def flashcards(topic: str, grade_level="8", character=None):
     """
-    Creates Socratic-style flashcards with personality layer.
+    Creates flashcards using the new 6-section output.
     """
 
     if character is None:
-        character = "valor_strike"
+        character = "theo"
 
     base_prompt = build_flashcard_prompt(topic, grade_level)
 
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-
-    enriched_prompt = apply_personality(character, guided_prompt)
+    enriched_prompt = apply_personality(character, base_prompt)
 
     return study_buddy_ai(enriched_prompt, grade_level, character)
-
-

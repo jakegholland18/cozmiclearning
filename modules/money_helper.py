@@ -2,141 +2,216 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
-# -----------------------------------------------------------
-# SOCRATIC TUTOR LAYER
-# -----------------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
-    """
-    Wraps the explanation in guided learning:
-    restate → hint → guiding question → small nudge → full explanation.
-    """
+# ------------------------------------------------------------
+# Detect Christian-oriented money questions
+# ------------------------------------------------------------
+def is_christian_question(text: str) -> bool:
+    keywords = [
+        "christian", "christianity", "bible", "jesus", "god",
+        "biblical", "stewardship", "christian perspective",
+        "what does the bible say", "christian worldview",
+        "how does this relate to god"
+    ]
+    return any(k.lower() in text.lower() for k in keywords)
 
-    return f"""
-A student asked: "{question}"
 
-Begin by helping the student think before giving the full answer.
+# ------------------------------------------------------------
+# Money Teacher — 6 Simple Sections (Budgeting, Saving, Credit)
+# ------------------------------------------------------------
+def explain_money(topic: str, grade_level="8", character="everly"):
 
-First, restate the question or topic in gentle, kid-friendly language.
+    christian = is_christian_question(topic)
 
-Next, offer a simple hint that points them toward understanding
-without giving the full explanation yet.
+    prompt = f"""
+You are a gentle money teacher for a grade {grade_level} student.
 
-Then, ask a guiding question that helps them think about real-life money
-situations or what they already know about saving, spending, or planning.
+The student asked about:
+"{topic}"
 
-After that, give a small nudge—just enough to help if they are stuck,
-but still leaving space for their own thinking.
+Answer using SIX kid-friendly sections.
 
-Only after these steps, move into the full explanation below.
+SECTION 1 — OVERVIEW
+Describe the money idea in 3–4 very simple sentences.
 
-Full Explanation:
-{base_explanation}
+SECTION 2 — KEY FACTS
+Explain 3–5 simple facts about how this topic works in everyday life
+(budgeting, saving, income, needs versus wants, interest, spending choices).
 
-End with a warm, encouraging summary written for a grade {grade_level} student,
-letting them know they are doing well and money skills grow over time.
+SECTION 3 — CHRISTIAN VIEW
+Explain softly how many Christians see money:
+stewardship, responsibility, avoiding greed, generosity, and wise planning.
+If the question wasn’t Christian, still explain how faith can guide good habits.
+
+SECTION 4 — AGREEMENT
+Explain what people of any worldview agree on
+(spending wisely, saving, planning, avoiding debt problems).
+
+SECTION 5 — DIFFERENCE
+Explain gently how Christian stewardship may differ
+from a secular “money is the goal” view.
+
+SECTION 6 — PRACTICE
+Ask 2–3 short reflection questions
+and provide brief example answers for each.
+
+Tone must be soft, slow, gentle, and child-friendly.
+No lists or bullet symbols. Just short, clear paragraphs.
 """
 
+    # Apply personality
+    prompt = apply_personality(character, prompt)
 
-# -----------------------------------------------------------
-# Build prompts for money topics (budgeting, saving, credit)
-# -----------------------------------------------------------
-def build_money_topic_prompt(topic: str, grade_level: str):
-    return f"""
-The student wants to learn about the money topic "{topic}" 
-for a grade {grade_level} level.
+    # Get the AI response
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-Explain this in a calm, natural, conversational tone.
-Avoid lists, headings, or dramatic language.
-Speak as if you are sitting beside the student.
+    # Helper to extract sections
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
 
-You may cover ideas such as budgeting, saving, income, interest,
-credit, spending choices, needs versus wants, and other simple money ideas.
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-Keep everything warm, clear, and friendly.
-"""
+    # Format for HTML
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 
-# -----------------------------------------------------------
-# Build prompts for accounting problem solving
-# -----------------------------------------------------------
-def build_accounting_problem_prompt(problem: str, grade_level: str):
-    return f"""
-The student needs help with an accounting problem:
+# ------------------------------------------------------------
+# Solve Accounting Problem — Now Uses Same 6-Section Format
+# ------------------------------------------------------------
+def solve_accounting_problem(problem: str, grade_level="8", character="everly"):
 
+    prompt = f"""
+You are a gentle accounting tutor for a grade {grade_level} student.
+
+The student asked:
 "{problem}"
 
-Solve this in a calm, conversational tone.
-Walk through your thinking naturally without using bullets or lists.
+Answer using SIX short sections.
 
-Gently explain ideas like debits, credits, assets, liabilities,
-expenses, and revenues in simple language a grade {grade_level} student
-can follow.
+SECTION 1 — OVERVIEW
+Rephrase the accounting question in simple kid-friendly words.
 
-End with a short recap in natural, friendly wording.
+SECTION 2 — KEY FACTS
+Explain 3–5 simple ideas related to the problem:
+assets, liabilities, expenses, revenues, debits, credits,
+or whatever is appropriate.
+
+SECTION 3 — CHRISTIAN VIEW
+Softly explain how Christians view honesty, stewardship,
+and responsibility in managing money.
+
+SECTION 4 — AGREEMENT
+Explain what everyone agrees on about basic accounting
+(keeping track of money, being responsible, avoiding mistakes).
+
+SECTION 5 — DIFFERENCE
+Explain gently how Christian values of honesty and stewardship
+can add a different motivation for financial responsibility.
+
+SECTION 6 — PRACTICE
+Walk through the steps of the accounting solution slowly,
+then give 2 mini practice problems with answers.
+
+Tone must be soft, calm, slow, and natural. No bullet points.
 """
 
+    # Apply personality
+    prompt = apply_personality(character, prompt)
 
-# -----------------------------------------------------------
-# Build money quiz prompt
-# -----------------------------------------------------------
-def build_money_quiz_prompt(topic: str, grade_level: str):
-    return f"""
-Create a gentle quiz about the topic "{topic}" 
-for a grade {grade_level} student.
+    # AI Output
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-Speak warmly as if sitting beside them.
-Do not use numbering, bullets, or formatting.
-Ask simple practice questions in natural conversation,
-and after a short pause, give the answers in the same calm tone.
+    # Section extractor
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
+
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
+
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
+
+
+# ------------------------------------------------------------
+# Money Quiz — Also in 6 Sections
+# ------------------------------------------------------------
+def accounting_quiz(topic: str, grade_level="8", character="everly"):
+
+    prompt = f"""
+Create a calm, gentle money quiz for grade {grade_level}.
+
+Topic: "{topic}"
+
+Use SIX SECTIONS:
+
+SECTION 1 — OVERVIEW
+Short explanation of the topic.
+
+SECTION 2 — KEY FACTS
+Simple facts the student should remember.
+
+SECTION 3 — CHRISTIAN VIEW
+Soft, encouraging explanation of stewardship and responsibility.
+
+SECTION 4 — AGREEMENT
+Explain what most people agree about regarding money.
+
+SECTION 5 — DIFFERENCE
+Kind comparison of Christian vs secular motivations.
+
+SECTION 6 — PRACTICE
+Write a few quiz questions and then the answer key,
+both in very natural kid-friendly wording.
+
+Tone must remain gentle, slow, and conversational.
 """
 
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-# -----------------------------------------------------------
-# Public Functions (Socratic + Personality)
-# -----------------------------------------------------------
-def explain_money(topic: str, grade_level="8", character=None):
-    if character is None:
-        character = "valor_strike"
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
 
-    base_prompt = build_money_topic_prompt(topic, grade_level)
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-    # wrap in Socratic method
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
-    # add character personality
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-def solve_accounting_problem(problem: str, grade_level="8", character=None):
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = build_accounting_problem_prompt(problem, grade_level)
-
-    # Socratic method applied
-    guided_prompt = socratic_layer(base_prompt, problem, grade_level)
-
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-def accounting_quiz(topic: str, grade_level="8", character=None):
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = build_money_quiz_prompt(topic, grade_level)
-
-    # same Socratic wrapper — even quizzes start with “think first”
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
 
 
 

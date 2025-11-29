@@ -2,150 +2,203 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
-# -----------------------------------------------------------
-# SOCRATIC TUTOR LAYER (used for all investing answers)
-# -----------------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
-    """
-    Wraps the final explanation in guided Socratic teaching:
-    gentle rephrase → hint → guiding question → soft nudge → full answer.
-    """
+# ------------------------------------------------------------
+# Detect Christian worldview financial questions
+# ------------------------------------------------------------
+def is_christian_question(text: str) -> bool:
+    keywords = [
+        "christian", "biblical", "god", "jesus", "bible", "faith",
+        "christian perspective", "what does the bible say",
+        "christian view", "how does this relate to god"
+    ]
+    return any(k.lower() in text.lower() for k in keywords)
 
-    return f"""
-A student asked about: "{question}"
 
-Begin by helping the student think without giving the full answer right away.
+# ------------------------------------------------------------
+# MAIN INVESTING TEACHER — 6 SIMPLE SECTIONS
+# ------------------------------------------------------------
+def explain_investing(topic: str, grade_level="8", character="everly"):
 
-First, restate what the question is really asking using gentle, kid-friendly wording.
+    christian = is_christian_question(topic)
 
-Next, offer one helpful hint that points them in the right direction.
+    prompt = f"""
+You are a gentle investing tutor for a grade {grade_level} student.
 
-Then, ask a guiding question that encourages the student to think about how money,
-savings, or investing might work in everyday life.
+The student asked about:
+"{topic}"
 
-After that, give a small nudge that helps them move closer to the idea,
-but still avoid giving away the full explanation.
+Answer using SIX kid-friendly sections.
 
-Only after these steps should you transition into the full investing explanation below.
+SECTION 1 — OVERVIEW  
+Explain the money/investing idea in 3–4 very simple sentences.
 
-Full Explanation:
-{base_explanation}
+SECTION 2 — KEY FACTS  
+Give 3–5 easy facts about how this topic works in real life.
+Short sentences. No hard math.
 
-End with a warm, encouraging summary written for a grade {grade_level} student,
-reminding them that learning how money grows takes patience and curiosity.
+SECTION 3 — CHRISTIAN VIEW  
+Explain softly how many Christians think about money:
+stewardship, responsibility, avoiding greed, helping others,
+and honoring God with wise choices.
+If the question wasn’t Christian, briefly say how faith can guide wise habits.
+
+SECTION 4 — AGREEMENT  
+Explain what people from any worldview agree on about money
+(saving, spending wisely, long-term planning, risk, etc.).
+
+SECTION 5 — DIFFERENCE  
+Explain gently how Christian ideas about stewardship may differ
+slightly from a secular “money first” view, in a respectful way.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 simple reflection questions and give short example answers.
+
+Tone must be:
+warm, calm, friendly, non-technical, and perfect for kids.
+
+Do NOT use lists or formatting keywords like asterisks.
+Just use short paragraphs separated by spacing.
 """
 
+    # Apply personality
+    prompt = apply_personality(character, prompt)
 
-# -----------------------------------------------------------
-# Build prompt for general investing lessons
-# -----------------------------------------------------------
-def build_investing_lesson_prompt(topic: str, grade_level: str):
-    """
-    Creates a gentle, conversational prompt for explaining investing topics.
-    No lists or formatting — just soft conversation.
-    """
+    # Get AI output
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-    return f"""
-The student wants to learn about the investment topic "{topic}"
-at a grade {grade_level} level.
+    # Extract helper
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
 
-Teach in a calm, warm, conversational tone, as though you are sitting beside them.
-Avoid lists, headings, or dramatic language.
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-Explain age-appropriate ideas such as saving, interest, compound growth,
-risk, simple stocks and bonds, long-term thinking, budgeting, or diversification.
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
-Keep everything gentle, supportive, and easy to understand.
+
+# ------------------------------------------------------------
+# GENERAL INVESTING QUESTION — SAME SYSTEM
+# ------------------------------------------------------------
+def investment_question(question: str, grade_level="8", character="everly"):
+
+    prompt = f"""
+You are a gentle investing tutor for a grade {grade_level} student.
+
+The student asked:
+"{question}"
+
+Answer using SIX short, calm sections:
+
+SECTION 1 — OVERVIEW  
+Explain what the student is really asking in child-friendly terms.
+
+SECTION 2 — KEY FACTS  
+Give 3–5 simple facts that help explain the answer.
+
+SECTION 3 — CHRISTIAN VIEW  
+Explain softly how Christian stewardship applies to the topic.
+
+SECTION 4 — AGREEMENT  
+Explain what people of any worldview agree on about the idea.
+
+SECTION 5 — DIFFERENCE  
+Explain gently how Christian and secular perspectives may differ.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 small practice questions with short answers.
+
+Tone:
+friendly, slow, not overwhelming.
 """
 
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-# -----------------------------------------------------------
-# Build prompt for investment quizzes (conversational)
-# -----------------------------------------------------------
-def build_investing_quiz_prompt(topic: str, grade_level: str):
-    """
-    Creates a conversational investing quiz with Socratic feel.
-    No lists — just spoken-style questions.
-    """
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
 
-    return f"""
-Create a gentle practice quiz about the investing topic "{topic}"
-for a grade {grade_level} student.
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-Ask a few soft, thoughtful questions one at a time,
-leaving space for the student to think.
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
-After a short pause in the conversation,
-offer the answers in the same warm tone.
+
+# ------------------------------------------------------------
+# INVESTING QUIZ — STILL 6 SECTIONS FOR CONSISTENCY
+# ------------------------------------------------------------
+def investment_quiz(topic: str, grade_level="8", character="everly"):
+
+    prompt = f"""
+Create a warm, calm investing quiz for a grade {grade_level} student.
+
+Topic: "{topic}"
+
+Use SIX SECTIONS:
+
+SECTION 1 — OVERVIEW  
+Short explanation of the topic.
+
+SECTION 2 — KEY FACTS  
+3–5 easy facts they should remember.
+
+SECTION 3 — CHRISTIAN VIEW  
+Soft explanation of Christian stewardship ideas.
+
+SECTION 4 — AGREEMENT  
+Common ideas everyone agrees on.
+
+SECTION 5 — DIFFERENCE  
+Respectful comparison of viewpoints.
+
+SECTION 6 — PRACTICE  
+Write 5 quiz questions and the answer key.
+
+Tone must stay slow, peaceful, and not technical.
 """
 
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-# -----------------------------------------------------------
-# Build prompt for investment scenarios
-# -----------------------------------------------------------
-def build_scenario_prompt(topic: str, grade_level: str):
-    """
-    Builds a conversational real-life example to explain investing.
-    """
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "Not available."
 
-    return f"""
-Create a simple imagined scenario that helps a grade {grade_level} student
-understand the investing topic "{topic}".
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-Speak in a slow, gentle, conversational style.
-Guide them through the situation step by step as if you are thinking together.
-
-Avoid lists and dramatic language.
-Make the situation peaceful, practical, and easy to picture.
-"""
-
-
-# -----------------------------------------------------------
-# Public functions (Socratic + Personality)
-# -----------------------------------------------------------
-def explain_investing(topic: str, grade_level="8", character=None):
-    """Explains investing concepts in a warm, personality-aware Socratic tone."""
-
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = build_investing_lesson_prompt(topic, grade_level)
-
-    # Add Socratic step-by-step teaching
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-
-    # Personality layer
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-def investment_quiz(topic: str, grade_level="8", character=None):
-    """Creates a soft conversational Socratic investing quiz."""
-
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = build_investing_quiz_prompt(topic, grade_level)
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-def investment_scenario(topic: str, grade_level="8", character=None):
-    """Creates an investing scenario in a gentle Socratic tone."""
-
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = build_scenario_prompt(topic, grade_level)
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )

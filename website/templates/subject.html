@@ -3,11 +3,11 @@
 
 <style>
     .answer-wrapper {
-        max-width: 950px;
+        max-width: 900px;
         margin: 0 auto;
         padding: 20px;
-        text-align: center;
         color: white;
+        text-align: center;
     }
 
     /* CHARACTER */
@@ -23,13 +23,13 @@
 
     @keyframes float {
         0% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
+        50% { transform: translateY(-12px); }
         100% { transform: translateY(0); }
     }
 
     .character-name {
-        margin-top: 8px;
-        font-size: 1.5rem;
+        margin-top: 10px;
+        font-size: 1.6rem;
         font-weight: 600;
         color: #ffd86b;
         text-shadow: 0 0 10px #ffb300;
@@ -39,22 +39,29 @@
     .answer-card {
         margin-top: 30px;
         background: rgba(255,255,255,0.12);
-        padding: 30px 28px;
+        padding: 30px;
         border-radius: 18px;
         backdrop-filter: blur(10px);
         text-align: left;
-        box-shadow: 0 0 25px rgba(0,0,0,0.45);
-        line-height: 1.7;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+        line-height: 1.65;
         font-size: 1.15rem;
     }
 
-    /* SUBHEADINGS */
     .section-title {
         font-size: 1.4rem;
         color: #bfe6ff;
-        margin-top: 20px;
-        text-shadow: 0 0 10px #5ecbff;
+        margin-top: 25px;
         font-weight: 700;
+        text-shadow: 0 0 10px #5ecbff;
+    }
+
+    .answer-card ul {
+        padding-left: 20px;
+    }
+
+    .answer-card li {
+        margin-bottom: 8px;
     }
 
     /* BUTTON */
@@ -67,26 +74,14 @@
         font-size: 1.2rem;
         border-radius: 12px;
         text-decoration: none;
-        transition: 0.25s ease;
         box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        transition: 0.25s ease;
     }
 
     .btn-back:hover {
         background: #2f74ff;
         transform: translateY(-3px);
     }
-
-    /* SIMPLE LIST STYLE FOR KIDS */
-    .answer-card ul {
-        padding-left: 18px;
-        margin-top: 10px;
-    }
-
-    .answer-card li {
-        margin-bottom: 8px;
-        line-height: 1.5;
-    }
-
 </style>
 
 
@@ -98,28 +93,63 @@
         <div class="character-name">{{ character.replace('_',' ').title() }}</div>
     </div>
 
-    <!-- ANSWER OUTPUT -->
+    <!-- MAIN ANSWER -->
     <div class="answer-card">
 
-        <div class="section-title">Here’s the Breakdown 👇</div>
+        {% if answer.overview %}
+        <div class="section-title">🌟 Overview</div>
+        <p>{{ answer.overview }}</p>
+        {% endif %}
 
-        <!-- We gently chunk the AI answer into readable pieces -->
-        <div id="formatted-answer">{{ answer | safe }}</div>
+        {% if answer.key_facts %}
+        <div class="section-title">📘 Key Facts</div>
+        <ul>
+            {% for fact in answer.key_facts %}
+            <li>{{ fact }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
 
-        <div class="section-title">Now You Try! ⭐</div>
-        <p>
-            Can you explain this in *your own words*?  
-            Or try making up your own example!
-        </p>
+        {% if answer.christian_view %}
+        <div class="section-title">✨ Christian Viewpoint</div>
+        <p>{{ answer.christian_view }}</p>
+        {% endif %}
 
-        <div class="section-title">Want Help With Another Question?</div>
-        <p>
-            You can go back and ask anything else you’re curious about!
-        </p>
+        {% if answer.agreement %}
+        <div class="section-title">🤝 Where Christian & Secular Views Agree</div>
+        <ul>
+            {% for item in answer.agreement %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if answer.difference %}
+        <div class="section-title">🔍 Where They Differ</div>
+        <ul>
+            {% for diff in answer.difference %}
+            <li>{{ diff }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if answer.practice %}
+        <div class="section-title">🧠 Now You Try!</div>
+        <ul>
+            {% for q in answer.practice %}
+            <li>{{ q }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="section-title">➡ Want Help With Another Question?</div>
+        <p>You can go back and explore more planets anytime.</p>
 
     </div>
 
     <a href="/subjects" class="btn-back">Ask Another Question</a>
+
 </div>
 
 {% endblock %}
+

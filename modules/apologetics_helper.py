@@ -1,94 +1,83 @@
-# modules/apologetics_helper.py
-
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
+# -----------------------------------------------------------
+# STRUCTURED APOLOGETICS RESPONSE
+# -----------------------------------------------------------
+def apologetics_answer(question: str, grade_level="8", character="everly"):
     """
-    Wraps the final explanation in a guided-learning, Socratic tutoring style.
-    The student receives:
-    • interpretation of the question
-    • a hint
-    • a guiding question
-    • a gentle nudge
-    • THEN the full apologetics explanation
+    Creates a structured, gentle apologetics explanation using
+    the same 6-section child-friendly format as all other helpers.
     """
 
-    return f"""
-A student asked: "{question}"
+    # Build the structured tutoring prompt
+    prompt = f"""
+You are a warm, gentle Christian apologetics tutor teaching a grade {grade_level} student.
 
-Begin by guiding the student without giving the full answer immediately.
+The student asked:
+"{question}"
 
-First, restate what the question is really asking in simple, kid-friendly language.
+Provide the answer in SIX SHORT SECTIONS.
+Use simple, comforting language suitable for kids.
 
-Next, offer a helpful hint that points them in the right direction
-without giving the answer away.
+SECTION 1 — OVERVIEW  
+Give a simple explanation in 3–4 sentences about what the question is *really about*.
 
-Then ask a gentle guiding question that encourages them to think.
-It should make the student reflect on the deeper meaning of the topic
-and move closer to understanding.
+SECTION 2 — KEY IDEAS  
+Explain 3–5 important points Christians believe about this topic.  
+Use very simple sentences.
 
-After that, give one more small nudge—just enough to help them
-if they are stuck, but still not revealing the full explanation.
+SECTION 3 — CHRISTIAN VIEW  
+Explain kindly what Christians believe and *why* they find these beliefs meaningful.  
+You may mention Scripture gently.  
+Keep it short.
 
-Once you have guided the student with these steps,
-you may transition naturally into the full apologetics explanation below.
+SECTION 4 — AGREEMENT  
+Explain what Christians and non-Christians would both agree on.
 
-Full Explanation:
-{base_explanation}
+SECTION 5 — DIFFERENCE  
+Explain how Christian and secular worldviews might see the topic differently,  
+but keep the tone respectful, gentle, and kind.
 
-End with a warm summary that encourages them and praises their curiosity.
-Keep everything conversational and age-appropriate for grade {grade_level}.
+SECTION 6 — PRACTICE  
+Ask 2–3 simple reflection questions the child can think about  
+(“Why do people ask this?” “What do you think…?” etc).  
+Then give very short sample answers.
+
+Avoid debate language.  
+Stay kind, respectful, and simple.
 """
 
+    # Apply personality voice
+    prompt = apply_personality(character, prompt)
 
-def build_apologetics_prompt(question: str, grade_level: str):
-    """
-    Creates the base apologetics prompt (the final explanation),
-    which then gets wrapped inside the Socratic method.
-    """
+    # Get raw AI response
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-    return f"""
-The student has asked a Christian apologetics question:
+    # -------------------------------------------------------
+    # Extract sections from raw text
+    # -------------------------------------------------------
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        start = raw.find(label) + len(label)
+        return raw[start:].strip()
 
-\"{question}\"
+    overview = extract("SECTION 1")
+    key_ideas = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-Speak warmly and conversationally, as if you're talking to a grade {grade_level} student.
-
-Explain what many Christians believe AND why thoughtful Christians—
-including respected apologists like C.S. Lewis, John Lennox, Lee Strobel,
-William Lane Craig, and Alvin Plantinga—find these beliefs compelling.
-
-You may mention Scripture softly and naturally,
-and you may gently acknowledge how a secular worldview might see the issue differently,
-but the focus should remain on why Christians find their worldview meaningful.
-
-Keep the tone gentle, thoughtful, and calm.
-No lists. No headings. No markdown.
-Just smooth, friendly conversation.
-"""
-
-
-def apologetics_answer(question: str, grade_level="8", character=None):
-    """
-    Produces a personality-aware, Socratic-guided apologetics explanation.
-    """
-
-    if character is None:
-        character = "valor_strike"
-
-    # First: Build the final apologetics explanation
-    base_explanation = build_apologetics_prompt(question, grade_level)
-
-    # Second: Wrap it with the Socratic tutor method
-    guided_prompt = socratic_layer(base_explanation, question, grade_level)
-
-    # Third: Apply the character’s voice/personality layer
-    enriched_prompt = apply_personality(character, guided_prompt)
-
-    # Fourth: Send it to the AI engine
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
- 
+    # Package it for the answer page
+    return format_answer(
+        overview=overview,
+        key_facts=key_ideas,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )

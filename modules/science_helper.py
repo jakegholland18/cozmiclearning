@@ -2,205 +2,137 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
 # -------------------------------------------------------
-# Detect Christian-related science questions
+# Detect Christian-oriented science questions
 # -------------------------------------------------------
 def is_christian_question(text: str) -> bool:
     keywords = [
         "christian", "christianity", "god", "jesus", "bible",
-        "biblical", "creation", "faith",
-        "christian perspective",
-        "from a christian view",
-        "how does this relate to christianity",
+        "biblical", "creation", "faith", "christian perspective",
+        "from a christian view", "how does this relate to christianity",
         "how does this relate to god"
     ]
     return any(k.lower() in text.lower() for k in keywords)
 
 
 # -------------------------------------------------------
-# Socratic Tutor Layer (used on all explanations)
+# Build 6-section prompt (standard science question)
 # -------------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
-    """
-    Wraps any explanation inside Socratic guidance:
-    restate → hint → guiding question → small nudge → full explanation.
-    """
-
+def build_science_prompt(topic: str, grade_level: str):
     return f"""
-A student asked: "{question}"
+You are a gentle science teacher for a grade {grade_level} student.
 
-Before teaching the full explanation, help the student think on their own.
+The student asked:
+"{topic}"
 
-Start by restating the question in simple, kid-friendly language so they feel understood.
+Write the answer using SIX very kid-friendly sections.
 
-Then offer a small hint that gently points them in the right direction.
+SECTION 1 — OVERVIEW  
+Explain the science idea in 3–4 smooth, simple sentences  
+using everyday language. Keep it soft and calm.
 
-Next, ask a guiding question that gets them thinking about what they already know
-about nature, science, or the world around them.
+SECTION 2 — KEY FACTS  
+Explain the important science ideas using slow, warm sentences  
+matter, energy, organisms, ecosystems, forces, space, weather, etc.  
+No bullet points. No lists. Just small, clear sentences.
 
-After that, give a soft nudge that helps them move closer to the idea
-without revealing the whole explanation too early.
+SECTION 3 — CHRISTIAN VIEW  
+Explain gently how many Christians see science as studying  
+the order, structure, and patterns in creation.  
+Do not claim the Bible teaches modern science.  
+Just explain the gentle worldview piece.
 
-Once you have guided their thinking step-by-step,
-transition naturally into the full explanation below.
+SECTION 4 — AGREEMENT  
+Explain what all people agree on  
+(observation, evidence, experiments, nature patterns).
 
-Full Explanation:
-{base_explanation}
+SECTION 5 — DIFFERENCE  
+Explain kindly how a Christian worldview may add meaning  
+like purpose, stewardship, responsibility, or gratitude.
 
-End with a warm, encouraging summary written at a grade {grade_level} level
-that reassures them it is wonderful to be curious about how the world works.
+SECTION 6 — PRACTICE  
+Ask 2–3 kid-friendly reflection questions  
+and then give simple example answers that model how to think.
+
+No lists. No headings. Just smooth conversation.
 """
 
 
 # -------------------------------------------------------
-# Grade-Level Science Topics
+# Build 6-section prompt (Christian-directed science question)
 # -------------------------------------------------------
-SCIENCE_TOPICS = {
-    "1": ["plants", "animals", "senses", "weather", "seasons"],
-    "2": ["habitats", "life cycles", "basic forces", "energy", "earth materials"],
-    "3": ["ecosystems", "adaptations", "simple machines", "solar system"],
-    "4": ["energy transfer", "waves", "erosion", "motion"],
-    "5": ["cells", "matter", "ecosystems", "earth systems"],
-    "6": ["atoms", "molecules", "forces", "heat", "weather systems"],
-    "7": ["genetics", "chemical reactions", "ecology", "body systems"],
-    "8": ["forces and motion", "energy", "earth history", "chemistry basics"],
-    "9": ["biology", "earth science", "physics basics"],
-    "10": ["chemistry", "biology", "ecology", "geology"],
-    "11": ["physics", "genetics", "cell biology"],
-    "12": ["advanced physics", "advanced chemistry", "environmental science"]
-}
+def build_christian_science_prompt(topic: str, grade_level: str):
+    return f"""
+The student asked this science question from a Christian perspective:
+
+"{topic}"
+
+Answer using SIX warm, simple, child-friendly sections.
+
+SECTION 1 — OVERVIEW  
+Explain what the question means in very gentle language.
+
+SECTION 2 — KEY FACTS  
+Explain the important science ideas  
+(observation, evidence, nature, forces, life, space, earth).
+
+SECTION 3 — CHRISTIAN VIEW  
+Explain softly how many Christians understand science  
+as exploring a world with order, patterns, and consistency.  
+Keep Scripture references gentle and simple, only if relevant.
+
+SECTION 4 — AGREEMENT  
+Explain what Christians and non-Christians agree on in science  
+(facts, experiments, natural laws, curiosity, learning).
+
+SECTION 5 — DIFFERENCE  
+Explain kindly how Christians may add meaning  
+(purpose, creation care, moral responsibility, wonder).
+
+SECTION 6 — PRACTICE  
+Ask 2–3 reflection questions and give short example answers  
+appropriate for a grade {grade_level} student.
+
+Keep everything slow, calm, and conversational.
+"""
 
 
-# -------------------------------------------------------------
-# EXPLAIN A SCIENCE TOPIC (FULL LESSON w/ Socratic tutoring)
-# -------------------------------------------------------------
-def explain_science(topic: str, grade_level="8", character=None):
-
-    if character is None:
-        character = "valor_strike"
-
-    # Christian worldview requested
+# -------------------------------------------------------
+# MAIN PUBLIC FUNCTION — integrates with new formatter
+# -------------------------------------------------------
+def explain_science(topic: str, grade_level="8", character="everly"):
+    # Choose the correct prompt format
     if is_christian_question(topic):
-        christian_base = f"""
-The student asked how this science topic relates to Christianity.
+        prompt = build_christian_science_prompt(topic, grade_level)
+    else:
+        prompt = build_science_prompt(topic, grade_level)
 
-Topic: {topic}
+    # Add personality wrapper
+    prompt = apply_personality(character, prompt)
 
-Explain gently that science studies the natural world and helps us understand
-how things work by observing patterns, gathering evidence, and testing ideas.
+    # Get raw AI output
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-Explain that many Christians appreciate science because they see the natural world
-as something created with order and purpose, but avoid claiming that the Bible
-teaches modern scientific theories.
+    # Helper to slice labeled sections
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "No information provided."
 
-Keep the tone warm, simple, and respectful.
-"""
-        prompt = socratic_layer(christian_base, topic, grade_level)
-        prompt = apply_personality(character, prompt)
-        return study_buddy_ai(prompt, grade_level, character)
+    overview       = extract("SECTION 1")
+    key_facts      = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement      = extract("SECTION 4")
+    difference     = extract("SECTION 5")
+    practice       = extract("SECTION 6")
 
-    # Standard science explanation
-    grade_topics = ", ".join(SCIENCE_TOPICS.get(str(grade_level), []))
-
-    base_prompt = f"""
-Teach the science topic: {topic}
-Grade level: {grade_level}
-
-Use a calm, patient, conversational voice.
-Avoid energetic or dramatic language.
-
-Include a simple overview, gentle step-by-step thinking,
-and real-world examples that help the idea make sense.
-Explain key ideas in plain language, then guide the student 
-through a few practice questions and answers in a natural,
-spoken tone without lists or headings.
-
-Grade-level reference topics include: {grade_topics}
-Use this to match the difficulty.
-"""
-
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    guided_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(guided_prompt, grade_level, character)
-
-
-# -------------------------------------------------------------
-# ANSWER A SCIENCE QUESTION (Socratic + Personality)
-# -------------------------------------------------------------
-def answer_science_question(question: str, grade_level="8", character=None):
-
-    if character is None:
-        character = "valor_strike"
-
-    # Christian worldview version
-    if is_christian_question(question):
-        christian_base = f"""
-The student asked about this science question from a Christian perspective.
-
-Question: {question}
-
-Explain gently:
-Science describes how the natural world works.
-Many Christians see scientific patterns and order as signs of a world created with consistency.
-Avoid claiming that Scripture directly teaches modern scientific theories.
-
-Speak in a warm, calm tone for a grade {grade_level} student.
-"""
-        guided_prompt = socratic_layer(christian_base, question, grade_level)
-        guided_prompt = apply_personality(character, guided_prompt)
-        return study_buddy_ai(guided_prompt, grade_level, character)
-
-    # Standard explanation
-    base_prompt = f"""
-Answer this science question for a grade {grade_level} student
-using a slow, friendly, conversational tone:
-
-{question}
-
-Explain what the question is asking,
-walk through the idea step by step in natural language,
-give a gentle example, and offer one small reminder.
-"""
-    guided_prompt = socratic_layer(base_prompt, question, grade_level)
-    guided_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(guided_prompt, grade_level, character)
-
-
-# -------------------------------------------------------------
-# GENERATE A SCIENCE QUIZ (Socratic + Personality)
-# -------------------------------------------------------------
-def generate_science_quiz(topic: str, grade_level="8", character=None):
-
-    if character is None:
-        character = "valor_strike"
-
-    # Christian worldview quiz
-    if is_christian_question(topic):
-        christian_base = f"""
-The student wants a Christian perspective before a small science quiz.
-
-Topic: {topic}
-
-Explain gently that many Christians appreciate the order in nature.
-Then offer several gentle practice questions and a conversational answer key.
-"""
-        guided_prompt = socratic_layer(christian_base, topic, grade_level)
-        guided_prompt = apply_personality(character, guided_prompt)
-        return study_buddy_ai(guided_prompt, grade_level, character)
-
-    # Standard quiz
-    base_prompt = f"""
-Create a soft, conversational science quiz for the topic: {topic}
-Grade level: {grade_level}
-
-Ask five gentle practice questions in spoken, natural language.
-Then offer an answer key in the same tone.
-"""
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    guided_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(guided_prompt, grade_level, character)
-
-
-
+    # Format everything into the clean kid-friendly HTML structure
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )

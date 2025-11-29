@@ -2,24 +2,24 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
-# -------------------------------------------------------------
-# Detect Christian-oriented history questions
-# -------------------------------------------------------------
+# ------------------------------------------------------------
+# Detect Christian-worldview history questions
+# ------------------------------------------------------------
 def is_christian_question(text: str) -> bool:
     keywords = [
-        "christian", "christianity", "god", "jesus", "bible",
-        "biblical", "faith", "from a christian perspective",
-        "christian worldview", "how does this relate to christianity",
-        "how does this relate to god"
+        "christian", "christianity", "god", "jesus", "bible", "biblical",
+        "faith", "christian worldview", "from a christian perspective",
+        "how does this relate to christianity", "how does this relate to god"
     ]
     return any(k.lower() in text.lower() for k in keywords)
 
 
-# -------------------------------------------------------------
-# Grade-level guidance topics (difficulty shaping)
-# -------------------------------------------------------------
+# ------------------------------------------------------------
+# GRADE-LEVEL TOPIC GUIDE
+# ------------------------------------------------------------
 HISTORY_TOPICS = {
     "1": ["families", "communities", "holidays", "basic timelines"],
     "2": ["local history", "famous americans", "geography basics"],
@@ -27,170 +27,210 @@ HISTORY_TOPICS = {
     "4": ["state history", "colonial times", "revolutions"],
     "5": ["us history overview", "exploration", "founding documents"],
     "6": ["ancient civilizations", "world religions overview", "government basics"],
-    "7": ["middle ages", "renaissance", "early world exploration"],
-    "8": ["us constitution", "american government", "civil war", "industrial era"],
+    "7": ["middle ages", "renaissance", "exploration"],
+    "8": ["constitution", "american gov.", "civil war", "industrial era"],
     "9": ["world history", "ancient to medieval", "global empires"],
-    "10": ["modern world history", "world wars", "global conflicts"],
-    "11": ["us history in depth", "government systems", "civil rights"],
-    "12": ["economics basics", "modern global issues", "advanced civics"]
+    "10": ["modern world", "world wars", "global conflicts"],
+    "11": ["us history", "government systems", "civil rights"],
+    "12": ["economics", "modern issues", "civics advanced"]
 }
 
 
-# -------------------------------------------------------------
-# SOCRATIC TUTOR LAYER (used for ALL history answers)
-# -------------------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
+# ------------------------------------------------------------
+# MAIN HISTORY EXPLAINER — 6 SECTIONS
+# ------------------------------------------------------------
+def explain_history(topic: str, grade_level="8", character="everly"):
     """
-    Wraps the final explanation in a guided Socratic style
-    before giving the full answer.
+    Explains any history topic using 6 small sections:
+    overview, key facts, Christian view, agreement, difference, practice.
     """
 
-    return f"""
-A student asked: "{question}"
+    christian = is_christian_question(topic)
 
-Begin by helping the student think for themselves without giving the full answer yet.
+    prompt = f"""
+You are a gentle history tutor for a grade {grade_level} student.
 
-First, restate what the question is really asking in gentle, kid-friendly language.
+The student asked about:
+"{topic}"
 
-Next, offer one helpful hint that nudges them toward the idea without revealing it.
+Answer using SIX very simple sections.
 
-Then, ask a guiding question that makes them think more deeply
-about the historical situation, the people involved, or the causes/effects.
+SECTION 1 — OVERVIEW  
+Explain the topic in 3–4 short sentences without overwhelming them.
 
-After that, give one more small nudge—still avoiding the full explanation.
+SECTION 2 — KEY FACTS  
+Give 3–5 simple, kid-friendly facts about this topic.
+Keep sentences short.
 
-Only after these steps, transition naturally into the full history explanation below.
+SECTION 3 — CHRISTIAN VIEW  
+If the student wants a Christian perspective, explain gently how many Christians
+see this historical event in terms of human choices, right/wrong, and God's
+long-term plan. Keep it calm and non-forceful.
+If not, simply say how Christians might understand the moral lessons involved.
 
-Full Explanation:
-{base_explanation}
+SECTION 4 — AGREEMENT  
+Explain what people of any worldview might agree on
+(e.g., what happened, cause/effect, lessons about human behavior).
 
-End with a warm, simple summary that encourages a grade {grade_level} student
-to keep asking thoughtful questions about history.
+SECTION 5 — DIFFERENCE  
+Explain softly how Christian and secular worldviews may interpret the event differently,
+but stay very respectful and simple.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 reflection questions and provide short example answers.
+
+Tone must be:
+calm, friendly, gentle, non-dramatic, and perfect for kids.
+
+Grade-level guidance:
+{", ".join(HISTORY_TOPICS.get(str(grade_level), []))}
 """
 
+    # Apply character personality
+    prompt = apply_personality(character, prompt)
 
-# -------------------------------------------------------------
-# FULL HISTORY LESSON
-# -------------------------------------------------------------
-def explain_history(topic: str, grade_level="8", character=None):
+    # Get raw AI output
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-    if character is None:
-        character = "valor_strike"
+    # Helper to extract sections safely
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
 
-    # Christian worldview requested
-    if is_christian_question(topic):
-        base_prompt = f"""
-The student requested a Christian perspective on this history topic:
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-{topic}
-
-Explain gently how many Christians see history as the story of human choices,
-responsibility, moral consequences, and God working through imperfect people.
-Keep it calm and age-appropriate.
-"""
-        guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-        enriched_prompt = apply_personality(character, guided_prompt)
-        return study_buddy_ai(enriched_prompt, grade_level, character)
-
-    grade_topics = ", ".join(HISTORY_TOPICS.get(str(grade_level), []))
-
-    base_prompt = f"""
-Teach the history topic: {topic}
-Grade level: {grade_level}
-
-Explain the topic gently and conversationally:
-Give a simple overview.
-Guide the student through the main ideas step by step.
-Use calm examples.
-Never use dramatic or intense language.
-
-Keep it suitable for grade {grade_level}.
-
-Grade-level guidance topics: {grade_topics}
-"""
-
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    # Final formatting for answer.html
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 
-# -------------------------------------------------------------
-# ANSWER GENERAL HISTORY QUESTIONS
-# -------------------------------------------------------------
-def answer_history_question(question: str, grade_level="8", character=None):
+# ------------------------------------------------------------
+# GENERAL HISTORY QUESTION — SAME FORMAT
+# ------------------------------------------------------------
+def answer_history_question(question: str, grade_level="8", character="everly"):
 
-    if character is None:
-        character = "valor_strike"
+    prompt = f"""
+You are a kind and gentle history tutor for a grade {grade_level} student.
 
-    # Christian worldview perspective
-    if is_christian_question(question):
-        base_prompt = f"""
-The student asked about this history question from a Christian perspective:
+The student asked:
+"{question}"
 
-{question}
+Answer using SIX very small sections:
 
-Explain gently how Christians see history as shaped by human choices,
-responsibility, and long-term consequences.
-You may mention that archaeology often supports biblical events,
-but keep it soft, not argumentative.
-"""
-        guided_prompt = socratic_layer(base_prompt, question, grade_level)
-        enriched_prompt = apply_personality(character, guided_prompt)
-        return study_buddy_ai(enriched_prompt, grade_level, character)
+SECTION 1 — OVERVIEW  
+Restate the question's topic in simple terms.
 
-    # Normal history question
-    base_prompt = f"""
-The student is asking a history question suitable for grade {grade_level}:
+SECTION 2 — KEY FACTS  
+Explain 3–5 easy facts that help answer the question.
 
-{question}
+SECTION 3 — CHRISTIAN VIEW  
+Explain softly how Christians might see moral lessons, human behavior,
+or God's larger plan in history.
 
-Give a calm, clear explanation.
-Use gentle examples.
-No dramatic or intense wording.
-Keep it simple and supportive.
+SECTION 4 — AGREEMENT  
+Explain what people of any worldview typically agree on.
+
+SECTION 5 — DIFFERENCE  
+Explain respectfully how Christian and secular interpretations differ.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 kid-friendly reflection questions with sample answers.
+
+Tone: calm, friendly, simple.
 """
 
-    guided_prompt = socratic_layer(base_prompt, question, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
+
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
+
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
+
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 
-# -------------------------------------------------------------
-# HISTORY QUIZ GENERATOR
-# -------------------------------------------------------------
-def generate_history_quiz(topic: str, grade_level="8", character=None):
+# ------------------------------------------------------------
+# HISTORY QUIZ — works with new format
+# ------------------------------------------------------------
+def generate_history_quiz(topic: str, grade_level="8", character="everly"):
 
-    if character is None:
-        character = "valor_strike"
+    prompt = f"""
+Create a gentle, kid-friendly history quiz for a grade {grade_level} student.
 
-    if is_christian_question(topic):
-        base_prompt = f"""
-The student wants a Christian perspective history quiz.
+Topic: "{topic}"
 
-Topic: {topic}
+Use SIX SECTIONS:
 
-Start with a short explanation of how Christians view human events
-as shaped by moral choices and consequences.
+SECTION 1 — OVERVIEW  
+Short explanation of the topic.
 
-Then create three gentle quiz questions plus answers.
-Keep everything calm, simple, and age-appropriate.
+SECTION 2 — KEY FACTS  
+3–5 simple facts to help them remember.
+
+SECTION 3 — CHRISTIAN VIEW  
+Soft explanation of how Christians see lessons about choices, morality, or character.
+
+SECTION 4 — AGREEMENT  
+Common ground people agree on.
+
+SECTION 5 — DIFFERENCE  
+Respectful explanation of different interpretations.
+
+SECTION 6 — PRACTICE  
+Write 5 quiz questions and then the answer key.
+
+Keep the tone warm, calm, and not dramatic.
 """
-        guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-        enriched_prompt = apply_personality(character, guided_prompt)
-        return study_buddy_ai(enriched_prompt, grade_level, character)
 
-    base_prompt = f"""
-Create a calm, age-appropriate history quiz about:
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-{topic}
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
 
-Include five gentle questions and then the answer key.
-Suit the difficulty for grade {grade_level}.
-No dramatic language.
-"""
+    overview = extract("SECTION 1")
+    key_facts = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 

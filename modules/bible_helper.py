@@ -1,12 +1,11 @@
-# modules/bible_helper.py
-
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
-# ------------------------------------------------
-# Detect if the student is asking for Christian content
-# ------------------------------------------------
+# ------------------------------------------------------------
+# Detect whether the question is Christian / Bible-related
+# ------------------------------------------------------------
 def is_christian_request(text: str) -> bool:
     keywords = [
         "bible", "jesus", "god", "christian", "faith", "scripture",
@@ -16,135 +15,251 @@ def is_christian_request(text: str) -> bool:
     return any(k.lower() in text.lower() for k in keywords)
 
 
-# ------------------------------------------------
-# SOCRATIC TUTOR WRAPPER
-# ------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
+# ------------------------------------------------------------
+# MAIN BIBLE LESSON — structured into 6 kid-friendly sections
+# ------------------------------------------------------------
+def bible_lesson(topic: str, grade_level="8", character="everly"):
     """
-    Wraps the final explanation inside a step-by-step Socratic tutoring format.
+    Explains any Bible topic using the 6-section, child-friendly format:
+    overview, key ideas, Christian view, agreement, difference, practice.
     """
 
-    return f"""
-A student asked: "{question}"
+    # Build structured tutoring prompt
+    prompt = f"""
+You are a gentle Christian Bible tutor teaching a grade {grade_level} student.
 
-Begin by helping the student think on their own without giving the full answer right away.
+The student asked a Bible-related question:
+"{topic}"
 
-First, restate in gentle, kid-friendly language what the question is really about.
+Answer using SIX small, easy-to-read sections.
 
-Next, offer one helpful hint that points them in the right direction.
+SECTION 1 — OVERVIEW  
+Explain in 3–4 short sentences what this topic or question is really about.
 
-Then, ask a guiding question that helps them think more deeply
-about what the Bible teaches and how it might connect to their life.
+SECTION 2 — KEY IDEAS  
+Explain 3–5 simple ideas Christians usually believe about this topic.  
+Use very simple sentences.
 
-After that, provide a small nudge—but still avoid giving away the final explanation.
+SECTION 3 — CHRISTIAN VIEW  
+Explain gently what Christians believe, why they believe it,
+and how they see this truth connecting to everyday life or God's character.
+You may mention Scripture softly and naturally.
 
-Only after guiding them step-by-step should you transition into the full Bible explanation below.
+SECTION 4 — AGREEMENT  
+Share what Christians and non-Christians might both agree on
+(or what anyone could notice about the topic).
 
-Full Explanation:
-{base_explanation}
+SECTION 5 — DIFFERENCE  
+Share kindly how Christian and secular worldviews might see the topic differently,
+without arguing or sounding harsh.
+Keep it extremely respectful and warm.
 
-End with a warm, simple summary appropriate for a grade {grade_level} student.
-Reassure them that asking Bible questions is a wonderful way to grow.
+SECTION 6 — PRACTICE  
+Ask 2–3 simple reflection questions  
+and give very short example answers.
+
+Tone must be:
+calm, friendly, encouraging,
+simple enough for a grade {grade_level} student,
+and never preachy or forceful.
 """
 
+    # Apply character personality
+    prompt = apply_personality(character, prompt)
 
-# ------------------------------------------------
-# MAIN BIBLE LESSON FUNCTION
-# ------------------------------------------------
-def bible_lesson(topic: str, grade_level="8", character=None):
+    # Get raw AI response
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-    if character is None:
-        character = "valor_strike"
+    # Helper to safely extract sections
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        start = raw.find(label) + len(label)
+        return raw[start:].strip()
 
-    if not is_christian_request(topic):
-        topic = f"The student asked a Bible-related question: {topic}"
+    overview = extract("SECTION 1")
+    key_ideas = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-    base_prompt = f"""
-The student is asking a Bible question at a grade {grade_level} level.
+    # Convert into HTML sections
+    return format_answer(
+        overview=overview,
+        key_facts=key_ideas,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
-Topic:
-{topic}
 
-Explain the meaning in a warm, calm, conversational tone.
-Avoid dramatic or heavy theological language.
+# ------------------------------------------------------------
+# EXPLAIN A VERSE — same 6-section structure
+# ------------------------------------------------------------
+def explain_verse(reference: str, text: str, grade_level="8", character="everly"):
 
-Include:
-A simple explanation of the topic.
-A gentle description of how many Christians understand it.
-A soft note about how this message might matter in daily life.
+    verse_question = f"What does {reference} mean? The verse says: {text}"
 
-No preaching, judgment, or pressure—only kindness.
+    prompt = f"""
+You are a gentle Bible tutor helping a grade {grade_level} student.
+
+The student asked:
+"{verse_question}"
+
+Answer using SIX small, easy-to-read sections.
+
+SECTION 1 — OVERVIEW  
+Explain simply what this verse is about.
+
+SECTION 2 — KEY IDEAS  
+Explain 3–5 simple points Christians often take from this verse.
+
+SECTION 3 — CHRISTIAN VIEW  
+Gently explain what Christians believe the verse teaches
+and how it encourages them.
+
+SECTION 4 — AGREEMENT  
+Explain what people of any worldview might agree on.
+
+SECTION 5 — DIFFERENCE  
+Explain kindly how Christian and secular views may differ,
+but keep it peaceful and respectful.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 reflection questions  
+and give short example answers.
+
+Keep tone warm, calm, simple.
 """
 
-    guided_prompt = socratic_layer(base_prompt, topic, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
+
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
+
+    overview = extract("SECTION 1")
+    key_ideas = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
+
+    return format_answer(
+        overview=overview,
+        key_facts=key_ideas,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 
-# ------------------------------------------------
-# EXPLAIN A VERSE
-# ------------------------------------------------
-def explain_verse(reference: str, text: str, grade_level="8", character=None):
+# ------------------------------------------------------------
+# BIBLE STORY — same structured format
+# ------------------------------------------------------------
+def explain_bible_story(story: str, grade_level="8", character="everly"):
 
-    if character is None:
-        character = "valor_strike"
+    prompt = f"""
+You are a gentle Bible tutor teaching a grade {grade_level} student.
 
-    base_prompt = f"""
-Explain this Bible verse in a calm, gentle tone for grade {grade_level}.
+Tell the student the story of:
+"{story}"
 
-Reference: {reference}
-Text: {text}
+Then explain it using SIX small sections.
 
-Keep it simple and clear.
-Describe how many Christians understand its meaning.
-Offer one soft, encouraging thought.
+SECTION 1 — OVERVIEW  
+Retell the story in simple language.
+
+SECTION 2 — KEY IDEAS  
+Explain 3–5 simple truths Christians learn from this story.
+
+SECTION 3 — CHRISTIAN VIEW  
+Explain why Christians believe the story matters
+and what they think God is teaching.
+
+SECTION 4 — AGREEMENT  
+Explain what anyone could notice about the story.
+
+SECTION 5 — DIFFERENCE  
+Explain how Christian and secular interpretations might differ,
+kindly and gently.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 short reflection questions  
+with simple example answers.
+
+Tone: warm, kid-friendly, calm.
 """
 
-    guided_prompt = socratic_layer(base_prompt, text, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
+
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
+
+    overview = extract("SECTION 1")
+    key_ideas = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
+
+    return format_answer(
+        overview=overview,
+        key_facts=key_ideas,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 
-# ------------------------------------------------
-# EXPLAIN A BIBLE STORY
-# ------------------------------------------------
-def explain_bible_story(story: str, grade_level="8", character=None):
+# ------------------------------------------------------------
+# CHRISTIAN WORLDVIEW — general questions
+# ------------------------------------------------------------
+def christian_worldview(question: str, grade_level="8", character="everly"):
 
-    if character is None:
-        character = "valor_strike"
+    prompt = f"""
+You are a gentle Christian worldview tutor teaching a grade {grade_level} student.
 
-    base_prompt = f"""
-Tell the story of {story} in a calm, conversational way.
-Then gently explain the message Christians often see in it.
-Share how it may matter in daily life.
+The student asked:
+"{question}"
+
+Answer using SIX friendly sections
+(overview, key ideas, Christian view, agreement, difference, practice).
+
+Use very soft, child-friendly language.
+Avoid debate style.
+Keep everything comforting, respectful, and simple.
 """
 
-    guided_prompt = socratic_layer(base_prompt, story, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    prompt = apply_personality(character, prompt)
+    raw = study_buddy_ai(prompt, grade_level, character)
 
+    def extract(label):
+        if label not in raw:
+            return "Not available."
+        return raw.split(label)[-1].strip()
 
-# ------------------------------------------------
-# CHRISTIAN WORLDVIEW QUESTIONS
-# ------------------------------------------------
-def christian_worldview(question: str, grade_level="8", character=None):
+    overview = extract("SECTION 1")
+    key_ideas = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement = extract("SECTION 4")
+    difference = extract("SECTION 5")
+    practice = extract("SECTION 6")
 
-    if character is None:
-        character = "valor_strike"
-
-    base_prompt = f"""
-The student is asking a Christian worldview question:
-
-{question}
-
-Explain in a calm, patient tone.
-Describe what Christians believe and why.
-Be gentle, thoughtful, and supportive.
-"""
-
-    guided_prompt = socratic_layer(base_prompt, question, grade_level)
-    enriched_prompt = apply_personality(character, guided_prompt)
-    return study_buddy_ai(enriched_prompt, grade_level, character)
-
-
-
+    return format_answer(
+        overview=overview,
+        key_facts=key_ideas,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )

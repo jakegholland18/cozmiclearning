@@ -2,117 +2,140 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
+from modules.answer_formatter import format_answer
 
 
 # -------------------------------------------------------
-# Detect if student asked for Christianity link
+# Detect if student wants Christian perspective
 # -------------------------------------------------------
 def is_christian_question(text: str) -> bool:
     keywords = [
         "christian", "christianity", "jesus", "god", "faith",
         "biblical", "bible", "how does this relate to god",
-        "from a christian perspective"
+        "from a christian perspective", "christian worldview"
     ]
     return any(k.lower() in text.lower() for k in keywords)
 
 
 # -------------------------------------------------------
-# SOCRATIC TEACHING LAYER
-# -------------------------------------------------------
-def socratic_layer(base_explanation: str, question: str, grade_level: str):
-    """
-    Wraps any explanation inside Socratic guidance:
-    restate → hint → guiding question → small nudge → full explanation.
-    """
-
-    return f"""
-A student asked: "{question}"
-
-Begin by helping the student think before offering the full explanation.
-
-First, restate the question in gentle, kid-friendly language so they feel understood.
-
-Next, give a soft hint that points in the right direction without giving away the answer.
-
-Then, ask a guiding question that helps them think about what they already know 
-or have seen in school, in life, or in their own experiences.
-
-After that, offer a small nudge that helps them make progress if they feel stuck,
-but still avoids revealing the complete explanation too early.
-
-Only then should you slowly transition into the full explanation below.
-
-Full Explanation:
-{base_explanation}
-
-End with a warm, encouraging summary written at a grade {grade_level} level,
-letting the student know that asking questions is a great way to grow.
-"""
-
-
-# -------------------------------------------------------
-# Build Christian worldview explanation
-# -------------------------------------------------------
-def build_christian_prompt(question: str, grade_level: str):
-    return f"""
-The student asked this question from a Christian perspective:
-
-"{question}"
-
-Explain gently how many Christians think about this topic.
-Use a warm, conversational tone suitable for grade {grade_level}.
-Avoid dramatic language or pressure.
-
-If Scripture is relevant, mention it softly.
-If the connection is theological or historical, explain it calmly.
-
-Do not claim the Bible teaches modern academic concepts unless accurate.
-Let the tone feel steady, kind, and thoughtful.
-"""
-
-
-# -------------------------------------------------------
-# Build general question explanation
+# Build 6-section prompt (general question)
 # -------------------------------------------------------
 def build_general_prompt(question: str, grade_level: str):
     return f"""
-The student asked this question:
+You are a gentle teacher for a grade {grade_level} student.
 
+The student asked:
 "{question}"
 
-Explain the answer in a warm, calm, conversational tone.
-Speak as if sitting beside the student.
-Use natural language for a grade {grade_level} learner.
+Answer using SIX child-friendly sections.
 
-Keep everything simple and easy to understand
-without using lists, headings, or dramatic descriptions.
+SECTION 1 — OVERVIEW  
+Explain the topic in 3–4 very simple sentences using everyday language.
 
-Help them feel confident that they can understand it step by step.
+SECTION 2 — KEY FACTS  
+Share a few important ideas about how this works in real life  
+(keep sentences short, soft, and warm).
+
+SECTION 3 — CHRISTIAN VIEW  
+If the topic has moral or worldview elements, gently explain  
+how many Christians think about it  
+(kindness, honesty, purpose, design, wisdom).  
+If the topic isn’t naturally Christian, still explain how Christians  
+look for meaning, responsibility, or gratitude in learning.
+
+SECTION 4 — AGREEMENT  
+Explain what people of ANY worldview agree on  
+(common sense facts, science basics, kindness, cause & effect).
+
+SECTION 5 — DIFFERENCE  
+Explain gently where a Christian worldview might add  
+a different motivation or meaning  
+(hope, purpose, responsibility, compassion, stewardship).
+
+SECTION 6 — PRACTICE  
+Ask 2–3 child-friendly reflection questions  
+and give short example answers in simple wording.
+
+Do not use lists or bullet symbols.  
+Keep everything calm, slow, and spoken-like.
 """
 
 
 # -------------------------------------------------------
-# Main public function (Socratic + Personality)
+# Build 6-section prompt (Christian question)
 # -------------------------------------------------------
-def answer_question(question: str, grade_level="8", character=None):
-    """
-    Provides a warm, conversational answer to ANY question.
-    Adds Socratic guidance + character personality.
-    """
+def build_christian_prompt(question: str, grade_level: str):
+    return f"""
+The student asked from a Christian perspective:
 
-    if character is None:
-        character = "valor_strike"
+"{question}"
 
-    # Choose base prompt
+Answer using SIX warm, simple sections.
+
+SECTION 1 — OVERVIEW  
+Explain what the question means in simple, everyday language.
+
+SECTION 2 — KEY FACTS  
+Share the important ideas Christians consider  
+(meaning, purpose, morality, creation, choices, wisdom).
+
+SECTION 3 — CHRISTIAN VIEW  
+Explain gently how many Christians understand this topic  
+using Scripture softly if relevant.  
+Keep the tone calm, slow, and age-appropriate.
+
+SECTION 4 — AGREEMENT  
+Explain what Christians and non-Christians often agree on  
+(kindness, truthfulness, learning from mistakes, curiosity).
+
+SECTION 5 — DIFFERENCE  
+Explain kindly how Christian beliefs may add a different  
+motivation or meaning behind actions or ideas.
+
+SECTION 6 — PRACTICE  
+Ask 2–3 reflection questions  
+and then give short example answers  
+to help them think.
+
+No lists, no bullets, no intense language.  
+Just gentle conversation.
+"""
+
+
+# -------------------------------------------------------
+# Main Public Function — uses formatter.py
+# -------------------------------------------------------
+def answer_question(question: str, grade_level="8", character="everly"):
+
+    # Choose which 6-section format to use
     if is_christian_question(question):
-        base_prompt = build_christian_prompt(question, grade_level)
+        prompt = build_christian_prompt(question, grade_level)
     else:
-        base_prompt = build_general_prompt(question, grade_level)
+        prompt = build_general_prompt(question, grade_level)
 
-    # Add Socratic layer
-    guided_prompt = socratic_layer(base_prompt, question, grade_level)
+    # Apply personality
+    prompt = apply_personality(character, prompt)
 
-    # Add character personality
-    enriched_prompt = apply_personality(character, guided_prompt)
+    # Get AI output
+    raw = study_buddy_ai(prompt, grade_level, character)
 
-    return study_buddy_ai(enriched_prompt, grade_level, character)
+    # Helper to extract each labeled section
+    def extract(label):
+        return raw.split(label)[-1].strip() if label in raw else "No information provided."
+
+    overview       = extract("SECTION 1")
+    key_facts      = extract("SECTION 2")
+    christian_view = extract("SECTION 3")
+    agreement      = extract("SECTION 4")
+    difference     = extract("SECTION 5")
+    practice       = extract("SECTION 6")
+
+    # Format using your kid-friendly answer HTML generator
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
