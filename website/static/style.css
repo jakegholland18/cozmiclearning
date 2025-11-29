@@ -168,6 +168,7 @@ img[src*=".png"] {
     box-shadow: 0 0 25px rgba(255,255,255,0.4);
     animation: floatPlanet 4s ease-in-out infinite;
 }
+
 @keyframes floatPlanet {
     0%   { transform: translateY(0); }
     50%  { transform: translateY(-12px); }
@@ -311,3 +312,100 @@ img[src*=".png"] {
     padding: 40px;
     min-height: 100vh;
 }
+
+
+/* =======================================================
+   MARIO GALAXY PLANET HUB — DASHBOARD
+======================================================= */
+
+.dashboard-galaxy {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+    margin-top: 40px;
+    pointer-events: none;
+}
+
+/* Different orbits rotating at different speeds */
+.orbit-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: planetOrbit 30s linear infinite;
+}
+
+.ring2 { animation-duration: 38s; }
+.ring3 { animation-duration: 46s; }
+
+@keyframes planetOrbit {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Position planets around the orbit */
+.orbit-ring .planet-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: -220px center;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+}
+
+/* Planet styling */
+.orbit-ring .planet {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    animation: floatPlanet 4s ease-in-out infinite;
+    box-shadow: 0 0 25px rgba(255,255,255,0.5);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover interaction */
+.orbit-ring .planet:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 40px white;
+}
+
+/* Labels */
+.orbit-ring .planet-label {
+    margin-top: 10px;
+    text-align: center;
+    color: #ffdd55;
+    font-size: 1.2rem;
+    text-shadow:
+        0 0 8px #ffa600,
+        0 0 20px #ffbb33;
+}
+
+
+/* =======================================================
+   11-PLANET POSITIONING SYSTEM
+======================================================= */
+
+/* Unlock planetary clicks */
+.dashboard-galaxy .planet-wrapper {
+    pointer-events: auto !important;
+}
+
+/* Inner Ring (3 planets) */
+.inner-pos1 { transform: translate(-50%, -50%) rotate(10deg) translateX(170px); }
+.inner-pos2 { transform: translate(-50%, -50%) rotate(130deg) translateX(170px); }
+.inner-pos3 { transform: translate(-50%, -50%) rotate(250deg) translateX(170px); }
+
+/* Middle Ring (4 planets) */
+.middle-pos1 { transform: translate(-50%, -50%) rotate(45deg) translateX(230px); }
+.middle-pos2 { transform: translate(-50%, -50%) rotate(135deg) translateX(230px); }
+.middle-pos3 { transform: translate(-50%, -50%) rotate(225deg) translateX(230px); }
+.middle-pos4 { transform: translate(-50%, -50%) rotate(315deg) translateX(230px); }
+
+/* Outer Ring (4 planets) */
+.outer-pos1 { transform: translate(-50%, -50%) rotate(20deg) translateX(290px); }
+.outer-pos2 { transform: translate(-50%, -50%) rotate(120deg) translateX(290px); }
+.outer-pos3 { transform: translate(-50%, -50%) rotate(220deg) translateX(290px); }
+.outer-pos4 { transform: translate(-50%, -50%) rotate(320deg) translateX(290px); }
+

@@ -1,68 +1,515 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="card fade-in">
+<!-- AAA GAME DASHBOARD INTERFACE -->
 
-    <!-- TITLE -->
-    <h1 class="page-title">Student Dashboard</h1>
+<div class="hb-stars"></div>
 
-    <!-- CHARACTER SECTION -->
-    {% if character %}
-    <div class="dashboard-character">
+<div class="hb-shell">
 
-        <h2>Your Study Buddy</h2>
-
-        <!-- Consistent Size + Floating -->
-        <img src="/static/{{ character }}.png"
-             class="character-large character-float">
-
-        <p class="character-tagline">
-            {{ character.replace('_',' ').title() }} is excited to keep learning with you!
-        </p>
-
-        <!-- Continue Button -->
-        <a href="/buddy" class="btn btn-glow">Continue Learning</a>
-
-    </div>
-
-    {% else %}
-    <p class="no-character">
-        You haven't chosen a Study Buddy yet.  
-        <a href="/choose-character">Pick one here</a>.
-    </p>
-    {% endif %}
-
-    <!-- PROGRESS BOXES -->
-    <div class="stats-row">
-
-        <div class="stat-box">
-            <h3>⭐ XP</h3>
-            <p>{{ xp }}</p>
+    <!-- TOP BAR -->
+    <header class="hb-topbar">
+        <div class="hb-logo">
+            <div class="hb-logo-icon">HB</div>
+            <div class="hb-logo-text">
+                <div class="hb-logo-title">Homework Buddy</div>
+                <div class="hb-logo-sub">Cinema-mode learning · Story-driven study</div>
+            </div>
         </div>
 
-        <div class="stat-box">
-            <h3>🏆 Level</h3>
-            <p>{{ level }}</p>
+        <div class="hb-player-strip">
+            <div class="hb-pill">Player 1 · Student</div>
+
+            <div class="hb-xp-track">
+                <div class="hb-xp-label-row">
+                    <span>Level {{ level }}</span>
+                    <span>{{ xp }} XP</span>
+                </div>
+                <div class="hb-xp-bar">
+                    <!-- XP BAR USING CSS VARIABLE (VS CODE-FRIENDLY) -->
+                    <div class="hb-xp-fill" style="--w: {{ level_progress | default(0) }}%; width: var(--w);"></div>
+                </div>
+            </div>
+
+            {% if character %}
+            <div class="hb-avatar-chip">
+                <div class="hb-avatar">{{ character[0:2].upper() }}</div>
+                <span>Guide: {{ character.replace('_',' ').title() }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- MAIN GRID -->
+    <main class="hb-grid">
+
+        <!-- SUBJECT PANEL (LEFT) -->
+        <section class="hb-panel hb-panel-subjects">
+            <div class="hb-panel-inner">
+                <div class="hb-panel-header">
+                    <div class="hb-panel-title-row">
+                        <div class="hb-panel-icon">📚</div>
+                        <div>
+                            <div class="hb-panel-title">Choose Your Mission</div>
+                            <div class="hb-panel-subtitle">Pick a subject world to enter</div>
+                        </div>
+                    </div>
+                    <div class="hb-chip-soft">Daily streak: {{ streak }} days</div>
+                </div>
+
+                <div class="hb-subject-list" id="hb-subject-list">
+
+                    <!-- CORE SUBJECT BUTTONS -->
+                    <button class="hb-subject-btn active" data-subject="math">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">➗</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">Math</span>
+                                <span class="hb-subject-tagline">Puzzle Portals · Logic Lanes</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+120 XP</span>
+                            <span class="hb-subject-streak">Sessions: 3</span>
+                        </div>
+                    </button>
+
+                    <button class="hb-subject-btn" data-subject="history">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">⏳</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">History</span>
+                                <span class="hb-subject-tagline">Timeline Trek · Heroic Ages</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+90 XP</span>
+                            <span class="hb-subject-streak">Sessions: 1</span>
+                        </div>
+                    </button>
+
+                    <button class="hb-subject-btn" data-subject="science">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">🔬</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">Science</span>
+                                <span class="hb-subject-tagline">Lab Galaxy · Experiment Hub</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+110 XP</span>
+                            <span class="hb-subject-streak">Sessions: 2</span>
+                        </div>
+                    </button>
+
+                    <button class="hb-subject-btn" data-subject="reading">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">📖</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">Reading</span>
+                                <span class="hb-subject-tagline">Story Realm · Lore Library</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+80 XP</span>
+                            <span class="hb-subject-streak">Sessions: 0</span>
+                        </div>
+                    </button>
+
+                    <button class="hb-subject-btn" data-subject="writing">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">✍️</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">Writing</span>
+                                <span class="hb-subject-tagline">Idea Forge · Draft Dock</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+95 XP</span>
+                            <span class="hb-subject-streak">Sessions: 1</span>
+                        </div>
+                    </button>
+
+                    <button class="hb-subject-btn" data-subject="testprep">
+                        <div class="hb-subject-main">
+                            <div class="hb-subject-icon">🎯</div>
+                            <div class="hb-subject-labels">
+                                <span class="hb-subject-name">Test Prep</span>
+                                <span class="hb-subject-tagline">Boss Battle · Practice Arena</span>
+                            </div>
+                        </div>
+                        <div class="hb-subject-meta">
+                            <span class="hb-subject-xp">+150 XP</span>
+                            <span class="hb-subject-streak">Sessions: 4</span>
+                        </div>
+                    </button>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER STAGE -->
+        <section class="hb-panel">
+            <div class="hb-panel-inner hb-stage">
+
+                <div class="hb-hero-scene">
+
+                    <div class="hb-scene-label" id="hb-scene-label">
+                        Math World · Neon Number City
+                    </div>
+
+                    <!-- ⭐ 11-PLANET MARIO GALAXY HUB ⭐ -->
+                    <div class="dashboard-galaxy">
+
+                        <!-- Outer orbit ring (visual only) -->
+                        <div class="orbit-ring ring1"></div>
+                        <!-- Middle orbit -->
+                        <div class="orbit-ring ring2"></div>
+                        <!-- Inner orbit -->
+                        <div class="orbit-ring ring3"></div>
+
+                        <!-- INNER RING (closer to character) -->
+                        <div class="planet-wrapper" data-subject="math"
+                             style="transform: translate(-50%, -50%) rotate(10deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/numforge.png');"></div>
+                            <div class="planet-label">NumForge</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="science"
+                             style="transform: translate(-50%, -50%) rotate(130deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/atomsphere.png');"></div>
+                            <div class="planet-label">AtomSphere</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="reading"
+                             style="transform: translate(-50%, -50%) rotate(250deg) translateX(170px);">
+                            <div class="planet" style="background-image: url('/static/planets/storyverse.png');"></div>
+                            <div class="planet-label">StoryVerse</div>
+                        </div>
+
+                        <!-- MIDDLE RING -->
+                        <div class="planet-wrapper" data-subject="writing"
+                             style="transform: translate(-50%, -50%) rotate(45deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/inkhaven.png');"></div>
+                            <div class="planet-label">InkHaven</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="history"
+                             style="transform: translate(-50%, -50%) rotate(135deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/chronocore.png');"></div>
+                            <div class="planet-label">ChronoCore</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="testprep"
+                             style="transform: translate(-50%, -50%) rotate(225deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/powergrid.png');"></div>
+                            <div class="planet-label">PowerGrid</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="logic"
+                             style="transform: translate(-50%, -50%) rotate(315deg) translateX(230px);">
+                            <div class="planet" style="background-image: url('/static/planets/truthforge.png');"></div>
+                            <div class="planet-label">TruthForge</div>
+                        </div>
+
+                        <!-- OUTER RING (big cinematic ring) -->
+                        <div class="planet-wrapper" data-subject="bible"
+                             style="transform: translate(-50%, -50%) rotate(20deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/faithrealm.png');"></div>
+                            <div class="planet-label">FaithRealm</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="finance"
+                             style="transform: translate(-50%, -50%) rotate(120deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/coinquest.png');"></div>
+                            <div class="planet-label">CoinQuest</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="economics"
+                             style="transform: translate(-50%, -50%) rotate(220deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/stockstar.png');"></div>
+                            <div class="planet-label">StockStar</div>
+                        </div>
+
+                        <div class="planet-wrapper" data-subject="geography"
+                             style="transform: translate(-50%, -50%) rotate(320deg) translateX(290px);">
+                            <div class="planet" style="background-image: url('/static/planets/terranova.png');"></div>
+                            <div class="planet-label">TerraNova</div>
+                        </div>
+
+                    </div>
+
+                    <!-- CHARACTER -->
+                    <div class="hb-character-stand">
+                        <div class="hb-character-avatar" id="hb-character-avatar">🧠</div>
+                        <div class="hb-character-name" id="hb-character-name">
+                            {{ character.replace('_',' ').title() if character else "Nova Circuit" }}
+                        </div>
+                        <div class="hb-character-role" id="hb-character-role">
+                            Logic & Strategy Navigator
+                        </div>
+                    </div>
+
+                    <div class="hb-hero-footer">
+                        <span id="hb-scene-badge-left">Focus: Algebra</span>
+                        <span id="hb-scene-badge-right">Adaptive Difficulty</span>
+                    </div>
+
+                </div>
+
+                <!-- DIALOGUE PANEL -->
+                <div class="hb-dialogue-panel">
+                    <div class="hb-dialogue-avatar">💡</div>
+                    <div class="hb-dialogue-body">
+                        <div class="hb-dialogue-name-row">
+                            <div>
+                                <div class="hb-dialogue-name" id="hb-dialogue-name">Nova</div>
+                                <div class="hb-dialogue-role" id="hb-dialogue-role">Your co-pilot today</div>
+                            </div>
+                            <div class="hb-chip-soft">Tip: Tap a subject or planet to change worlds</div>
+                        </div>
+
+                        <div class="hb-dialogue-text" id="hb-dialogue-text">
+                            I'm ready whenever you are! Pick a subject on the left or jump to a planet in our galaxy.
+                        </div>
+
+                        <div class="hb-dialogue-meta">
+                            <span>
+                                World: <strong id="hb-dialogue-world">Math · Neon Number City</strong>
+                            </span>
+                            <span>Session mood: Focused</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- QUEST PANEL -->
+        <section class="hb-panel hb-panel-quests">
+            <div class="hb-panel-inner">
+                <div class="hb-panel-header">
+                    <div class="hb-panel-title-row">
+                        <div class="hb-panel-icon">📌</div>
+                        <div>
+                            <div class="hb-panel-title">Active Missions</div>
+                            <div class="hb-panel-subtitle">Your homework turned into quests</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hb-quest-list">
+
+                    <div class="hb-quest-item">
+                        <div>
+                            <div class="hb-quest-title">Solve 5 Algebra Problems</div>
+                            <div class="hb-quest-tagline">Translate → Solve → Victory</div>
+                        </div>
+                        <div class="hb-quest-meta">
+                            <div class="hb-quest-chip hb-quest-chip--hot">🔥 Priority</div>
+                        </div>
+                    </div>
+
+                    <div class="hb-quest-item">
+                        <div>
+                            <div class="hb-quest-title">History Summary</div>
+                            <div class="hb-quest-tagline">Turn notes into storyline</div>
+                        </div>
+                        <div class="hb-quest-meta">
+                            <div class="hb-quest-chip hb-quest-chip--easy">✨ Quick Win</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="hb-footer">
+        <div class="hb-footer-left">
+            <a href="/ask" class="hb-btn-primary"><span>🎮 Start Mission</span></a>
+            <a href="/ask" class="hb-btn-secondary">⚡ Quick Help</a>
         </div>
 
-        <div class="stat-box">
-            <h3>📘 Subjects Learned</h3>
-            <p>{{ subjects_count }}</p>
+        <div class="hb-footer-right">
+            <span>Current mode: <strong>Focus Session</strong></span>
         </div>
-
-    </div>
-
-    <!-- PROGRESS REPORT PLACEHOLDER -->
-    <h2 class="section-title">📊 Progress Report</h2>
-
-    <p class="progress-description">
-        Coming soon! This area will show grades, mastery levels, strengths and weaknesses,
-        and parent-friendly analytics.
-    </p>
+    </footer>
 
 </div>
 
+<!-- JS FOR SUBJECT + PLANET SWITCHING -->
+<script>
+    const subjectConfig = {
+        math: {
+            sceneLabel: "Math World · Neon Number City",
+            world: "Math · Neon Number City",
+            badgeLeft: "Focus: Algebra",
+            badgeRight: "Adaptive Difficulty",
+            avatar: "🧠",
+            characterName: "{{ character.replace('_',' ').title() if character else 'Nova Circuit' }}",
+            characterRole: "Logic & Strategy Navigator",
+            dialogue: "Numbers are puzzles wearing costumes. Let's solve them together.",
+        },
+        history: {
+            sceneLabel: "History World · Time Coliseum",
+            world: "History · Time Trek Arena",
+            badgeLeft: "Focus: Timelines",
+            badgeRight: "Era: Rome & More",
+            avatar: "🏛️",
+            characterName: "Creed Concord",
+            characterRole: "Chronicle Storyteller",
+            dialogue: "Every date is a clue to the bigger story.",
+        },
+        science: {
+            sceneLabel: "Science World · Quantum Lab",
+            world: "Science · Lab Galaxy",
+            badgeLeft: "Focus: Experiments",
+            badgeRight: "Cause & Effect",
+            avatar: "🧪",
+            characterName: "Valor Strike",
+            characterRole: "Experiment Co-Commander",
+            dialogue: "Hypothesis ready? Let's uncover why things work.",
+        },
+        reading: {
+            sceneLabel: "Reading World · Lore Library",
+            world: "Reading · Storyverse",
+            badgeLeft: "Focus: Themes",
+            badgeRight: "Character Motives",
+            avatar: "📚",
+            characterName: "Princess Everly Dawn",
+            characterRole: "Story Navigator",
+            dialogue: "Let's uncover hidden meaning in any passage.",
+        },
+        writing: {
+            sceneLabel: "Writing World · Idea Forge",
+            world: "Writing · Draft Dock",
+            badgeLeft: "Focus: Essays",
+            badgeRight: "Structure",
+            avatar: "✍️",
+            characterName: "Analytical Reed",
+            characterRole: "Idea Architect",
+            dialogue: "Tell me what you're trying to say — I’ll shape it.",
+        },
+        testprep: {
+            sceneLabel: "Boss Battle · Practice Arena",
+            world: "Test Prep · Arena",
+            badgeLeft: "Focus: Mixed Practice",
+            badgeRight: "Timed + Gentle",
+            avatar: "🎯",
+            characterName: "Sterling Chase",
+            characterRole: "Exam Strategist",
+            dialogue: "Let’s prep smarter, not harder.",
+        },
+
+        /* EXTRA PLANET WORLDS (UI-ONLY FOR NOW) */
+        bible: {
+            sceneLabel: "FaithRealm · Story of Redemption",
+            world: "Bible · FaithRealm",
+            badgeLeft: "Focus: Big Story",
+            badgeRight: "Hope & Purpose",
+            avatar: "🌟",
+            characterName: "Creed Concord",
+            characterRole: "Faith Guide",
+            dialogue: "Let’s trace the big storyline from beginning to end.",
+        },
+        finance: {
+            sceneLabel: "CoinQuest · Money Missions",
+            world: "Finance · CoinQuest",
+            badgeLeft: "Focus: Money Sense",
+            badgeRight: "Real-Life Choices",
+            avatar: "💰",
+            characterName: "Sterling Chase",
+            characterRole: "Money Mentor",
+            dialogue: "Let’s make smart decisions with every dollar.",
+        },
+        economics: {
+            sceneLabel: "StockStar · Marketplace Orbit",
+            world: "Economics · StockStar",
+            badgeLeft: "Focus: Supply & Demand",
+            badgeRight: "Big Picture",
+            avatar: "📈",
+            characterName: "Sterling Chase",
+            characterRole: "Market Navigator",
+            dialogue: "Let’s see how tiny choices shape huge outcomes.",
+        },
+        geography: {
+            sceneLabel: "TerraNova · World Explorer",
+            world: "Geography · TerraNova",
+            badgeLeft: "Focus: Maps",
+            badgeRight: "Regions & Cultures",
+            avatar: "🌍",
+            characterName: "Harvest Huck",
+            characterRole: "Trail Guide",
+            dialogue: "Grab your map—let’s explore God’s green earth.",
+        },
+        logic: {
+            sceneLabel: "TruthForge · Logic Lab",
+            world: "Logic · TruthForge",
+            badgeLeft: "Focus: Arguments",
+            badgeRight: "Evidence & Reason",
+            avatar: "⚖️",
+            characterName: "Analytical Reed",
+            characterRole: "Logic Coach",
+            dialogue: "We’ll sort facts from feelings and find solid ground.",
+        },
+    };
+
+    const subjectButtons = document.querySelectorAll(".hb-subject-btn");
+    const dashboardPlanets = document.querySelectorAll(".dashboard-galaxy .planet-wrapper");
+
+    const sceneLabelEl = document.getElementById("hb-scene-label");
+    const badgeLeftEl = document.getElementById("hb-scene-badge-left");
+    const badgeRightEl = document.getElementById("hb-scene-badge-right");
+    const avatarEl = document.getElementById("hb-character-avatar");
+    const nameEl = document.getElementById("hb-character-name");
+    const roleEl = document.getElementById("hb-character-role");
+    const dialogueTextEl = document.getElementById("hb-dialogue-text");
+    const worldEl = document.getElementById("hb-dialogue-world");
+
+    function updateSubject(subject) {
+        const config = subjectConfig[subject];
+        if (!config) return;  // safety
+
+        sceneLabelEl.textContent = config.sceneLabel;
+        badgeLeftEl.textContent = config.badgeLeft;
+        badgeRightEl.textContent = config.badgeRight;
+
+        avatarEl.textContent = config.avatar;
+        nameEl.textContent = config.characterName;
+        roleEl.textContent = config.characterRole;
+
+        dialogueTextEl.textContent = config.dialogue;
+        worldEl.textContent = config.world;
+    }
+
+    /* LEFT-SIDE BUTTONS */
+    subjectButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const subject = btn.dataset.subject;
+            updateSubject(subject);
+            subjectButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        });
+    });
+
+    /* PLANETS IN GALAXY HUB */
+    dashboardPlanets.forEach(planet => {
+        planet.addEventListener("click", () => {
+            const subject = planet.dataset.subject;
+            updateSubject(subject);
+        });
+    });
+</script>
+
 {% endblock %}
+
+
+
+
 
 
 
