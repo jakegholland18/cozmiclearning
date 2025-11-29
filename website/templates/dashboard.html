@@ -1,338 +1,105 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<link rel="stylesheet" href="/static/style.css">
-<link rel="stylesheet" href="/static/animations.css">
+<div class="galaxy-wrapper">
 
-<style>
-/* --------------------------------------------------------- */
-/*              CLEAN MARIO GALAXY DASHBOARD CSS             */
-/* --------------------------------------------------------- */
+    <!-- Page Title -->
+    <h1 class="galaxy-title">Choose Your World</h1>
 
-.dashboard-wrapper {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 20px;
-}
+    <!-- Main Galaxy Hub -->
+    <div class="galaxy-container">
 
-/* -------- TITLE -------- */
-.dashboard-title {
-    text-align: center;
-    font-size: 2rem;
-    color: #bfe6ff;
-    margin-bottom: 20px;
-    text-shadow: 0 0 10px #329fff;
-}
-
-/* -------- GRID LAYOUT -------- */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 320px 1fr 320px;
-    gap: 25px;
-}
-
-/* -------- LEFT PANEL (Subjects) -------- */
-.subject-panel {
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 25px rgba(0,0,0,0.4);
-}
-
-.subject-panel h3 {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-    color: #e3f2ff;
-}
-
-.subject-item {
-    background: rgba(255,255,255,0.15);
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: 0.25s;
-}
-
-.subject-item:hover {
-    transform: translateY(-4px);
-    background: rgba(255,255,255,0.22);
-}
-
-.subject-title {
-    font-weight: bold;
-    color: #fff;
-}
-
-.subject-sub {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-/* -------- RIGHT PANEL (Missions) -------- */
-.mission-panel {
-    background: rgba(255,255,255,0.08);
-    padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 25px rgba(0,0,0,0.4);
-}
-
-.mission-panel h3 {
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-}
-
-.mission-item {
-    background: rgba(255,255,255,0.15);
-    padding: 12px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-}
-
-.mission-title {
-    font-weight: bold;
-    color: #fff;
-}
-
-/* --------------------------------------------------------- */
-/*                      MARIO GALAXY HUB                     */
-/* --------------------------------------------------------- */
-
-.galaxy-container {
-    position: relative;
-    width: 580px;
-    height: 580px;
-    margin: 0 auto;
-}
-
-.galaxy-core {
-    width: 90px;
-    height: 90px;
-    background: radial-gradient(circle, #ff93e1, #b600d4);
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 40px #ff45ff, 0 0 80px #e600ff;
-}
-
-.orbit-circle {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 450px;
-    height: 450px;
-    transform: translate(-50%, -50%);
-    border: 2px dashed rgba(255,255,255,0.25);
-    border-radius: 50%;
-}
-
-.planet-orbit {
-    position: absolute;
-    top: 0; left: 0;
-    width: 580px;
-    height: 580px;
-    border-radius: 50%;
-    animation: spinOrbit 40s linear infinite;
-}
-
-@keyframes spinOrbit { 
-    0% { transform: rotate(0deg); } 
-    100% { transform: rotate(360deg); }
-}
-
-.planet-item {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform-origin: -230px center;
-    cursor: pointer;
-    text-align: center;
-}
-
-.planet-img {
-    width: 120px;
-    transition: 0.3s;
-    filter: drop-shadow(0 0 12px rgba(0,0,0,0.7));
-}
-
-.planet-item:hover .planet-img {
-    transform: scale(1.25);
-    filter: drop-shadow(0 0 25px white);
-}
-
-.planet-tag {
-    margin-top: 8px;
-    color: #ffd86b;
-    font-size: 1.1rem;
-    text-shadow: 0 0 8px #ffcc55;
-}
-
-/* CHARACTER */
-.character-section {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.character-icon {
-    font-size: 3rem;
-}
-
-.character-name {
-    font-size: 1.4rem;
-    margin-top: 5px;
-    color: #fff;
-}
-</style>
-
-
-<!-- ============================================================ -->
-<!--                         DASHBOARD PAGE                        -->
-<!-- ============================================================ -->
-
-<div class="dashboard-wrapper">
-
-    <h2 class="dashboard-title">Math World · Neon Number City</h2>
-
-    <div class="dashboard-grid">
-
-        <!-- LEFT SUBJECT PANEL -->
-        <div class="subject-panel">
-            <h3>Choose Your Mission</h3>
-
-            <div class="subject-item" data-subject="math">
-                <div class="subject-title">Math</div>
-                <div class="subject-sub">Puzzle Portals · Logic Lanes</div>
-            </div>
-
-            <div class="subject-item" data-subject="history">
-                <div class="subject-title">History</div>
-                <div class="subject-sub">Timeline Trek · Heroic Ages</div>
-            </div>
-
-            <div class="subject-item" data-subject="science">
-                <div class="subject-title">Science</div>
-                <div class="subject-sub">Experiment Hub · Lab Galaxy</div>
-            </div>
-
-            <div class="subject-item" data-subject="reading">
-                <div class="subject-title">Reading</div>
-                <div class="subject-sub">StoryVerse · Lore Realms</div>
-            </div>
-
-            <div class="subject-item" data-subject="writing">
-                <div class="subject-title">Writing</div>
-                <div class="subject-sub">Idea Forge · Draft Dock</div>
-            </div>
-
-            <div class="subject-item" data-subject="testprep">
-                <div class="subject-title">Test Prep</div>
-                <div class="subject-sub">Boss Battles · Victory Arena</div>
+        <!-- Character at Center -->
+        <div class="galaxy-center">
+            <div class="center-character-icon">🧠</div>
+            <div class="center-character-name">
+                {{ character.replace('_', ' ').title() }}
             </div>
         </div>
 
-
-        <!-- CENTER GALAXY -->
-        <div>
-
-            <div class="galaxy-container">
-
-                <div class="galaxy-core"></div>
-                <div class="orbit-circle"></div>
-
-                <div class="planet-orbit">
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(0deg);">
-                        <img src="/static/planets/num_forge.png" class="planet-img">
-                        <div class="planet-tag">NumForge</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(33deg);">
-                        <img src="/static/planets/atom_sphere.png" class="planet-img">
-                        <div class="planet-tag">AtomSphere</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(66deg);">
-                        <img src="/static/planets/story_verse.png" class="planet-img">
-                        <div class="planet-tag">StoryVerse</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(99deg);">
-                        <img src="/static/planets/ink_haven.png" class="planet-img">
-                        <div class="planet-tag">InkHaven</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(132deg);">
-                        <img src="/static/planets/chrono_core.png" class="planet-img">
-                        <div class="planet-tag">ChronoCore</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(165deg);">
-                        <img src="/static/planets/power_grid.png" class="planet-img">
-                        <div class="planet-tag">PowerGrid</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(198deg);">
-                        <img src="/static/planets/truth_forge.png" class="planet-img">
-                        <div class="planet-tag">TruthForge</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(231deg);">
-                        <img src="/static/planets/faith_realm.png" class="planet-img">
-                        <div class="planet-tag">FaithRealm</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(264deg);">
-                        <img src="/static/planets/coin_quest.png" class="planet-img">
-                        <div class="planet-tag">CoinQuest</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(297deg);">
-                        <img src="/static/planets/stock_star.png" class="planet-img">
-                        <div class="planet-tag">StockStar</div>
-                    </div>
-
-                    <div class="planet-item" style="transform: translate(-50%, -50%) rotate(330deg);">
-                        <img src="/static/planets/terra_nova.png" class="planet-img">
-                        <div class="planet-tag">TerraNova</div>
-                    </div>
-
-                </div>
-
+        <!-- Rotating Orbit -->
+        <div class="galaxy-orbit">
+            <!-- NumForge -->
+            <div class="planet" style="transform: rotate(0deg) translate(220px) rotate(0deg);" data-subject="math">
+                <img src="/static/planets/num_forge.png" class="planet-img">
+                <div class="planet-name">NumForge</div>
             </div>
 
-            <div class="character-section">
-                <div class="character-icon">🧠</div>
-                <div class="character-name">
-                    {{ character.replace('_',' ').title() }}
-                </div>
+            <!-- AtomSphere -->
+            <div class="planet" style="transform: rotate(32deg) translate(220px) rotate(-32deg);" data-subject="science">
+                <img src="/static/planets/atom_sphere.png" class="planet-img">
+                <div class="planet-name">AtomSphere</div>
+            </div>
+
+            <!-- StoryVerse -->
+            <div class="planet" style="transform: rotate(64deg) translate(220px) rotate(-64deg);" data-subject="reading">
+                <img src="/static/planets/story_verse.png" class="planet-img">
+                <div class="planet-name">StoryVerse</div>
+            </div>
+
+            <!-- InkHaven -->
+            <div class="planet" style="transform: rotate(96deg) translate(220px) rotate(-96deg);" data-subject="writing">
+                <img src="/static/planets/ink_haven.png" class="planet-img">
+                <div class="planet-name">InkHaven</div>
+            </div>
+
+            <!-- ChronoCore -->
+            <div class="planet" style="transform: rotate(128deg) translate(220px) rotate(-128deg);" data-subject="history">
+                <img src="/static/planets/chrono_core.png" class="planet-img">
+                <div class="planet-name">ChronoCore</div>
+            </div>
+
+            <!-- PowerGrid -->
+            <div class="planet" style="transform: rotate(160deg) translate(220px) rotate(-160deg);" data-subject="testprep">
+                <img src="/static/planets/power_grid.png" class="planet-img">
+                <div class="planet-name">PowerGrid</div>
+            </div>
+
+            <!-- TruthForge -->
+            <div class="planet" style="transform: rotate(192deg) translate(220px) rotate(-192deg);" data-subject="logic">
+                <img src="/static/planets/truth_forge.png" class="planet-img">
+                <div class="planet-name">TruthForge</div>
+            </div>
+
+            <!-- FaithRealm -->
+            <div class="planet" style="transform: rotate(224deg) translate(220px) rotate(-224deg);" data-subject="bible">
+                <img src="/static/planets/faith_realm.png" class="planet-img">
+                <div class="planet-name">FaithRealm</div>
+            </div>
+
+            <!-- CoinQuest -->
+            <div class="planet" style="transform: rotate(256deg) translate(220px) rotate(-256deg);" data-subject="finance">
+                <img src="/static/planets/coin_quest.png" class="planet-img">
+                <div class="planet-name">CoinQuest</div>
+            </div>
+
+            <!-- StockStar -->
+            <div class="planet" style="transform: rotate(288deg) translate(220px) rotate(-288deg);" data-subject="economics">
+                <img src="/static/planets/stock_star.png" class="planet-img">
+                <div class="planet-name">StockStar</div>
+            </div>
+
+            <!-- TerraNova -->
+            <div class="planet" style="transform: rotate(320deg) translate(220px) rotate(-320deg);" data-subject="geography">
+                <img src="/static/planets/terra_nova.png" class="planet-img">
+                <div class="planet-name">TerraNova</div>
             </div>
 
         </div>
-
-
-        <!-- RIGHT PANEL -->
-        <div class="mission-panel">
-
-            <h3>Active Missions</h3>
-
-            <div class="mission-item">
-                <div class="mission-title">Solve 5 Algebra Problems</div>
-                <div>🔥 Priority</div>
-            </div>
-
-            <div class="mission-item">
-                <div class="mission-title">History Summary</div>
-                <div>✨ Quick Win</div>
-            </div>
-
-        </div>
-
     </div>
+
 </div>
 
+<script>
+document.querySelectorAll(".planet").forEach(p => {
+    p.addEventListener("click", () => {
+        const subject = p.dataset.subject;
+        window.location.href = `/ask-question?subject=${subject}`;
+    });
+});
+</script>
 
 {% endblock %}
+
 
 

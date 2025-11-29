@@ -5,116 +5,101 @@
     <meta charset="UTF-8">
     <title>Homework Buddy</title>
 
-    <!-- GLOBAL BASE STYLES -->
     <link rel="stylesheet" href="/static/style.css">
-
-    <!-- ANIMATION FILE (OPTIONAL) -->
-    <link rel="stylesheet" href="/static/animations.css">
-
-    <!-- NEW CINEMATIC DASHBOARD CSS -->
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-
-    <style>
-        /* ------------------------------
-           SIDEBAR (GLOBAL NAVIGATION)
-        ------------------------------ */
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background: #0b1424;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
-            z-index: 50;
-        }
-
-        .sidebar-title {
-            font-size: 1.6rem;
-            color: #bcdfff;
-            margin-bottom: 25px;
-            text-shadow: 0 0 10px #78aaff;
-        }
-
-        .sidebar a {
-            text-decoration: none;
-            color: #e2eeff;
-            font-size: 1.15rem;
-            padding: 10px 12px;
-            border-radius: 10px;
-            transition: 0.25s;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            background: #1d2c49;
-            transform: translateX(5px);
-        }
-
-        /* ------------------------------
-           MAIN CONTENT WRAPPER
-        ------------------------------ */
-        .main-content {
-            margin-left: 260px;
-            padding: 30px;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ------------------------------
-           MOBILE RESPONSIVE
-        ------------------------------ */
-        @media(max-width: 900px) {
-            .sidebar {
-                width: 190px;
-            }
-
-            .main-content {
-                margin-left: 210px;
-            }
-        }
-
-        @media(max-width: 700px) {
-            .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                padding: 15px;
-                gap: 10px;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-        }
-
-    </style>
 
 </head>
 
 <body>
 
 <!-- ========================= -->
-<!--        SIDEBAR MENU       -->
+<!--      SIDEBAR (NEW)        -->
 <!-- ========================= -->
 <div class="sidebar">
+
+    <!-- Logo -->
     <h2 class="sidebar-title">📚 Homework Buddy</h2>
 
+    <!-- NAV LINKS -->
     <a href="/">🏠 Home</a>
-    <a href="/dashboard">📊 Student Dashboard</a>
+    <a href="/dashboard">🚀 Dashboard</a>
     <a href="/choose-character">🎨 Choose Buddy</a>
     <a href="/parent_dashboard">👨‍👩‍👦 Parent Dashboard</a>
+
+    <hr class="sidebar-divider">
+
+    <!-- ===================== -->
+    <!--    STUDENT SUMMARY    -->
+    <!-- ===================== -->
+    <div class="sidebar-section">
+        <h3 class="sidebar-heading">Player Stats</h3>
+
+        <div class="sidebar-chip">
+            Level {{ level }}
+        </div>
+
+        <div class="sidebar-xp-label">{{ xp }} XP</div>
+
+        <div class="hb-xp-bar">
+            <div class="hb-xp-fill" style="--xp: {{ xp_percent | default(0, true) }}%; width: var(--xp);"></div>
+        </div>
+
+        <div class="sidebar-chip">🔥 Streak: {{ streak }} days</div>
+
+        <div class="sidebar-chip">💰 Tokens: {{ tokens }}</div>
+
+        <div class="sidebar-character">
+            <div class="sidebar-character-icon">🧠</div>
+            <div class="sidebar-character-name">
+                {{ character.replace('_',' ').title() }}
+            </div>
+        </div>
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <!-- ===================== -->
+    <!--    CHOOSE MISSION     -->
+    <!-- ===================== -->
+    <div class="sidebar-section">
+        <h3 class="sidebar-heading">Choose Your Mission</h3>
+
+        {% for s in [
+            ("math","Math · Puzzle Portals"),
+            ("history","History · Timeline Trek"),
+            ("science","Science · Lab Galaxy"),
+            ("reading","Reading · StoryVerse"),
+            ("writing","Writing · Draft Dock"),
+            ("testprep","Test Prep · Arena")
+        ] %}
+        <div class="subject-mini" data-subject="{{ s[0] }}">
+            {{ s[1] }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr class="sidebar-divider">
+
+    <!-- ===================== -->
+    <!--     ACTIVE QUESTS     -->
+    <!-- ===================== -->
+    <div class="sidebar-section">
+        <h3 class="sidebar-heading">Active Missions</h3>
+
+        <div class="mission-mini">
+            Solve 5 Algebra Problems <br>
+            <small>🔥 Priority</small>
+        </div>
+
+        <div class="mission-mini">
+            History Summary <br>
+            <small>✨ Quick Win</small>
+        </div>
+    </div>
+
 </div>
 
 <!-- ========================= -->
-<!--      MAIN CONTENT AREA    -->
+<!--      MAIN CONTENT         -->
 <!-- ========================= -->
 <div class="main-content">
     {% block content %}{% endblock %}
@@ -122,6 +107,7 @@
 
 </body>
 </html>
+
 
 
 

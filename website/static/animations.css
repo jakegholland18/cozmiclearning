@@ -1,10 +1,90 @@
-/* FLOATING ANIMATION FOR CHARACTER AVATAR */
-@keyframes float {
-    0%   { transform: translateY(0px); }
-    50%  { transform: translateY(-14px); }
-    100% { transform: translateY(0px); }
+/* ===========================================================
+   ANIMATIONS — GALAXY, UI, FLOATING EFFECTS
+   Clean, optimized, cinematic animation pack
+=========================================================== */
+
+/* Fade in elements */
+.fade-in {
+    animation: fadeIn 0.6s ease-out both;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.animated-avatar {
-    animation: float 3s ease-in-out infinite;
+/* Slight scale pop for panels/cards */
+.panel-pop {
+    animation: panelPop 0.5s ease-out both;
 }
+@keyframes panelPop {
+    from { transform: scale(0.94); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* Star drift background */
+@keyframes starDrift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-1200px); }
+}
+
+/* Planet hover pulse */
+@keyframes planetPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Planet float */
+@keyframes floatPlanet {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-12px); }
+    100% { transform: translateY(0); }
+}
+
+/* Character float animation */
+.character-float {
+    animation: characterFloat 3s ease-in-out infinite;
+}
+@keyframes characterFloat {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-14px); }
+    100% { transform: translateY(0); }
+}
+
+/* Orbit spinning (slow cinematic rotation) */
+@keyframes spinOrbit {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Soft attention pulse for important UI elements */
+.attention-pulse {
+    animation: attentionPulse 1.8s ease-in-out infinite;
+}
+@keyframes attentionPulse {
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.08); opacity: 0.85; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* XP gain flash */
+@keyframes xpFlash {
+    0%   { background: #00d2ff; }
+    50%  { background: #00aaff; }
+    100% { background: #00d2ff; }
+}
+
+.xp-flash {
+    animation: xpFlash 0.8s ease-out;
+}
+
+/* Button hover soft-glow */
+@keyframes glowUp {
+    from { box-shadow: 0 0 0 rgba(0,140,255,0.0); }
+    to   { box-shadow: 0 0 20px rgba(0,140,255,0.6); }
+}
+
+.button-glow:hover {
+    animation: glowUp 0.3s forwards;
+}
+

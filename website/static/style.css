@@ -11,7 +11,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Floating stars background (optional PNG overlay) */
+/* Optional floating stars overlay */
 .hb-stars {
     position: fixed;
     inset: 0;
@@ -27,17 +27,18 @@ body {
     to { transform: translateY(-1200px); }
 }
 
-/* Fade-in universal */
+/* Fade-in effect */
 .fade-in {
     animation: fadeIn 0.6s ease-out;
 }
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===========================================================
-   PANELS & CARDS (used throughout all pages)
+   GLOBAL PANELS / CARDS
 =========================================================== */
 
 .panel,
@@ -53,7 +54,6 @@ body {
     animation: fadeIn 0.5s ease-out;
 }
 
-/* Titles */
 h1, h2, h3 {
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -97,42 +97,33 @@ button:hover,
     background: rgba(255,255,255,0.25);
 }
 
-/* Pill tags */
-.hb-pill,
-.hb-chip-soft {
-    display: inline-block;
-    background: rgba(255,255,255,0.15);
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    color: #e2eaff;
-}
-
 /* ===========================================================
-   SIDEBAR
+   SIDEBAR (NOW A COMPLETE STUDENT HUD)
 =========================================================== */
 
 .sidebar {
-    width: 240px;
+    width: 260px;
     height: 100vh;
     background: #0b1424;
     position: fixed;
     left: 0;
     top: 0;
-    padding: 25px 20px;
+    padding: 25px 18px;
     display: flex;
     flex-direction: column;
     gap: 18px;
+    overflow-y: auto;
     box-shadow: 4px 0 15px rgba(0,0,0,0.5);
 }
 
 .sidebar-title {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
     color: #cbe7ff;
+    margin-bottom: 5px;
     text-shadow: 0 0 10px #78aaff;
-    margin-bottom: 20px;
 }
 
+/* Navigation Links */
 .sidebar a {
     text-decoration: none;
     color: #e5eeff;
@@ -147,26 +138,114 @@ button:hover,
     transform: translateX(6px);
 }
 
+/* Dividers */
+.sidebar-divider {
+    border: none;
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    margin: 18px 0;
+}
+
+/* Sidebar Sections */
+.sidebar-section {
+    margin-bottom: 20px;
+}
+
+.sidebar-heading {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+    color: #cbe7ff;
+    text-shadow: 0 0 6px rgba(255,255,255,0.2);
+}
+
+/* Chips */
+.sidebar-chip {
+    background: rgba(255,255,255,0.15);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    display: inline-block;
+}
+
+/* XP Bar */
+.hb-xp-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.hb-xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00d2ff, #0077ff);
+    width: 0%;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+}
+
+/* Character Summary */
+.sidebar-character {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.sidebar-character-icon {
+    font-size: 2.6rem;
+}
+
+.sidebar-character-name {
+    margin-top: 6px;
+    font-size: 1rem;
+    color: white;
+}
+
+/* Mini subjects */
+.subject-mini {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.12);
+    cursor: pointer;
+    transition: 0.25s;
+    font-size: 0.95rem;
+}
+
+.subject-mini:hover {
+    background: rgba(255,255,255,0.22);
+}
+
+/* Mission mini cards */
+.mission-mini {
+    padding: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
 /* ===========================================================
-   MAIN CONTENT AREA
+   MAIN CONTENT WRAPPER
 =========================================================== */
 
 .main-content {
-    margin-left: 260px;
-    padding: 40px;
+    margin-left: 280px;
+    padding: 35px 40px;
 }
 
-/* MOBILE */
-@media(max-width: 900px) {
+/* Mobile adjustments */
+@media (max-width: 900px) {
     .sidebar {
-        width: 200px;
+        width: 220px;
     }
     .main-content {
-        margin-left: 220px;
+        margin-left: 240px;
     }
 }
 
-@media(max-width: 700px) {
+@media (max-width: 700px) {
     .sidebar {
         width: 100%;
         height: auto;
@@ -180,14 +259,14 @@ button:hover,
 }
 
 /* ===========================================================
-   GALAXY DASHBOARD SUPPORT STYLES
+   GALAXY CENTERPIECE
 =========================================================== */
 
 .galaxy-container {
     width: 550px;
     height: 550px;
-    margin: 0 auto;
     position: relative;
+    margin: 0 auto;
 }
 
 .galaxy-core {
@@ -206,9 +285,10 @@ button:hover,
     width: 430px;
     height: 430px;
     border-radius: 50%;
-    border: 2px dashed rgba(255,255,255,0.25);
+    border: 2px dashed rgba(255,255,255,0.2);
     position: absolute;
-    top: 50%; left: 50%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
 }
 
@@ -217,8 +297,9 @@ button:hover,
     height: 550px;
     border-radius: 50%;
     position: absolute;
-    top: 0; left: 0;
-    animation: spinOrbit 40s linear infinite;
+    top: 0;
+    left: 0;
+    animation: spinOrbit 42s linear infinite;
 }
 
 @keyframes spinOrbit {
@@ -242,8 +323,8 @@ button:hover,
 }
 
 .planet-item:hover .planet-img {
-    transform: scale(1.22);
-    filter: drop-shadow(0 0 25px rgba(255,255,255,0.8));
+    transform: scale(1.25);
+    filter: drop-shadow(0 0 25px rgba(255,255,255,0.85));
 }
 
 .planet-tag {
@@ -254,8 +335,9 @@ button:hover,
 }
 
 /* ===========================================================
-   CHARACTER STAND
+   CHARACTER (BELOW GALAXY)
 =========================================================== */
+
 .character-section {
     text-align: center;
     margin-top: 20px;
@@ -270,56 +352,6 @@ button:hover,
     letter-spacing: 0.5px;
 }
 
-/* ===========================================================
-   FORMS
-=========================================================== */
 
-input, textarea, select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    margin-bottom: 12px;
-    background: rgba(255,255,255,0.15);
-    color: white;
-}
-
-input::placeholder, textarea::placeholder {
-    color: #dfe9ff;
-}
-
-/* ===========================================================
-   QUEST LIST
-=========================================================== */
-
-.mission-item {
-    padding: 12px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
-
-/* ===========================================================
-   XP BAR (if needed elsewhere)
-=========================================================== */
-
-.hb-xp-bar {
-    width: 100%;
-    height: 12px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 8px;
-    margin-top: 8px;
-    overflow: hidden;
-}
-
-.hb-xp-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00d2ff, #0077ff);
-    border-radius: 8px;
-    width: 0%;
-    transition: width 0.4s ease;
-}
 
 

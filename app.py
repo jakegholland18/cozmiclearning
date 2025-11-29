@@ -134,18 +134,12 @@ def add_xp(amount):
 # ROUTES
 # ============================================================
 
-# -------------------------------
-# HOME → DASHBOARD (MAIN HUB)
-# -------------------------------
 @app.route("/")
 def home():
     init_user()
     return redirect("/dashboard")
 
 
-# -------------------------------
-# LEGACY /subjects → redirect
-# -------------------------------
 @app.route("/subjects")
 def subjects_redirect():
     return redirect("/dashboard")
@@ -177,11 +171,14 @@ def ask_question():
     init_user()
     subject = request.args.get("subject")
     grade = request.args.get("grade")
-    return render_template("ask_question.html", subject=subject, grade=grade, character=session["character"])
+    return render_template("ask_question.html",
+                           subject=subject,
+                           grade=grade,
+                           character=session["character"])
 
 
 # -------------------------------
-# SUBJECT ANSWER
+# SUBJECT ANSWERING LOGIC
 # -------------------------------
 @app.route("/subject", methods=["POST"])
 def subject_answer():
@@ -221,33 +218,49 @@ def subject_answer():
 
 
 # -------------------------------
-# STUDENT DASHBOARD (Main Hub)
+# NEW CLEAN DASHBOARD
 # -------------------------------
 @app.route("/dashboard")
 def dashboard():
     init_user()
 
-    xp = session["xp"]
-    level = session["level"]
-    tokens = session["tokens"]
-    streak = session["streak"]
-    character = session["character"]
+    xp = session.get("xp", 0)
+    level = session.get("level", 1)
+    tokens = session.get("tokens", 0)
+    streak = session.get("streak", 1)
+    character = session.get("character", "valor_strike")
 
     xp_to_next = level * 100
-    xp_percent = int((xp / xp_to_next) * 100)
+    try:
+        xp_percent = int((xp / xp_to_next) * 100)
+    except:
+        xp_percent = 0
 
-    missions = [
-        "Visit 2 different planets",
-        "Ask 1 science question",
-        "Earn 20 XP",
+    xp_percent = min(max(xp_percent, 0), 100)
+
+    # Left-side list
+    mission_items = [
+        {"title": "Math", "tag": "Puzzle Portals · Logic Lanes"},
+        {"title": "History", "tag": "Timeline Trek · Heroic Ages"},
+        {"title": "Science", "tag": "Lab Galaxy · Experiment Hub"},
+        {"title": "Reading", "tag": "StoryVerse · Lore Realms"},
+        {"title": "Writing", "tag": "Idea Forge · Draft Dock"},
+        {"title": "Test Prep", "tag": "Boss Battles · Victory Arena"},
     ]
 
-    locked_characters = {
-        "Princess Everly": "Reach Level 3",
-        "Nova Circuit": "3-day streak",
-        "Agent Cluehart": "Earn 200 XP total",
-        "Buddy Barkston": "Buy for 100 tokens",
-    }
+    # Right side missions
+    active_missions = [
+        {
+            "title": "Solve 5 Algebra Problems",
+            "badge": "🔥 Priority",
+            "desc": "Translate → Solve → Victory"
+        },
+        {
+            "title": "History Summary",
+            "badge": "✨ Quick Win",
+            "desc": "Turn notes into storyline"
+        }
+    ]
 
     return render_template(
         "dashboard.html",
@@ -255,11 +268,11 @@ def dashboard():
         level=level,
         tokens=tokens,
         streak=streak,
-        character=character,
         xp_percent=xp_percent,
         xp_to_next=xp_to_next,
-        missions=missions,
-        locked_characters=locked_characters
+        character=character,
+        mission_items=mission_items,
+        active_missions=active_missions
     )
 
 
@@ -279,7 +292,12 @@ def inventory():
 @app.route("/shop")
 def shop():
     init_user()
-    return render_template("shop.html", items=SHOP_ITEMS, tokens=session["tokens"], inventory=session["inventory"])
+    return render_template(
+        "shop.html",
+        items=SHOP_ITEMS,
+        tokens=session["tokens"],
+        inventory=session["inventory"]
+    )
 
 
 @app.route("/buy/<item_id>")
@@ -291,13 +309,12 @@ def buy_item(item_id):
         return redirect("/shop")
 
     item = SHOP_ITEMS[item_id]
-    price = item["price"]
 
-    if session["tokens"] < price:
+    if session["tokens"] < item["price"]:
         flash("Not enough Galaxy Tokens!", "error")
         return redirect("/shop")
 
-    session["tokens"] -= price
+    session["tokens"] -= item["price"]
     session["inventory"].append(item_id)
     flash(f"You bought {item['name']}!", "success")
 
@@ -335,6 +352,3 @@ def parent_dashboard():
 # ============================================================
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
