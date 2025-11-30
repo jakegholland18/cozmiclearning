@@ -1,126 +1,159 @@
 # modules/shared_ai.py
-
 import os
-from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# ============================================================
-# UNIVERSAL SAFETY LIMITS FOR RENDER
-# ============================================================
-
-# Prevents runaway responses and memory explosions
-MAX_TOKENS_STUDY = 900          # for normal Q&A subjects
-MAX_TOKENS_POWERGRID = 2400     # for Ultra PowerGrid Master Guide
-MAX_TOKENS_FOLLOWUP = 600       # for deep study chat follow-ups
+# -------------------------------
+# Lazy-load OpenAI client
+# -------------------------------
+def get_client():
+    from openai import OpenAI
+    return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# ============================================================
-# NORMAL SUBJECT AI (math, history, etc.)
-# ============================================================
+# -------------------------------------------------------
+# CHARACTER VOICES
+# -------------------------------------------------------
+def build_character_voice(character: str) -> str:
+    voices = {
+        "lio":    "Speak smooth, confident, mission-focused, like a calm space agent.",
+        "jasmine": "Speak warm, bright, curious, like a kind space big sister.",
+        "everly":  "Speak elegant, brave, compassionate, like a gentle warrior-princess.",
+        "nova":    "Speak energetic, curious, nerdy-smart, excited about learning.",
+        "theo":    "Speak thoughtful, patient, wise, like a soft academic mentor.",
+    }
+    return voices.get(character, "Speak in a friendly, warm tutoring voice.")
 
-def study_buddy_ai(prompt, grade, character):
-    """
-    Standard AI call for all normal subjects.
-    Returns short-to-medium responses.
-    Render Safe.
-    """
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            max_output_tokens=MAX_TOKENS_STUDY,
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"""
-You are Homework Buddy, a friendly intelligent tutor.
-Speak clearly and at a grade {grade} level.
-You take on the personality of the character: {character}.
-Keep answers concise but helpful.
+
+# -------------------------------------------------------
+# GRADE LEVEL DEPTH RULES
+# -------------------------------------------------------
+def grade_depth_instruction(grade: str) -> str:
+    g = int(grade)
+
+    if g <= 3:
+        return "Use very simple words and short sentences. Explain slowly."
+    if g <= 5:
+        return "Use simple language with clear examples."
+    if g <= 8:
+        return "Use moderate detail and logical explanation."
+    if g <= 10:
+        return "Use deeper reasoning and strong connections."
+    if g <= 12:
+        return "Use high-school level depth with real-world examples."
+
+    return "Use college-level clarity and deep conceptual reasoning."
+
+
+# -------------------------------------------------------
+# SYSTEM PROMPT — STRICT FORMAT FOR SUBJECT ANSWERS
+# -------------------------------------------------------
+BASE_SYSTEM_PROMPT = """
+You are HOMEWORK BUDDY — a warm, gentle tutor.
+
+You MUST ALWAYS output EXACTLY these SIX sections with EXACT ASCII labels:
+
+SECTION 1 — OVERVIEW
+SECTION 2 — KEY FACTS
+SECTION 3 — CHRISTIAN VIEW
+SECTION 4 — AGREEMENT
+SECTION 5 — DIFFERENCE
+SECTION 6 — PRACTICE
+
+STRICT FORMAT RULES:
+• No bullet points.
+• No lists of any kind.
+• ONLY paragraphs with full sentences.
+• Each section MUST contain 2–5 full sentences.
+• After each label: one blank line, then the paragraph.
+• Never modify section labels.
+• Never merge or remove sections.
+• Never add new sections.
 """
-                },
-                {"role": "user", "content": prompt},
-            ],
-        )
-
-        return response.choices[0].message.content
-
-    except Exception as e:
-        return f"[Error generating response: {e}]"
 
 
+# -------------------------------------------------------
+# STANDARD STUDY BUDDY AI (Normal Subjects)
+# -------------------------------------------------------
+def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
 
-# ============================================================
-# POWERGRID — ULTRA MASTER STUDY GUIDE ENGINE
-# ============================================================
+    depth_rule = grade_depth_instruction(grade)
+    voice = build_character_voice(character)
 
-def powergrid_master_ai(prompt, grade, character):
-    """
-    Generates the ULTRA PowerGrid Master Study Guide.
-    Strictly limited tokens so Render does NOT crash.
-    """
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            max_output_tokens=MAX_TOKENS_POWERGRID,
-            temperature=0.35,  # more stable for long structured output
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"""
-You produce extremely detailed, structured study guides.
-Character personality may influence tone gently: {character}.
-GRADE: {grade}.
-Follow instructions EXACTLY.
-Never exceed token limits.
+    system_prompt = f"""
+{BASE_SYSTEM_PROMPT}
+
+CHARACTER VOICE:
+{voice}
+
+GRADE RULE:
+{depth_rule}
 """
-                },
-                {"role": "user", "content": prompt},
-            ],
-        )
 
-        return response.choices[0].message.content
+    client = get_client()
 
-    except Exception as e:
-        return (
-            "POWERGRID encountered an error while generating the study guide.\n"
-            f"Error: {e}\n"
-            "Try simplifying the topic or regenerating."
-        )
+    response = client.responses.create(
+        model="gpt-4.1-mini",
+        input=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+    )
 
+    return response.output_text
 
 
-# ============================================================
-# DEEP STUDY FOLLOW-UP AI (chat after master guide)
-# ============================================================
-
-def powergrid_followup_ai(prompt, grade, character):
+# -------------------------------------------------------
+# POWERGRID MASTER STUDY GUIDE AI — SAFE VERSION
+# -------------------------------------------------------
+def powergrid_master_ai(prompt: str, grade: str, character: str) -> str:
     """
-    Short conversational follow-ups after generating the master guide.
-    NOT used directly—wrapped by study_helper.deep_study_chat()
+    Generates the ULTRA-DETAILED PowerGrid Guide.
+    Length-capped + Render-safe.
     """
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            max_output_tokens=MAX_TOKENS_FOLLOWUP,
-            temperature=0.5,
-            messages=[
-                {
-                    "role": "system",
-                    "content": f"""
-You are a warm deep-study tutor.
-Respond ONLY to the latest student message.
-NO sections. NO long essays. NO study-guide format.
-Grade level: {grade}
-Character personality: {character}
+
+    voice = build_character_voice(character)
+    depth_rule = grade_depth_instruction(grade)
+
+    system_prompt = f"""
+You are HOMEWORK BUDDY — a highly intelligent but warm tutor.
+
+Your task is to create a POWERGRID MASTER STUDY GUIDE
+that is extremely detailed but SAFE for server limits.
+
+LENGTH RULES:
+• Maximum length ~3,000–5,000 words.
+• Do NOT exceed limit.
+• Stop once concepts are fully explained.
+• No infinite rambling.
+
+MIXED FORMAT:
+• Paragraphs + bullet points
+• Sub-bullets allowed
+• ASCII diagrams allowed
+• Examples, analogies, comparisons
+• Common mistakes
+• Memory strategies
+• Beginner → expert progression
+
+FINAL SECTION:
+CHRISTIAN WORLDVIEW PERSPECTIVE
+(1–3 paragraphs connecting topic to compassion, truth, purpose, wisdom, etc.)
+
+VOICE:
+{voice}
+
+GRADE LEVEL:
+{depth_rule}
 """
-                },
-                {"role": "user", "content": prompt},
-            ],
-        )
 
-        return response.choices[0].message.content
+    client = get_client()
 
-    except Exception as e:
-        return f"[Follow-up error: {e}]"
+    response = client.responses.create(
+        model="gpt-4.1",
+        max_output_tokens=3500,   # Render-safe
+        input=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ],
+    )
 
+    return response.output_text
