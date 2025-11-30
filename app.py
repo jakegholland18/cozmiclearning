@@ -344,24 +344,36 @@ def subject_answer():
     session["progress"].setdefault(subject, {"questions": 0, "correct": 0})
     session["progress"][subject]["questions"] += 1
 
+    # SUBJECT HANDLER LOOKUP
     func = subject_map.get(subject)
+
+    # -----------------------------------------
+    # SPECIAL HANDLING — POWERGRID IS SEPARATE
+    # -----------------------------------------
+    if subject == "power_grid":
+        return redirect(f"/ask-question?subject=power_grid&grade={grade}")
+
+    # Normal subjects must exist in subject_map
     if func is None:
         flash("Unknown subject selected.", "error")
         return redirect("/subjects")
 
-    # Call subject handler
+    # -----------------------------------------
+    # CALL SUBJECT HELPER
+    # -----------------------------------------
     result = func(question, grade, character)
 
-    # Helpers may return dicts or plain text; normalize to a clean string
+    # Normalize output
     if isinstance(result, dict):
         answer = result.get("raw_text") or result.get("text") or str(result)
     else:
         answer = result
 
-    # start conversation memory empty
+    # reset conversation for new question
     session["conversation"] = []
     session.modified = True
 
+    # XP + tokens
     add_xp(20)
     session["tokens"] += 2
 
@@ -375,7 +387,6 @@ def subject_answer():
         conversation=session["conversation"],
         pdf_url=None,
     )
-
 
 # ============================================================
 # FOLLOW-UP MESSAGE (ALL SUBJECTS)
