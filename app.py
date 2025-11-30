@@ -246,7 +246,7 @@ def powergrid_submit():
     # -------------------------------
     # Generate Master Study Guide (only call this!)
     # -------------------------------
-    study_guide = study_helper.generate_master_study_guide(
+    study_guide = study_helper.generate_powergrid_master_guide(
     text, grade, session["character"])
 
     # ============================================================
