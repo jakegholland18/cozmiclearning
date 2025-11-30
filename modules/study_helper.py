@@ -23,23 +23,23 @@ def deep_study_chat(question, grade_level="8", character="everly"):
             if isinstance(turn, dict):
                 conversation.append({
                     "role": turn.get("role", "user"),
-                    "content": str(turn.get("content", "")).strip()
+                    "content": str(turn.get("content", "")).strip(),
                 })
             else:
                 conversation.append({
                     "role": "user",
-                    "content": str(turn).strip()
+                    "content": str(turn).strip(),
                 })
     else:
         conversation = [{"role": "user", "content": str(question)}]
 
-    # Build readable dialogue
+    # Build readable dialogue text
     dialogue_text = ""
     for turn in conversation:
         speaker = "Student" if turn["role"] == "user" else "Tutor"
         dialogue_text += f"{speaker}: {turn['content']}\n"
 
-    # Tutor response prompt
+    # Tutor response prompt (NO study-guide structure here)
     prompt = f"""
 You are a warm, patient, expert tutor.
 
@@ -51,13 +51,15 @@ Conversation so far:
 NOW RESPOND AS THE TUTOR.
 
 RULES:
-• Keep responses natural, friendly, and conversational
-• Answer ONLY the student's most recent message
-• No long essays
-• No structured sections
-• No study guide formatting
-• No repeating the master study guide
-• If student wants more detail, go deeper conversationally
+• Keep responses natural, friendly, and conversational.
+• Answer ONLY the student's most recent message.
+• No long essays.
+• No structured sections.
+• No study guide formatting.
+• No 6-section format.
+• No PowerGrid header format.
+• Do NOT repeat or recreate the master study guide.
+• If the student wants more detail, go deeper in a conversational way.
 """
 
     reply = study_buddy_ai(prompt, grade_level, character)
@@ -68,13 +70,13 @@ RULES:
     return reply
 
 
-
 # ============================================================
 # OLD MASTER GUIDE (Bullet-Only) — STILL AVAILABLE
 # ============================================================
 def generate_master_study_guide(text, grade_level="8", character="everly"):
     """
     OLD bullet-only master guide for legacy subjects.
+    Still here in case other subject helpers are using it.
     """
 
     prompt = f"""
@@ -84,25 +86,25 @@ CONTENT SOURCE:
 {text}
 
 GOALS:
-• Extremely in-depth
-• Beginner → expert
-• Bullet points only
-• Sub-bullets for detail
-• Diagrams when needed
-• Examples, analogies, memory tips
-• Common mistakes
-• Formulas when relevant
+• Extremely in-depth.
+• Beginner → expert.
+• Bullet points only.
+• Sub-bullets for detail.
+• Diagrams when needed.
+• Examples, analogies, memory tips.
+• Common mistakes.
+• Formulas when relevant.
 
 STYLE:
-• Clean bullets only
-• No paragraphs
-• Highly structured
-• Friendly tutor tone
-• Grade {grade_level}
+• Clean bullets only.
+• No paragraphs.
+• Highly structured.
+• Friendly tutor tone.
+• Grade {grade_level}.
 
 FORMAT:
-• Plain text
-• Very long
+• Plain text.
+• Very long is okay here.
 """
 
     response = study_buddy_ai(prompt, grade_level, character)
@@ -113,52 +115,32 @@ FORMAT:
     return response
 
 
-
 # ============================================================
-# NEW COMPRESSED POWERGRID STUDY GUIDE (1,200 WORD LIMIT)
+# NEW COMPRESSED POWERGRID STUDY GUIDE (≈1,200 WORD CAP)
 # ============================================================
 def generate_powergrid_master_guide(text, grade_level="8", character="everly"):
     """
-    COMPRESSED POWERGRID MASTER GUIDE
+    COMPRESSED POWERGRID MASTER GUIDE.
+
     Uses the new compressed strategy:
     • Hyper-efficient
-        • Bullets + micro-paragraphs
-        • 1,200-word hard cap
-    • High-density learning
-    • Christian worldview section at end
+    • Bullets + micro-paragraphs
+    • 7 fixed sci-fi headers (double-line style)
+    • Target ~800–1,200 words total
+    • Christian Worldview section at the bottom
     """
 
+    # We keep this prompt SHORT and let the system message in
+    # powergrid_master_ai enforce the exact structure + headers.
     prompt = f"""
-Create a COMPRESSED POWERGRID STUDY GUIDE.
+TOPIC / CONTENT TO TEACH:
 
-CONTENT:
 {text}
 
-STRICT LIMIT:
-⛔ NEVER exceed 1,200 words.  
-Stop early if needed.
-
-STYLE:
-• Extremely compact, information-dense
-• Short sentences
-• Crisp bullets allowed
-• Micro-paragraphs only
-• Avoid repetition
-• Prioritize clarity + efficiency
-• Definitions → insights → examples
-
-MANDATORY FORMAT:
-1. MICRO-OVERVIEW (3–5 sentences)
-2. CORE IDEAS (compressed bullets)
-3. FAST DEEP DIVE (micro-paragraphs)
-4. MINI DIAGRAM (ASCII ≤ 5 lines, if helpful)
-5. EXAMPLES (1–2 sentences each)
-6. COMMON MISTAKES (compact bullets)
-7. CHRISTIAN WORLDVIEW (1 paragraph)
-
-TONE:
-• Warm, clear, smart
-• Grade {grade_level}-appropriate
+INSTRUCTIONS:
+Create a compressed PowerGrid study guide on this topic, following
+the system instructions exactly (including the required sci-fi
+section headers, word limit, and Christian View section.
 """
 
     response = powergrid_master_ai(prompt, grade_level, character)
@@ -167,3 +149,4 @@ TONE:
         return response.get("raw_text") or response.get("text") or str(response)
 
     return response
+

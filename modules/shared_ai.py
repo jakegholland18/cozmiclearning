@@ -1,6 +1,7 @@
 # modules/shared_ai.py
 import os
 
+
 # -------------------------------
 # Lazy-load OpenAI client
 # -------------------------------
@@ -14,20 +15,23 @@ def get_client():
 # -------------------------------------------------------
 def build_character_voice(character: str) -> str:
     voices = {
-        "lio":    "Smooth, confident, mission-focused, calm space agent.",
-        "jasmine": "Warm, bright, curious, like a kind space big sister.",
-        "everly":  "Elegant, brave, compassionate, like a gentle warrior-princess.",
-        "nova":    "Energetic, curious, nerdy-smart, excited about learning.",
-        "theo":    "Thoughtful, patient, wise, like a soft academic mentor.",
+        "lio":     "Speak smooth, confident, mission-focused, like a calm space agent.",
+        "jasmine": "Speak warm, bright, curious, like a kind space big sister.",
+        "everly":  "Speak elegant, brave, compassionate, like a gentle warrior-princess.",
+        "nova":    "Speak energetic, curious, nerdy-smart, excited about learning.",
+        "theo":    "Speak thoughtful, patient, wise, like a soft academic mentor.",
     }
-    return voices.get(character, "Friendly, warm tutoring voice.")
+    return voices.get(character, "Speak in a friendly, warm tutoring voice.")
 
 
 # -------------------------------------------------------
 # GRADE LEVEL DEPTH RULES
 # -------------------------------------------------------
 def grade_depth_instruction(grade: str) -> str:
-    g = int(grade)
+    try:
+        g = int(grade)
+    except Exception:
+        g = 8
 
     if g <= 3:
         return "Use very simple words and short sentences. Explain slowly."
@@ -38,13 +42,13 @@ def grade_depth_instruction(grade: str) -> str:
     if g <= 10:
         return "Use deeper reasoning and strong connections."
     if g <= 12:
-        return "Use high-school depth with real-world examples."
+        return "Use high-school level depth with real-world examples."
 
     return "Use college-level clarity and deep conceptual reasoning."
 
 
 # -------------------------------------------------------
-# SYSTEM PROMPT FOR NORMAL SUBJECT RESPONSES
+# SYSTEM PROMPT — STRICT FORMAT FOR NORMAL SUBJECTS
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
 You are HOMEWORK BUDDY — a warm, gentle tutor.
@@ -58,19 +62,20 @@ SECTION 4 — AGREEMENT
 SECTION 5 — DIFFERENCE
 SECTION 6 — PRACTICE
 
-STRICT RULES:
+STRICT FORMAT RULES:
 • No bullet points.
-• No lists.
+• No lists of any kind.
 • ONLY paragraphs with full sentences.
-• Each section MUST contain 2–5 sentences.
+• Each section MUST contain 2–5 full sentences.
 • After each label: one blank line, then the paragraph.
-• Never alter section labels.
-• Never add or remove sections.
+• Never modify section labels.
+• Never merge or remove sections.
+• Never add new sections.
 """
 
 
 # -------------------------------------------------------
-# NORMAL STUDY BUDDY AI (All subjects except PowerGrid)
+# STANDARD STUDY BUDDY AI (Normal Subjects)
 # -------------------------------------------------------
 def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
     depth_rule = grade_depth_instruction(grade)
@@ -92,62 +97,103 @@ GRADE RULE:
         model="gpt-4.1-mini",
         input=[
             {"role": "system", "content": system_prompt},
-            {"role": "user",  "content": prompt},
-        ]
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.output_text
 
 
 # -------------------------------------------------------
-# POWERGRID — COMPRESSED STUDY GUIDE GENERATOR
+# POWERGRID MASTER STUDY GUIDE AI — COMPRESSED VERSION
 # -------------------------------------------------------
-def powergrid_master_ai(topic_text: str, grade: str, character: str) -> str:
+def powergrid_master_ai(prompt: str, grade: str, character: str) -> str:
     """
-    NEW COMPRESSED POWERGRID ENGINE
-    • Hyper-efficient
-    • 1,200-word hard cap
-    • Very dense information
-    • No rambling
-    • Render-safe
+    Generates the COMPRESSED PowerGrid Study Guide.
+    • Very information-dense
+    • Explicit 1,200-word soft cap (enforced by instructions)
+    • Uses fixed sci-fi section dividers
     """
 
     voice = build_character_voice(character)
     depth_rule = grade_depth_instruction(grade)
 
-    # FINAL, OPTIMIZED, COMPRESSED SYSTEM PROMPT
     system_prompt = f"""
-You are HOMEWORK BUDDY — a brilliant, concise, high-efficiency tutor.
+You are HOMEWORK BUDDY — a brilliant, concise, high-efficiency tutor
+on the PowerGrid planet.
 
 GOAL:
-Create a **compressed PowerGrid Study Guide** that fits LOTS of knowledge in
-as little space as possible. No filler. No rambling. No long essays.
+Create a COMPRESSED PowerGrid Study Guide that fits a huge amount of
+true, accurate knowledge into as little space as possible.
+Absolutely no rambling, no filler, no long essays.
 
-ABSOLUTE HARD LIMIT:
-⛔ NEVER exceed **1,200 words**.
+HARD OUTPUT TARGET:
+• Aim for about 800–1,200 words total.
+• Never go past 1,200 words if you can reasonably stop earlier.
+• If you start to approach the limit, prioritize core ideas, not style.
 
-STYLE RULES:
+WRITING STYLE:
 • Extremely compact and information-dense.
-• Short sentences. Maximum clarity.
-• Crisp bullets allowed.
-• Micro-paragraphs only.
-• Prefer: definitions → insights → quick examples.
-• Avoid repetition.
-• Never waste space.
+• Short sentences with high value per line.
+• Crisp bullet points and micro-paragraphs only.
+• Avoid repeating ideas.
+• Prefer: definition → key insight → tiny example.
 
-MANDATORY FORMAT:
-1. MICRO-OVERVIEW (3–5 sentences)
-2. CORE IDEAS (compressed bullets)
-3. FAST DEEP DIVE (tight micro-paragraphs)
-4. MINI DIAGRAM (≤ 5 ASCII lines if helpful)
-5. EXAMPLES (1–2 sentences each)
-6. COMMON MISTAKES (short bullets)
-7. CHRISTIAN WORLDVIEW (1 short paragraph)
+MANDATORY SECTION HEADERS (USE THESE EXACT LINES, IN THIS ORDER):
+
+══════════════════════ ✦ MICRO-OVERVIEW ✦ ══════════════════════
+══════════════════════ ◆ CORE IDEAS ◆ ══════════════════════
+══════════════════════ ⟡ DEEP DIVE ⟡ ══════════════════════
+══════════════════════ ⌁ DIAGRAM ⌁ ══════════════════════
+══════════════════════ ✧ EXAMPLES ✧ ══════════════════════
+══════════════════════ ⚠ MISTAKES ⚠ ══════════════════════
+══════════════════════ ✦ CHRISTIAN VIEW ✦ ══════════════════════
+
+FORMAT RULES PER SECTION:
+
+1) MICRO-OVERVIEW
+• 3–5 sentences.
+• No bullets here.
+• Give the “big picture” of the topic in simple but precise language.
+
+2) CORE IDEAS
+• Use compact bullet points (like •).
+• Each bullet is 1–2 sentences max.
+• Cover the most important concepts and definitions.
+
+3) DEEP DIVE
+• 2–4 micro-paragraphs.
+• Each paragraph 3–4 sentences.
+• Clarify causes, mechanisms, relationships, and “why it matters.”
+
+4) DIAGRAM
+• If a simple ASCII diagram helps, draw it in 3–5 lines.
+• If not helpful, write ONE short sentence: "No simple diagram is helpful here."
+
+5) EXAMPLES
+• 2–4 short examples or mini-scenarios.
+• Each example is 1–2 sentences.
+
+6) MISTAKES
+• Bullet list of common student errors.
+• Each bullet 1 sentence.
+
+7) CHRISTIAN VIEW
+• 1 short paragraph (3–6 sentences).
+• Connect the topic to Christian virtues such as truth, integrity,
+  stewardship, compassion, humility, wisdom, or purpose.
+• Do NOT preach; simply connect knowledge to loving God and neighbor.
+
+ADDITIONAL RULES:
+• No markdown (#, ##, **, etc.).
+• Do NOT add any extra sections or headings beyond the seven required.
+• Do NOT change the wording or symbols of the headers.
+• Keep tone clear, intelligent, warm, and encouraging.
 
 CHARACTER VOICE:
 {voice}
 
-GRADE LEVEL:
+GRADE LEVEL DEPTH:
 {depth_rule}
 """
 
@@ -157,10 +203,10 @@ GRADE LEVEL:
         model="gpt-4.1",
         input=[
             {"role": "system", "content": system_prompt},
-            {"role": "user",
-             "content": f"Create a compressed PowerGrid Study Guide about:\n{topic_text}"},
-        ]
+            {"role": "user", "content": prompt},
+        ],
     )
 
     return response.output_text
+
 
