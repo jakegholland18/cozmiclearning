@@ -1,0 +1,239 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  .legal-wrapper {
+      max-width: 900px;
+      margin: 40px auto 60px;
+      padding: 30px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 18px;
+      color: #f5f7ff;
+      line-height: 1.7;
+      box-shadow: 0 0 30px rgba(0,0,0,0.65);
+  }
+
+  .legal-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #bfe6ff;
+      text-align: center;
+      text-shadow: 0 0 12px #5ecbff;
+  }
+
+  .legal-subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      color: #cbd6ff;
+      opacity: 0.8;
+  }
+
+  .legal-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 6px;
+      color: #ffd86b;
+      text-shadow: 0 0 8px rgba(255,216,107,0.4);
+  }
+
+  .legal-section p {
+      margin-top: 6px;
+      margin-bottom: 6px;
+      font-size: 0.98rem;
+  }
+
+  .legal-highlight {
+      font-weight: 600;
+      color: #ffeb9a;
+  }
+</style>
+
+<div class="legal-wrapper fade-in">
+
+    <h1 class="legal-title">Homework Buddy — Terms of Service</h1>
+    <div class="legal-subtitle">
+        Last Updated: <span class="legal-highlight">[Insert Date]</span>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">1. Eligibility</div>
+        <p>
+            Homework Buddy (“we”, “our”, “us”) is an educational service that uses artificial
+            intelligence (“AI”) to help students learn. By using Homework Buddy, you agree to
+            these Terms of Service (“Terms”). If you do not agree, please do not use the Service.
+        </p>
+        <p>
+            You must be at least <span class="legal-highlight">13 years old</span> to create an account.
+            Children under 13 may only use Homework Buddy under the direct supervision of a parent
+            or legal guardian.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">2. Description of the Service</div>
+        <p>
+            Homework Buddy provides AI-generated explanations, study help, practice questions,
+            summaries, and character-guided tutoring across a variety of subjects.
+        </p>
+        <p>
+            The Service is designed for general educational support and is not a replacement for
+            teachers, schools, or professional advice.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">3. AI-Generated Content (Important Disclaimer)</div>
+        <p>
+            Homework Buddy uses AI models that may sometimes produce incorrect, incomplete,
+            outdated, biased, or misleading information. We do not guarantee that any answer is
+            accurate, complete, or appropriate for your specific situation.
+        </p>
+        <p>
+            You agree to:
+            <span class="legal-highlight">double-check important information</span>,
+            not rely on Homework Buddy for critical decisions, and use your own judgment or seek
+            help from teachers, parents, or qualified professionals when needed.
+        </p>
+        <p>
+            We are not responsible for any loss, harm, or academic consequences that result from
+            reliance on AI-generated answers.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">4. Accounts & Security</div>
+        <p>
+            You are responsible for keeping your login details secure and for all activity that
+            occurs under your account. You agree to provide accurate information and to notify us
+            if you suspect unauthorized use of your account.
+        </p>
+        <p>
+            We may suspend or terminate accounts that violate these Terms or misuse the Service.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">5. Subscriptions, Billing & Payments</div>
+        <p>
+            Homework Buddy may offer subscription plans, including a monthly plan currently priced
+            at <span class="legal-highlight">$11.99 per month</span> (subject to change).
+        </p>
+        <p>
+            Payments are processed securely through third-party providers such as Stripe.
+            By subscribing, you authorize us and our payment processor to charge your chosen
+            payment method on a recurring basis until you cancel.
+        </p>
+        <p>
+            Subscriptions renew automatically each billing cycle unless cancelled. You may cancel
+            at any time; however, payments are generally non-refundable except where required by law.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">6. Acceptable Use</div>
+        <p>
+            You agree that you will not:
+        </p>
+        <p>
+            • use Homework Buddy to cheat, plagiarize, or violate academic integrity rules;<br>
+            • attempt to hack, disrupt, or overload the Service;<br>
+            • copy or scrape large amounts of content for redistribution;<br>
+            • use the Service for any illegal, harmful, or abusive activity.
+        </p>
+        <p>
+            We reserve the right to suspend or terminate access for users who misuse the platform.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">7. Intellectual Property</div>
+        <p>
+            All content and materials on Homework Buddy, including logos, designs, characters,
+            graphics, and learning systems, are owned by us or our licensors.
+        </p>
+        <p>
+            You receive a limited, non-exclusive, non-transferable license to use the Service
+            for personal educational purposes only. You may not copy, resell, or commercially
+            exploit the Service or its content.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">8. Parental Responsibility</div>
+        <p>
+            Parents and legal guardians are responsible for supervising and monitoring the use
+            of Homework Buddy by children and teens under their care. By allowing a child to use
+            the Service, the parent or guardian agrees to these Terms on the child’s behalf.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">9. No Warranties</div>
+        <p>
+            Homework Buddy is provided on an <span class="legal-highlight">“as is”</span> and
+            <span class="legal-highlight">“as available”</span> basis, without warranties of any
+            kind, whether express or implied.
+        </p>
+        <p>
+            We do not guarantee that the Service will be error-free, uninterrupted, secure, or
+            that it will always improve grades or academic performance.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">10. Limitation of Liability</div>
+        <p>
+            To the maximum extent permitted by law, Homework Buddy and its owners, employees, and
+            partners will not be liable for any indirect, incidental, special, consequential, or
+            punitive damages arising out of or related to your use of the Service.
+        </p>
+        <p>
+            Our total liability for any claim will not exceed the amount you paid for the Service
+            in the thirty (30) days before the claim arose.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">11. Privacy</div>
+        <p>
+            We care about your privacy. Our separate Privacy Policy explains how we collect,
+            use, and store information. By using Homework Buddy, you also agree to the terms of
+            our Privacy Policy.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">12. Changes to These Terms</div>
+        <p>
+            We may occasionally update these Terms. When we do, we will change the “Last Updated”
+            date at the top of this page and may provide additional notice within the Service.
+        </p>
+        <p>
+            Continued use of Homework Buddy after changes are posted means you accept the updated Terms.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">13. Governing Law</div>
+        <p>
+            These Terms are governed by the laws of the United States and the state in which
+            Homework Buddy is operated, without regard to conflict of law principles.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">14. Contact</div>
+        <p>
+            For questions about these Terms, please contact us at:
+        </p>
+        <p>
+            <span class="legal-highlight">[Insert your contact email here]</span>
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

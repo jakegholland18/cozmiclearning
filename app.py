@@ -352,6 +352,22 @@ def parent_dashboard():
 # RUN SERVER
 # ============================================================
 
+# ============================================================
+# LEGAL PAGES
+# ============================================================
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/disclaimer")
+def disclaimer():
+    return render_template("disclaimer.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
 
