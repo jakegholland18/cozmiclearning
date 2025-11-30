@@ -1,7 +1,7 @@
 # modules/study_helper.py
 
 from modules.shared_ai import study_buddy_ai
-
+from modules.personality_helper import apply_personality
 
 def deep_study_chat(question, grade_level="8", character="everly"):
     """
