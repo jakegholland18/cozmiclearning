@@ -2,7 +2,7 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
-from modules.answer_formatter import format_answer
+from modules.answer_formatter import parse_into_sections, format_answer
 
 
 # ------------------------------------------------------------
@@ -97,17 +97,29 @@ Each must begin with "- ".
 def explain_history(topic: str, grade_level="8", character="everly"):
 
     if is_christian_question(topic):
-        base_prompt = build_christian_history_prompt(topic, grade_level)
+        prompt = build_christian_history_prompt(topic, grade_level)
     else:
-        base_prompt = build_history_prompt(topic, grade_level)
+        prompt = build_history_prompt(topic, grade_level)
 
-    prompt = apply_personality(character, base_prompt)
+    prompt = apply_personality(character, prompt)
+
     raw = study_buddy_ai(prompt, grade_level, character)
 
-    sections = parse_into_sections(raw)
+    overview       = _extract(raw, "SECTION 1")
+    key_facts      = _extract(raw, "SECTION 2")
+    christian_view = _extract(raw, "SECTION 3")
+    agreement      = _extract(raw, "SECTION 4")
+    difference     = _extract(raw, "SECTION 5")
+    practice       = _extract(raw, "SECTION 6")
 
-    return format_answer(**sections)
-
+    return format_answer(
+        overview=overview,
+        key_facts=key_facts,
+        christian_view=christian_view,
+        agreement=agreement,
+        difference=difference,
+        practice=practice
+    )
 
 # ------------------------------------------------------------
 # GENERAL HISTORY QUESTION

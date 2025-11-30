@@ -2,7 +2,7 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
-from modules.answer_formatter import format_answer
+from modules.answer_formatter import parse_into_sections, format_answer
 
 
 # -----------------------------------------------------------
@@ -76,15 +76,15 @@ def apologetics_answer(question: str, grade_level="8", character="everly"):
     raw = study_buddy_ai(enriched, grade_level, character)
 
     # Convert AI text into structured dict
-    sections = parse_into_sections(raw)
 
-    # Format final HTML response
+   # Format final HTML response
     return format_answer(
-        overview=sections.get("overview", ""),
-        key_facts=sections.get("key_facts", []),
-        christian_view=sections.get("christian_view", ""),
-        agreement=sections.get("agreement", []),
-        difference=sections.get("difference", []),
-        practice=sections.get("practice", [])
-    )
+    overview=sections.get("overview", ""),
+    key_facts=sections.get("key_facts", []),
+    christian_view=sections.get("christian_view", ""),
+    agreement=sections.get("agreement", []),
+    difference=sections.get("difference", []),
+    practice=sections.get("practice", []),
+    raw_text=raw
+)
 

@@ -2,7 +2,7 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
-from modules.answer_formatter import format_answer
+from modules.answer_formatter import parse_into_sections, format_answer
 
 # -----------------------------------------------------------
 # Detect Christian-related math questions
@@ -104,7 +104,6 @@ def explain_math(question: str, grade_level="5", character="everly"):
     raw = study_buddy_ai(final_prompt, grade_level, character)
 
     # Convert to structured sections
-    sections = parse_into_sections(raw)
 
     # Render consistent HTML output
     return format_answer(**sections)

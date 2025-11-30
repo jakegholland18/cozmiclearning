@@ -2,7 +2,7 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
-from modules.answer_formatter import format_answer
+from modules.answer_formatter import parse_into_sections, format_answer
 
 
 # ------------------------------------------------------------
@@ -190,8 +190,6 @@ def bible_lesson(topic: str, grade_level="8", character="everly"):
     prompt = build_bible_lesson_prompt(topic, grade_level)
     prompt = apply_personality(character, prompt)
     raw = study_buddy_ai(prompt, grade_level, character)
-
-    sections = parse_into_sections(raw)
 
     return format_answer(**sections)
 
