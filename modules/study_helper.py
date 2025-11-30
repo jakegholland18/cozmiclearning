@@ -1,4 +1,5 @@
 # modules/study_helper.py
+# updated to force Render rebuild
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
