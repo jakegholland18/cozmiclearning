@@ -236,7 +236,7 @@ def powergrid_submit():
                 from PyPDF2 import PdfReader
                 pdf = PdfReader(path)
                 text = "\n".join(page.extract_text() or "" for page in pdf.pages)
-            except:
+            except Exception:
                 text = "Could not read PDF content."
         else:
             text = f"Study this topic:\n\n{topic}"
@@ -290,9 +290,9 @@ OUTPUT:
     # ============================================================
 
     import uuid
-    pdf_path = f"/tmp/study_guide_{uuid.uuid4().hex}.pdf"
-
     from textwrap import wrap
+
+    pdf_path = f"/tmp/study_guide_{uuid.uuid4().hex}.pdf"
 
     try:
         from reportlab.pdfgen import canvas
@@ -388,7 +388,11 @@ def subject_answer():
     # Call subject handler
     result = func(question, grade, character)
 
-    six_section_answer = result.get("raw_text") if isinstance(result, dict) else result
+    # Helpers may return dicts or plain text; normalize to a clean string
+    if isinstance(result, dict):
+        answer = result.get("raw_text") or result.get("text") or str(result)
+    else:
+        answer = result
 
     # start conversation memory empty
     session["conversation"] = []
@@ -402,7 +406,7 @@ def subject_answer():
         subject=subject,
         grade=grade,
         question=question,
-        answer=six_section_answer,
+        answer=answer,
         character=character,
         conversation=session["conversation"],
         pdf_url=None,
@@ -593,6 +597,7 @@ FOLLOW-UP RULES:
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
