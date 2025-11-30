@@ -283,8 +283,8 @@ OUTPUT:
 
     prompt = apply_personality(session["character"], prompt)
 
-    study_guide = study_buddy_ai(prompt, grade, session["character"])
-
+    study_guide = study_helper.generate_master_study_guide(text, grade, session["character"])
+    
     # ============================================================
     # PDF GENERATION FIXED
     # ============================================================

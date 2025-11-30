@@ -5,54 +5,36 @@ from modules.shared_ai import study_buddy_ai
 
 def deep_study_chat(question, grade_level="8", character="everly"):
     """
-    Conversational deep study tutor.
-    This is NOT the study guide generator.
-    This ONLY produces short, guided follow-up responses.
+    PowerGrid Deep Study Chat:
+    Generates a conversational follow-up response.
+    Used when the student is chatting AFTER the master study guide.
     """
 
-    # ============================================================
-    # NORMALIZE INPUT → ALWAYS produce a list of {"role", "content"}
-    # ============================================================
-
+    # Normalize question input (string or list)
     if isinstance(question, str):
         conversation = [{"role": "user", "content": question.strip()}]
-
     elif isinstance(question, list):
         conversation = []
         for turn in question:
-            if isinstance(turn, dict) and "content" in turn:
+            if isinstance(turn, dict):
                 conversation.append({
                     "role": turn.get("role", "user"),
                     "content": str(turn.get("content", "")).strip()
                 })
             else:
-                conversation.append({
-                    "role": "user",
-                    "content": str(turn).strip()
-                })
+                conversation.append({"role": "user", "content": str(turn).strip()})
     else:
         conversation = [{"role": "user", "content": str(question)}]
 
-    # ============================================================
-    # BUILD READABLE DIALOGUE
-    # ============================================================
-
+    # Build readable conversation text
     dialogue_text = ""
     for turn in conversation:
-        speaker = "Student" if turn.get("role") == "user" else "Tutor"
-        dialogue_text += f"{speaker}: {turn.get('content','')}\n"
+        speaker = "Student" if turn["role"] == "user" else "Tutor"
+        dialogue_text += f"{speaker}: {turn['content']}\n"
 
-    # ============================================================
-    # AI PROMPT — SHORT FOLLOW-UP RESPONSE
-    # ============================================================
-
+    # Tutor follow-up (NOT study guide)
     prompt = f"""
-You are a warm, patient DEEP STUDY TUTOR.
-
-Tone:
-• Encouraging, calm, wise
-• Never overwhelming
-• Speak simply but intelligently
+You are a warm, patient, expert tutor.
 
 GRADE LEVEL: {grade_level}
 
@@ -61,28 +43,80 @@ Conversation so far:
 
 NOW RESPOND AS THE TUTOR.
 
-FOLLOW-UP RULES:
-• Give a short 1–3 paragraph explanation
-• Help the student get to the bottom of their question
-• Be very attentive to detail
-• If they ask for more depth, give more depth
-• If they ask for clarity, simplify
-• Do NOT repeat any 6-section study guide
-• Do NOT generate a long essay
-• Stay focused ONLY on the student's most recent message
+RULES:
+• Keep response natural, friendly, helpful
+• Answer ONLY the student's most recent message
+• No long essays
+• No structured sections
+• No study guide formatting
+• No 6-section format
+• No repeating the master guide
+• If asked for more detail, go deeper in a conversational way
 """
 
-    # ============================================================
-    # CALL MODEL
-    # ============================================================
+    reply = study_buddy_ai(prompt, grade_level, character)
+
+    if isinstance(reply, dict):
+        return reply.get("raw_text") or reply.get("text") or str(reply)
+
+    return reply
+
+
+
+def generate_master_study_guide(text, grade_level="8", character="everly"):
+    """
+    Generates the ULTRA MASTER STUDY GUIDE.
+    Used ONLY when submitting through PowerGrid.
+    """
+
+    prompt = f"""
+Create the most complete, extremely in-depth MASTER STUDY GUIDE possible.
+
+CONTENT SOURCE:
+{text}
+
+GOALS:
+• Teach EVERYTHING the AI knows about this topic
+• Cover beginner, intermediate, advanced, and expert levels
+• Break every major idea into bullet points
+• Use sub-bullets for deeper detail
+• Provide examples, analogies, comparisons
+• Include diagrams-in-text when useful (ASCII)
+• Provide formulas and equations when relevant
+• List common mistakes students make
+• Give exam-style memory tips
+• Include mastery-level insights very few people know
+
+STYLE:
+• Very clear
+• Very structured
+• All bullet points (no paragraphs)
+• Indented hierarchy
+• No markdown formatting
+• Friendly tutor tone
+• Written for grade {grade_level} but extremely deep
+
+FORMAT:
+• Clean plain text
+• Lots of sections
+• Lots of bullet points
+• Lots of sub-bullets
+• As long as needed
+
+OUTPUT:
+• 5x–10x longer than a normal study guide
+• A true master guide
+"""
+
+    prompt = apply_personality(character, prompt)
 
     response = study_buddy_ai(prompt, grade_level, character)
 
-    # Normalize
     if isinstance(response, dict):
         return response.get("raw_text") or response.get("text") or str(response)
 
     return response
+
 
 
 

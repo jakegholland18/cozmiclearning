@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="stars"></div>
+
+<div class="character-wrapper fade-in">
+    <img src="/static/characters/{{ character }}.png" class="character-img">
+    <div class="character-name">{{ character|title }}</div>
+</div>
+
+<div class="answer-box fade-in">
+    <h2 class="answer-title">⚡ PowerGrid Master Study Guide</h2>
+
+    {% if pdf_url %}
+        <a href="{{ pdf_url }}" download class="btn btn-primary">📘 Download Study Guide PDF</a>
+        <br><br>
+    {% endif %}
+
+    <pre class="answer-text">{{ answer }}</pre>
+</div>
+
+<div class="chat-section fade-in">
+    <h3 class="chat-title">💬 Continue the Conversation</h3>
+
+    <div class="chat-log" id="chat-log">
+        {% for msg in conversation %}
+            {% if msg.role == "user" %}
+                <div class="chat-msg msg-user">{{ msg.content }}</div>
+            {% else %}
+                <div class="chat-msg msg-ai">{{ msg.content }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="chat-input">
+        <textarea id="chat-msg" placeholder="Ask a follow-up question…"></textarea>
+        <button onclick="sendFollowup()">Send</button>
+    </div>
+</div>
+
+<script>
+async function sendFollowup() {
+    const msgBox = document.getElementById("chat-msg");
+    const log = document.getElementById("chat-log");
+
+    const text = msgBox.value.trim();
+    if (!text) return;
+    msgBox.value = "";
+
+    log.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
+    log.scrollTop = log.scrollHeight;
+
+    const response = await fetch("/followup_message", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            subject: "power_grid",
+            grade: "{{ grade }}",
+            character: "{{ character }}",
+            message: text
+        })
+    });
+
+    const data = await response.json();
+    const reply = data.reply || "I'm not sure — try rephrasing it!";
+
+    log.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
+    log.scrollTop = log.scrollHeight;
+}
+</script>
+
+{% endblock %}
