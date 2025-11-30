@@ -45,7 +45,6 @@ sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "modules")))
 # IMPORTANT: now includes powergrid_master_ai
 from modules.shared_ai import study_buddy_ai, powergrid_master_ai
 from modules.personality_helper import get_all_characters, apply_personality
-from modules.answer_formatter import format_answer
 
 import modules.math_helper as math_helper
 import modules.text_helper as text_helper

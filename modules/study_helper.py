@@ -4,14 +4,17 @@ from modules.shared_ai import study_buddy_ai, powergrid_master_ai
 from modules.personality_helper import apply_personality
 
 
+# ============================================================
+# DEEP STUDY CHAT FOLLOW-UP (Conversation Mode)
+# ============================================================
 def deep_study_chat(question, grade_level="8", character="everly"):
     """
     PowerGrid Deep Study Chat:
-    Generates a conversational follow-up response.
-    Used when the student is chatting AFTER the master study guide.
+    Generates conversational follow-up responses
+    AFTER the compressed PowerGrid study guide.
     """
 
-    # Normalize question input (string or list)
+    # Normalize input (string or list of turns)
     if isinstance(question, str):
         conversation = [{"role": "user", "content": question.strip()}]
     elif isinstance(question, list):
@@ -23,17 +26,20 @@ def deep_study_chat(question, grade_level="8", character="everly"):
                     "content": str(turn.get("content", "")).strip()
                 })
             else:
-                conversation.append({"role": "user", "content": str(turn).strip()})
+                conversation.append({
+                    "role": "user",
+                    "content": str(turn).strip()
+                })
     else:
         conversation = [{"role": "user", "content": str(question)}]
 
-    # Build readable conversation text
+    # Build readable dialogue
     dialogue_text = ""
     for turn in conversation:
         speaker = "Student" if turn["role"] == "user" else "Tutor"
         dialogue_text += f"{speaker}: {turn['content']}\n"
 
-    # Tutor follow-up
+    # Tutor response prompt
     prompt = f"""
 You are a warm, patient, expert tutor.
 
@@ -45,13 +51,13 @@ Conversation so far:
 NOW RESPOND AS THE TUTOR.
 
 RULES:
-• Keep response natural, friendly, helpful
+• Keep responses natural, friendly, and conversational
 • Answer ONLY the student's most recent message
 • No long essays
 • No structured sections
 • No study guide formatting
-• No repeating the master guide
-• If asked for more detail, go deeper in a conversational way
+• No repeating the master study guide
+• If student wants more detail, go deeper conversationally
 """
 
     reply = study_buddy_ai(prompt, grade_level, character)
@@ -62,33 +68,35 @@ RULES:
     return reply
 
 
-# -------------------------------------------------------------
-# OLD PowerGrid Study Guide Generator (kept for compatibility)
-# -------------------------------------------------------------
+
+# ============================================================
+# OLD MASTER GUIDE (Bullet-Only) — STILL AVAILABLE
+# ============================================================
 def generate_master_study_guide(text, grade_level="8", character="everly"):
     """
-    OLD bullet-only master guide.
+    OLD bullet-only master guide for legacy subjects.
     """
+
     prompt = f"""
-Create the most complete, extremely in-depth MASTER STUDY GUIDE possible.
+Create the most complete MASTER STUDY GUIDE possible.
 
 CONTENT SOURCE:
 {text}
 
 GOALS:
-• Teach EVERYTHING the AI knows
-• Beginner → expert levels
+• Extremely in-depth
+• Beginner → expert
 • Bullet points only
-• Sub-bullets for depth
-• Diagrams when useful
+• Sub-bullets for detail
+• Diagrams when needed
 • Examples, analogies, memory tips
 • Common mistakes
-• Formulas where relevant
+• Formulas when relevant
 
 STYLE:
 • Clean bullets only
 • No paragraphs
-• Very structured
+• Highly structured
 • Friendly tutor tone
 • Grade {grade_level}
 
@@ -105,54 +113,52 @@ FORMAT:
     return response
 
 
-# -------------------------------------------------------------
-# NEW **ULTRA** SAFE PowerGrid Mixed-Format Master Guide
-# -------------------------------------------------------------
+
+# ============================================================
+# NEW COMPRESSED POWERGRID STUDY GUIDE (1,200 WORD LIMIT)
+# ============================================================
 def generate_powergrid_master_guide(text, grade_level="8", character="everly"):
     """
-    ULTRA-DETAILED POWERGRID GUIDE (mixed format).
-    SAFELY CONSTRAINED to avoid timeouts.
+    COMPRESSED POWERGRID MASTER GUIDE
+    Uses the new compressed strategy:
+    • Hyper-efficient
+        • Bullets + micro-paragraphs
+        • 1,200-word hard cap
+    • High-density learning
+    • Christian worldview section at end
     """
 
     prompt = f"""
-Create a highly detailed POWERGRID MASTER STUDY GUIDE.
+Create a COMPRESSED POWERGRID STUDY GUIDE.
 
 CONTENT:
 {text}
 
-STRICT LENGTH LIMITS:
-• Total output MUST stay within ~3,000–5,000 words.
-• Do NOT exceed this limit.
-• Do NOT generate endless or runaway text.
-• Stop once all major ideas are clearly covered.
+STRICT LIMIT:
+⛔ NEVER exceed 1,200 words.  
+Stop early if needed.
 
-REQUIREMENTS:
-• Mixed paragraphs AND bullet points
-• Sub-bullets allowed
-• ASCII diagrams if useful
-• Formulas when relevant
-• Examples + analogies
-• Common mistakes
-• Memory & exam strategies
-• Beginner → Expert progression
-• Smooth, warm, intelligent explanation
+STYLE:
+• Extremely compact, information-dense
+• Short sentences
+• Crisp bullets allowed
+• Micro-paragraphs only
+• Avoid repetition
+• Prioritize clarity + efficiency
+• Definitions → insights → examples
 
-STRUCTURE:
-1. Overview (1–2 paragraphs)
-2. Key Concepts (bullets)
-3. Deep Dive (mixed format)
-4. ASCII Diagrams (optional)
-5. Examples / Case Studies
-6. Common Mistakes
-7. Memory + Exam Strategies
-8. Expert Insights
-9. CHRISTIAN WORLDVIEW PERSPECTIVE
-   • 1–3 paragraphs on truth, integrity, stewardship, purpose, compassion.
+MANDATORY FORMAT:
+1. MICRO-OVERVIEW (3–5 sentences)
+2. CORE IDEAS (compressed bullets)
+3. FAST DEEP DIVE (micro-paragraphs)
+4. MINI DIAGRAM (ASCII ≤ 5 lines, if helpful)
+5. EXAMPLES (1–2 sentences each)
+6. COMMON MISTAKES (compact bullets)
+7. CHRISTIAN WORLDVIEW (1 paragraph)
 
 TONE:
-• Inspirational but clear
-• Smart but approachable
-• Fit for grade {grade_level}
+• Warm, clear, smart
+• Grade {grade_level}-appropriate
 """
 
     response = powergrid_master_ai(prompt, grade_level, character)
@@ -161,4 +167,3 @@ TONE:
         return response.get("raw_text") or response.get("text") or str(response)
 
     return response
-
