@@ -5,14 +5,9 @@ from modules.shared_ai import study_buddy_ai
 
 def deep_study_chat(question, grade_level="8", character="everly"):
     """
-    A robust conversational tutor for the PowerGrid planet.
-
-    Accepts:
-    • A single string (normal question)
-    • A list of dict messages (full chat history)
-
-    Returns:
-    • A short conversational tutor reply (NOT a 6-section study guide)
+    Conversational deep study tutor.
+    This is NOT the study guide generator.
+    This ONLY produces short, guided follow-up responses.
     """
 
     # ============================================================
@@ -20,11 +15,9 @@ def deep_study_chat(question, grade_level="8", character="everly"):
     # ============================================================
 
     if isinstance(question, str):
-        # Single question: convert to a conversation
         conversation = [{"role": "user", "content": question.strip()}]
 
     elif isinstance(question, list):
-        # Format chat history
         conversation = []
         for turn in question:
             if isinstance(turn, dict) and "content" in turn:
@@ -33,38 +26,33 @@ def deep_study_chat(question, grade_level="8", character="everly"):
                     "content": str(turn.get("content", "")).strip()
                 })
             else:
-                # raw string fallback
                 conversation.append({
                     "role": "user",
                     "content": str(turn).strip()
                 })
-
     else:
         conversation = [{"role": "user", "content": str(question)}]
 
     # ============================================================
-    # BUILD NATURAL LANGUAGE DIALOGUE CONTEXT
+    # BUILD READABLE DIALOGUE
     # ============================================================
 
     dialogue_text = ""
     for turn in conversation:
-        role = turn.get("role", "user")
-        speaker = "Student" if role == "user" else "Tutor"
+        speaker = "Student" if turn.get("role") == "user" else "Tutor"
         dialogue_text += f"{speaker}: {turn.get('content','')}\n"
 
     # ============================================================
-    # AI PROMPT — SHORT FOLLOW-UP RESPONSE (NOT 6 SECTIONS)
+    # AI PROMPT — SHORT FOLLOW-UP RESPONSE
     # ============================================================
 
     prompt = f"""
-You are the DEEP STUDY TUTOR of PowerGrid.
+You are a warm, patient DEEP STUDY TUTOR.
 
-Tone requirements:
-• Warm, calm, clear
-• Reflect gentle Christian virtues (wisdom, patience, integrity)
-• NEVER mention Christianity or religion explicitly
-• Speak like a thoughtful, friendly guide
-• Help the student understand without overwhelming them
+Tone:
+• Encouraging, calm, wise
+• Never overwhelming
+• Speak simply but intelligently
 
 GRADE LEVEL: {grade_level}
 
@@ -74,21 +62,28 @@ Conversation so far:
 NOW RESPOND AS THE TUTOR.
 
 FOLLOW-UP RULES:
-• Reply with intent to help student get to bottom of their question
-• Be able to get more detailed if student asks for more detail
-• Do NOT repeat the original 6-section study guide
-• Do NOT generate another full study guide
-• Answer naturally and conversationally
-• Stay focused on the student's last question
+• Give a short 1–3 paragraph explanation
+• Help the student get to the bottom of their question
+• Be very attentive to detail
+• If they ask for more depth, give more depth
+• If they ask for clarity, simplify
+• Do NOT repeat any 6-section study guide
+• Do NOT generate a long essay
+• Stay focused ONLY on the student's most recent message
 """
+
+    # ============================================================
+    # CALL MODEL
+    # ============================================================
 
     response = study_buddy_ai(prompt, grade_level, character)
 
-    # Ensure we return just clean text
+    # Normalize
     if isinstance(response, dict):
         return response.get("raw_text") or response.get("text") or str(response)
 
     return response
+
 
 
 

@@ -239,35 +239,61 @@ def powergrid_submit():
 
         else:
             text = f"Study this topic:\n\n{topic}"
-
     else:
         text = topic or "No topic provided."
 
-    # build study guide prompt
+    # ============================================================
+    # ULTRA-DETAILED MASTER STUDY GUIDE PROMPT
+    # ============================================================
+
     prompt = f"""
-Create a full, extremely in-depth study guide.
+Create the most complete, extremely in-depth MASTER STUDY GUIDE possible.
 
 CONTENT SOURCE:
 {text}
 
+GOALS:
+• Teach the student EVERYTHING the AI knows about this topic
+• Beginner → Intermediate → Advanced → Expert explanations
+• Break every major concept into sub-points and sub-sub-points
+• Expand ideas with detailed reasoning
+• Include examples, analogies, comparisons, diagrams-in-text (ASCII)
+• Include formulas, equations, timelines, processes (if relevant)
+• Include common mistakes students make and how to avoid them
+• Include exam-ready tips and memory tricks
+• Include advanced insights NOT usually taught in school
+
 STYLE:
-• Very detailed
-• Step-by-step explanations
-• Examples
-• Key terms
-• Study tips
-• Summary
-• Written for grade {grade}
+• Very clear, very structured
+• Lots of bullet points and sub-bullets
+• Section labels allowed (but NOT limited to 6)
+• No markdown formatting (#, *, **); use plain text
+• Smooth, friendly tutor tone
+• Written for grade {grade}, but provide AS MUCH DEPTH AS POSSIBLE
 
 FORMAT:
-Use clean text (no markdown).
+• Clean plain text only
+• Use indentation for hierarchy:
+  - Main points
+    - Sub points
+      - Sub-sub points
+
+OUTPUT REQUIREMENTS:
+• Extremely long if necessary (5x–10x normal length)
+• Cover every angle of the topic
+• Produce a true MASTER GUIDE that could teach a beginner to mastery.
 """
 
+    # Add personality adjustments
     prompt = apply_personality(session["character"], prompt)
 
+    # Generate the study guide
     study_guide = study_buddy_ai(prompt, grade, session["character"])
 
-    # generate PDF
+    # ============================================================
+    # PDF GENERATION
+    # ============================================================
+
     pdf_path = "/tmp/study_guide.pdf"
 
     try:
@@ -289,10 +315,10 @@ Use clean text (no markdown).
         session["study_pdf"] = pdf_path
 
     except Exception as e:
-        app.logger.error("Error generating PDF: %s", e)
+        app.logger.error("PDF generation error: %s", e)
         pdf_url = None
 
-    # do NOT store study guide in chat memory
+    # DO NOT add study guide to chat history
     session["conversation"] = []
     session.modified = True
 
@@ -306,15 +332,6 @@ Use clean text (no markdown).
         conversation=session["conversation"],
         pdf_url=pdf_url,
     )
-
-
-@app.route("/download_study_guide")
-def download_study_guide():
-    pdf = session.get("study_pdf")
-    if pdf and os.path.exists(pdf):
-        return send_file(pdf, as_attachment=True)
-    return "PDF not found."
-
 
 # ============================================================
 # MAIN SUBJECT ANSWER
@@ -521,6 +538,7 @@ NOW RESPOND AS THE TUTOR.
 FOLLOW-UP RULES:
 • Reply with intent to help student get to bottom of their question
 • If student asks for more depth, give more detail
+• Be attentive to detail
 • If they want clarity, simplify
 • Do NOT repeat any 6-section study guide
 • Do NOT generate a long or structured essay
