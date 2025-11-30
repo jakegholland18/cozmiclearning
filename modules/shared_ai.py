@@ -1,9 +1,12 @@
 # modules/shared_ai.py
-
 import os
-from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# -------------------------------
+# Lazy-load OpenAI client
+# -------------------------------
+def get_client():
+    from openai import OpenAI
+    return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 # -------------------------------------------------------
@@ -41,7 +44,7 @@ def grade_depth_instruction(grade: str) -> str:
 
 
 # -------------------------------------------------------
-# SYSTEM PROMPT — SIX-SECTION FORMAT (DEFAULT)
+# SYSTEM PROMPT — STRICT FORMAT
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
 You are HOMEWORK BUDDY — a warm, gentle tutor.
@@ -70,10 +73,10 @@ STRICT FORMAT RULES:
 
 
 # -------------------------------------------------------
-# DEFAULT STUDY BUDDY (6-SECTION FORMAT)
-# Used by normal subject helpers (math, science, etc.)
+# MAIN AI CALL
 # -------------------------------------------------------
 def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
+
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
 
@@ -86,16 +89,14 @@ CHARACTER VOICE:
 GRADE LEVEL DEPTH RULE:
 {depth_rule}
 
-CLARITY RULE:
-Your explanations must become deeper and more detailed for older grades,
-especially grades 9–12.
-
 OUTPUT REQUIREMENT:
 For ALL SIX sections:
 • Use EXACT labels.
 • Write 2–5 full sentences.
-• NO bullets. NO lists. NO line breaks inside the paragraph.
+• No bullets. No lists. No line breaks inside paragraphs.
 """
+
+    client = get_client()  # Lazy-load here — important!
 
     response = client.responses.create(
         model="gpt-4.1-mini",
@@ -104,50 +105,6 @@ SYSTEM:
 {system_prompt}
 
 STUDENT QUESTION:
-{prompt}
-"""
-    )
-
-    return response.output_text
-
-
-# -------------------------------------------------------
-# RAW STUDY BUDDY (NO FORCED SECTIONS)
-# Used by POWERGRID master guide + deep chat
-# -------------------------------------------------------
-def study_buddy_ai_raw(prompt: str, grade: str, character: str) -> str:
-    """
-    Freeform AI helper that obeys the caller's prompt formatting.
-    No six-section template is enforced here.
-    """
-
-    depth_rule = grade_depth_instruction(grade)
-    voice = build_character_voice(character)
-
-    system_prompt = f"""
-You are HOMEWORK BUDDY — a warm, gentle tutor.
-
-RULES:
-• Follow the USER'S instructions for structure and formatting.
-• Do NOT force any fixed number of sections.
-• Do NOT add the 6-section template.
-• Do NOT add extra headings unless the user explicitly asks.
-• Adapt depth and vocabulary to grade level.
-
-CHARACTER VOICE:
-{voice}
-
-GRADE LEVEL DEPTH RULE:
-{depth_rule}
-"""
-
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=f"""
-SYSTEM:
-{system_prompt}
-
-STUDENT PROMPT:
 {prompt}
 """
     )
