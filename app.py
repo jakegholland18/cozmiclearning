@@ -73,7 +73,7 @@ subject_map = {
     "coin_quest": money_helper.explain_money,
     "terra_nova": question_helper.answer_question,
     "story_verse": text_helper.explain_text,
-    "power_grid": study_helper.deep_study_chat,  # conversation-style deep study
+    "power_grid": study_helper.deep_study_chat,   # deep conversation handler for PowerGrid
 }
 
 # ============================================================
@@ -215,6 +215,9 @@ def powergrid_submit():
     topic = request.form.get("topic", "").strip()
     uploaded = request.files.get("file")
 
+    # remember grade for deep study chat too
+    session["grade"] = grade
+
     text = ""
 
     # extract file text if uploaded
@@ -289,10 +292,9 @@ Use clean text (no markdown).
         app.logger.error("Error generating PDF: %s", e)
         pdf_url = None
 
-    # save conversation memory start
-    session["conversation"] = [
-        {"role": "assistant", "content": study_guide}
-    ]
+    # do NOT store study guide in chat memory
+    session["conversation"] = []
+    session.modified = True
 
     return render_template(
         "subject.html",
@@ -327,6 +329,9 @@ def subject_answer():
     question = request.form.get("question")
     character = session["character"]
 
+    # remember grade for follow-ups / deep study chat
+    session["grade"] = grade
+
     # progress tracking
     session["progress"].setdefault(subject, {"questions": 0, "correct": 0})
     session["progress"][subject]["questions"] += 1
@@ -336,17 +341,13 @@ def subject_answer():
         flash("Unknown subject selected.", "error")
         return redirect("/subjects")
 
-    # Call the subject handler.
-    # deep_study_chat is written to accept either a string or a conversation list.
+    # Call subject handler
     result = func(question, grade, character)
 
-    # Some helpers may return dicts; others raw text.
     six_section_answer = result.get("raw_text") if isinstance(result, dict) else result
 
-    # start conversation memory with the answer
-    session["conversation"] = [
-        {"role": "assistant", "content": six_section_answer}
-    ]
+    # start conversation memory empty
+    session["conversation"] = []
     session.modified = True
 
     add_xp(20)
@@ -381,7 +382,7 @@ def followup_message():
     conversation = session.get("conversation", [])
     conversation.append({"role": "user", "content": message})
 
-    # deep conversational response (PowerGrid-style)
+    # deep conversational response using shared deep_study_chat helper
     reply = study_helper.deep_study_chat(conversation, grade, character)
 
     conversation.append({"role": "assistant", "content": reply})
@@ -478,11 +479,77 @@ def disclaimer():
 
 
 # ============================================================
+# POWERGRID DEEP STUDY CHAT ENDPOINT
+# ============================================================
+
+@app.route("/deep_study_message", methods=["POST"])
+def deep_study_message():
+    init_user()
+
+    data = request.get_json() or {}
+    message = data.get("message", "")
+
+    grade = session.get("grade", "8")
+    character = session.get("character", "everly")
+
+    # Retrieve conversation memory just for deep study chat
+    conversation = session.get("deep_study_chat", [])
+    conversation.append({"role": "user", "content": message})
+
+    # Build readable dialogue text
+    dialogue_text = ""
+    for turn in conversation:
+        speaker = "Student" if turn["role"] == "user" else "Tutor"
+        dialogue_text += f"{speaker}: {turn['content']}\n"
+
+    # Make AI respond
+    prompt = f"""
+You are the DEEP STUDY TUTOR.
+
+Tone:
+• Warm, patient, conversational
+• Encouraging but not overwhelming
+• Speak simply but intelligently
+
+GRADE LEVEL: {grade}
+
+Conversation so far:
+{dialogue_text}
+
+NOW RESPOND AS THE TUTOR.
+
+FOLLOW-UP RULES:
+• Reply with intent to help student get to bottom of their question
+• If student asks for more depth, give more detail
+• If they want clarity, simplify
+• Do NOT repeat any 6-section study guide
+• Do NOT generate a long or structured essay
+• Keep answer reasonably short unless student explicitly asks for more detail
+• Focus ONLY on the student's most recent message
+"""
+
+    reply = study_buddy_ai(prompt, grade, character)
+
+    # Normalize reply
+    if isinstance(reply, dict):
+        reply = reply.get("raw_text") or reply.get("text") or str(reply)
+
+    # Save new assistant message
+    conversation.append({"role": "assistant", "content": reply})
+    session["deep_study_chat"] = conversation
+    session.modified = True
+
+    return jsonify({"reply": reply})
+
+
+# ============================================================
 # RUN SERVER
 # ============================================================
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
 
 
 

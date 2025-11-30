@@ -2,93 +2,89 @@
 
 from modules.shared_ai import study_buddy_ai
 
+
 def deep_study_chat(question, grade_level="8", character="everly"):
     """
-    A robust deep conversation handler for PowerGrid.
+    A robust conversational tutor for the PowerGrid planet.
 
-    It accepts:
-    • A single string (normal subject question)
-    • A list of messages like:
-        [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
+    Accepts:
+    • A single string (normal question)
+    • A list of dict messages (full chat history)
 
-    It ALWAYS converts everything into a valid conversation structure
-    and then generates a deep tutor response.
+    Returns:
+    • A short conversational tutor reply (NOT a 6-section study guide)
     """
 
     # ============================================================
-    # NORMALIZE INPUT → ALWAYS return a list with dict messages
+    # NORMALIZE INPUT → ALWAYS produce a list of {"role", "content"}
     # ============================================================
 
-    # Case 1: A plain string question
     if isinstance(question, str):
+        # Single question: convert to a conversation
         conversation = [{"role": "user", "content": question.strip()}]
 
-    # Case 2: A list (chat history or raw strings)
     elif isinstance(question, list):
+        # Format chat history
         conversation = []
         for turn in question:
-            # Already a dict (valid)
             if isinstance(turn, dict) and "content" in turn:
                 conversation.append({
                     "role": turn.get("role", "user"),
                     "content": str(turn.get("content", "")).strip()
                 })
-            # A raw string inside the list → treat as user message
             else:
+                # raw string fallback
                 conversation.append({
                     "role": "user",
                     "content": str(turn).strip()
                 })
 
-    # Case 3: Unknown format → convert to string
     else:
         conversation = [{"role": "user", "content": str(question)}]
 
     # ============================================================
-    # BUILD HUMAN-FRIENDLY DIALOGUE CONTEXT
+    # BUILD NATURAL LANGUAGE DIALOGUE CONTEXT
     # ============================================================
 
     dialogue_text = ""
     for turn in conversation:
         role = turn.get("role", "user")
-        content = turn.get("content", "")
-
         speaker = "Student" if role == "user" else "Tutor"
-        dialogue_text += f"{speaker}: {content}\n"
+        dialogue_text += f"{speaker}: {turn.get('content','')}\n"
 
     # ============================================================
-    # THE AI PROMPT (Deep Study Tutor)
+    # AI PROMPT — SHORT FOLLOW-UP RESPONSE (NOT 6 SECTIONS)
     # ============================================================
 
     prompt = f"""
 You are the DEEP STUDY TUTOR of PowerGrid.
 
-Your personality:
+Tone requirements:
 • Warm, calm, clear
-• Gentle Christian virtues (wisdom, patience, clarity, moral grounding)
-• Speak with purpose and depth
-• Guide the student step-by-step
-• Never shame or judge — always empower
+• Reflect gentle Christian virtues (wisdom, patience, integrity)
+• NEVER mention Christianity or religion explicitly
+• Speak like a thoughtful, friendly guide
+• Help the student understand without overwhelming them
 
 GRADE LEVEL: {grade_level}
 
-Here is the conversation so far:
-
+Conversation so far:
 {dialogue_text}
 
-Now continue as the PowerGrid tutor.
-Go deep.
-Explain with clarity.
-Guide the student's understanding.
-""".strip()
+NOW RESPOND AS THE TUTOR.
 
-    # ============================================================
-    # CALL THE MODEL
-    # ============================================================
+FOLLOW-UP RULES:
+• Reply with intent to help student get to bottom of their question
+• Be able to get more detailed if student asks for more detail
+• Do NOT repeat the original 6-section study guide
+• Do NOT generate another full study guide
+• Answer naturally and conversationally
+• Stay focused on the student's last question
+"""
 
     response = study_buddy_ai(prompt, grade_level, character)
 
-    # Ensure a clean text return, even if helper returns dicts
+    # Ensure we return just clean text
     if isinstance(response, dict):
         return response.get("raw_text") or response.get("text") or str(response)
 
