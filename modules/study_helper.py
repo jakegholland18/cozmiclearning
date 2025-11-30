@@ -62,6 +62,7 @@ RULES:
 
     return reply
 
+
 # -------------------------------------------------------------
 # OLD PowerGrid Study Guide Generator (kept for compatibility)
 # -------------------------------------------------------------
@@ -117,26 +118,33 @@ OUTPUT:
 
     return response
 
+
 # -------------------------------------------------------------
-# NEW **ULTRA** PowerGrid Mixed-Format Master Guide
+# NEW **ULTRA** PowerGrid Mixed-Format Master Guide (SAFE VERSION)
 # -------------------------------------------------------------
 def generate_powergrid_master_guide(text, grade_level="8", character="everly"):
     """
     ULTRA-DETAILED POWERGRID GUIDE (bullets + paragraphs + diagrams).
+    ENFORCES SAFE LENGTH LIMITS TO PREVENT WORKER TIMEOUT.
     Ends with a Christian Worldview section.
     """
 
     prompt = f"""
-Create an ULTRA-DETAILED POWERGRID MASTER STUDY GUIDE.
+Create a highly detailed POWERGRID MASTER STUDY GUIDE.
 
 CONTENT:
 {text}
 
+STRICT LENGTH LIMITS:
+• Total output MUST stay within approximately 3,000–5,000 words.
+• Do NOT exceed this limit.
+• Do NOT generate infinite or runaway responses.
+• Stop once all major concepts are clearly explained.
+
 REQUIREMENTS:
-• Extremely long and deeply detailed.
-• A mix of paragraphs AND bullet points.
+• Mix paragraphs AND bullet points.
 • Include sub-bullets.
-• Include ASCII diagrams when helpful.
+• Include ASCII diagrams when relevant.
 • Include formulas/equations if relevant.
 • Include examples, analogies, comparisons.
 • Include common mistakes students make.
@@ -144,19 +152,28 @@ REQUIREMENTS:
 • Progress from beginner → intermediate → advanced → expert.
 • Rich, smooth, intelligent explanations.
 
-FINAL SECTION MUST BE:
-CHRISTIAN WORLDVIEW PERSPECTIVE
-Write 1–3 thoughtful paragraphs connecting the topic to Christian principles
-(such as stewardship, truth, purpose, compassion, integrity, etc.)
+STRUCTURE:
+1. Overview (1–2 paragraphs)
+2. Key Concepts (bullets + sub-bullets)
+3. Deep Dive Explanation (mixed format)
+4. ASCII Diagrams (if useful)
+5. Examples + Case Studies
+6. Common Mistakes
+7. Memory + Exam Strategies
+8. Expert-Level Insights
+9. CHRISTIAN WORLDVIEW PERSPECTIVE
+   • 1–3 thoughtful paragraphs connecting the topic to Christian virtues:
+     truth, integrity, purpose, compassion, stewardship, wisdom.
 
 TONE:
 • Warm, clear, inspiring
 • Friendly but highly intelligent
-• Appropriately matched to grade {grade_level}
+• Appropriate for grade {grade_level}
 """
 
     response = powergrid_master_ai(prompt, grade_level, character)
 
+    # Normalize response
     if isinstance(response, dict):
         return response.get("raw_text") or response.get("text") or str(response)
 
