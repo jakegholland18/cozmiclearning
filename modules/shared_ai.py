@@ -27,24 +27,27 @@ def build_character_voice(character: str) -> str:
 # GRADE LEVEL DEPTH RULES
 # -------------------------------------------------------
 def grade_depth_instruction(grade: str) -> str:
-    g = int(grade)
+    try:
+        g = int(grade)
+    except Exception:
+        g = 8
 
     if g <= 3:
         return "Use extremely simple words and very short sentences. Explain slowly and gently."
     if g <= 5:
         return "Use simple language with clear examples. Keep ideas small and concrete."
     if g <= 8:
-        return "Use moderate detail and gentle reasoning."
+        return "Use moderate detail, logical explanation, and age-appropriate examples."
     if g <= 10:
-        return "Use deeper reasoning with clear examples and explanations."
+        return "Use deeper reasoning, connections, and clearer examples."
     if g <= 12:
-        return "Use high-school level clarity, logic, and real-world examples."
+        return "Use high-school level depth, real-world examples, and strong conceptual clarity."
 
-    return "Use college-level conceptual precision and depth."
+    return "Use college-level clarity and deep conceptual reasoning."
 
 
 # -------------------------------------------------------
-# HOMEWORK BUDDY SYSTEM PROMPT — STRICT SIX SECTIONS
+# SYSTEM PROMPT — 6-SECTION HOMEWORK BUDDY (normal planets)
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
 You are HOMEWORK BUDDY — a warm, gentle tutor.
@@ -73,10 +76,9 @@ STRICT FORMAT RULES:
 
 
 # -------------------------------------------------------
-# MAIN AI CALL (HOMEWORK BUDDY)
+# MAIN 6-SECTION AI CALL (for regular subjects)
 # -------------------------------------------------------
 def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
-
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
 
@@ -113,48 +115,63 @@ STUDENT QUESTION:
 
 
 # -------------------------------------------------------
-# POWERGRID MASTER GUIDE ENGINE (NO SIX-SECTIONS)
+# POWERGRID MASTER AI — ULTRA STUDY GUIDE (bullets + paragraphs)
 # -------------------------------------------------------
 def powergrid_master_ai(prompt: str, grade: str, character: str) -> str:
     """
-    Generates ULTRA-DETAILED PowerGrid mixed-format guides.
-    No section restrictions. Allows bullets + paragraphs + diagrams.
+    Special model call for PowerGrid ULTRA MASTER STUDY GUIDE.
+    - Allows bullet points AND paragraphs
+    - Very detailed, but token-capped to avoid Render OOM
+    - Ends with a Christian worldview reflection section
     """
 
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
 
     system_prompt = f"""
-You are POWERGRID — the ultimate deep-study tutor.
+You are POWERGRID — an ultra-deep master study guide creator for Homework Buddy.
 
-GOALS:
-• Produce extremely detailed, structured educational material
-• Mix paragraphs, bullet points, sub-bullets, diagrams, and examples
-• Go deep from beginner → expert
-• Explain with clarity and intelligence
-• Maintain a warm, encouraging teaching tone
-• Adapt depth to grade level: {grade}
-• Use character voice: {voice}
+ROLE:
+• You build extremely detailed study guides for serious students.
+• You mix structured bullet points AND smooth explanation paragraphs.
+• You are clear, organized, encouraging, and very smart.
 
-FINAL REQUIREMENT:
-The LAST SECTION must be titled exactly:
+CHARACTER VOICE:
+{voice}
+
+GRADE LEVEL DEPTH RULE:
+{depth_rule}
+
+GLOBAL STYLE:
+• Use a mix of short explanatory paragraphs and bullet-point lists.
+• Use nested bullet points for deeper sub-ideas.
+• It's okay to use numbered lists when helpful.
+• Use plain text only (no markdown like **bold** or # headers).
+• Clearly separate major sections with ALL CAPS TITLES, like:
+  INTRODUCTION, CORE IDEAS, EXAMPLES, PRACTICE, etc.
+
+FINAL SECTION (MANDATORY AT THE END):
 CHRISTIAN WORLDVIEW PERSPECTIVE
-and must contain 1–3 thoughtful paragraphs relating the topic
-to Christian principles such as purpose, truth, stewardship,
-wisdom, compassion, courage, and integrity.
+• 1–3 paragraphs.
+• Connect the topic to Christian ideas like: truth, wisdom, stewardship, compassion,
+  integrity, human dignity, purpose, creation, or moral discernment.
+• Tone should be gentle, thoughtful, respectful, and never preachy.
 """
 
     client = get_client()
 
     response = client.responses.create(
-        model="gpt-4.1",
+        model="gpt-4.1-mini",
         input=f"""
 SYSTEM:
 {system_prompt}
 
-WRITE THE STUDY GUIDE BASED ON THIS CONTENT:
+BUILD A POWERGRID MASTER STUDY GUIDE FOR THIS TOPIC:
+
 {prompt}
-"""
+""",
+        # IMPORTANT: prevent OOM / worker timeout
+        max_output_tokens=4000,
     )
 
     return response.output_text
