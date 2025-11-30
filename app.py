@@ -282,10 +282,14 @@ def subject_answer():
         # UNIVERSAL SAFE CALL:
         # 1️⃣ Try the new chat format (used by PowerGrid)
         # 2️⃣ If the subject only accepts raw strings, fallback automatically
-        try:
+        
+    if subject == "power_grid":
+        # PowerGrid uses chat format
             answer = func(turns, grade, character)
-        except TypeError:
-            answer = func(question, grade, character)
+    else:
+        # All other subjects expect a plain string
+        answer = func(question, grade, character)
+
 
     # Rewards
     add_xp(20)
