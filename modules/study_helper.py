@@ -1,7 +1,6 @@
 # modules/study_helper.py
-# updated to force Render rebuild
 
-from modules.shared_ai import study_buddy_ai
+from modules.shared_ai import study_buddy_ai_raw
 from modules.personality_helper import apply_personality
 
 
@@ -34,7 +33,7 @@ def deep_study_chat(question, grade_level="8", character="everly"):
         speaker = "Student" if turn["role"] == "user" else "Tutor"
         dialogue_text += f"{speaker}: {turn['content']}\n"
 
-    # Tutor follow-up (NOT study guide)
+    # Tutor follow-up (NOT study guide, no sections)
     prompt = f"""
 You are a warm, patient, expert tutor.
 
@@ -56,13 +55,12 @@ RULES:
 • If asked for more detail, go deeper in a conversational way
 """
 
-    reply = study_buddy_ai(prompt, grade_level, character)
+    reply = study_buddy_ai_raw(prompt, grade_level, character)
 
     if isinstance(reply, dict):
         return reply.get("raw_text") or reply.get("text") or str(reply)
 
     return reply
-
 
 
 def generate_master_study_guide(text, grade_level="8", character="everly"):
@@ -110,11 +108,11 @@ OUTPUT:
 • A true master guide
 """
 
-    # ENSURE personality is NOT applied to study guide
-    # This line must stay INSIDE the function
+    # DO NOT apply personality to the master guide;
+    # keep it neutral and purely focused on content.
     # prompt = apply_personality(character, prompt)
 
-    response = study_buddy_ai(prompt, grade_level, character)
+    response = study_buddy_ai_raw(prompt, grade_level, character)
 
     if isinstance(response, dict):
         return response.get("raw_text") or response.get("text") or str(response)

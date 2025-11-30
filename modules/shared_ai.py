@@ -1,4 +1,5 @@
 # modules/shared_ai.py
+
 import os
 from openai import OpenAI
 
@@ -35,12 +36,12 @@ def grade_depth_instruction(grade: str) -> str:
         return "Use deeper reasoning, connections, and clearer examples."
     if g <= 12:
         return "Use high-school level depth, real-world examples, and strong conceptual clarity."
-    
+
     return "Use college-level clarity and deep conceptual reasoning."
 
 
 # -------------------------------------------------------
-# SYSTEM PROMPT — STRICT, PARAGRAPH-ONLY, EXACT LABELS
+# SYSTEM PROMPT — SIX-SECTION FORMAT (DEFAULT)
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
 You are HOMEWORK BUDDY — a warm, gentle tutor.
@@ -69,10 +70,10 @@ STRICT FORMAT RULES:
 
 
 # -------------------------------------------------------
-# MAIN AI CALL
+# DEFAULT STUDY BUDDY (6-SECTION FORMAT)
+# Used by normal subject helpers (math, science, etc.)
 # -------------------------------------------------------
 def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
-
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
 
@@ -110,4 +111,45 @@ STUDENT QUESTION:
     return response.output_text
 
 
+# -------------------------------------------------------
+# RAW STUDY BUDDY (NO FORCED SECTIONS)
+# Used by POWERGRID master guide + deep chat
+# -------------------------------------------------------
+def study_buddy_ai_raw(prompt: str, grade: str, character: str) -> str:
+    """
+    Freeform AI helper that obeys the caller's prompt formatting.
+    No six-section template is enforced here.
+    """
 
+    depth_rule = grade_depth_instruction(grade)
+    voice = build_character_voice(character)
+
+    system_prompt = f"""
+You are HOMEWORK BUDDY — a warm, gentle tutor.
+
+RULES:
+• Follow the USER'S instructions for structure and formatting.
+• Do NOT force any fixed number of sections.
+• Do NOT add the 6-section template.
+• Do NOT add extra headings unless the user explicitly asks.
+• Adapt depth and vocabulary to grade level.
+
+CHARACTER VOICE:
+{voice}
+
+GRADE LEVEL DEPTH RULE:
+{depth_rule}
+"""
+
+    response = client.responses.create(
+        model="gpt-4.1-mini",
+        input=f"""
+SYSTEM:
+{system_prompt}
+
+STUDENT PROMPT:
+{prompt}
+"""
+    )
+
+    return response.output_text
