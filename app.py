@@ -243,7 +243,7 @@ def subject_answer():
         "stock_star": investment_helper.explain_investing,
         "coin_quest": money_helper.explain_money,
         "terra_nova": question_helper.answer_question,
-        "story_verse": text_helper.summarize_text,
+        "story_verse": text_helper.explain_text,
     }
 
     # AI response (already structured dictionary)
