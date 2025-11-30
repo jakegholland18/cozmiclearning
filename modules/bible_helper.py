@@ -2,7 +2,7 @@
 
 from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import apply_personality
-from modules.answer_formatter import parse_into_sections, format_answer
+from modules.answer_formatter import format_answer
 
 
 # ------------------------------------------------------------
