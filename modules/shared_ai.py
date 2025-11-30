@@ -20,32 +20,32 @@ def build_character_voice(character: str) -> str:
 
 
 # -------------------------------------------------------
-# GRADE LEVEL DEPTH CONTROL
+# GRADE LEVEL DEPTH RULES
 # -------------------------------------------------------
 def grade_depth_instruction(grade: str) -> str:
-    """Return depth rules for the AI output based on grade."""
     g = int(grade)
 
     if g <= 3:
-        return "Use extremely simple language. Use very short sentences. Explain like the student is very young."
+        return "Use extremely simple words and very short sentences. Explain slowly and gently."
     if g <= 5:
-        return "Use simple language with clear examples. Do not use advanced vocabulary."
+        return "Use simple language with clear examples. Keep ideas small and concrete."
     if g <= 8:
-        return "Use moderate detail, clear logic, and age-appropriate examples."
+        return "Use moderate detail, logical explanation, and age-appropriate examples."
     if g <= 10:
-        return "Use deeper reasoning, more detailed explanations, and clearer examples."
+        return "Use deeper reasoning, connections, and clearer examples."
     if g <= 12:
-        return "Use full high-school level explanations, real-world examples, and deeper analysis."
-    return "Use college-level clarity, detailed reasoning, and strong conceptual analysis."
+        return "Use high-school level depth, real-world examples, and strong conceptual clarity."
+    
+    return "Use college-level clarity and deep conceptual reasoning."
 
 
 # -------------------------------------------------------
-# SYSTEM PROMPT — STRICT, PARAGRAPH ONLY
+# SYSTEM PROMPT — STRICT, PARAGRAPH-ONLY, EXACT LABELS
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
 You are HOMEWORK BUDDY — a warm, gentle tutor.
 
-You MUST ALWAYS answer using EXACTLY these SIX labeled sections:
+You MUST ALWAYS output EXACTLY these SIX sections with EXACT ASCII labels:
 
 SECTION 1 — OVERVIEW
 SECTION 2 — KEY FACTS
@@ -54,13 +54,17 @@ SECTION 4 — AGREEMENT
 SECTION 5 — DIFFERENCE
 SECTION 6 — PRACTICE
 
-STRICT FORMATTING RULES:
-• NO bullet points at all.
-• NO numbered lists.
-• ALL sections must be written in paragraph sentences only.
-• Each section must be 2–5 sentences depending on complexity.
-• Never skip a section.
-• Never merge sections.
+STRICT FORMAT RULES:
+• No bullet points.
+• No dashes used as list items.
+• No numbered lists.
+• No asterisk lists.
+• ONLY paragraphs of full sentences.
+• Each section MUST contain 2–5 sentences.
+• After each label, put one blank line, then the paragraph.
+• Never modify section labels.
+• Never merge or remove sections.
+• Never add new sections.
 """
 
 
@@ -78,15 +82,18 @@ def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
 CHARACTER VOICE:
 {voice}
 
-GRADE LEVEL RULE:
+GRADE LEVEL DEPTH RULE:
 {depth_rule}
 
-ADDITIONAL RULES:
-• Older students (grades 9–12) MUST receive deeper detail, more reasoning,
-  more real-world application, and stronger conceptual clarity.
-• Younger students receive simpler, slower, gentler explanations.
-• ALL SIX sections MUST contain full paragraph sentences.
-• Absolutely no bullet points or list formatting.
+CLARITY RULE:
+Your explanations must become deeper and more detailed for older grades,
+especially grades 9–12.
+
+OUTPUT REQUIREMENT:
+For ALL SIX sections:
+• Use EXACT labels.
+• Write 2–5 full sentences.
+• NO bullets. NO lists. NO line breaks inside the paragraph.
 """
 
     response = client.responses.create(
@@ -95,11 +102,12 @@ ADDITIONAL RULES:
 SYSTEM:
 {system_prompt}
 
-USER TASK:
+STUDENT QUESTION:
 {prompt}
 """
     )
 
     return response.output_text
+
 
 
