@@ -647,8 +647,9 @@ def practice_step():
     })
 
 # ============================================================
-# PRACTICE HELP CHAT — TUTOR + DISPUTE SOLVER (A + C)
+# PRACTICE HELP CHAT — TUTOR + DISPUTE SOLVER
 # ============================================================
+
 @app.route("/practice_help_message", methods=["POST"])
 def practice_help_message():
     init_user()
@@ -658,52 +659,65 @@ def practice_help_message():
 
     practice_data = session.get("practice")
     step_index = session.get("practice_step", 0)
+    attempts = session.get("practice_attempts", 0)
     character = session.get("character", "everly")
     grade = session.get("grade", "8")
 
     if not practice_data:
-        return jsonify({"reply": "I can't find an active practice mission. Try starting one again!"})
+        return jsonify({
+            "reply": "I can't find an active practice mission. Try starting one again!"
+        })
 
     steps = practice_data.get("steps", [])
     if step_index >= len(steps):
-        return jsonify({"reply": "You've completed all the questions for this mission! Want to start a new one?"})
+        return jsonify({
+            "reply": "You've finished all the questions for this mission! You can start a new practice topic anytime."
+        })
 
     current_step = steps[step_index]
     prompt = current_step.get("prompt", "")
     expected = current_step.get("expected", [])
     hint = current_step.get("hint", "")
 
-    # Build a rich tutoring prompt
+    # Build a rich tutoring prompt with your structure + rules
     ai_prompt = f"""
-You are HOMEWORK BUDDY — a warm, patient tutor.
+You are HOMEWORK BUDDY — a warm, efficient tutor helping a student during practice mode.
 
-STUDENT IS ASKING ABOUT THE CURRENT PRACTICE QUESTION.
+CONTEXT:
+- Current question: \"\"\"{prompt}\"\"\"
+- Expected correct answers: {expected}
+- Topic: {practice_data.get("topic", "")}
+- Grade level: {grade}
+- Character voice / personality: {character}
+- Student practice attempts on this question so far: {attempts}
 
-Here is the context:
-
-Current question:
-\"\"\"{prompt}\"\"\"
-
-Expected correct answers:
-{expected}
-
-Topic: {practice_data.get("topic", "")}
-Character voice: {character}
-Grade level: {grade}
-
-The student said:
+The student just said:
 \"\"\"{student_msg}\"\"\"
 
-YOUR JOB:
-- If the student is confused → guide step-by-step.
-- If they dispute correctness → compare their reasoning with expected answers.
-- If they ask for deeper help → explain clearly and gently.
-- If they want examples → provide similar examples.
-- Never be harsh.
-- Never reveal solutions instantly unless they ask explicitly.
-- Be friendly, encouraging, and precise.
+GOALS:
+1. Be kind, calm, and encouraging.
+2. Help them understand the idea, not just memorize an answer.
+3. Respect this rule:
+   - If attempts < 2 AND they are not explicitly asking for the exact answer,
+     DO NOT give the final numeric or exact answer yet.
+     Instead, guide them and tell them they’re doing a good job for trying.
+   - If attempts ≥ 2 OR they clearly ask for the correct answer
+     (for example: "just tell me the answer", "what is the answer", "what is it?"),
+     you MAY reveal the answer near the end, but still explain it clearly.
 
-Your entire response should be **1–3 short paragraphs**.
+RESPONSE STYLE:
+- First: 1–3 short guiding sentences in a friendly conversational tone.
+- Then: a bullet list with up to 8 bullets.
+  The bullets can include:
+  • mini-steps to solve it
+  • key ideas to remember
+  • very short worked example or numbers
+  • quick checks they can do to see if their answer makes sense
+- Be as clear and efficient as possible. No fluff, no long walls of text.
+- Always end with a short encouragement like:
+  "You’ve got this, I’m right here with you." or something similar.
+
+Now, respond to the student following this format and these rules.
 """
 
     reply = study_buddy_ai(ai_prompt, grade, character)
@@ -798,6 +812,7 @@ def disclaimer():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
