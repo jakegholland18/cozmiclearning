@@ -647,6 +647,71 @@ def practice_step():
     })
 
 # ============================================================
+# PRACTICE HELP CHAT — TUTOR + DISPUTE SOLVER (A + C)
+# ============================================================
+@app.route("/practice_help_message", methods=["POST"])
+def practice_help_message():
+    init_user()
+
+    data = request.get_json() or {}
+    student_msg = data.get("message", "").strip()
+
+    practice_data = session.get("practice")
+    step_index = session.get("practice_step", 0)
+    character = session.get("character", "everly")
+    grade = session.get("grade", "8")
+
+    if not practice_data:
+        return jsonify({"reply": "I can't find an active practice mission. Try starting one again!"})
+
+    steps = practice_data.get("steps", [])
+    if step_index >= len(steps):
+        return jsonify({"reply": "You've completed all the questions for this mission! Want to start a new one?"})
+
+    current_step = steps[step_index]
+    prompt = current_step.get("prompt", "")
+    expected = current_step.get("expected", [])
+    hint = current_step.get("hint", "")
+
+    # Build a rich tutoring prompt
+    ai_prompt = f"""
+You are HOMEWORK BUDDY — a warm, patient tutor.
+
+STUDENT IS ASKING ABOUT THE CURRENT PRACTICE QUESTION.
+
+Here is the context:
+
+Current question:
+\"\"\"{prompt}\"\"\"
+
+Expected correct answers:
+{expected}
+
+Topic: {practice_data.get("topic", "")}
+Character voice: {character}
+Grade level: {grade}
+
+The student said:
+\"\"\"{student_msg}\"\"\"
+
+YOUR JOB:
+- If the student is confused → guide step-by-step.
+- If they dispute correctness → compare their reasoning with expected answers.
+- If they ask for deeper help → explain clearly and gently.
+- If they want examples → provide similar examples.
+- Never be harsh.
+- Never reveal solutions instantly unless they ask explicitly.
+- Be friendly, encouraging, and precise.
+
+Your entire response should be **1–3 short paragraphs**.
+"""
+
+    reply = study_buddy_ai(ai_prompt, grade, character)
+    reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+
+    return jsonify({"reply": reply_text})
+
+# ============================================================
 # DASHBOARD
 # ============================================================
 
