@@ -16,7 +16,7 @@
         inset: 0;
         background: url('/static/stars.png');
         background-size: cover;
-        opacity: 0.30;
+        opacity: 0.28;
         z-index: -1;
         animation: drift 40s linear infinite;
     }
@@ -26,6 +26,7 @@
         to { transform: translateY(-900px); }
     }
 
+    /* CHARACTER */
     .character-wrapper {
         text-align: center;
         margin-top: 40px;
@@ -33,7 +34,6 @@
 
     .character-img {
         width: 180px;
-        height: auto;
         filter: drop-shadow(0 0 18px rgba(255,255,255,0.4));
         animation: float 3.6s ease-in-out infinite;
     }
@@ -52,6 +52,7 @@
         text-shadow: 0 0 12px rgba(255,215,0,0.6);
     }
 
+    /* ANSWER BOX */
     .answer-box {
         max-width: 900px;
         margin: 40px auto;
@@ -76,6 +77,31 @@
         line-height: 1.55;
     }
 
+    /* PRACTICE BUTTON */
+    .practice-box {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .practice-btn {
+        background: #4ba3ff;
+        padding: 14px 26px;
+        border-radius: 12px;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.25s;
+        box-shadow: 0 0 12px rgba(80,150,255,0.7);
+    }
+
+    .practice-btn:hover {
+        background: #1f8bff;
+        transform: scale(1.05);
+    }
+
+    /* CHAT SECTION */
     .chat-section {
         max-width: 900px;
         margin: 40px auto 80px;
@@ -108,11 +134,10 @@
         margin-bottom: 10px;
         border-radius: 12px;
         font-size: 1rem;
-        line-height: 1.4;
     }
 
     .msg-user {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.25);
         text-align: right;
     }
 
@@ -121,6 +146,7 @@
         text-align: left;
     }
 
+    /* Chat input */
     .chat-input {
         display: flex;
         gap: 10px;
@@ -153,17 +179,33 @@
         background: #3c8aff;
         transform: translateY(-3px);
     }
+
+    /* Loading Indicator */
+    #thinking {
+        display: none;
+        text-align: center;
+        margin-top: 10px;
+        color: #9ecaff;
+        font-size: 1rem;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.4; }
+        50% { opacity: 1; }
+        100% { opacity: 0.4; }
+    }
 </style>
 
 <div class="stars"></div>
 
-<!-- Character -->
+<!-- CHARACTER -->
 <div class="character-wrapper fade-in">
     <img src="/static/characters/{{ character }}.png" class="character-img">
     <div class="character-name">{{ character|title }}</div>
 </div>
 
-<!-- Answer -->
+<!-- STUDY GUIDE -->
 <div class="answer-box fade-in">
     <h2 class="answer-title">✨ {{ subject.replace("_"," ") | title }}</h2>
 
@@ -173,23 +215,28 @@
     {% endif %}
 
     <pre class="answer-text">{{ answer }}</pre>
+
+    <!-- START PRACTICE BUTTON -->
+    <div class="practice-box">
+        <button class="practice-btn" id="startPracticeBtn">
+            🚀 Start Interactive Practice
+        </button>
+    </div>
 </div>
 
-<!-- Conversational Tutor Section -->
+<!-- CHAT SECTION -->
 <div class="chat-section fade-in">
     <h3 class="chat-title">💬 Continue the Conversation</h3>
 
     <div class="chat-log" id="chat-log">
-        {% if conversation %}
-            {% for msg in conversation %}
-                {% if msg.role == "user" %}
-                    <div class="chat-msg msg-user">{{ msg.content }}</div>
-                {% else %}
-                    <div class="chat-msg msg-ai">{{ msg.content }}</div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+        {% for msg in conversation %}
+            <div class="chat-msg {{ 'msg-user' if msg.role=='user' else 'msg-ai' }}">
+                {{ msg.content }}
+            </div>
+        {% endfor %}
     </div>
+
+    <div id="thinking">🤖 Your buddy is thinking…</div>
 
     <div class="chat-input">
         <textarea id="chat-msg" placeholder="Ask a follow-up question…"></textarea>
@@ -198,16 +245,34 @@
 </div>
 
 <script>
+// ENTER to send
+document.getElementById("chat-msg").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendFollowup();
+    }
+});
+
+// START PRACTICE
+document.getElementById("startPracticeBtn").addEventListener("click", () => {
+    window.location.href = `/practice?topic=${encodeURIComponent("{{ answer }}")}&subject={{ subject }}`;
+});
+
+// SEND FOLLOWUP
 async function sendFollowup() {
     const msgBox = document.getElementById("chat-msg");
     const log = document.getElementById("chat-log");
+    const thinking = document.getElementById("thinking");
 
     const text = msgBox.value.trim();
     if (!text) return;
+
     msgBox.value = "";
 
     log.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
     log.scrollTop = log.scrollHeight;
+
+    thinking.style.display = "block";
 
     const response = await fetch("/followup_message", {
         method: "POST",
@@ -220,6 +285,8 @@ async function sendFollowup() {
         })
     });
 
+    thinking.style.display = "none";
+
     const data = await response.json();
     const reply = data.reply || "I'm not sure — try rephrasing it!";
 
@@ -229,13 +296,3 @@ async function sendFollowup() {
 </script>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-

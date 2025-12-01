@@ -51,7 +51,6 @@
         padding: 0 15px;
     }
 
-    /* CHARACTER SIDE */
     .character-panel {
         width: 280px;
         text-align: center;
@@ -98,7 +97,6 @@
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* FORM PANEL */
     .ask-form {
         background: white;
         color: black;
@@ -141,7 +139,6 @@
         transform: translateY(-3px);
     }
 
-    /* Upload box (PowerGrid only) */
     .upload-box {
         background: #f7f7ff;
         border-radius: 14px;
@@ -159,16 +156,21 @@
         opacity: 0.7;
     }
 
-    @media (max-width: 850px) {
-        .ask-container {
-            flex-direction: column;
-            align-items: center;
-        }
-        .character-panel {
-            position: relative;
-            top: 0;
-        }
+    /* ⭐ ADDED: Thinking Box */
+    #thinking-box {
+        background: rgba(0,0,0,0.55);
+        color: #bfe6ff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 15px auto;
+        font-size: 1.05rem;
+        opacity: 0;
+        transition: 0.35s ease;
+        width: fit-content;
     }
+    .thinking-show { opacity: 1; }
+
 </style>
 
 <div class="stars"></div>
@@ -198,25 +200,26 @@
         </div>
     </div>
 
+    <!-- ⭐ ADDED: THINKING MESSAGE (hidden until activated) -->
+    <div id="thinking-box">✨ Consulting stardust for answers… ✨</div>
 
     <!-- MAIN FORM AREA -->
     {% if subject == "power_grid" %}
 
-        <!-- ============ MODE 1: ASK A QUESTION ============ -->
-        <form action="/subject" method="POST" class="ask-form">
+        <!-- MODE 1 -->
+        <form id="ask-form-1" action="/subject" method="POST" class="ask-form">
             <h3 style="margin-top:0;">🔎 Ask a Deep Question</h3>
             <p>Get a 6-section in-depth explanation, then chat with your tutor.</p>
 
             <input type="hidden" name="subject" value="{{ subject }}">
             <input type="hidden" name="grade" value="{{ grade }}">
 
-            <textarea name="question" placeholder="Ask anything you want to learn deeply..." required></textarea>
+            <textarea id="question-1" name="question" placeholder="Ask anything you want to learn deeply..." required></textarea>
 
             <button type="submit">Ask Buddy</button>
         </form>
 
-
-        <!-- ============ MODE 2: BUILD A STUDY GUIDE ============ -->
+        <!-- MODE 2 -->
         <form action="/powergrid_submit" method="POST" enctype="multipart/form-data" class="ask-form">
 
             <h3 style="margin-top:0;">📚 Build a Custom Study Guide</h3>
@@ -236,15 +239,14 @@
             <button type="submit">Generate Study Guide</button>
         </form>
 
-
     {% else %}
 
-        <!-- NORMAL PLANETS: ONLY ASK MODE -->
-        <form action="/subject" method="POST" class="ask-form">
+        <!-- NORMAL PLANETS -->
+        <form id="ask-form-2" action="/subject" method="POST" class="ask-form">
             <input type="hidden" name="subject" value="{{ subject }}">
             <input type="hidden" name="grade" value="{{ grade }}">
 
-            <textarea name="question" placeholder="Type your question here..." required></textarea>
+            <textarea id="question-2" name="question" placeholder="Type your question here..." required></textarea>
 
             <button type="submit">Ask Buddy</button>
         </form>
@@ -253,4 +255,42 @@
 
 </div>
 
+
+<!-- ⭐ ADDED: ENTER-TO-SUBMIT + THINKING SCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const box = document.getElementById("thinking-box");
+
+    const messages = [
+        "✨ Thinking at warp speed...",
+        "🌌 Consulting the Homework Galaxy Council...",
+        "🔭 Scanning star clusters for clues...",
+        "🛸 Crunching cosmic numbers...",
+        "🌠 Gathering interstellar wisdom..."
+    ];
+
+    function showThinking() {
+        box.textContent = messages[Math.floor(Math.random() * messages.length)];
+        box.classList.add("thinking-show");
+    }
+
+    // Attach enter-to-submit to both forms if they exist
+    ["question-1", "question-2"].forEach(id => {
+        const input = document.getElementById(id);
+        if (!input) return;
+
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                showThinking();
+                input.closest("form").submit();
+            }
+        });
+
+        input.closest("form").addEventListener("submit", showThinking);
+    });
+});
+</script>
+
 {% endblock %}
+

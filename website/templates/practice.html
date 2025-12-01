@@ -46,7 +46,33 @@
             height: auto;
             display: block;
             margin: 0 auto 15px;
+            transition: transform 0.3s ease;
         }
+
+        /* ---------- Animations ---------- */
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-6px); }
+            100% { transform: translateX(0); }
+        }
+        .shake { animation: shake 0.35s ease; }
+
+        @keyframes glowHint {
+            0% { text-shadow: 0 0 4px #ff4d4d; color: #ffb3b3; }
+            100% { text-shadow: 0 0 14px #ff1a1a; color: #ffecec; }
+        }
+        .glow { animation: glowHint 0.9s ease-in-out; }
+
+        @keyframes correctFlash {
+            0% { background-color: rgba(0,255,120,0.15); }
+            100% { background-color: transparent; }
+        }
+        .correct-flash { animation: correctFlash 0.7s ease; }
+
+        /* -------------------------------- */
 
         .prompt-box {
             background: rgba(255,255,255,0.12);
@@ -54,6 +80,7 @@
             border-radius: 15px;
             font-size: 1.3rem;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease;
         }
 
         .input-row {
@@ -91,6 +118,12 @@
             text-align: center;
             min-height: 30px;
         }
+
+        /* Loading spinner */
+        .thinking {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -100,17 +133,14 @@
 
 <div class="practice-container">
 
-    <!-- CHARACTER AVATAR -->
     <img id="character-avatar" class="avatar" src="/static/characters/{{ character }}.png">
 
     <h2 style="text-align:center; margin-bottom:25px;">🚀 Practice Mission</h2>
 
-    <!-- PROMPT DISPLAY -->
     <div id="practice-prompt" class="prompt-box">
         Loading your practice mission...
     </div>
 
-    <!-- INPUT AREA -->
     <div class="input-row">
         <input id="student-answer" type="text" placeholder="Type your answer...">
         <button class="submit-btn" onclick="sendPracticeAnswer()">Submit</button>
@@ -121,10 +151,7 @@
 </div>
 
 <script>
-    // Auto-start practice session as soon as page loads
-    window.onload = function () {
-        startPractice();
-    };
+    window.onload = startPractice;
 
     function startPractice() {
         fetch("/start_practice", {
@@ -139,49 +166,70 @@
         .then(data => {
             document.getElementById("practice-prompt").innerText = data.prompt;
             document.getElementById("character-avatar").src = "/static/characters/" + data.character + ".png";
-        })
-        .catch(err => {
-            document.getElementById("practice-prompt").innerText = "Error loading practice session.";
         });
     }
 
-    function sendPracticeAnswer() {
-        const answer = document.getElementById("student-answer").value.trim();
+    // ENTER KEY SUBMITS ANSWER
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") sendPracticeAnswer();
+    });
 
-        if (answer.length === 0) return;
+    async function sendPracticeAnswer() {
+        const answerBox = document.getElementById("student-answer");
+        const promptBox = document.getElementById("practice-prompt");
+        const status = document.getElementById("status");
+        const avatar = document.getElementById("character-avatar");
 
-        fetch("/practice_step", {
+        const userAnswer = answerBox.value.trim();
+        if (!userAnswer) return;
+
+        // Show thinking animation
+        status.innerHTML = "<span class='thinking'>🤖 Thinking…</span>";
+
+        const res = await fetch("/practice_step", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ answer: answer })
-        })
-        .then(res => res.json())
-        .then(data => {
-            const promptBox = document.getElementById("practice-prompt");
-            const status = document.getElementById("status");
-
-            if (data.status === "correct") {
-                status.innerHTML = "✅ Correct!";
-                promptBox.innerText = data.next_prompt;
-
-            } else if (data.status === "incorrect") {
-                status.innerHTML = "❌ Try again! Hint: " + data.hint;
-
-            } else if (data.status === "finished") {
-                status.innerHTML = "🌟 " + data.message;
-                promptBox.innerText = "Mission Complete!";
-            }
-
-            // Update avatar
-            if (data.character) {
-                document.getElementById("character-avatar").src =
-                    "/static/characters/" + data.character + ".png";
-            }
+            body: JSON.stringify({ answer: userAnswer })
         });
+
+        const data = await res.json();
+
+        // -------- CORRECT --------
+        if (data.status === "correct") {
+            status.innerHTML = "✅ Correct!";
+            promptBox.innerText = data.next_prompt;
+
+            // Success flash
+            promptBox.classList.add("correct-flash");
+            setTimeout(() => promptBox.classList.remove("correct-flash"), 700);
+
+            answerBox.value = "";
+        }
+
+        // -------- INCORRECT --------
+        else if (data.status === "incorrect") {
+            status.innerHTML = "❌ Try again! Hint: " + data.hint;
+
+            // Shake + glow
+            answerBox.classList.add("shake");
+            status.classList.add("glow");
+
+            setTimeout(() => answerBox.classList.remove("shake"), 350);
+            setTimeout(() => status.classList.remove("glow"), 900);
+        }
+
+        // -------- FINISHED --------
+        else if (data.status === "finished") {
+            status.innerHTML = "🌟 " + data.message;
+            promptBox.innerText = "Mission Complete!";
+        }
+
+        // Update avatar if needed
+        if (data.character) {
+            avatar.src = "/static/characters/" + data.character + ".png";
+        }
     }
 </script>
 
 </body>
 </html>
-
-
