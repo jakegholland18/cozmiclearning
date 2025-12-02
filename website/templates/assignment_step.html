@@ -135,7 +135,9 @@
     // Initialize progress bar
     window.addEventListener('load', () => {
         const progressContainer = document.getElementById('progress-container');
-        const progressBar = CozmicEnhancements.createProgressBar({{ index + 1 }}, {{ total }});
+        const currentStep = parseInt('{{ index + 1 }}');
+        const totalSteps = parseInt('{{ total }}');
+        const progressBar = CozmicEnhancements.createProgressBar(currentStep, totalSteps);
         progressContainer.appendChild(progressBar);
     });
 </script>
