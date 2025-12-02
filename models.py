@@ -17,7 +17,7 @@ class Parent(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # One parent can have multiple students (children)
+    # One parent → many students
     students = db.relationship("Student", backref="parent_ref", lazy=True)
 
 
@@ -32,6 +32,7 @@ class Teacher(db.Model):
     name = db.Column(db.String(120))
     email = db.Column(db.String(120), unique=True)
     password_hash = db.Column(db.String(255))
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     classes = db.relationship("Class", backref="teacher", lazy=True)
@@ -39,16 +40,18 @@ class Teacher(db.Model):
 
 
 # ============================================================
-# CLASSES
+# CLASSROOMS
 # ============================================================
 
 class Class(db.Model):
     __tablename__ = "classes"
 
     id = db.Column(db.Integer, primary_key=True)
-    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"))
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
+
     class_name = db.Column(db.String(120))
     grade_level = db.Column(db.String(20))
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     students = db.relationship("Student", backref="class_ref", lazy=True)
@@ -56,7 +59,7 @@ class Class(db.Model):
 
 
 # ============================================================
-# STUDENTS (UPDATED WITH parent_id)
+# STUDENTS
 # ============================================================
 
 class Student(db.Model):
@@ -65,12 +68,16 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     class_id = db.Column(db.Integer, db.ForeignKey("classes.id"))
-    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id"))   # NEW FIELD
+    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id"))
 
     student_name = db.Column(db.String(120))
     student_email = db.Column(db.String(120))
 
-    ability_level = db.Column(db.String(20), default="on_level")
+    # Differentiation engine ability tier
+    ability_level = db.Column(db.String(20), default="on_level")  
+    # below / on_level / advanced
+
+    # Auto-updated from analytics
     average_score = db.Column(db.Float, default=0.0)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -79,7 +86,7 @@ class Student(db.Model):
 
 
 # ============================================================
-# ANALYTICS: SCORES / RESULTS
+# ANALYTICS — RESULTS & SCORES
 # ============================================================
 
 class AssessmentResult(db.Model):
@@ -94,7 +101,9 @@ class AssessmentResult(db.Model):
     score_percent = db.Column(db.Float)
     num_correct = db.Column(db.Integer)
     num_questions = db.Column(db.Integer)
-    difficulty_level = db.Column(db.String(20))
+
+    # difficulty level of attempt (from assignment or student level)
+    difficulty_level = db.Column(db.String(20))  
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -104,10 +113,6 @@ class AssessmentResult(db.Model):
 # ============================================================
 
 class AssignedPractice(db.Model):
-    """
-    A practice set assigned by a teacher to a class.
-    Example: 'Fractions Test – Due Friday'
-    """
     __tablename__ = "assigned_practice"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -123,27 +128,28 @@ class AssignedPractice(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # 🔥 NEW — For differentiated learning
+    differentiation_mode = db.Column(db.String(50), default="none")
+    # none / adaptive / gap_fill / mastery / scaffold
+
     questions = db.relationship("AssignedQuestion", backref="practice", lazy=True)
 
 
 # ============================================================
-# INDIVIDUAL QUESTIONS IN A PRACTICE SET
+# QUESTIONS INSIDE A PRACTICE SET
 # ============================================================
 
 class AssignedQuestion(db.Model):
-    """
-    Stores each question for an AssignedPractice set.
-    Supports multiple-choice or free response.
-    """
     __tablename__ = "assigned_questions"
 
     id = db.Column(db.Integer, primary_key=True)
     practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
 
     question_text = db.Column(db.Text, nullable=False)
-    question_type = db.Column(db.String(20), default="free")  # free / multiple_choice
+    question_type = db.Column(db.String(20), default="free")  
+    # free / multiple_choice
 
-    # Multiple choice options
+    # MC options
     choice_a = db.Column(db.String(255))
     choice_b = db.Column(db.String(255))
     choice_c = db.Column(db.String(255))
@@ -151,8 +157,11 @@ class AssignedQuestion(db.Model):
 
     correct_answer = db.Column(db.String(255))
     explanation = db.Column(db.Text)
-    difficulty_level = db.Column(db.String(20))  # easy / med / hard
+
+    difficulty_level = db.Column(db.String(20))  # easy / medium / hard
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 
 

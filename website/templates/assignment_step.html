@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CozmicLearning Mission</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .chat-container {
+            width: 90%;
+            max-width: 700px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.06);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            border-radius: 16px;
+            line-height: 1.4rem;
+        }
+
+        .nova-bubble {
+            background: rgba(110,130,255,0.25);
+            border: 1px solid rgba(150,170,255,0.4);
+            margin-right: auto;
+            color: #dce4ff;
+        }
+
+        .student-bubble {
+            background: rgba(255,255,255,0.12);
+            margin-left: auto;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .nova-avatar {
+            width: 70px;
+            height: auto;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            box-shadow: 0 0 12px rgba(110,150,255,0.7);
+        }
+
+        .answer-box {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #6374ff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .next-btn:hover {
+            background: #7f8bff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container fade-in">
+    
+    <!-- NOVA AVATAR -->
+    <div style="text-align: center;">
+        <img src="/static/characters/nova.png" class="nova-avatar">
+        <div style="color:#dce4ff; font-size:1.2rem; margin-bottom:20px;">
+            Mission: {{ assignment.title }}
+        </div>
+    </div>
+
+    <!-- QUESTION BUBBLE -->
+    <div class="chat-bubble nova-bubble">
+        {{ step.prompt }}
+    </div>
+
+    <!-- Student answer appears when submitted -->
+    {% if submitted %}
+    <div class="chat-bubble student-bubble">
+        {{ student_answer }}
+    </div>
+    {% endif %}
+
+    <!-- ANSWER FORM -->
+    {% if not submitted %}
+    <form method="POST">
+        {% if step.type == "multiple_choice" %}
+            {% for ch in step.choices %}
+                <label style="display:block; margin-bottom:8px;">
+                    <input type="radio" name="student_answer" value="{{ ch.split('.')[0]|lower }}"> 
+                    {{ ch }}
+                </label>
+            {% endfor %}
+        {% else %}
+            <textarea class="answer-box" name="student_answer" rows="3" placeholder="Type your answer here..."></textarea>
+        {% endif %}
+
+        <!-- HINT BUTTON -->
+        <button name="hint" value="1" class="next-btn" style="background:#4a55cc;">
+            Need a Hint?
+        </button>
+
+        <button type="submit" class="next-btn">Submit Answer</button>
+    </form>
+    {% endif %}
+
+    <!-- HINT DISPLAY -->
+    {% if show_hint %}
+    <div class="chat-bubble nova-bubble">
+        <strong>Hint:</strong> {{ step.hint }}
+    </div>
+    {% endif %}
+
+    {% if submitted %}
+    <a href="/assignment/{{ assignment.id }}/step/{{ next_index }}" class="next-btn">
+        Next Mission Step →
+    </a>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

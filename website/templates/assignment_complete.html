@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mission Complete</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .complete-box {
+            width: 90%;
+            max-width: 700px;
+            margin: 50px auto;
+            text-align: center;
+            background: rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 30px;
+        }
+        .nova-avatar {
+            width: 90px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(110,150,255,0.7);
+        }
+        .score {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: #dce4ff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="complete-box fade-in">
+
+    <img src="/static/characters/nova.png" class="nova-avatar">
+
+    <h2>Mission Complete!</h2>
+
+    <div class="score">
+        Score: {{ score_percent }}%
+    </div>
+
+    <p>{{ final_message }}</p>
+
+    <a href="/subjects" class="next-btn" style="display:block; margin-top:25px;">
+        Return to Subjects
+    </a>
+
+</div>
+
+</body>
+</html>

@@ -15,7 +15,7 @@
         <label>Class</label>
         <select name="class_id" required>
             {% for cls in classes %}
-            <option value="{{ cls.id }}">{{ cls.name }}</option>
+            <option value="{{ cls.id }}">{{ cls.class_name }}</option>
             {% endfor %}
         </select>
 
@@ -43,6 +43,16 @@
         <label>Due Date (optional)</label>
         <input type="date" name="due_date">
 
+        <!-- 🔥 NEW: DIFFERENTIATION MODE -->
+        <label>Differentiation Mode</label>
+        <select name="differentiation_mode">
+            <option value="none">No Differentiation</option>
+            <option value="adaptive">Adaptive Difficulty</option>
+            <option value="gap_fill">Fill Skill Gaps</option>
+            <option value="mastery">Mastery Challenge</option>
+            <option value="scaffold">Scaffolded (Below Level)</option>
+        </select>
+
         <button class="btn-blue" type="submit">Create Assignment</button>
     </form>
 
@@ -50,3 +60,4 @@
 
 </body>
 </html>
+

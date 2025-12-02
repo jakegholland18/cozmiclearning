@@ -48,6 +48,53 @@ def _subject_flavor(subject: str) -> str:
 
 
 # ------------------------------------------------------------
+# DIFFERENTIATION ENGINE (adds instructions to prompt)
+# ------------------------------------------------------------
+
+def apply_differentiation(base_prompt: str, mode: str) -> str:
+    if mode == "none":
+        return base_prompt
+
+    if mode == "adaptive":
+        return base_prompt + """
+DIFFERENTIATION MODE: ADAPTIVE
+• Start medium.
+• Harder after correct answers.
+• Easier after incorrect answers.
+• Smooth difficulty curve.
+"""
+
+    if mode == "gap_fill":
+        return base_prompt + """
+DIFFERENTIATION MODE: GAP FILL
+• Include prerequisite/foundation skills.
+• Target common misconceptions.
+• Step-by-step reasoning.
+• Aim to fix misunderstandings.
+"""
+
+    if mode == "mastery":
+        return base_prompt + """
+DIFFERENTIATION MODE: MASTERY
+• Push difficulty higher.
+• Include multi-step reasoning.
+• Real-world application.
+• At least 3 synthesis/rigor problems.
+"""
+
+    if mode == "scaffold":
+        return base_prompt + """
+DIFFERENTIATION MODE: SCAFFOLDED SUPPORT
+• Below grade-level entry.
+• Break tasks into smaller steps.
+• Simpler vocabulary & numbers.
+• Confidence-building approach.
+"""
+
+    return base_prompt
+
+
+# ------------------------------------------------------------
 # MAIN PRACTICE GENERATOR (CozmicLearning mission)
 # ------------------------------------------------------------
 
@@ -56,9 +103,11 @@ def generate_practice_session(
     subject: str,
     grade_level: str = "8",
     character: str = "everly",
+    differentiation_mode: str = "none",
+    student_ability: str = "on_level",  # NEW
 ) -> Dict[str, Any]:
     """
-    Generate a 10-question practice 'mission' for CozmicLearning.
+    Generate a 10-question practice 'mission' with differentiation support.
     """
 
     difficulty = _difficulty_for_grade(grade_level)
@@ -70,9 +119,9 @@ def generate_practice_session(
         topic = "the last skill the student reviewed"
 
     # ------------------------------------------------------------
-    # 🌌 COZMICLEARNING SYSTEM PROMPT
+    # 🌌 BASE SYSTEM PROMPT
     # ------------------------------------------------------------
-    system_prompt = f"""
+    base_prompt = f"""
 You are COZMICLEARNING PRACTICE MODE, a galaxy-themed tutor
 guiding students through "missions" of questions.
 
@@ -87,20 +136,24 @@ Generate a 10-question interactive practice mission:
 • Tone & style: use the tutor voice/personality: {voice}
 • Grade level rule: {depth_rule}
 
+STUDENT CONTEXT:
+• Student ability level: {student_ability}
+• Applied differentiation mode: {differentiation_mode}
+
 THE EXPERIENCE:
 • It should feel like a learning "mission" on a CozmicLearning planet.
 • Questions should be clear, unambiguous, and age-appropriate.
-• Hints should gently guide, not generic.
-• Explanations should feel like a teacher walking them through it.
+• Hints should gently guide.
+• Explanations should be supportive, like a real tutor.
 
-RETURN ONLY VALID JSON in this format:
+RETURN ONLY VALID JSON:
 
 {{
   "steps": [
     {{
       "prompt": "...",
       "type": "multiple_choice" OR "free",
-      "choices": ["A. ...", "B. ..."], 
+      "choices": ["A. ...", "B. ..."],
       "expected": ["a"],
       "hint": "...",
       "explanation": "..."
@@ -110,11 +163,16 @@ RETURN ONLY VALID JSON in this format:
 }}
 """
 
-    user_prompt = """
-Generate the full 10-question JSON practice session now.
-ONLY return the JSON object. No commentary.
-"""
+    # ------------------------------------------------------------
+    # 🔥 APPLY DIFFERENTIATION RULES
+    # ------------------------------------------------------------
+    system_prompt = apply_differentiation(base_prompt, differentiation_mode)
 
+    user_prompt = "Generate all 10 questions now. Return ONLY valid JSON."
+
+    # ------------------------------------------------------------
+    # OPENAI CALL
+    # ------------------------------------------------------------
     client = get_client()
     response = client.responses.create(
         model="gpt-4.1-mini",
@@ -128,82 +186,81 @@ ONLY return the JSON object. No commentary.
     raw = response.output_text.strip()
 
     # ------------------------------------------------------------
-    # Attempt JSON parse
+    # TRY PARSING JSON
     # ------------------------------------------------------------
     try:
         data = json.loads(raw)
-    except Exception:
+    except:
+        # fallback safe question
         return {
             "steps": [
                 {
-                    "prompt": f"Let's practice {topic}. What is one fact you remember?",
+                    "prompt": f"What is one thing you know about {topic}?",
                     "type": "free",
                     "choices": [],
                     "expected": [""],
-                    "hint": "Anything related works.",
-                    "explanation": "Just share any detail you remember.",
+                    "hint": "Anything related works!",
+                    "explanation": "Just share what you remember.",
+                    "status": "unanswered",
                 }
             ],
-            "final_message": "Great work finishing this warm-up Cozmic mission! 🚀",
+            "final_message": "Great job completing your mission! 🚀",
             "topic": topic,
+            "differentiation_mode": differentiation_mode,
+            "student_ability": student_ability,
         }
 
     # ------------------------------------------------------------
-    # Validation / Cleanup + MC Auto-Fix
+    # CLEANUP/VALIDATION
     # ------------------------------------------------------------
-
     valid_steps = []
 
     for step in data.get("steps", []):
         prompt = str(step.get("prompt", "")).strip()
-
         qtype = step.get("type", "free")
+
         if qtype not in ["multiple_choice", "free"]:
             qtype = "free"
 
+        # Choices for MC
         choices = step.get("choices", []) if qtype == "multiple_choice" else []
         if not isinstance(choices, list):
             choices = []
 
+        # Expected answers
         expected_raw = step.get("expected", [])
         if not isinstance(expected_raw, list):
-            expected_raw = [str(expected_raw)]
+            expected_raw = [expected_raw]
 
-        expected = [str(x).lower().strip() for x in expected_raw if str(x).strip()]
+        expected = [str(x).strip().lower() for x in expected_raw if x]
 
-        # ------------------------------------------------------------
-        # 🛠 FIX MULTIPLE-CHOICE EXPECTED ANSWERS
-        # ------------------------------------------------------------
+        # Fix multiple-choice answer letters
         if qtype == "multiple_choice":
-            corrected = []
             choice_letters = []
-
             for ch in choices:
                 try:
                     letter = ch.split(".")[0].strip().lower()
-                except Exception:
+                except:
                     letter = ""
                 choice_letters.append(letter)
 
+            corrected = []
             for exp in expected:
-                if len(exp) == 1 and exp in choice_letters:
+                if exp in choice_letters:
                     corrected.append(exp)
-                    continue
-                for idx, choice in enumerate(choices):
-                    if exp and exp in choice.lower():
-                        corrected.append(choice_letters[idx])
+                else:
+                    for idx, choice in enumerate(choices):
+                        if exp and exp in choice.lower():
+                            corrected.append(choice_letters[idx])
 
             if not corrected:
                 corrected = ["a"]
 
             expected = corrected
 
-        hint = str(step.get("hint", "Try focusing on what the question is asking.")).strip()
-        explanation = str(step.get("explanation", "Let's walk through this together.")).strip()
+        hint = str(step.get("hint", "Think carefully.")).strip()
+        explanation = str(step.get("explanation", "Let's walk through it together.")).strip()
 
-        # ------------------------------------------------------------
-        # 🔥 Add placeholder for "status" so auto_logger can read it later
-        # ------------------------------------------------------------
         valid_steps.append({
             "prompt": prompt,
             "type": qtype,
@@ -211,29 +268,34 @@ ONLY return the JSON object. No commentary.
             "expected": expected or [""],
             "hint": hint,
             "explanation": explanation,
-            "status": "unanswered",   # <-- NEW FIELD (needed for analytics logging)
+            "status": "unanswered",
         })
 
     if not valid_steps:
         valid_steps = [
             {
-                "prompt": f"Tell me one thing you know about {topic}.",
+                "prompt": f"What do you know about {topic}?",
                 "type": "free",
                 "choices": [],
                 "expected": [""],
-                "hint": "Anything related works!",
-                "explanation": "Just share what you remember.",
+                "hint": "Anything is okay.",
+                "explanation": "Let's begin with what you remember.",
                 "status": "unanswered",
             }
         ]
 
     final_message = data.get(
         "final_message",
-        "You completed this CozmicLearning practice mission! 🚀 Great work.",
+        "You completed the Cozmic mission! 🚀 Amazing work."
     )
 
+    # ------------------------------------------------------------
+    # FINAL RETURN — NOW INCLUDES DIFFERENTIATION + ABILITY
+    # ------------------------------------------------------------
     return {
         "steps": valid_steps,
         "final_message": final_message,
         "topic": topic,
+        "differentiation_mode": differentiation_mode,
+        "student_ability": student_ability,
     }
