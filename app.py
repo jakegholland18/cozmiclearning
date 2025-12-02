@@ -452,8 +452,21 @@ def subject_preview():
         if not func:
             return "<p>Unknown subject.</p>"
 
-        # Generic preview question to produce six-section output
-        question = "Give a concise overview and sample practice for this subject."
+        # Tailored preview prompts per subject for product feel
+        preview_prompts = {
+            "num_forge": "SECTION 1 — OVERVIEW\nExplain what the Mastery Ladder in math covers.\nSECTION 2 — KEY FACTS\n• Core skills\n• Typical mistakes\n• Tips\nSECTION 3 — CHRISTIAN VIEW\nPurpose, diligence, truth.\nSECTION 4 — AGREEMENT\n• Math consistency matters\nSECTION 5 — DIFFERENCE\n• Approaches to learning\nSECTION 6 — PRACTICE\n• Solve: 3 mixed problems (fractions, percents, algebra).",
+            "atom_sphere": "SECTION 1 — OVERVIEW\nExperiment Sim: hypothesis → variables → result.\nSECTION 2 — KEY FACTS\n• Variables\n• Controls\n• Data\nSECTION 3 — CHRISTIAN VIEW\nCreation care, wonder, order.\nSECTION 4 — AGREEMENT\n• Evidence matters\nSECTION 5 — DIFFERENCE\n• Interpretations vary\nSECTION 6 — PRACTICE\n• Design a simple experiment.",
+            "ink_haven": "SECTION 1 — OVERVIEW\nRevision Coach: thesis → body → conclusion.\nSECTION 2 — KEY FACTS\n• Thesis clarity\n• Cohesion\n• Tone\nSECTION 3 — CHRISTIAN VIEW\nSpeak truth with grace.\nSECTION 4 — AGREEMENT\n• Clear writing helps\nSECTION 5 — DIFFERENCE\n• Styles vary\nSECTION 6 — PRACTICE\n• Improve a sample paragraph.",
+            "chrono_core": "SECTION 1 — OVERVIEW\nTimeline Builder: eras and causes.\nSECTION 2 — KEY FACTS\n• Primary vs secondary sources\n• Cause-effect\n• Context\nSECTION 3 — CHRISTIAN VIEW\nProvidence and responsibility.\nSECTION 4 — AGREEMENT\n• Sources matter\nSECTION 5 — DIFFERENCE\n• Interpretations differ\nSECTION 6 — PRACTICE\n• Place 3 events on a timeline.",
+            "story_verse": "SECTION 1 — OVERVIEW\nReading Lab: theme, plot, inference.\nSECTION 2 — KEY FACTS\n• Theme\n• Characters\n• Setting\nSECTION 3 — CHRISTIAN VIEW\nTruth, beauty, goodness.\nSECTION 4 — AGREEMENT\n• Careful reading\nSECTION 5 — DIFFERENCE\n• Interpretations\nSECTION 6 — PRACTICE\n• Identify theme from a short passage.",
+            "truth_forge": "SECTION 1 — OVERVIEW\nWorldview Compare: claim, reasons, evidence.\nSECTION 2 — KEY FACTS\n• Claims\n• Logic\n• Evidence\nSECTION 3 — CHRISTIAN VIEW\nFaith seeks understanding.\nSECTION 4 — AGREEMENT\n• Reasoning matters\nSECTION 5 — DIFFERENCE\n• Worldview contrasts\nSECTION 6 — PRACTICE\n• Analyze a claim with two reasons.",
+            "faith_realm": "SECTION 1 — OVERVIEW\nPassage Deep Dive: context and application.\nSECTION 2 — KEY FACTS\n• Context\n• Cross-references\n• Application\nSECTION 3 — CHRISTIAN VIEW\nScripture and wisdom.\nSECTION 4 — AGREEMENT\n• Seek understanding\nSECTION 5 — DIFFERENCE\n• Denominational views\nSECTION 6 — PRACTICE\n• Summarize a short passage.",
+            "coin_quest": "SECTION 1 — OVERVIEW\nBudget Lab: earn, save, spend, give.\nSECTION 2 — KEY FACTS\n• Needs vs wants\n• Percent allocations\n• Tracking\nSECTION 3 — CHRISTIAN VIEW\nStewardship and generosity.\nSECTION 4 — AGREEMENT\n• Plan wisely\nSECTION 5 — DIFFERENCE\n• Budget styles\nSECTION 6 — PRACTICE\n• Build a 100-dollar budget.",
+            "stock_star": "SECTION 1 — OVERVIEW\nROI Simulator: risk vs return.\nSECTION 2 — KEY FACTS\n• Diversification\n• Time horizon\n• Compounding\nSECTION 3 — CHRISTIAN VIEW\nWisdom and prudence.\nSECTION 4 — AGREEMENT\n• Risk management\nSECTION 5 — DIFFERENCE\n• Strategies\nSECTION 6 — PRACTICE\n• Compare two investments.",
+            "terra_nova": "SECTION 1 — OVERVIEW\nGeneral Knowledge: curiosity missions.\nSECTION 2 — KEY FACTS\n• Inquiry\n• Evidence\n• Synthesis\nSECTION 3 — CHRISTIAN VIEW\nSeek truth with humility.\nSECTION 4 — AGREEMENT\n• Careful thinking\nSECTION 5 — DIFFERENCE\n• Perspectives\nSECTION 6 — PRACTICE\n• Draft three curious questions.",
+        }
+
+        question = preview_prompts.get(subject, "Give a concise overview and sample practice for this subject.")
         result = func(question, grade, character)
         preview_text = result.get("raw_text") if isinstance(result, dict) else str(result)
 
