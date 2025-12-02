@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>CozmicLearning – Teacher Login</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/css/auth.css?v=20251202">
 
     <style>
         body {
@@ -129,10 +130,10 @@
 <body>
 <div class="stars"></div>
 
-<div class="auth-container">
-    <h1>Teacher Login</h1>
-    <div class="subtitle">Access your CozmicLearning class dashboard.</div>
-    <div class="subtitle" style="margin-top:-12px;">• Owner accounts have full access. • Use your school email.</div>
+<div class="auth-box">
+    <h1 class="auth-title">Teacher Login</h1>
+    <div class="auth-subtitle">Access your CozmicLearning class dashboard.</div>
+    <div class="auth-subtitle" style="margin-top:-12px;">• Owner accounts have full access. • Use your school email.</div>
 
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -144,23 +145,37 @@
         {% endwith %}
     </div>
 
-    <form method="POST" action="/teacher/login">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="you@school.org" required>
-
-        <label for="password">Password</label>
-        <div class="password-wrapper">
-            <input id="password" name="password" type="password" placeholder="Password" required>
-            <span class="toggle-password" onclick="togglePassword()">👁</span>
+    <form method="POST" action="/teacher/login" class="auth-form">
+        <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@school.org" required>
         </div>
 
-        <button class="btn-primary" type="submit">Log In</button>
-        <div style="text-align:center; margin-top:10px;">
-            <a class="btn btn-light" href="/choose_login_role" style="padding:8px 14px; border-radius:10px; display:inline-block;">Switch Role</a>
+        <div>
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" placeholder="Password" required>
+                <span class="password-toggle" onclick="togglePassword()">👁</span>
+            </div>
+        </div>
+
+        <div class="forgot-password">
+            <a href="/forgot-password/teacher">Forgot password?</a>
+        </div>
+
+        <div class="remember-me">
+            <input type="checkbox" name="remember" id="remember">
+            <label for="remember" style="margin:0; font-weight:normal;">Remember me</label>
+        </div>
+
+        <button class="auth-submit" type="submit">Log In</button>
+
+        <div class="auth-actions">
+            <a class="btn-secondary" href="/choose_login_role">Switch Role</a>
         </div>
     </form>
 
-    <div class="footer-link">
+    <div class="auth-footer">
         New to CozmicLearning?
         <a href="/teacher/signup">Create a teacher account</a>
     </div>

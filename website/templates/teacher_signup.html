@@ -4,123 +4,7 @@
     <meta charset="UTF-8">
     <title>CozmicLearning – Teacher Sign Up</title>
     <link rel="stylesheet" href="/static/style.css?v=20251202">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: "Poppins", sans-serif;
-            background: radial-gradient(circle at top, #0f1a2b, #000814);
-            color: #f5f7ff;
-        }
-        .stars {
-            position: fixed;
-            inset: 0;
-            background: url('/static/stars.png');
-            background-size: cover;
-            opacity: 0.35;
-            z-index: -1;
-        }
-        .auth-container {
-            max-width: 420px;
-            margin: 80px auto;
-            background: rgba(255,255,255,0.08);
-            border-radius: 18px;
-            padding: 30px 32px 36px;
-            box-shadow: 0 0 25px rgba(0,0,0,0.6);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 6px;
-            font-size: 2rem;
-            color: #bfe6ff;
-            text-shadow: 0 0 12px #5fd6ff;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 0.95rem;
-            color: #d0e0ff;
-            margin-bottom: 25px;
-        }
-        label {
-            display: block;
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: #f9fbff;
-        }
-        input {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: none;
-            margin-top: 6px;
-            background: rgba(0,0,0,0.25);
-            color: #f5f7ff;
-        }
-        input::placeholder {
-            color: #a9b3d6;
-        }
-
-        /* PASSWORD WRAPPER */
-        .password-wrapper {
-            position: relative;
-            margin-top: 6px;
-        }
-        .password-wrapper input {
-            padding-right: 40px;
-        }
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            opacity: 0.8;
-            font-size: 1.2rem;
-            user-select: none;
-        }
-        .toggle-password:hover {
-            opacity: 1;
-        }
-
-        .btn-primary {
-            margin-top: 22px;
-            width: 100%;
-            padding: 11px 0;
-            border-radius: 999px;
-            border: none;
-            background: linear-gradient(135deg, #00a8ff, #7f5cff);
-            color: white;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 0 18px rgba(0,168,255,0.55);
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 0 28px rgba(0,168,255,0.75);
-        }
-
-        .footer-link {
-            margin-top: 18px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        .footer-link a {
-            color: #ffdf9b;
-            text-decoration: none;
-        }
-        .footer-link a:hover {
-            text-decoration: underline;
-        }
-
-        .flash-messages {
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-        .flash-messages .error { color: #ff8080; }
-        .flash-messages .info { color: #8af7b3; }
-    </style>
+    <link rel="stylesheet" href="/static/css/auth.css?v=20251202">
 
     <script>
         function togglePassword() {
@@ -132,10 +16,10 @@
 <body>
 <div class="stars"></div>
 
-<div class="auth-container">
-    <h1>Teacher Sign Up</h1>
-    <div class="subtitle">Create your CozmicLearning teacher portal account.</div>
-    <div class="subtitle" style="margin-top:-12px;">• Verified email required. • Owner accounts see all classes.</div>
+<div class="auth-box">
+    <h1 class="auth-title">Teacher Sign Up</h1>
+    <div class="auth-subtitle">Create your CozmicLearning teacher portal account.</div>
+    <div class="auth-subtitle" style="margin-top:-12px;">• Verified email required. • Owner accounts see all classes.</div>
 
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -147,26 +31,33 @@
         {% endwith %}
     </div>
 
-    <form method="POST" action="/teacher/signup">
-        <label for="name">Full Name</label>
-        <input id="name" name="name" type="text" placeholder="e.g., Ms. Johnson" required>
-
-        <label for="email">School Email</label>
-        <input id="email" name="email" type="email" placeholder="you@school.org" required>
-
-        <label for="password">Password</label>
-        <div class="password-wrapper">
-            <input id="password" name="password" type="password" placeholder="Create a secure password" required>
-            <span class="toggle-password" onclick="togglePassword()">👁</span>
+    <form method="POST" action="/teacher/signup" class="auth-form">
+        <div>
+            <label for="name">Full Name</label>
+            <input id="name" name="name" type="text" placeholder="e.g., Ms. Johnson" required>
         </div>
 
-        <button class="btn-primary" type="submit">Create Teacher Account</button>
-        <div style="text-align:center; margin-top:10px;">
-            <a class="btn btn-light" href="/choose_login_role" style="padding:8px 14px; border-radius:10px; display:inline-block;">Switch Role</a>
+        <div>
+            <label for="email">School Email</label>
+            <input id="email" name="email" type="email" placeholder="you@school.org" required>
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" placeholder="Create a secure password" required>
+                <span class="password-toggle" onclick="togglePassword()">👁</span>
+            </div>
+        </div>
+
+        <button class="auth-submit" type="submit">Create Teacher Account</button>
+
+        <div class="auth-actions">
+            <a class="btn-secondary" href="/choose_login_role">Switch Role</a>
         </div>
     </form>
 
-    <div class="footer-link">
+    <div class="auth-footer">
         Already have an account?
         <a href="/teacher/login">Log in</a>
     </div>

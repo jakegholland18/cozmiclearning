@@ -3,142 +3,7 @@
 <head>
     <title>Student Login</title>
     <link rel="stylesheet" href="/static/style.css?v=20251202">
-
-    <style>
-        body {
-            background: var(--bg-gradient-main);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            margin: 0;
-        }
-
-        .content-box {
-            width: 100%;
-            max-width: 420px;
-            background: linear-gradient(135deg,
-                rgba(92, 107, 255, 0.12),
-                rgba(71, 200, 255, 0.08)
-            );
-            border: 1px solid rgba(118, 131, 255, 0.35);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 
-                0 12px 40px rgba(0, 0, 0, 0.3),
-                inset 1px 1px 0 rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-        }
-
-        .page-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, #00f2ff, #84ff00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #c4d1ff;
-            margin-bottom: 4px;
-        }
-
-        input {
-            padding: 12px 16px;
-            border: 1px solid rgba(118, 131, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            color: #f7fbff;
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        input:focus {
-            border-color: rgba(118, 131, 255, 0.6);
-            box-shadow: 0 0 20px rgba(92, 107, 255, 0.3);
-            background: rgba(0, 0, 0, 0.4);
-        }
-
-        input::placeholder {
-            color: #8a92b3;
-        }
-
-        /* PASSWORD TOGGLE */
-        .password-wrapper {
-            position: relative;
-            margin-top: 0;
-        }
-        .password-wrapper input {
-            padding-right: 40px;
-            width: 100%;
-        }
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            opacity: 0.7;
-            font-size: 1.1rem;
-            user-select: none;
-            transition: opacity 0.3s ease;
-        }
-        .toggle-password:hover {
-            opacity: 1;
-        }
-
-        .btn-blue {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #ff9500, #ff6b6b);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 8px 24px rgba(92, 107, 255, 0.3);
-            margin-top: 8px;
-        }
-
-        .btn-blue:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(92, 107, 255, 0.5);
-        }
-
-        .auth-link {
-            text-align: center;
-            margin-top: 24px;
-            color: #c4d1ff;
-            font-size: 0.95rem;
-        }
-
-        .auth-link a {
-            color: #00f2ff;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .auth-link a:hover {
-            color: #5c6bff;
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/css/auth.css?v=20251202">
 
     <script>
         function togglePassword() {
@@ -149,12 +14,22 @@
 </head>
 
 <body class="fade-in">
-<div class="content-box">
+<div class="auth-box">
 
-    <h2 class="page-title">🚀 Student Login</h2>
-    <p style="text-align:center; color:#cfe8ff; margin:-10px 0 20px 0; opacity:0.9;">Welcome back! Sign in to continue your missions.</p>
+    <h2 class="auth-title">🚀 Student Login</h2>
+    <p class="auth-subtitle">Welcome back! Sign in to continue your missions.</p>
 
-    <form method="POST">
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="{{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <form method="POST" class="auth-form">
 
         <div>
             <label>Email</label>
@@ -163,22 +38,32 @@
 
         <div>
             <label>Password</label>
-            <div class="password-wrapper">
+            <div class="password-field">
                 <input id="password" name="password" type="password" placeholder="••••••••" required>
-                <span class="toggle-password" onclick="togglePassword()">👁</span>
+                <span class="password-toggle" onclick="togglePassword()">👁</span>
             </div>
         </div>
 
-        <div style="display:flex; gap:10px; align-items:center;">
-            <button class="btn-blue" type="submit">Login</button>
-            <a class="btn btn-light" href="/choose_login_role" style="padding:10px 14px; border-radius:10px;">Switch Role</a>
+        <div class="forgot-password">
+            <a href="/forgot-password/student">Forgot password?</a>
+        </div>
+
+        <div class="remember-me">
+            <input type="checkbox" name="remember" id="remember">
+            <label for="remember" style="margin:0; font-weight:normal;">Remember me</label>
+        </div>
+
+        <button class="auth-submit" type="submit">Login</button>
+
+        <div class="auth-actions">
+            <a class="btn-secondary" href="/choose_login_role">Switch Role</a>
         </div>
     </form>
 
-    <p class="auth-link">
+    <p class="auth-footer">
         Need an account? <a href="/student/signup">Sign up here</a>
         <br>
-        <span style="display:inline-block; margin-top:6px; color:#bcd9ff;">• Use your school email if assigned by a teacher.</span>
+        <span class="hint">• Use your school email if assigned by a teacher.</span>
     </p>
 
 </div>

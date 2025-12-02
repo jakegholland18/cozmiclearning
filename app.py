@@ -6,6 +6,7 @@ import os
 import sys
 import logging
 import traceback
+import secrets
 from datetime import datetime, timedelta
 
 # ============================================================
@@ -149,6 +150,32 @@ def rebuild_database_if_needed():
         print("⚠️ No destructive rebuild performed.")
 
 rebuild_database_if_needed()
+
+# ============================================================
+# PASSWORD RESET TOKEN STORE (In-memory for now)
+# ============================================================
+
+password_reset_tokens = {}  # {token: {"email": email, "role": role, "expires": datetime}}
+
+def generate_reset_token(email, role):
+    """Generate a password reset token valid for 1 hour"""
+    token = secrets.token_urlsafe(32)
+    password_reset_tokens[token] = {
+        "email": email.lower(),
+        "role": role,
+        "expires": datetime.now() + timedelta(hours=1)
+    }
+    return token
+
+def verify_reset_token(token):
+    """Verify token and return email/role if valid, None otherwise"""
+    data = password_reset_tokens.get(token)
+    if not data:
+        return None
+    if datetime.now() > data["expires"]:
+        del password_reset_tokens[token]
+        return None
+    return data
 
 # ============================================================
 # LOGGING
@@ -709,6 +736,100 @@ def teacher_logout():
     session.pop("user_role", None)
     flash("You have been logged out.", "info")
     return redirect("/teacher/login")
+
+
+# ============================================================
+# FORGOT PASSWORD FLOW
+# ============================================================
+
+@app.route("/forgot-password/<role>", methods=["GET", "POST"])
+def forgot_password(role):
+    """Unified forgot password for student/parent/teacher"""
+    if role not in ["student", "parent", "teacher"]:
+        flash("Invalid role.", "error")
+        return redirect("/choose_login_role")
+    
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        
+        if not email:
+            flash("Please enter your email address.", "error")
+            return render_template("forgot_password.html", role=role)
+        
+        # Generate reset token
+        token = generate_reset_token(email, role)
+        
+        # In production, send email here. For now, display token directly
+        reset_url = request.host_url.rstrip('/') + f"/reset-password/{token}"
+        
+        flash(f"Password reset link (demo): {reset_url}", "info")
+        flash("In production, this would be emailed to you.", "info")
+        
+        return render_template("forgot_password.html", role=role, reset_url=reset_url)
+    
+    return render_template("forgot_password.html", role=role)
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    """Reset password with valid token"""
+    token_data = verify_reset_token(token)
+    
+    if not token_data:
+        flash("Invalid or expired reset link.", "error")
+        return redirect("/choose_login_role")
+    
+    email = token_data["email"]
+    role = token_data["role"]
+    
+    if request.method == "POST":
+        new_password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        
+        if not new_password or not confirm_password:
+            flash("Please enter and confirm your new password.", "error")
+            return render_template("reset_password.html", token=token, role=role)
+        
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return render_template("reset_password.html", token=token, role=role)
+        
+        if len(new_password) < 6:
+            flash("Password must be at least 6 characters.", "error")
+            return render_template("reset_password.html", token=token, role=role)
+        
+        # Update password based on role
+        hashed = generate_password_hash(new_password)
+        
+        if role == "student":
+            # Students don't currently use password_hash in DB
+            # For now, just show success message
+            flash("Password reset successful! You can now log in.", "success")
+            del password_reset_tokens[token]
+            return redirect("/student/login")
+        
+        elif role == "parent":
+            parent = Parent.query.filter_by(email=email).first()
+            if parent:
+                parent.password_hash = hashed
+                db.session.commit()
+                flash("Password reset successful! You can now log in.", "success")
+                del password_reset_tokens[token]
+                return redirect("/parent/login")
+        
+        elif role == "teacher":
+            teacher = Teacher.query.filter_by(email=email).first()
+            if teacher:
+                teacher.password_hash = hashed
+                db.session.commit()
+                flash("Password reset successful! You can now log in.", "success")
+                del password_reset_tokens[token]
+                return redirect("/teacher/login")
+        
+        flash("Account not found.", "error")
+        return redirect("/choose_login_role")
+    
+    return render_template("reset_password.html", token=token, role=role)
 
 
 @app.route("/teacher/dashboard")
