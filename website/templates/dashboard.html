@@ -162,6 +162,24 @@
         <div class="stat-box"><h3>Streak</h3><p>{{ streak }} Days</p></div>
     </div>
 
+    <script>
+        // Show character comment and celebration on dashboard load
+        window.addEventListener('load', () => {
+            const character = '{{ character }}' || 'everly';
+            const streak = {{ streak }};
+            
+            // Show character personality comment
+            if (streak > 1) {
+                CozmicEnhancements.showCharacterComment('streakCongrats', character);
+            } else {
+                CozmicEnhancements.showCharacterComment('encouragement', character);
+            }
+            
+            // Light celebration for returning user
+            CozmicEnhancements.launchConfetti(15);
+        });
+    </script>
+
     <h2 class="section-title">Today’s Missions</h2>
 
     <div class="missions-grid">

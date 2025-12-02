@@ -3,6 +3,7 @@
 <head>
     <title>Mission Complete</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/enhancements.js" defer></script>
     <style>
         .complete-box {
             width: 90%;
@@ -12,17 +13,44 @@
             background: rgba(255,255,255,0.08);
             border-radius: 18px;
             padding: 30px;
+            border: 1px solid rgba(92, 107, 255, 0.3);
         }
         .nova-avatar {
             width: 90px;
             border-radius: 50%;
             margin-bottom: 15px;
             box-shadow: 0 0 15px rgba(110,150,255,0.7);
+            animation: celebrationBounce 0.6s ease-out;
+        }
+        @keyframes celebrationBounce {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         .score {
             font-size: 2rem;
             margin: 20px 0;
             color: #dce4ff;
+        }
+        .complete-message {
+            font-size: 1.3rem;
+            margin: 15px 0;
+            color: #e4f0ff;
+        }
+        .next-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #5c6bff, #7683ff);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92, 107, 255, 0.4);
         }
     </style>
 </head>
@@ -32,19 +60,28 @@
 
     <img src="/static/characters/nova.png" class="nova-avatar">
 
-    <h2>Mission Complete!</h2>
+    <h2>🎉 Mission Complete!</h2>
 
     <div class="score">
-        Score: {{ score_percent }}%
+        ⭐ Score: {{ score_percent }}%
     </div>
 
-    <p>{{ final_message }}</p>
+    <div class="complete-message">{{ final_message }}</div>
 
-    <a href="/subjects" class="next-btn" style="display:block; margin-top:25px;">
-        Return to Subjects
+    <a href="/subjects" class="next-btn">
+        🚀 Return to Subjects
     </a>
 
 </div>
 
+<script>
+    // Celebration effects when page loads
+    window.addEventListener('load', () => {
+        // Full celebration burst
+        CozmicEnhancements.celebrationBurst();
+    });
+</script>
+
 </body>
 </html>
+

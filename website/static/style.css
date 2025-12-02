@@ -698,4 +698,273 @@ body::after {
 }
 
 
+/* =======================================================
+   STREAMING & TYPING INDICATORS
+======================================================= */
+
+.typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    animation: typingBounce 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+    30% { transform: translateY(-10px); opacity: 1; }
+}
+
+.ai-streaming {
+    animation: streamPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes streamPulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+/* =======================================================
+   CONFETTI & CELEBRATION
+======================================================= */
+
+.confetti {
+    position: fixed;
+    pointer-events: none;
+    animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.celebration-burst {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    font-size: 3rem;
+    animation: celebrationPop 0.8s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes celebrationPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* =======================================================
+   HELP BUTTON & TOOLTIPS
+======================================================= */
+
+.floating-help-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5c6bff, #7683ff);
+    color: white;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(92, 107, 255, 0.4);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-help-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(92, 107, 255, 0.6);
+}
+
+.help-tooltip {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    max-width: 300px;
+    border: 1px solid rgba(92, 107, 255, 0.5);
+    animation: tooltipSlideUp 0.3s ease-out;
+    z-index: 1001;
+}
+
+@keyframes tooltipSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.help-tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid rgba(0, 0, 0, 0.9);
+}
+
+/* =======================================================
+   DIFFICULTY BADGE
+======================================================= */
+
+.difficulty-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.difficulty-easy {
+    background: rgba(76, 175, 80, 0.3);
+    color: #90EE90;
+    border: 1px solid rgba(76, 175, 80, 0.6);
+}
+
+.difficulty-medium {
+    background: rgba(255, 193, 7, 0.3);
+    color: #FFD700;
+    border: 1px solid rgba(255, 193, 7, 0.6);
+}
+
+.difficulty-hard {
+    background: rgba(244, 67, 54, 0.3);
+    color: #FF6B6B;
+    border: 1px solid rgba(244, 67, 54, 0.6);
+}
+
+/* =======================================================
+   PROGRESS VISUALIZATION
+======================================================= */
+
+.mission-progress {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.progress-bar-outer {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #5c6bff, #7683ff);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(92, 107, 255, 0.5);
+}
+
+/* =======================================================
+   WARM BUTTON STYLES
+======================================================= */
+
+.btn-friendly {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #5c6bff, #7683ff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-friendly:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(92, 107, 255, 0.4);
+}
+
+.btn-friendly:active {
+    transform: translateY(0);
+}
+
+/* Character comment box */
+.character-comment {
+    background: rgba(92, 107, 255, 0.15);
+    border-left: 4px solid #5c6bff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-style: italic;
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.character-comment::before {
+    content: "✨ ";
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+
+
 

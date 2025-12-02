@@ -1,0 +1,293 @@
+/**
+ * CozmicLearning UI Enhancements
+ * Streaming responses, animations, character comments, and more
+ */
+
+// ================================================================
+// TYPING INDICATOR
+// ================================================================
+
+function createTypingIndicator() {
+    const div = document.createElement('div');
+    div.className = 'typing-indicator';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    return div;
+}
+
+// ================================================================
+// CONFETTI EFFECT
+// ================================================================
+
+function launchConfetti(count = 50) {
+    for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.textContent = ['🎉', '⭐', '🚀', '✨', '🌟'][Math.floor(Math.random() * 5)];
+        
+        const tx = (Math.random() - 0.5) * 400;
+        const ty = -Math.random() * 500 - 200;
+        confetti.style.setProperty('--tx', `${tx}px`);
+        confetti.style.setProperty('--ty', `${ty}px`);
+        
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = '50%';
+        confetti.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+        
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+    }
+}
+
+function celebrationBurst() {
+    launchConfetti(60);
+    
+    // Celebration emojis
+    const emojis = ['🎊', '🏆', '💫', '🌈', '⚡'];
+    for (let i = 0; i < 3; i++) {
+        const burst = document.createElement('div');
+        burst.className = 'celebration-burst';
+        burst.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        burst.style.left = (Math.random() * 100) + 'vw';
+        burst.style.top = (Math.random() * 100) + 'vh';
+        document.body.appendChild(burst);
+        setTimeout(() => burst.remove(), 800);
+    }
+}
+
+// ================================================================
+// STREAMING TEXT EFFECT (Character by character)
+// ================================================================
+
+async function streamText(element, text, speed = 30) {
+    element.innerHTML = '';
+    element.classList.add('ai-streaming');
+    
+    for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        await new Promise(resolve => setTimeout(resolve, speed));
+    }
+    
+    element.classList.remove('ai-streaming');
+}
+
+// ================================================================
+// FLOATING HELP BUTTON
+// ================================================================
+
+function initializeHelpButton() {
+    // Check if button already exists
+    if (document.getElementById('floating-help-btn')) return;
+    
+    const button = document.createElement('button');
+    button.id = 'floating-help-btn';
+    button.className = 'floating-help-btn';
+    button.textContent = '?';
+    button.setAttribute('aria-label', 'Help');
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'help-tooltip';
+    tooltip.style.display = 'none';
+    
+    // Update tooltip content based on current page
+    const updateTooltip = () => {
+        const path = window.location.pathname;
+        let helpText = 'Need help? Click on any feature to learn more!';
+        
+        if (path.includes('/dashboard')) {
+            helpText = '📊 Check your progress, earn XP, and level up! Streaks reward consistency.';
+        } else if (path.includes('/practice')) {
+            helpText = '🎯 Answer questions at your level. Get hints when stuck, keep learning!';
+        } else if (path.includes('/teacher')) {
+            helpText = '👨‍🏫 Create assignments, preview AI missions, and track student progress.';
+        } else if (path.includes('/subject')) {
+            helpText = '🌍 Explore different subjects! Each planet has unique learning content.';
+        }
+        
+        tooltip.textContent = helpText;
+    };
+    
+    updateTooltip();
+    
+    button.addEventListener('click', () => {
+        if (tooltip.style.display === 'none') {
+            tooltip.style.display = 'block';
+            updateTooltip();
+        } else {
+            tooltip.style.display = 'none';
+        }
+    });
+    
+    // Close tooltip when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!button.contains(e.target) && !tooltip.contains(e.target)) {
+            tooltip.style.display = 'none';
+        }
+    });
+    
+    button.appendChild(tooltip);
+    document.body.appendChild(button);
+}
+
+// ================================================================
+// CHARACTER PERSONALITY COMMENTS
+// ================================================================
+
+const characterVoices = {
+    everly: {
+        levelUp: "✨ Wow! You're becoming quite the scholar, just like a true brave warrior!",
+        missionComplete: "🌟 Your wisdom shines brightly! Well done on completing this quest!",
+        streakCongrats: "💫 An unstoppable streak! Your dedication inspires me!",
+        encouragement: "💪 I believe in you! Keep pushing forward with courage!",
+    },
+    nova: {
+        levelUp: "⚡ LEVEL UP! Your learning engine is firing on all cylinders!",
+        missionComplete: "🚀 Mission accomplished! Your curiosity is electrifying!",
+        streakCongrats: "🔥 On FIRE! This streak is absolutely legendary!",
+        encouragement: "🤖 Keep the momentum going! You're unstoppable!",
+    },
+    lio: {
+        levelUp: "🎯 Sharp move! Your ability has advanced magnificently.",
+        missionComplete: "✅ A flawless execution. Mission complete with confidence.",
+        streakCongrats: "🏆 Your commitment speaks volumes. Impressive streak!",
+        encouragement: "💎 Steady and focused. You're on the right path.",
+    },
+    jasmine: {
+        levelUp: "🌈 Yay! You're growing so wonderfully! I'm so proud of you!",
+        missionComplete: "💖 Absolutely amazing work! You light up the whole galaxy!",
+        streakCongrats: "✨ What a beautiful streak! Your spirit is radiant!",
+        encouragement: "🌸 You've got this! I'm cheering for you every step!",
+    },
+    theo: {
+        levelUp: "📚 Excellent progress. Your understanding deepens nicely.",
+        missionComplete: "🧠 A thoughtful completion. Your reasoning is sound.",
+        streakCongrats: "📖 Consistency is wisdom. Your streak reflects dedication.",
+        encouragement: "🎓 Take your time. Learning is a journey, not a race.",
+    },
+};
+
+function showCharacterComment(commentType, character = 'everly') {
+    if (!characterVoices[character] || !characterVoices[character][commentType]) {
+        return;
+    }
+    
+    const comment = characterVoices[character][commentType];
+    const commentBox = document.createElement('div');
+    commentBox.className = 'character-comment';
+    commentBox.textContent = comment;
+    
+    // Find appropriate container (dashboard, assignment complete, etc.)
+    const container = document.querySelector('.overview-box') || 
+                     document.querySelector('.dashboard-content') ||
+                     document.querySelector('main') ||
+                     document.body;
+    
+    // Insert at top of container or after first heading
+    const firstHeading = container.querySelector('h1, h2');
+    if (firstHeading && firstHeading.nextElementSibling) {
+        firstHeading.parentNode.insertBefore(commentBox, firstHeading.nextElementSibling);
+    } else {
+        container.insertBefore(commentBox, container.firstChild);
+    }
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        commentBox.style.opacity = '0';
+        commentBox.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => commentBox.remove(), 300);
+    }, 8000);
+}
+
+// ================================================================
+// DIFFICULTY BADGE HELPER
+// ================================================================
+
+function getDifficultyBadgeClass(difficulty) {
+    if (!difficulty) return 'difficulty-medium';
+    
+    const d = difficulty.toLowerCase();
+    if (d.includes('easy') || d.includes('beginner')) return 'difficulty-easy';
+    if (d.includes('hard') || d.includes('advanced')) return 'difficulty-hard';
+    return 'difficulty-medium';
+}
+
+function createDifficultyBadge(difficulty) {
+    const badge = document.createElement('span');
+    badge.className = `difficulty-badge ${getDifficultyBadgeClass(difficulty)}`;
+    badge.textContent = difficulty || 'Medium';
+    return badge;
+}
+
+// ================================================================
+// PROGRESS BAR
+// ================================================================
+
+function createProgressBar(current, total) {
+    const container = document.createElement('div');
+    container.className = 'mission-progress';
+    
+    const label = document.createElement('div');
+    label.style.marginBottom = '10px';
+    label.style.fontSize = '0.95rem';
+    label.style.opacity = '0.9';
+    label.textContent = `Question ${current} of ${total}`;
+    
+    const outer = document.createElement('div');
+    outer.className = 'progress-bar-outer';
+    
+    const inner = document.createElement('div');
+    inner.className = 'progress-bar-inner';
+    inner.style.width = `${(current / total) * 100}%`;
+    
+    outer.appendChild(inner);
+    container.appendChild(label);
+    container.appendChild(outer);
+    
+    return container;
+}
+
+// ================================================================
+// WARM BUTTON TEXT REPLACEMENTS
+// ================================================================
+
+function makeButtonsFriendly() {
+    const buttonReplacements = {
+        'Submit': '✅ I think it\'s...',
+        'Next': '➜ Ready for the next one?',
+        'Submit Answer': '✅ I think it\'s...',
+        'Continue': '➜ Let\'s keep going',
+        'Start': '🚀 Let\'s dive in!',
+        'Send': '📤 Share my thoughts',
+        'Create': '✨ Create it!',
+        'Save': '💾 Save my work',
+        'Delete': '🗑️ Remove it',
+        'Edit': '✏️ Edit',
+        'Cancel': '❌ Never mind',
+    };
+    
+    document.querySelectorAll('button, a.btn, input[type="submit"]').forEach(btn => {
+        const text = btn.textContent.trim();
+        if (buttonReplacements[text]) {
+            btn.textContent = buttonReplacements[text];
+        }
+    });
+}
+
+// ================================================================
+// INITIALIZATION
+// ================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeHelpButton();
+    makeButtonsFriendly();
+});
+
+// Export for use in inline scripts
+window.CozmicEnhancements = {
+    launchConfetti,
+    celebrationBurst,
+    streamText,
+    showCharacterComment,
+    createProgressBar,
+    createDifficultyBadge,
+    createTypingIndicator,
+};
