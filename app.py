@@ -15,15 +15,6 @@ from datetime import datetime, timedelta
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "cozmiclearning.db")
 
-# -------------------------------------------------
-# FORCE DELETE OLD DB (Optional during development)
-# -------------------------------------------------
-if os.path.exists(DB_PATH):
-    print("🗑️ Found old DB — deleting so new schema can be created...")
-    os.remove(DB_PATH)
-else:
-    print("📦 No database found — creating new one...")
-
 # ============================================================
 # FLASK + SECURITY IMPORTS
 # ============================================================
