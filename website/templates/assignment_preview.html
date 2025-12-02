@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preview Mission – {{ assignment.title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .preview-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            background: rgba(255,255,255,0.06);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .step-box {
+            background: rgba(255,255,255,0.08);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .choice {
+            margin-left: 18px;
+            margin-bottom: 4px;
+        }
+
+        .publish-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #5c6bff;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .publish-btn:hover {
+            background: #7785ff;
+        }
+
+        .cancel-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #444;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 12px;
+            text-decoration: none;
+        }
+
+    </style>
+</head>
+
+<body class="fade-in">
+
+<div class="preview-container">
+
+    <h1>Mission Preview</h1>
+    <p><strong>Title:</strong> {{ assignment.title }}</p>
+    <p><strong>Subject:</strong> {{ assignment.subject|title }}</p>
+    <p><strong>Topic:</strong> {{ assignment.topic }}</p>
+
+    <hr><br>
+
+    {% for step in mission.steps %}
+    <div class="step-box">
+        <div class="step-title">Step {{ loop.index }}</div>
+
+        <p>{{ step.prompt }}</p>
+
+        {% if step.type == "multiple_choice" %}
+            <div class="choice">{{ step.choices[0] }}</div>
+            <div class="choice">{{ step.choices[1] }}</div>
+            <div class="choice">{{ step.choices[2] }}</div>
+            <div class="choice">{{ step.choices[3] }}</div>
+        {% endif %}
+
+        <p><strong>Expected:</strong> {{ step.expected }}</p>
+        <p><strong>Hint:</strong> {{ step.hint }}</p>
+        <p><strong>Explanation:</strong> {{ step.explanation }}</p>
+    </div>
+    {% endfor %}
+
+    <h3>Final Mission Message</h3>
+    <p>{{ mission.final_message }}</p>
+
+    <a class="publish-btn" href="/teacher/assignments/{{ assignment.id }}/publish">
+        ✅ Approve & Publish Mission
+    </a>
+
+    <a class="cancel-btn" href="/teacher/assignments/{{ assignment.id }}">
+        Cancel / Back
+    </a>
+
+</div>
+
+</body>
+</html>

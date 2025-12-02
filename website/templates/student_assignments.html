@@ -3,6 +3,55 @@
 <head>
     <title>Your Assignments</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .assignment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .assignment-card {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 18px rgba(0,0,0,0.4);
+        }
+
+        .assignment-card h3 {
+            margin-top: 0;
+            color: #dce4ff;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .badge-gold {
+            background: #fdd65b;
+            color: #000;
+        }
+
+        .btn-blue {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #6374ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-blue:hover {
+            background: #7f8bff;
+        }
+    </style>
 </head>
 <body class="fade-in">
 
@@ -15,7 +64,9 @@
 
             {% for a in assignments %}
             <div class="assignment-card">
+
                 <h3>{{ a.title }}</h3>
+
                 <p><strong>Subject:</strong> {{ a.subject|title }}</p>
                 <p><strong>Topic:</strong> {{ a.topic }}</p>
 
@@ -23,21 +74,18 @@
                     <p><strong>Due:</strong> {{ a.due_date.strftime("%B %d, %Y") }}</p>
                 {% endif %}
 
-                {% if a.status == "completed" %}
-                    <div class="badge badge-green">Completed</div>
-                    <a class="btn-blue" href="/assignment/{{ a.id }}/overview">View Results</a>
-                {% else %}
-                    <div class="badge badge-gold">Assigned</div>
-                    <a class="btn-blue" href="/assignment/{{ a.id }}/start">Start Assignment</a>
-                {% endif %}
+                <div class="badge badge-gold">Published</div>
+
+                <a class="btn-blue" href="/assignment/{{ a.id }}/take">
+                    🚀 Start Mission
+                </a>
             </div>
             {% endfor %}
 
         </div>
-
     {% else %}
         <p style="text-align:center; margin-top:20px;">
-            You currently have <strong>no assigned practice</strong> from your teacher.
+            You currently have <strong>no published missions</strong> assigned.
         </p>
     {% endif %}
 
@@ -45,3 +93,4 @@
 
 </body>
 </html>
+

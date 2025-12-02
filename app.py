@@ -949,19 +949,123 @@ def student_assignments():
     student_id = session.get("student_id")
     student = Student.query.get(student_id) if student_id else None
 
-    if student and student.class_id:
-        assignments = (
-            AssignedPractice.query.filter_by(class_id=student.class_id)
-            .order_by(AssignedPractice.created_at.desc())
-            .all()
-        )
-    else:
-        assignments = (
-            AssignedPractice.query.order_by(AssignedPractice.created_at.desc()).all()
+    if not student:
+        flash("Student not logged in.", "error")
+        return redirect("/student/login")
+
+    # ONLY show fully published assignments for this student's class
+    assignments = (
+        AssignedPractice.query
+        .filter_by(class_id=student.class_id, is_published=True)
+        .order_by(AssignedPractice.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "student_assignments.html",
+        assignments=assignments
+    )
+
+# ============================================================
+# TEACHER — PREVIEW STORED AI MISSION
+# ============================================================
+
+@app.route("/teacher/assignments/<int:practice_id>/preview")
+def assignment_preview(practice_id):
+    init_user()
+
+    assignment = AssignedPractice.query.get_or_404(practice_id)
+
+    # Only teacher who created it can preview
+    if assignment.teacher_id != session.get("teacher_id"):
+        flash("Access denied.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Validate that a preview exists
+    if not assignment.preview_json:
+        flash("This assignment has no AI preview yet.", "error")
+        return redirect(f"/teacher/assignments/{practice_id}")
+
+    # Load stored JSON safely
+    try:
+        import json
+        mission = json.loads(assignment.preview_json)
+    except Exception:
+        mission = {"steps": [], "final_message": "Preview unavailable"}
+
+    return render_template(
+        "assignment_preview.html",
+        assignment=assignment,
+        mission=mission
+    )
+
+# ============================================================
+# TEACHER — PUBLISH AI-GENERATED MISSION
+# ============================================================
+
+@app.route("/teacher/assignments/<int:assignment_id>/publish")
+def assignment_publish(assignment_id):
+    init_user()
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Only teacher can publish their own assignment
+    if assignment.teacher_id != session.get("teacher_id"):
+        flash("Unauthorized.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Must have a JSON preview from the AI generation
+    if not assignment.preview_json:
+        flash("You must preview this mission before publishing.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}")
+
+    import json
+    try:
+        mission = json.loads(assignment.preview_json)
+    except Exception:
+        flash("Mission preview data is corrupted.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}")
+
+    steps = mission.get("steps", [])
+    if not steps:
+        flash("Mission contains no steps.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}")
+
+    # ---------------------------------------------
+    # CLEAR OLD QUESTIONS FIRST (to avoid duplicates)
+    # ---------------------------------------------
+    for q in assignment.questions:
+        db.session.delete(q)
+    db.session.commit()
+
+    # ---------------------------------------------
+    # Convert AI steps → AssignedQuestion records
+    # ---------------------------------------------
+    for step in steps:
+        choices = step.get("choices", [])
+        qtype = step.get("type", "free")
+
+        new_q = AssignedQuestion(
+            practice_id=assignment.id,
+            question_text=step.get("prompt", ""),
+            question_type=qtype,
+            choice_a=choices[0] if len(choices) > 0 else None,
+            choice_b=choices[1] if len(choices) > 1 else None,
+            choice_c=choices[2] if len(choices) > 2 else None,
+            choice_d=choices[3] if len(choices) > 3 else None,
+            correct_answer=",".join(step.get("expected", [])),
+            explanation=step.get("explanation", ""),
+            difficulty_level="medium"
         )
 
-    return render_template("student_assignments.html", assignments=assignments)
+        db.session.add(new_q)
 
+    # Mark assignment as published
+    assignment.is_published = True
+    db.session.commit()
+
+    flash("Mission published successfully!", "success")
+    return redirect(f"/teacher/assignments/{assignment.id}")
 
 # ============================================================
 # STUDENT – TAKE AI–GENERATED DIFFERENTIATED ASSIGNMENT

@@ -102,9 +102,7 @@ class AssessmentResult(db.Model):
     num_correct = db.Column(db.Integer)
     num_questions = db.Column(db.Integer)
 
-    # difficulty level of attempt (from assignment or student level)
-    difficulty_level = db.Column(db.String(20))  
-
+    difficulty_level = db.Column(db.String(20))  # easy / medium / hard
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -128,10 +126,17 @@ class AssignedPractice(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # 🔥 NEW — For differentiated learning
+    # Differentiation level
     differentiation_mode = db.Column(db.String(50), default="none")
     # none / adaptive / gap_fill / mastery / scaffold
 
+    # 🔥 NEW — Full AI preview mission data (steps, hints, final message)
+    preview_json = db.Column(db.Text, nullable=True)
+
+    # 🔥 NEW — Teacher must approve before publishing to students
+    is_published = db.Column(db.Boolean, default=False)
+
+    # Manual questions (optional)
     questions = db.relationship("AssignedQuestion", backref="practice", lazy=True)
 
 
@@ -146,8 +151,7 @@ class AssignedQuestion(db.Model):
     practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
 
     question_text = db.Column(db.Text, nullable=False)
-    question_type = db.Column(db.String(20), default="free")  
-    # free / multiple_choice
+    question_type = db.Column(db.String(20), default="free")  # free / multiple_choice
 
     # MC options
     choice_a = db.Column(db.String(255))
@@ -157,10 +161,10 @@ class AssignedQuestion(db.Model):
 
     correct_answer = db.Column(db.String(255))
     explanation = db.Column(db.Text)
-
     difficulty_level = db.Column(db.String(20))  # easy / medium / hard
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 
 
