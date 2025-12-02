@@ -620,7 +620,6 @@ def teacher_dashboard():
         is_owner=is_owner(teacher),
     )
 
-
 # ============================================================
 # ADMIN PORTAL
 # ============================================================
@@ -2084,6 +2083,14 @@ def privacy():
 def disclaimer():
     return render_template("disclaimer.html")
 
+# TEMPORARY — DEBUG TEACHER ID
+@app.route("/debug/teacher_id")
+def debug_teacher_id():
+    from models import Teacher
+    t = Teacher.query.filter_by(email="jakegholland18@gmail.com").first()
+    if not t:
+        return "Teacher not found"
+    return f"Your teacher ID is: {t.id}"
 
 # ============================================================
 # MAIN ENTRY (LOCAL DEV)
