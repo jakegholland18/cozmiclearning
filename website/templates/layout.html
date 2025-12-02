@@ -1,143 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-    <meta charset="UTF-8">
-    <title>CozmicLearning</title>
-
-    <!-- GLOBAL STYLES -->
-    <link rel="stylesheet" href="/static/style.css">
-
-    <!-- OPTIONAL ANIMATION CSS -->
-    <link rel="stylesheet" href="/static/animations.css">
-
-    <style>
-        /* ----------- SIDEBAR ----------- */
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background: #060d1b;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.6);
-            border-right: 1px solid rgba(120,150,255,0.18);
-        }
-
-        .sidebar-title {
-            font-size: 1.7rem;
-            color: #d4e8ff;
-            margin-bottom: 25px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            text-shadow: 0 0 14px #7bb3ff;
-        }
-
-        .sidebar a {
-            text-decoration: none;
-            color: #e2eeff;
-            font-size: 1.1rem;
-            padding: 10px 12px;
-            border-radius: 10px;
-            transition: 0.25s;
-        }
-
-        .sidebar a:hover {
-            background: #162445;
-            transform: translateX(6px);
-            box-shadow: 0 3px 10px rgba(60,120,255,0.4);
-        }
-
-        /* ----------- MAIN CONTENT ----------- */
-        .main-content {
-            margin-left: 260px;
-            padding: 40px;
-            min-height: 100vh;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ---------- FOOTER ---------- */
-        footer {
-            text-align:center;
-            margin-top: 40px;
-            margin-bottom: 30px;
-            opacity: 0.7;
-            font-size: 0.95rem;
-        }
-
-        footer a {
-            color: #bfe6ff;
-            margin: 0 14px;
-            text-decoration: none;
-            transition: 0.25s;
-        }
-
-        footer a:hover {
-            color: white;
-            text-shadow: 0 0 10px #78aaff;
-        }
-
-        /* ---------- MOBILE ---------- */
-        @media(max-width: 900px) {
-            .sidebar {
-                width: 190px;
-            }
-
-            .main-content {
-                margin-left: 210px;
-                padding: 25px;
-            }
-        }
-
-        @media(max-width: 700px) {
-            .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 12px;
-                padding: 15px;
-                border-right: none;
-                border-bottom: 1px solid rgba(120,150,255,0.18);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-<!-- ========================= -->
-<!--        SIDEBAR MENU       -->
-<!-- ========================= -->
 <div class="sidebar">
     <h2 class="sidebar-title">🌌 CozmicLearning</h2>
 
     <!-- UNIVERSAL PAGES -->
     <a href="/">🏠 Home</a>
 
-    <!-- STUDENT MODE (session student basics always exist) -->
-    {% if session.get('character') %}
+    <!-- STUDENT LOGIN -->
+    {% if session.get('student_id') %}
         <a href="/dashboard">📊 Student Dashboard</a>
         <a href="/subjects">🪐 Explore Subjects</a>
-        <a href="/choose-character">🎨 Galaxy Mentors</a>
+        <a href="/choose-character">🎨 Choose Mentor</a>
         <a href="/parent_dashboard">👨‍👩‍👦 Parent View</a>
     {% endif %}
 
@@ -158,30 +29,22 @@
         <a href="/teacher/messages">💬 Message Parents</a>
     {% endif %}
 
-    <!-- OWNER OVERRIDE ALWAYS SEES THIS -->
-    {% if session.get('is_owner') %}
-        <hr style="border-color: rgba(255,255,255,0.2); width: 100%;">
-        <a href="/admin/control">👑 Owner Control Panel</a>
-        <a href="/teacher/dashboard">📘 All Teachers</a>
-        <a href="/teacher/assignments">📝 All Assignments</a>
-        <a href="/teacher/reports">📈 Full Analytics</a>
+    <!-- ========================= -->
+    <!--      ADMIN OVERRIDE       -->
+    <!-- ========================= -->
+    {% if session.get('is_admin') %}
+        <hr style="border-color: rgba(255,255,255,0.25); width: 100%;">
+
+        <a href="/admin/dashboard">👑 Admin Dashboard</a>
+        <a href="/admin/teachers">📘 All Teachers</a>
+        <a href="/admin/students">👨‍🎓 All Students</a>
+        <a href="/admin/classes">🏫 All Classes</a>
+        <a href="/admin/reports">📈 Full Analytics</a>
+    {% else %}
+        <!-- Show admin login link ONLY if not already admin -->
+        <a href="/admin/login" style="opacity:0.7;">🔐 Admin Login</a>
     {% endif %}
 </div>
 
-<!-- ========================= -->
-<!--      MAIN CONTENT AREA    -->
-<!-- ========================= -->
-<div class="main-content">
-    {% block content %}
-    {% endblock %}
-</div>
 
-<footer>
-    <a href="/terms">Terms of Service</a>
-    <a href="/privacy">Privacy Policy</a>
-    <a href="/disclaimer">Disclaimer</a>
-</footer>
-
-</body>
-</html>
 

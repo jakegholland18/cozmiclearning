@@ -9,9 +9,15 @@
 <div class="page-title">Assigned Practice Sets</div>
 
 <div class="content-box">
+
+   {% for cls in classes %}
     <h2>{{ cls.class_name }} — Grade {{ cls.grade_level }}</h2>
 
-    <a href="/teacher/new_assignment/{{ cls.id }}" class="btn-blue">+ Create New Assignment</a>
+    <a href="/teacher/new_assignment/{{ cls.id }}" class="btn-blue">
+        + Create New Assignment
+    </a>
+
+    {% set assignments = assignment_map[cls.id] %}
 
     {% if assignments %}
         <div class="assignment-list">
@@ -20,17 +26,25 @@
                     <h3>{{ a.title }}</h3>
                     <p><strong>Subject:</strong> {{ a.subject }}</p>
                     <p><strong>Topic:</strong> {{ a.topic }}</p>
+
                     {% if a.due_date %}
                         <p><strong>Due:</strong> {{ a.due_date.strftime("%b %d, %Y") }}</p>
                     {% endif %}
-                    <a class="btn-light" href="/teacher/assignment/{{ a.id }}">View / Manage</a>
+
+                    <a class="btn-light" href="/teacher/assignment/{{ a.id }}">
+                        View / Manage
+                    </a>
                 </div>
             {% endfor %}
         </div>
     {% else %}
         <p>No assigned practice sets yet.</p>
     {% endif %}
+
+{% endfor %}
+
 </div>
 
 </body>
 </html>
+

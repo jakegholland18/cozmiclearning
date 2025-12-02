@@ -41,6 +41,11 @@ app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
 OWNER_EMAIL = "jakegholland18@gmail.com"
 
 # ============================================================
+# ADMIN PASSWORD FOR FULL SYSTEM ACCESS
+# ============================================================
+ADMIN_PASSWORD = "Cash&Ollie123"
+
+# ============================================================
 # DATABASE + MODELS
 # ============================================================
 
@@ -1149,14 +1154,12 @@ def parent_dashboard():
         character=session["character"],
     )
 
-
 # ============================================================
-# TEACHER AUTH + DASHBOARD
+# TEACHER AUTH + DASHBOARD (CLEAN VERSION)
 # ============================================================
 
 @app.route("/teacher/signup", methods=["GET", "POST"])
 def teacher_signup():
-    # owner can still use signup if they want a named account
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -1168,7 +1171,7 @@ def teacher_signup():
 
         existing = Teacher.query.filter_by(email=email).first()
         if existing:
-            flash("An account with that email already exists. Please log in.", "error")
+            flash("An account with that email already exists.", "error")
             return redirect("/teacher/login")
 
         hashed = generate_password_hash(password)
@@ -1178,8 +1181,8 @@ def teacher_signup():
         db.session.commit()
 
         session["teacher_id"] = new_teacher.id
-        session["is_owner"] = is_owner(new_teacher)
-        session["user_role"] = "owner" if is_owner(new_teacher) else "teacher"
+        session["user_role"] = "teacher"
+
         flash("Welcome to CozmicLearning Teacher Portal!", "info")
         return redirect("/teacher/dashboard")
 
@@ -1194,19 +1197,9 @@ def teacher_login():
 
         teacher = Teacher.query.filter_by(email=email).first()
 
-        # OWNER OVERRIDE:
-        # If you log in with OWNER_EMAIL and no teacher exists yet,
-        # auto-create an owner teacher account with whatever password you enter.
-        if not teacher and email == OWNER_EMAIL:
-            hashed = generate_password_hash(password)
-            teacher = Teacher(name="Owner", email=email, password_hash=hashed)
-            db.session.add(teacher)
-            db.session.commit()
-
         if teacher and check_password_hash(teacher.password_hash, password):
             session["teacher_id"] = teacher.id
-            session["is_owner"] = is_owner(teacher)
-            session["user_role"] = "owner" if is_owner(teacher) else "teacher"
+            session["user_role"] = "teacher"
             flash("Logged in successfully.", "info")
             return redirect("/teacher/dashboard")
 
@@ -1218,9 +1211,7 @@ def teacher_login():
 @app.route("/teacher/logout")
 def teacher_logout():
     session.pop("teacher_id", None)
-    session.pop("is_owner", None)
-    if session.get("user_role") in ("teacher", "owner"):
-        session["user_role"] = None
+    session.pop("user_role", None)
     flash("You have been logged out.", "info")
     return redirect("/teacher/login")
 
@@ -1237,9 +1228,85 @@ def teacher_dashboard():
         "teacher_dashboard.html",
         teacher=teacher,
         classes=classes,
+    )
+# ============================================================
+# ADMIN LOGIN (password-only)
+# ============================================================
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        pw = request.form.get("password", "").strip()
+
+        if pw == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            session["view_mode"] = "admin"
+            flash("Admin access granted.", "info")
+            return redirect("/admin/dashboard")
+
+        flash("Incorrect admin password.", "error")
+
+    return render_template("admin_login.html")
+@app.route("/teacher/dashboard")
+def teacher_dashboard():
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    classes = teacher.classes if teacher else []
+
+    return render_template(
+        "teacher_dashboard.html",
+        teacher=teacher,
+        classes=classes,
         is_owner=is_owner(teacher),
     )
 
+# ============================================================
+# ADMIN DASHBOARD (full visibility)
+# ============================================================
+
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    if not session.get("is_admin"):
+        return redirect("/admin/login")
+
+    all_teachers = Teacher.query.all()
+    all_classes = Class.query.all()
+    all_students = Student.query.all()
+
+    return render_template(
+        "admin_dashboard.html",
+        teachers=all_teachers,
+        classes=all_classes,
+        students=all_students,
+        view_mode=session.get("view_mode", "admin")
+    )
+
+# ============================================================
+# ADMIN VIEW MODE SWITCHER
+# ============================================================
+
+@app.route("/admin/switch/<mode>")
+def admin_switch(mode):
+    if not session.get("is_admin"):
+        return redirect("/admin/login")
+
+    valid_modes = ["admin", "teacher", "student", "parent"]
+
+    if mode in valid_modes:
+        session["view_mode"] = mode
+
+    if mode == "admin":
+        return redirect("/admin/dashboard")
+    if mode == "teacher":
+        return redirect("/teacher/dashboard")
+    if mode == "student":
+        return redirect("/subjects")
+    if mode == "parent":
+        return redirect("/parent_dashboard")
+
+    return redirect("/admin/dashboard")
 
 # ============================================================
 # TEACHER – MANAGE CLASSES & STUDENTS
@@ -1302,21 +1369,26 @@ def teacher_assignments():
     if not teacher:
         return redirect("/teacher/login")
 
-    assignments = (
-        AssignedPractice.query
-        .filter_by(teacher_id=teacher.id)
-        .order_by(AssignedPractice.created_at.desc())
-        .all()
-    )
+    # Get all classes owned by this teacher
+    classes = teacher.classes
+
+    # Group assignments by class
+    assignment_map = {}
+    for cls in classes:
+        assignment_map[cls.id] = (
+            AssignedPractice.query
+            .filter_by(class_id=cls.id, teacher_id=teacher.id)
+            .order_by(AssignedPractice.created_at.desc())
+            .all()
+        )
 
     return render_template(
         "teacher_assignments.html",
         teacher=teacher,
-        classes=teacher.classes,
-        assignments=assignments,
+        classes=classes,
+        assignment_map=assignment_map,
         is_owner=is_owner(teacher),
     )
-
 
 @app.route("/teacher/assignments/create", methods=["GET", "POST"])
 def create_assignment():
