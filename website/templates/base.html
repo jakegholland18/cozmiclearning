@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CozmicLearning</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav {
+            width: 100%;
+            padding: 15px 35px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        nav a {
+            color: #e4e7ff;
+            text-decoration: none;
+            margin: 0 12px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            color: #73b4ff;
+        }
+
+        .brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #73b4ff, #c8a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            padding: 40px 30px;
+            max-width: 1200px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         GLOBAL NAVIGATION
+    ========================== -->
+    <nav>
+
+        <div class="brand" onclick="window.location.href='/'">
+            CozmicLearning
+        </div>
+
+        <div class="nav-links">
+
+            <!-- Public Links -->
+            <a href="/">Home</a>
+            <a href="/choose-auth-role">Login</a>
+
+            <!-- Student Links -->
+            {% if session.get('is_student') %}
+                <a href="/dashboard">Student Dashboard</a>
+                <a href="/subjects">Subjects</a>
+                <a href="/student/assignments">Assignments</a>
+                <a href="/logout">Logout</a>
+            {% endif %}
+
+            <!-- Parent Links -->
+            {% if session.get('is_parent') %}
+                <a href="/parent_dashboard">Parent Dashboard</a>
+                <a href="/logout">Logout</a>
+            {% endif %}
+
+            <!-- Teacher Links -->
+            {% if session.get('teacher_id') %}
+                <a href="/teacher/dashboard">Teacher</a>
+                <a href="/teacher/logout">Logout</a>
+            {% endif %}
+
+            <!-- OWNER OVERRIDE (CAN SEE EVERYTHING) -->
+            {% if session.get('is_owner') %}
+                <a href="/teacher/dashboard" style="color:#ffd47f">Admin Teacher</a>
+                <a href="/parent_dashboard" style="color:#ffd47f">Admin Parent</a>
+                <a href="/dashboard" style="color:#ffd47f">Admin Student</a>
+            {% endif %}
+
+        </div>
+    </nav>
+
+    <!-- =========================
+         PAGE CONTENT
+    ========================== -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

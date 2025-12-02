@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="fade-in">
+
+<div class="page-title">{{ assignment.title }}</div>
+
+<div class="content-box">
+
+    <p><strong>Subject:</strong> {{ assignment.subject }}</p>
+    <p><strong>Topic:</strong> {{ assignment.topic }}</p>
+    {% if assignment.instructions %}
+        <p><strong>Instructions:</strong> {{ assignment.instructions }}</p>
+    {% endif %}
+    {% if assignment.due_date %}
+        <p><strong>Due:</strong> {{ assignment.due_date.strftime("%b %d, %Y") }}</p>
+    {% endif %}
+
+    <a href="/teacher/assignment/{{ assignment.id }}/add_question" class="btn-blue">+ Add Question</a>
+
+    <h3>Questions</h3>
+
+    {% if questions %}
+        {% for q in questions %}
+            <div class="question-card">
+                <p><strong>Q{{ loop.index }}:</strong> {{ q.question_text }}</p>
+
+                {% if q.question_type == "multiple_choice" %}
+                    <ul>
+                        {% if q.choice_a %}<li>A. {{ q.choice_a }}</li>{% endif %}
+                        {% if q.choice_b %}<li>B. {{ q.choice_b }}</li>{% endif %}
+                        {% if q.choice_c %}<li>C. {{ q.choice_c }}</li>{% endif %}
+                        {% if q.choice_d %}<li>D. {{ q.choice_d }}</li>{% endif %}
+                    </ul>
+                    <p><strong>Correct:</strong> {{ q.correct_answer }}</p>
+                {% else %}
+                    <p><strong>Answer:</strong> {{ q.correct_answer }}</p>
+                {% endif %}
+
+                <a class="btn-light" href="/teacher/edit_question/{{ q.id }}">Edit</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No questions added yet.</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ student.student_name }} – Cozmic Report</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding-bottom: 70px;
+        }
+        .stars {
+            position: fixed;
+            inset: 0;
+            background: url('/static/stars.png');
+            background-size: cover;
+            opacity: 0.35;
+            z-index: -1;
+        }
+        .container {
+            max-width: 900px;
+            margin: 32px auto;
+            padding: 24px 26px 30px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 18px;
+            box-shadow: 0 0 26px rgba(0,0,0,0.6);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #bfe6ff;
+            text-shadow: 0 0 14px #5fd6ff;
+        }
+        .subtitle {
+            font-size: 0.95rem;
+            color: #d0e9ff;
+            margin-top: 6px;
+        }
+        .badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.4);
+            font-size: 0.8rem;
+        }
+        .owner-pill {
+            margin-left: 8px;
+            background: rgba(255,223,155,0.25);
+            color: #ffdf9b;
+        }
+        .top-actions {
+            margin-top: 10px;
+        }
+        .top-actions a {
+            color: #ffdf9b;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .top-actions a:hover { text-decoration: underline; }
+
+        .grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background: rgba(0,0,0,0.35);
+            border-radius: 16px;
+            padding: 16px 18px 20px;
+            box-shadow: 0 0 16px rgba(0,0,0,0.55);
+        }
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 1.15rem;
+            color: #ffdf9b;
+        }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+        .metric-label { color: #e5ecff; }
+        .metric-value { font-weight: 600; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 7px 9px;
+            text-align: left;
+        }
+        th {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: rgba(255,255,255,0.04);
+        }
+        .chip {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            background: rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+<div class="stars"></div>
+
+<div class="container">
+    <h1>{{ student.student_name }} – Learning Report</h1>
+    <div class="subtitle">
+        Class: {{ student.class_ref.class_name }} (Grade {{ student.class_ref.grade_level or "N/A" }})
+    </div>
+    <div class="badge">
+        Ability Tier: {{ student.ability_level or "on_level" }} ·
+        Average Score: {{ "%.1f"|format(student.average_score or 0) }}%
+        {% if is_owner %}
+            <span class="owner-pill">Owner Access</span>
+        {% endif %}
+    </div>
+
+    <div class="top-actions">
+        <a href="/teacher/class/{{ student.class_id }}/analytics">← Back to Class Analytics</a>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Snapshot</h3>
+            <div class="metric-row">
+                <span class="metric-label">Email</span>
+                <span class="metric-value">{{ student.student_email or "Not set" }}</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Total Records</span>
+                <span class="metric-value">{{ results|length }}</span>
+            </div>
+            <div class="metric-row">
+                <span class="metric-label">Created</span>
+                <span class="metric-value">{{ student.created_at.strftime("%b %d, %Y") }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Subject Summary</h3>
+            {% if results %}
+                {% set subject_totals = {} %}
+                {% for r in results %}
+                    {% set subj = r.subject or "general" %}
+                    {% if subj not in subject_totals %}
+                        {% set _ = subject_totals.update({subj: {"sum": 0, "count": 0}}) %}
+                    {% endif %}
+                    {% set tmp = subject_totals[subj] %}
+                    {% set _ = tmp.update({"sum": tmp["sum"] + (r.score_percent or 0), "count": tmp["count"] + 1}) %}
+                {% endfor %}
+
+                <table>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Avg Score</th>
+                        <th>Entries</th>
+                    </tr>
+                    {% for subj, data in subject_totals.items() %}
+                    <tr>
+                        <td>{{ subj|title }}</td>
+                        <td>{{ "%.1f"|format(data["sum"] / max(data["count"], 1)) }}%</td>
+                        <td>{{ data["count"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p style="font-size:0.9rem;color:#d0e9ff;">
+                    No assessment results yet. Once you record scores, this section will populate.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+        <h3>Timeline of Results</h3>
+        {% if results %}
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Topic</th>
+                    <th>Score</th>
+                    <th>Correct</th>
+                    <th>Difficulty</th>
+                </tr>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r.created_at.strftime("%b %d, %Y") }}</td>
+                    <td>{{ (r.subject or "general")|title }}</td>
+                    <td>{{ r.topic or "N/A" }}</td>
+                    <td>{{ "%.1f"|format(r.score_percent or 0) }}%</td>
+                    <td>{{ r.num_correct }}/{{ r.num_questions }}</td>
+                    <td>
+                        <span class="chip">{{ r.difficulty_level or "auto" }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p style="font-size:0.9rem;color:#d0e9ff;">
+                No data yet. Use the "Record New Assessment Result" form on the class analytics page
+                to start building this student's story.
+            </p>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

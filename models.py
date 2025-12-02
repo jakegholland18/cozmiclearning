@@ -3,6 +3,9 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+# ============================================================
+# TEACHER ACCOUNTS
+# ============================================================
 
 class Teacher(db.Model):
     __tablename__ = "teachers"
@@ -13,6 +16,13 @@ class Teacher(db.Model):
     password_hash = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    classes = db.relationship("Class", backref="teacher", lazy=True)
+    assigned_practices = db.relationship("AssignedPractice", backref="teacher_ref", lazy=True)
+
+
+# ============================================================
+# CLASSES
+# ============================================================
 
 class Class(db.Model):
     __tablename__ = "classes"
@@ -23,8 +33,13 @@ class Class(db.Model):
     grade_level = db.Column(db.String(20))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    teacher = db.relationship("Teacher", backref="classes")
+    students = db.relationship("Student", backref="class_ref", lazy=True)
+    assignments = db.relationship("AssignedPractice", backref="class_ref", lazy=True)
 
+
+# ============================================================
+# STUDENTS
+# ============================================================
 
 class Student(db.Model):
     __tablename__ = "students"
@@ -34,46 +49,88 @@ class Student(db.Model):
     student_name = db.Column(db.String(120))
     student_email = db.Column(db.String(120))
 
-    # Ability engine
     ability_level = db.Column(db.String(20), default="on_level")
     average_score = db.Column(db.Float, default=0.0)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    class_ref = db.relationship("Class", backref="students")
+    assessment_results = db.relationship("AssessmentResult", backref="student", lazy=True)
 
+
+# ============================================================
+# ANALYTICS: SCORES / RESULTS
+# ============================================================
 
 class AssessmentResult(db.Model):
-    """
-    Every practice question attempt is stored here.
-    Supports full analytics, heatmaps, pivot tables, & ability scoring.
-    """
     __tablename__ = "assessment_results"
 
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
 
-    # Subject like "math", "science", etc.
     subject = db.Column(db.String(50))
-
-    # Topic like "fractions", "photosynthesis"
     topic = db.Column(db.String(200))
 
-    # NEW FIELDS (required for auto_logger)
-    question_text = db.Column(db.String(255))   # store actual question asked
-    question_type = db.Column(db.String(50))    # "multiple_choice" or "free"
-
-    # Performance
-    score_percent = db.Column(db.Float)         # 0–100
+    score_percent = db.Column(db.Float)
     num_correct = db.Column(db.Integer)
     num_questions = db.Column(db.Integer)
-
-    # Difficulty Tier
     difficulty_level = db.Column(db.String(20))
 
-    # Timestamp
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Backref
-    student = db.relationship("Student", backref="assessment_results")
+
+# ============================================================
+# TEACHER-ASSIGNED PRACTICE SETS
+# ============================================================
+
+class AssignedPractice(db.Model):
+    """
+    A practice set assigned by a teacher to a class.
+    Example: 'Fractions Test – Due Friday'
+    """
+    __tablename__ = "assigned_practice"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    class_id = db.Column(db.Integer, db.ForeignKey("classes.id"), nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
+
+    title = db.Column(db.String(200))
+    subject = db.Column(db.String(50))
+    topic = db.Column(db.String(200))
+    instructions = db.Column(db.Text)
+    due_date = db.Column(db.DateTime)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    questions = db.relationship("AssignedQuestion", backref="practice", lazy=True)
+
+
+# ============================================================
+# INDIVIDUAL QUESTIONS IN A PRACTICE SET
+# ============================================================
+
+class AssignedQuestion(db.Model):
+    """
+    Stores each question for an AssignedPractice set.
+    Supports multiple-choice or free response.
+    """
+    __tablename__ = "assigned_questions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
+
+    question_text = db.Column(db.Text, nullable=False)
+    question_type = db.Column(db.String(20), default="free")  # free / multiple_choice
+
+    # Multiple choice options
+    choice_a = db.Column(db.String(255))
+    choice_b = db.Column(db.String(255))
+    choice_c = db.Column(db.String(255))
+    choice_d = db.Column(db.String(255))
+
+    correct_answer = db.Column(db.String(255))
+    explanation = db.Column(db.Text)
+    difficulty_level = db.Column(db.String(20))  # easy / med / hard
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

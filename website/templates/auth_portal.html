@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign In / Sign Up</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .auth-container {
+            width: 90%;
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 30px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        .auth-button {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            padding: 18px;
+            background: #4a90e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+
+        .auth-button:hover {
+            background: #6ab0ff;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+<div class="auth-container">
+    <div class="auth-title">Choose Your Portal</div>
+
+    <a href="/student/login" class="auth-button">Student Login</a>
+    <a href="/parent/login" class="auth-button">Parent Login</a>
+    <a href="/teacher/login" class="auth-button">Teacher Login</a>
+
+    <hr style="margin: 25px 0; opacity: 0.3;">
+
+    <a href="/student/signup" class="auth-button" style="background:#00b894;">Student Sign Up</a>
+    <a href="/parent/signup" class="auth-button" style="background:#00b894;">Parent Sign Up</a>
+    <a href="/teacher/signup" class="auth-button" style="background:#00b894;">Teacher Sign Up</a>
+</div>
+</body>
+</html>

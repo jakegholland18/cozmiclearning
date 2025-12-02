@@ -1,19 +1,26 @@
-import sys
+# ============================================================
+# PYTHON STANDARD LIBRARIES
+# ============================================================
+
 import os
+import sys
 import logging
 import traceback
-import re
 from datetime import datetime, timedelta
-from collections import defaultdict
+
+# ============================================================
+# FLASK + SECURITY IMPORTS
+# ============================================================
 
 from flask import (
     Flask, render_template, request, redirect, session,
-    flash, jsonify, send_file, Response
+    flash, jsonify, send_file
 )
 from flask import got_request_exception
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # ============================================================
-# STATIC + TEMPLATE PATHS
+# APP PATHS
 # ============================================================
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -28,20 +35,30 @@ app = Flask(
 app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
 
 # ============================================================
-# DATABASE + MODELS (FIRST TIME SETUP)
+# OWNER OVERRIDE
 # ============================================================
 
-from flask_bcrypt import Bcrypt
-from models import db, Teacher, Class, Student, AssessmentResult
+OWNER_EMAIL = "jakegholland18@gmail.com"
+
+# ============================================================
+# DATABASE + MODELS
+# ============================================================
+
+from models import (
+    db,
+    Teacher,
+    Class,
+    Student,
+    AssessmentResult,
+    AssignedPractice,
+    AssignedQuestion,
+)
 from sqlalchemy import func
 
-# Configure SQLite DB
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cozmiclearning.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Init DB + bcrypt
 db.init_app(app)
-bcrypt = Bcrypt(app)
 
 with app.app_context():
     db.create_all()
@@ -52,22 +69,22 @@ with app.app_context():
 
 logging.basicConfig(level=logging.INFO)
 
+
 def log_exception(sender, exception, **extra):
     sender.logger.error("Exception during request: %s", traceback.format_exc())
+
 
 got_request_exception.connect(log_exception, app)
 
 # ============================================================
-# LOAD MODULES
+# LOAD INTERNAL MODULES (AI, SUBJECT HELPERS, PRACTICE)
 # ============================================================
 
 sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "modules")))
 
-from modules.shared_ai import study_buddy_ai, powergrid_master_ai
+from modules.shared_ai import study_buddy_ai
 from modules.personality_helper import get_all_characters
 from modules.practice_helper import generate_practice_session
-from modules.auto_logger import log_practice_event, normalize_subject
-from modules.ability_helper import recalc_student_ability
 
 import modules.math_helper as math_helper
 import modules.text_helper as text_helper
@@ -100,8 +117,25 @@ subject_map = {
 }
 
 # ============================================================
-# USER SESSION DEFAULTS
+# HELPER – TEACHER + OWNER
 # ============================================================
+
+
+def get_current_teacher():
+    tid = session.get("teacher_id")
+    if not tid:
+        return None
+    return Teacher.query.get(tid)
+
+
+def is_owner(teacher: Teacher | None) -> bool:
+    return bool(teacher and teacher.email and teacher.email.lower() == OWNER_EMAIL.lower())
+
+
+# ============================================================
+# USER SESSION DEFAULTS (STUDENT SIDE)
+# ============================================================
+
 
 def init_user():
     defaults = {
@@ -117,22 +151,34 @@ def init_user():
         "conversation": [],
         "deep_study_chat": [],
         "practice": None,
-        "practice_step": 0,
-        "practice_attempts": 0,
-        "practice_progress": [],
+        "practice_step": 0,          # used as current index
+        "practice_attempts": 0,      # legacy; kept but per-question we use practice_progress
+        "practice_progress": [],     # per-question state (attempts, status, last_answer, chat)
+        # simple role flags for auth portal
+        "user_role": None,           # "student", "parent", "teacher", "owner"
+        "student_name": None,
+        "parent_name": None,
     }
     for k, v in defaults.items():
         if k not in session:
             session[k] = v
     update_streak()
 
+
 # ============================================================
 # DAILY STREAK
 # ============================================================
 
+
 def update_streak():
     today = datetime.today().date()
-    last = datetime.strptime(session["last_visit"], "%Y-%m-%d").date()
+    last_str = session.get("last_visit")
+    if not last_str:
+        session["last_visit"] = str(today)
+        session["streak"] = 1
+        return
+
+    last = datetime.strptime(last_str, "%Y-%m-%d").date()
 
     if today != last:
         if today - last == timedelta(days=1):
@@ -141,9 +187,11 @@ def update_streak():
             session["streak"] = 1
         session["last_visit"] = str(today)
 
+
 # ============================================================
 # XP SYSTEM
 # ============================================================
+
 
 def add_xp(amount):
     session["xp"] += amount
@@ -154,18 +202,28 @@ def add_xp(amount):
         session["level"] += 1
         flash(f"LEVEL UP! You are now Level {session['level']}!", "info")
 
+
 # ============================================================
 # HELPER: FLEXIBLE ANSWER MATCHING FOR PRACTICE
 # ============================================================
 
+
 def _normalize_numeric_token(text: str) -> str:
+    """
+    Make '4', '4%', '4 percent', '$4', '4 dollars' all reduce to '4'.
+    We are intentionally generous for student inputs.
+    """
     t = text.lower().strip()
+    # remove common words
     for word in ["percent", "perc", "per cent", "dollars", "dollar", "usd"]:
         t = t.replace(word, "")
+    # remove commas
     t = t.replace(",", "")
+    # remove common symbols
     for ch in ["%", "$"]:
         t = t.replace(ch, "")
     return t.strip()
+
 
 def _try_float(val: str):
     try:
@@ -173,22 +231,32 @@ def _try_float(val: str):
     except Exception:
         return None
 
+
 def answers_match(user_raw: str, expected_raw: str) -> bool:
+    """
+    Flexible answer comparison:
+    - Exact text match (case-insensitive)
+    - '4' == '4%' == '4 percent'
+    - '5' == '5.0'
+    """
     if user_raw is None or expected_raw is None:
         return False
 
     u_norm = user_raw.strip().lower()
     e_norm = expected_raw.strip().lower()
 
+    # Exact textual match
     if u_norm == e_norm and u_norm != "":
         return True
 
+    # Numeric-form match (ignoring %, $, words like "percent", "dollars")
     u_num_str = _normalize_numeric_token(user_raw)
     e_num_str = _normalize_numeric_token(expected_raw)
 
     if u_num_str and e_num_str and u_num_str == e_num_str:
         return True
 
+    # Try actual float comparison
     u_num = _try_float(u_num_str)
     e_num = _try_float(e_num_str)
     if u_num is not None and e_num is not None:
@@ -197,14 +265,62 @@ def answers_match(user_raw: str, expected_raw: str) -> bool:
 
     return False
 
+
 # ============================================================
-# ROUTES – CORE APP
+# HELPER: RECALC ABILITY + AVERAGE (DB-BASED)
+# ============================================================
+
+
+def recompute_student_ability(student: Student):
+    """
+    Recalculate a student's ability tier + average_score
+    based on their last 10 AssessmentResult rows.
+    """
+    if not student:
+        return
+
+    results = (
+        AssessmentResult.query
+        .filter_by(student_id=student.id)
+        .order_by(AssessmentResult.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    if not results:
+        student.ability_level = "on_level"
+        student.average_score = 0.0
+    else:
+        avg = sum((r.score_percent or 0.0) for r in results) / len(results)
+        student.average_score = avg
+
+        if avg >= 85:
+            tier = "advanced"
+        elif avg < 60:
+            tier = "struggling"
+        else:
+            tier = "on_level"
+
+        student.ability_level = tier
+
+    db.session.commit()
+
+
+# ============================================================
+# ROUTES – CORE + LANDING
 # ============================================================
 
 @app.route("/")
 def home():
+    """
+    Public landing page (CozmicLearning branded).
+    Students/parents/teachers can still use sidebar + auth portal.
+    """
     init_user()
-    return redirect("/subjects")
+    return render_template("home.html")
+
+
+# ------------------------------------------------------------
 
 @app.route("/subjects")
 def subjects():
@@ -226,6 +342,115 @@ def subjects():
 
     return render_template("subjects.html", planets=planets, character=session["character"])
 
+
+# ============================================================
+# AUTH PORTAL + ROLE SELECTION (FRONT DOOR)
+# ============================================================
+
+@app.route("/auth")
+def auth_portal():
+    """Big entry page with buttons for Student / Parent / Teacher."""
+    init_user()
+    return render_template("auth_portal.html")
+
+
+@app.route("/choose_login_role")
+def choose_login_role():
+    """Older role chooser – keep it wired in case templates link here."""
+    init_user()
+    return render_template("choose_login_role.html")
+
+
+# ============================================================
+# STUDENT + PARENT AUTH (SESSION-ONLY FOR NOW)
+# ============================================================
+
+@app.route("/student/signup", methods=["GET", "POST"])
+def student_signup():
+    init_user()
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        grade = request.form.get("grade", "").strip()
+
+        if not name or not grade:
+            flash("Please enter your name and grade to start.", "error")
+            return redirect("/student/signup")
+
+        session["student_name"] = name
+        session["student_email"] = email
+        session["grade"] = grade
+        session["user_role"] = "student"
+        flash("Welcome to CozmicLearning!", "info")
+        return redirect("/dashboard")
+
+    return render_template("student_signup.html")
+
+
+@app.route("/student/login", methods=["GET", "POST"])
+def student_login():
+    init_user()
+    # For now, login is just "remember who you are" without DB.
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        grade = request.form.get("grade", "").strip()
+
+        if not name:
+            flash("Please enter your name.", "error")
+            return redirect("/student/login")
+
+        session["student_name"] = name
+        session["student_email"] = email
+        if grade:
+            session["grade"] = grade
+        session["user_role"] = "student"
+        flash("Logged in as student.", "info")
+        return redirect("/dashboard")
+
+    return render_template("student_login.html")
+
+
+@app.route("/parent/signup", methods=["GET", "POST"])
+def parent_signup():
+    init_user()
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+
+        if not name or not email:
+            flash("Please enter your name and email.", "error")
+            return redirect("/parent/signup")
+
+        session["parent_name"] = name
+        session["parent_email"] = email
+        session["user_role"] = "parent"
+        flash("Parent account created for CozmicLearning.", "info")
+        return redirect("/parent_dashboard")
+
+    return render_template("parent_signup.html")
+
+
+@app.route("/parent/login", methods=["GET", "POST"])
+def parent_login():
+    init_user()
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+
+        if not email:
+            flash("Please enter your email.", "error")
+            return redirect("/parent/login")
+
+        session["parent_name"] = name or session.get("parent_name")
+        session["parent_email"] = email
+        session["user_role"] = "parent"
+        flash("Logged in as parent.", "info")
+        return redirect("/parent_dashboard")
+
+    return render_template("parent_login.html")
+
+
 # ============================================================
 # CHARACTER SELECT
 # ============================================================
@@ -235,11 +460,13 @@ def choose_character():
     init_user()
     return render_template("choose_character.html", characters=get_all_characters())
 
+
 @app.route("/select-character", methods=["POST"])
 def select_character():
     init_user()
     session["character"] = request.form.get("character")
     return redirect("/dashboard")
+
 
 # ============================================================
 # GRADE SELECT
@@ -249,6 +476,7 @@ def select_character():
 def choose_grade():
     init_user()
     return render_template("subject_select_form.html", subject=request.args.get("subject"))
+
 
 # ============================================================
 # ASK QUESTION
@@ -264,6 +492,7 @@ def ask_question():
         character=session["character"],
         characters=get_all_characters(),
     )
+
 
 # ============================================================
 # POWERGRID SUBMISSION
@@ -346,6 +575,7 @@ def powergrid_submit():
         pdf_url=pdf_url,
     )
 
+
 # ============================================================
 # PDF DOWNLOAD
 # ============================================================
@@ -358,6 +588,7 @@ def download_study_guide():
         return "PDF not found."
 
     return send_file(pdf, as_attachment=True)
+
 
 # ============================================================
 # MAIN SUBJECT ANSWER
@@ -405,8 +636,9 @@ def subject_answer():
         pdf_url=None,
     )
 
+
 # ============================================================
-# FOLLOWUP MESSAGE
+# FOLLOWUP MESSAGE (SUBJECT CHAT)
 # ============================================================
 
 @app.route("/followup_message", methods=["POST"])
@@ -428,6 +660,7 @@ def followup_message():
     session.modified = True
 
     return jsonify({"reply": reply})
+
 
 # ============================================================
 # DEEP STUDY MESSAGE
@@ -476,6 +709,7 @@ Rules:
 
     return jsonify({"reply": reply})
 
+
 # ============================================================
 # PRACTICE MODE — PAGE ROUTE
 # ============================================================
@@ -496,6 +730,7 @@ def practice():
         character=character,
         grade=grade,
     )
+
 
 # ============================================================
 # PRACTICE MODE — START (TOPIC → FIRST QUESTION)
@@ -526,9 +761,6 @@ def start_practice():
             "character": character,
         })
 
-    # Save subject inside practice_data so logger + analytics can use it later
-    practice_data["subject"] = subject
-
     # Per-question progress: attempts, status, last_answer, chat
     progress = []
     for _ in steps:
@@ -541,7 +773,7 @@ def start_practice():
 
     session["practice"] = practice_data
     session["practice_progress"] = progress
-    session["practice_step"] = 0
+    session["practice_step"] = 0  # current index
     session["practice_attempts"] = 0
     session.modified = True
 
@@ -552,12 +784,13 @@ def start_practice():
         "index": 0,
         "total": len(steps),
         "prompt": first.get("prompt", "Let's start practicing!"),
-        "type": first.get("type", "free"),
-        "choices": first.get("choices", []),
+        "type": first.get("type", "free"),        # "multiple_choice" or "free"
+        "choices": first.get("choices", []),      # list of options if MC
         "character": character,
         "last_answer": "",
         "chat": [],
     })
+
 
 # ============================================================
 # PRACTICE MODE — NAVIGATE BETWEEN QUESTIONS
@@ -606,8 +839,10 @@ def navigate_question():
         "character": character,
     })
 
+
 # ============================================================
 # PRACTICE MODE — STEP PROCESS (ANSWER CHECK, HINTS, GUIDED)
+# (NOTE: does NOT log to analytics; only teacher-entered scores do)
 # ============================================================
 
 @app.route("/practice_step", methods=["POST"])
@@ -641,6 +876,7 @@ def practice_step():
 
     progress = session.get("practice_progress", [])
     if index >= len(progress):
+        # safety
         progress.extend(
             [{"attempts": 0, "status": "unanswered", "last_answer": "", "chat": []}
              for _ in range(index - len(progress) + 1)]
@@ -650,7 +886,7 @@ def practice_step():
     attempts = state.get("attempts", 0)
     expected_list = step.get("expected", [])
 
-    # If they sent blank, treat as incorrect but don't bump attempts
+    # If they somehow sent blank, treat as incorrect but don't bump attempts
     if not user_answer_stripped:
         return jsonify({
             "status": "incorrect",
@@ -659,42 +895,22 @@ def practice_step():
         })
 
     # Flexible correctness check
-    is_correct = False
+    is_correct = False    # noqa: F841
     for exp in expected_list:
+        # MC expected is like ["a"], free-response might be text/number
         if answers_match(user_answer_raw, str(exp)):
             is_correct = True
             break
 
-    # For logging
-    student_id = session.get("student_id")
-    subject = practice_data.get("subject", "")
-    topic = practice_data.get("topic", "")
-    question_text = step.get("prompt", "")
-    question_type = step.get("type", "free")
-
     # ================= CORRECT ANSWER =================
     if is_correct:
         attempts += 1
-        old_status = state.get("status", "unanswered")
-
         state["attempts"] = attempts
         state["status"] = "correct"
         state["last_answer"] = user_answer_raw
         progress[index] = state
         session["practice_progress"] = progress
         session.modified = True
-
-        # Auto-log only on first time reaching "correct"
-        if student_id and old_status != "correct":
-            log_practice_event(
-                student_id=student_id,
-                subject=subject,
-                topic=topic,
-                question_text=question_text,
-                is_correct=True,
-                difficulty_level=None,
-                question_type=question_type,
-            )
 
         # Are all questions done?
         all_done = all(
@@ -711,7 +927,7 @@ def practice_step():
 
         return jsonify({
             "status": "correct",
-            "next_prompt": step.get("prompt", ""),
+            "next_prompt": step.get("prompt", ""),  # stay on same question text
             "type": step.get("type", "free"),
             "choices": step.get("choices", []),
             "character": character
@@ -733,24 +949,11 @@ def practice_step():
             "character": character
         })
 
-    # Third (or more) wrong try → guided walkthrough + mark given_up
-    old_status = state.get("status", "unanswered")
+    # Third (or more) wrong try → guided walkthrough
     state["status"] = "given_up"
     progress[index] = state
     session["practice_progress"] = progress
     session.modified = True
-
-    # Auto-log only on first time reaching "given_up"
-    if student_id and old_status not in ("correct", "given_up"):
-        log_practice_event(
-            student_id=student_id,
-            subject=subject,
-            topic=topic,
-            question_text=question_text,
-            is_correct=False,
-            difficulty_level=None,
-            question_type=question_type,
-        )
 
     explanation = step.get(
         "explanation",
@@ -771,6 +974,7 @@ def practice_step():
             "character": character
         })
 
+    # Otherwise, send explanation and keep them on this question
     return jsonify({
         "status": "guided",
         "explanation": explanation,
@@ -779,6 +983,7 @@ def practice_step():
         "choices": step.get("choices", []),
         "character": character
     })
+
 
 # ============================================================
 # PRACTICE HELP CHAT — TUTOR + DISPUTE SOLVER
@@ -820,8 +1025,10 @@ def practice_help_message():
     explanation = step.get("explanation", "")
     topic = practice_data.get("topic", "")
 
+    # Add student's message to chat history
     chat_history.append({"role": "student", "content": student_msg})
 
+    # Build a rich tutoring prompt reflecting your preferences
     ai_prompt = f"""
 You are COZMICLEARNING — a warm, patient cozmic mentor guiding students through the galaxy of learning.
 
@@ -866,6 +1073,7 @@ Instead, start each bullet with a simple symbol like '•'.
     reply = study_buddy_ai(ai_prompt, grade, character)
     reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
 
+    # Save tutor reply into per-question chat history
     chat_history.append({"role": "tutor", "content": reply_text})
     state["chat"] = chat_history
     progress[index] = state
@@ -874,8 +1082,9 @@ Instead, start each bullet with a simple symbol like '•'.
 
     return jsonify({"reply": reply_text, "chat": chat_history})
 
+
 # ============================================================
-# DASHBOARD
+# DASHBOARD (STUDENT)
 # ============================================================
 
 @app.route("/dashboard")
@@ -916,6 +1125,7 @@ def dashboard():
         locked_characters=locked,
     )
 
+
 # ============================================================
 # PARENT DASHBOARD (SESSION-BASED FOR NOW)
 # ============================================================
@@ -939,12 +1149,14 @@ def parent_dashboard():
         character=session["character"],
     )
 
+
 # ============================================================
 # TEACHER AUTH + DASHBOARD
 # ============================================================
 
 @app.route("/teacher/signup", methods=["GET", "POST"])
 def teacher_signup():
+    # owner can still use signup if they want a named account
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -959,13 +1171,15 @@ def teacher_signup():
             flash("An account with that email already exists. Please log in.", "error")
             return redirect("/teacher/login")
 
-        hashed = bcrypt.generate_password_hash(password).decode("utf-8")
+        hashed = generate_password_hash(password)
         new_teacher = Teacher(name=name, email=email, password_hash=hashed)
 
         db.session.add(new_teacher)
         db.session.commit()
 
         session["teacher_id"] = new_teacher.id
+        session["is_owner"] = is_owner(new_teacher)
+        session["user_role"] = "owner" if is_owner(new_teacher) else "teacher"
         flash("Welcome to CozmicLearning Teacher Portal!", "info")
         return redirect("/teacher/dashboard")
 
@@ -979,8 +1193,20 @@ def teacher_login():
         password = request.form.get("password", "")
 
         teacher = Teacher.query.filter_by(email=email).first()
-        if teacher and bcrypt.check_password_hash(teacher.password_hash, password):
+
+        # OWNER OVERRIDE:
+        # If you log in with OWNER_EMAIL and no teacher exists yet,
+        # auto-create an owner teacher account with whatever password you enter.
+        if not teacher and email == OWNER_EMAIL:
+            hashed = generate_password_hash(password)
+            teacher = Teacher(name="Owner", email=email, password_hash=hashed)
+            db.session.add(teacher)
+            db.session.commit()
+
+        if teacher and check_password_hash(teacher.password_hash, password):
             session["teacher_id"] = teacher.id
+            session["is_owner"] = is_owner(teacher)
+            session["user_role"] = "owner" if is_owner(teacher) else "teacher"
             flash("Logged in successfully.", "info")
             return redirect("/teacher/dashboard")
 
@@ -992,30 +1218,37 @@ def teacher_login():
 @app.route("/teacher/logout")
 def teacher_logout():
     session.pop("teacher_id", None)
+    session.pop("is_owner", None)
+    if session.get("user_role") in ("teacher", "owner"):
+        session["user_role"] = None
     flash("You have been logged out.", "info")
     return redirect("/teacher/login")
 
 
 @app.route("/teacher/dashboard")
 def teacher_dashboard():
-    teacher_id = session.get("teacher_id")
-    if not teacher_id:
+    teacher = get_current_teacher()
+    if not teacher:
         return redirect("/teacher/login")
 
-    teacher = Teacher.query.get(teacher_id)
     classes = teacher.classes if teacher else []
 
     return render_template(
         "teacher_dashboard.html",
         teacher=teacher,
         classes=classes,
+        is_owner=is_owner(teacher),
     )
 
 
+# ============================================================
+# TEACHER – MANAGE CLASSES & STUDENTS
+# ============================================================
+
 @app.route("/teacher/add_class", methods=["POST"])
 def add_class():
-    teacher_id = session.get("teacher_id")
-    if not teacher_id:
+    teacher = get_current_teacher()
+    if not teacher:
         return redirect("/teacher/login")
 
     class_name = request.form.get("class_name", "").strip()
@@ -1025,7 +1258,7 @@ def add_class():
         flash("Class name is required.", "error")
         return redirect("/teacher/dashboard")
 
-    new_class = Class(teacher_id=teacher_id, class_name=class_name, grade_level=grade)
+    new_class = Class(teacher_id=teacher.id, class_name=class_name, grade_level=grade)
     db.session.add(new_class)
     db.session.commit()
 
@@ -1035,12 +1268,12 @@ def add_class():
 
 @app.route("/teacher/add_student/<int:class_id>", methods=["POST"])
 def add_student(class_id):
-    teacher_id = session.get("teacher_id")
-    if not teacher_id:
+    teacher = get_current_teacher()
+    if not teacher:
         return redirect("/teacher/login")
 
     cls = Class.query.get(class_id)
-    if not cls or cls.teacher_id != teacher_id:
+    if not cls or (not is_owner(teacher) and cls.teacher_id != teacher.id):
         flash("Class not found or not authorized.", "error")
         return redirect("/teacher/dashboard")
 
@@ -1058,28 +1291,306 @@ def add_student(class_id):
     flash("Student added to class.", "info")
     return redirect("/teacher/dashboard")
 
+
 # ============================================================
-# TEACHER ANALYTICS + MANUAL RECORD ENTRY
+# TEACHER – ASSIGNMENTS (CREATION + MANAGEMENT)
+# ============================================================
+
+@app.route("/teacher/assignments")
+def teacher_assignments():
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    assignments = (
+        AssignedPractice.query
+        .filter_by(teacher_id=teacher.id)
+        .order_by(AssignedPractice.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "teacher_assignments.html",
+        teacher=teacher,
+        classes=teacher.classes,
+        assignments=assignments,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/teacher/assignments/create", methods=["GET", "POST"])
+def create_assignment():
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    if request.method == "POST":
+        class_id = request.form.get("class_id", type=int)
+        title = request.form.get("title", "").strip()
+        subject = (request.form.get("subject", "") or "general").strip().lower()
+        topic = (request.form.get("topic", "") or "").strip()
+        instructions = request.form.get("instructions", "").strip()
+        due_str = request.form.get("due_date", "").strip()
+
+        if not class_id or not title:
+            flash("Please choose a class and give this assignment a title.", "error")
+            return redirect("/teacher/assignments/create")
+
+        due_date = None
+        if due_str:
+            try:
+                # Expecting YYYY-MM-DD
+                due_date = datetime.strptime(due_str, "%Y-%m-%d")
+            except Exception:
+                due_date = None
+
+        practice = AssignedPractice(
+            class_id=class_id,
+            teacher_id=teacher.id,
+            title=title,
+            subject=subject,
+            topic=topic,
+            instructions=instructions,
+            due_date=due_date,
+        )
+        db.session.add(practice)
+        db.session.commit()
+
+        flash("Assignment created. Now add questions.", "info")
+        return redirect(f"/teacher/assignments/{practice.id}")
+
+    return render_template(
+        "create_assignment.html",
+        teacher=teacher,
+        classes=teacher.classes,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/teacher/assignments/<int:practice_id>")
+def assignment_overview(practice_id):
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    assignment = AssignedPractice.query.get_or_404(practice_id)
+    if not is_owner(teacher) and assignment.teacher_id != teacher.id:
+        flash("Not authorized to view this assignment.", "error")
+        return redirect("/teacher/assignments")
+
+    questions = assignment.questions or []
+
+    return render_template(
+        "assignment_overview.html",
+        teacher=teacher,
+        assignment=assignment,
+        questions=questions,
+        class_obj=assignment.class_ref,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/teacher/assignments/<int:practice_id>/questions/new", methods=["GET", "POST"])
+def assignment_add_question(practice_id):
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    assignment = AssignedPractice.query.get_or_404(practice_id)
+    if not is_owner(teacher) and assignment.teacher_id != teacher.id:
+        flash("Not authorized to modify this assignment.", "error")
+        return redirect("/teacher/assignments")
+
+    if request.method == "POST":
+        question_text = request.form.get("question_text", "").strip()
+        question_type = request.form.get("question_type", "free")
+
+        choice_a = request.form.get("choice_a", "").strip() or None
+        choice_b = request.form.get("choice_b", "").strip() or None
+        choice_c = request.form.get("choice_c", "").strip() or None
+        choice_d = request.form.get("choice_d", "").strip() or None
+        correct_answer = request.form.get("correct_answer", "").strip() or None
+        explanation = request.form.get("explanation", "").strip() or None
+        difficulty = request.form.get("difficulty_level", "").strip() or None
+
+        if not question_text:
+            flash("Question text is required.", "error")
+            return redirect(f"/teacher/assignments/{practice_id}")
+
+        q = AssignedQuestion(
+            practice_id=assignment.id,
+            question_text=question_text,
+            question_type=question_type,
+            choice_a=choice_a,
+            choice_b=choice_b,
+            choice_c=choice_c,
+            choice_d=choice_d,
+            correct_answer=correct_answer,
+            explanation=explanation,
+            difficulty_level=difficulty,
+        )
+        db.session.add(q)
+        db.session.commit()
+
+        flash("Question added.", "info")
+        return redirect(f"/teacher/assignments/{practice_id}")
+
+    # Re-use create_assignment.html as a simple "add question" form if you want,
+    # but we also have explicit templates like edit_assignment.html.
+    return render_template(
+        "create_assignment.html",
+        teacher=teacher,
+        assignment=assignment,
+        classes=teacher.classes,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/teacher/questions/<int:question_id>/edit", methods=["GET", "POST"])
+def edit_question(question_id):
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    question = AssignedQuestion.query.get_or_404(question_id)
+    assignment = question.practice
+
+    if not is_owner(teacher) and assignment.teacher_id != teacher.id:
+        flash("Not authorized to edit this question.", "error")
+        return redirect("/teacher/assignments")
+
+    if request.method == "POST":
+        question.question_text = request.form.get("question_text", "").strip()
+        question.question_type = request.form.get("question_type", "free")
+
+        question.choice_a = request.form.get("choice_a", "").strip() or None
+        question.choice_b = request.form.get("choice_b", "").strip() or None
+        question.choice_c = request.form.get("choice_c", "").strip() or None
+        question.choice_d = request.form.get("choice_d", "").strip() or None
+        question.correct_answer = request.form.get("correct_answer", "").strip() or None
+        question.explanation = request.form.get("explanation", "").strip() or None
+        question.difficulty_level = request.form.get("difficulty_level", "").strip() or None
+
+        db.session.commit()
+        flash("Question updated.", "info")
+        return redirect(f"/teacher/assignments/{assignment.id}")
+
+    return render_template(
+        "edit_assignment.html",
+        question=question,
+        assignment=assignment,
+        teacher=teacher,
+        is_owner=is_owner(teacher),
+    )
+
+
+# ============================================================
+# STUDENT – VIEW + TAKE ASSIGNMENTS
+# ============================================================
+
+@app.route("/student/assignments")
+def student_assignments():
+    """
+    For now, show all active assignments.
+    Later we can filter by the student's class_id.
+    """
+    init_user()
+    assignments = (
+        AssignedPractice.query
+        .order_by(AssignedPractice.created_at.desc())
+        .all()
+    )
+    return render_template(
+        "student_assignments.html",
+        assignments=assignments,
+    )
+
+
+@app.route("/assignment/<int:practice_id>/take", methods=["GET", "POST"])
+def assignment_take(practice_id):
+    init_user()
+    assignment = AssignedPractice.query.get_or_404(practice_id)
+    questions = assignment.questions or []
+
+    if request.method == "POST":
+        answers = {}
+        num_correct = 0
+        total = len(questions)
+
+        for q in questions:
+            key = f"q_{q.id}"
+            ans = (request.form.get(key) or "").strip()
+            answers[q.id] = ans
+
+            if q.correct_answer:
+                if q.question_type == "multiple_choice":
+                    if ans.lower() == q.correct_answer.lower():
+                        num_correct += 1
+                else:
+                    if answers_match(ans, q.correct_answer):
+                        num_correct += 1
+
+        score_percent = (num_correct / max(total, 1)) * 100.0
+
+        # OPTIONAL: if a student_id was provided, log to analytics.
+        student_id = request.form.get("student_id", type=int)
+        student = Student.query.get(student_id) if student_id else None
+
+        if student:
+            result = AssessmentResult(
+                student_id=student.id,
+                subject=assignment.subject or "general",
+                topic=assignment.topic or assignment.title,
+                score_percent=score_percent,
+                num_correct=num_correct,
+                num_questions=total,
+                difficulty_level=student.ability_level,
+            )
+            db.session.add(result)
+            db.session.commit()
+            recompute_student_ability(student)
+
+        return render_template(
+            "assignment_take.html",
+            assignment=assignment,
+            questions=questions,
+            submitted=True,
+            num_correct=num_correct,
+            num_questions=total,
+            score_percent=round(score_percent, 1),
+            answers=answers,
+        )
+
+    return render_template(
+        "assignment_take.html",
+        assignment=assignment,
+        questions=questions,
+        submitted=False,
+    )
+
+
+# ============================================================
+# TEACHER – CLASS ANALYTICS (HEATMAP, ABILITY, SUBJECT AVERAGES)
 # ============================================================
 
 @app.route("/teacher/class/<int:class_id>/analytics")
 def teacher_class_analytics(class_id):
-    teacher_id = session.get("teacher_id")
-    if not teacher_id:
+    teacher = get_current_teacher()
+    if not teacher:
         return redirect("/teacher/login")
 
     cls = Class.query.get(class_id)
-    if not cls or cls.teacher_id != teacher_id:
+    if not cls or (not is_owner(teacher) and cls.teacher_id != teacher.id):
         flash("Class not found or not authorized.", "error")
         return redirect("/teacher/dashboard")
 
-    students = Student.query.filter_by(class_id=class_id).all()
+    students = cls.students
 
-    # Recalculate ability tiers for each student (based on latest data)
+    # Recompute ability + average for each student based on DB
     for s in students:
-        recalc_student_ability(s)
+        recompute_student_ability(s)
 
-    # Subject-level averages
+    # Subject-level averages across the class
     subject_averages = {}
     rows = (
         db.session.query(
@@ -1097,12 +1608,12 @@ def teacher_class_analytics(class_id):
     # Ability distribution
     ability_counts = {"struggling": 0, "on_level": 0, "advanced": 0}
     for s in students:
-        lvl = s.ability_level or "on_level"
+        lvl = (s.ability_level or "on_level").lower()
         if lvl not in ability_counts:
             ability_counts[lvl] = 0
         ability_counts[lvl] += 1
 
-    # Pivot-style heatmap: rows = students, columns = (subject|topic)
+    # Pivot-style heatmap: student x (subject|topic)
     all_results = (
         AssessmentResult.query
         .join(Student, AssessmentResult.student_id == Student.id)
@@ -1112,10 +1623,10 @@ def teacher_class_analytics(class_id):
 
     topic_keys = []
     topic_seen = set()
-    agg = defaultdict(lambda: {"sum": 0.0, "count": 0})
+    agg = {}
 
     for r in all_results:
-        subj = (r.subject or "").strip() or "general"
+        subj = (r.subject or "").strip().lower() or "general"
         topic = (r.topic or "").strip() or "General"
         key = f"{subj.title()} | {topic}"
 
@@ -1124,15 +1635,18 @@ def teacher_class_analytics(class_id):
             topic_keys.append(key)
 
         idx = (r.student_id, key)
+        if idx not in agg:
+            agg[idx] = {"sum": 0.0, "count": 0}
         agg[idx]["sum"] += (r.score_percent or 0.0)
         agg[idx]["count"] += 1
 
-    student_topic_matrix = defaultdict(dict)
+    # Build matrix: {student_id: {topic_key: avg_score}}
+    student_topic_matrix = {}
     for (student_id, key), data in agg.items():
         avg_score = data["sum"] / max(data["count"], 1)
+        if student_id not in student_topic_matrix:
+            student_topic_matrix[student_id] = {}
         student_topic_matrix[student_id][key] = round(avg_score, 1)
-
-    student_topic_matrix = {sid: dict(inner) for sid, inner in student_topic_matrix.items()}
 
     return render_template(
         "class_analytics.html",
@@ -1142,70 +1656,91 @@ def teacher_class_analytics(class_id):
         ability_counts=ability_counts,
         topic_keys=topic_keys,
         matrix=student_topic_matrix,
+        is_owner=is_owner(teacher),
     )
 
 
+# ============================================================
+# TEACHER – RECORD NEW RESULT (FEEDS ANALYTICS)
+# ============================================================
+
 @app.route("/teacher/record_result", methods=["POST"])
 def teacher_record_result():
-    teacher_id = session.get("teacher_id")
-    if not teacher_id:
+    teacher = get_current_teacher()
+    if not teacher:
         return redirect("/teacher/login")
 
-    student_id = request.form.get("student_id")
-    subject_raw = request.form.get("subject", "").strip()
-    topic = request.form.get("topic", "").strip()
-    num_correct_raw = request.form.get("num_correct", "0")
-    num_questions_raw = request.form.get("num_questions", "1")
+    student_id = request.form.get("student_id", type=int)
+    subject = (request.form.get("subject", "") or "general").strip().lower()
+    topic = (request.form.get("topic", "") or "General").strip()
+    num_correct = int(request.form.get("num_correct") or 0)
+    num_questions = int(request.form.get("num_questions") or 1)
     difficulty_level = request.form.get("difficulty_level") or None
-
-    try:
-        student_id = int(student_id)
-    except (TypeError, ValueError):
-        flash("Invalid student selection.", "error")
-        return redirect("/teacher/dashboard")
 
     student = Student.query.get(student_id)
     if not student:
         flash("Student not found.", "error")
         return redirect("/teacher/dashboard")
 
-    cls = Class.query.get(student.class_id)
-    if not cls or cls.teacher_id != teacher_id:
-        flash("Not authorized to modify this class.", "error")
+    if not is_owner(teacher) and student.class_ref.teacher_id != teacher.id:
+        flash("Not authorized for this student.", "error")
         return redirect("/teacher/dashboard")
 
-    try:
-        num_correct = int(num_correct_raw)
-        num_questions = int(num_questions_raw)
-    except ValueError:
-        flash("Invalid numbers for correct / total questions.", "error")
-        return redirect(f"/teacher/class/{cls.id}/analytics")
-
-    num_questions = max(num_questions, 1)
-    num_correct = max(min(num_correct, num_questions), 0)
-
-    normalized_subject = normalize_subject(subject_raw)
-    score_percent = (num_correct / num_questions) * 100
+    score_percent = (num_correct / max(num_questions, 1)) * 100.0
 
     result = AssessmentResult(
         student_id=student.id,
-        subject=normalized_subject,
-        topic=topic or "General",
+        subject=subject,
+        topic=topic,
+        score_percent=score_percent,
         num_correct=num_correct,
         num_questions=num_questions,
-        score_percent=score_percent,
         difficulty_level=difficulty_level or student.ability_level,
-        timestamp=datetime.utcnow(),
     )
 
     db.session.add(result)
     db.session.commit()
 
-    recalc_student_ability(student)
-    db.session.commit()
+    # Update DB-based ability + average
+    recompute_student_ability(student)
 
-    flash("Result recorded successfully.", "info")
-    return redirect(f"/teacher/class/{cls.id}/analytics")
+    flash("Result recorded.", "info")
+    return redirect(f"/teacher/class/{student.class_id}/analytics")
+
+
+# ============================================================
+# TEACHER – STUDENT DETAIL REPORT
+# ============================================================
+
+@app.route("/teacher/student/<int:student_id>/report")
+def teacher_student_report(student_id):
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    student = Student.query.get(student_id)
+    if not student:
+        flash("Student not found.", "error")
+        return redirect("/teacher/dashboard")
+
+    if not is_owner(teacher) and student.class_ref.teacher_id != teacher.id:
+        flash("Not authorized for this student.", "error")
+        return redirect("/teacher/dashboard")
+
+    results = (
+        AssessmentResult.query
+        .filter_by(student_id=student_id)
+        .order_by(AssessmentResult.created_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "student_report.html",
+        student=student,
+        results=results,
+        is_owner=is_owner(teacher),
+    )
+
 
 # ============================================================
 # LEGAL
@@ -1215,33 +1750,21 @@ def teacher_record_result():
 def terms():
     return render_template("terms.html")
 
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
+
 
 @app.route("/disclaimer")
 def disclaimer():
     return render_template("disclaimer.html")
 
+
 # ============================================================
-# RUN SERVER
+# RUN SERVER (LOCAL DEV)
 # ============================================================
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignments</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="fade-in">
+
+<div class="page-title">Assigned Practice Sets</div>
+
+<div class="content-box">
+    <h2>{{ cls.class_name }} — Grade {{ cls.grade_level }}</h2>
+
+    <a href="/teacher/new_assignment/{{ cls.id }}" class="btn-blue">+ Create New Assignment</a>
+
+    {% if assignments %}
+        <div class="assignment-list">
+            {% for a in assignments %}
+                <div class="assignment-item">
+                    <h3>{{ a.title }}</h3>
+                    <p><strong>Subject:</strong> {{ a.subject }}</p>
+                    <p><strong>Topic:</strong> {{ a.topic }}</p>
+                    {% if a.due_date %}
+                        <p><strong>Due:</strong> {{ a.due_date.strftime("%b %d, %Y") }}</p>
+                    {% endif %}
+                    <a class="btn-light" href="/teacher/assignment/{{ a.id }}">View / Manage</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No assigned practice sets yet.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

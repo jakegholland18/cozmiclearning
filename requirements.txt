@@ -3,5 +3,8 @@ openai>=1.52.0
 python-dotenv==1.0.1
 gunicorn==21.2.0
 reportlab==4.0.4
-flask-bcrypt
 flask-sqlalchemy
+werkzeug
+pypdf2
+reportlab
+flask

@@ -1,3 +1,5 @@
+{% include "_navbar.html" %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,11 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Poppins", sans-serif;
@@ -24,15 +22,9 @@
       padding: 2.5rem 1.5rem 4rem;
     }
 
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    .page { max-width: 1200px; margin: 0 auto; }
 
-    .page-header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+    .page-header { text-align: center; margin-bottom: 2.5rem; }
 
     .page-title {
       font-size: clamp(2.1rem, 4vw, 2.8rem);
@@ -49,35 +41,33 @@
       line-height: 1.7;
     }
 
-    /* CTA BUTTON */
-    .start-btn {
-      margin: 2rem auto 2.8rem;
+    /* Buttons */
+    .btn {
       padding: 0.9rem 2rem;
       border-radius: 999px;
       background: linear-gradient(135deg, #4dabff, #275dff);
       color: white;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       border: none;
       cursor: pointer;
-      display: block;
       transition: 0.3s ease-in-out;
       box-shadow: 0 10px 25px rgba(50, 100, 255, 0.45);
+      margin: 0.6rem auto;
+      display: block;
     }
 
-    .start-btn:hover {
+    .btn:hover {
       transform: translateY(-4px);
       box-shadow: 0 15px 35px rgba(60, 120, 255, 0.6);
     }
 
-    /* GRID */
     .characters-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 1.8rem;
     }
 
-    /* CARD */
     .character-card {
       position: relative;
       padding: 1.5rem;
@@ -109,10 +99,7 @@
       position: relative;
     }
 
-    .character-image-wrap {
-      width: 90px;
-      position: relative;
-    }
+    .character-image-wrap { width: 90px; position: relative; }
 
     .character-image {
       width: 100%;
@@ -120,9 +107,7 @@
       filter: drop-shadow(0 8px 14px rgba(0,0,0,0.8));
     }
 
-    .character-info {
-      flex: 1;
-    }
+    .character-info { flex: 1; }
 
     .character-name {
       font-size: 1.15rem;
@@ -162,16 +147,22 @@
     <header class="page-header">
       <h1 class="page-title">Meet the Cozmic Squad</h1>
       <p class="page-subtitle">
-        Explore the galaxy with a guide who matches your style. Each Cosmic Mentor teaches differently —
-        but all of them make learning feel like a cozmic adventure.
+        Explore the galaxy with a guide who matches your style. Each Cosmic Mentor
+        teaches differently — but all of them make learning an adventure.
       </p>
 
-      <!-- CTA BUTTON -->
-      <button class="start-btn" onclick="window.location.href='/choose-character'">
-        Begin Your Journey
+      <!-- Primary CTA for learning -->
+      <button class="btn" onclick="window.location.href='/choose-character'">
+        Begin Your Learning Journey
+      </button>
+
+      <!-- Login CTA -->
+      <button class="btn" onclick="window.location.href='/choose-role'">
+        Login / Sign Up
       </button>
     </header>
 
+    <!-- Character Showcase Grid -->
     <section class="characters-grid">
 
       <!-- Everly -->
@@ -182,10 +173,8 @@
           </div>
           <div class="character-info">
             <h2 class="character-name">Princess Everly Dawn</h2>
-            <div class="character-role">Story Guide • Heart Leader</div>
-            <p class="character-desc">
-              Everly brings warmth, imagination, and courage to history and reading.
-            </p>
+            <div class="character-role">Heart Leader • Story Guide</div>
+            <p class="character-desc">Warm, imaginative, and courageous.</p>
           </div>
         </div>
       </article>
@@ -199,9 +188,7 @@
           <div class="character-info">
             <h2 class="character-name">Jasmine Starflare</h2>
             <div class="character-role">Cosmic Princess • Reading Mentor</div>
-            <p class="character-desc">
-              Jasmine teaches writing and reading with graceful creativity and star-bright confidence.
-            </p>
+            <p class="character-desc">Brings star-bright creativity to reading.</p>
           </div>
         </div>
       </article>
@@ -215,9 +202,7 @@
           <div class="character-info">
             <h2 class="character-name">Agent Lio Stormheart</h2>
             <div class="character-role">Secret Agent • Logic Trainer</div>
-            <p class="character-desc">
-              Smooth, sharp, and strategic — Lio trains students to think like elite problem-solvers.
-            </p>
+            <p class="character-desc">Sharp, strategic, elite problem-solver.</p>
           </div>
         </div>
       </article>
@@ -230,10 +215,8 @@
           </div>
           <div class="character-info">
             <h2 class="character-name">Theo Sparks</h2>
-            <div class="character-role">Nerd Genius • STEM Buddy</div>
-            <p class="character-desc">
-              Friendly, brilliant, patient — Theo makes STEM feel achievable for everyone.
-            </p>
+            <div class="character-role">STEM Buddy • Nerd Genius</div>
+            <p class="character-desc">Friendly, brilliant, unbelievably patient.</p>
           </div>
         </div>
       </article>
@@ -247,9 +230,7 @@
           <div class="character-info">
             <h2 class="character-name">Nova Circuit</h2>
             <div class="character-role">Scientist • Curiosity Coach</div>
-            <p class="character-desc">
-              Nova sparks curiosity with calm wisdom and scientific wonder.
-            </p>
+            <p class="character-desc">Makes science magical and understandable.</p>
           </div>
         </div>
       </article>
@@ -259,6 +240,7 @@
   </main>
 </body>
 </html>
+
 
 
 

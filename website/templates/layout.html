@@ -130,12 +130,42 @@
 <div class="sidebar">
     <h2 class="sidebar-title">🌌 CozmicLearning</h2>
 
+    <!-- UNIVERSAL PAGES -->
     <a href="/">🏠 Home</a>
-    <a href="/dashboard">📊 Student Dashboard</a>
-    <a href="/choose-character">🎨 Choose Galaxy Mentor</a>
-    <a href="/subjects">🪐 Explore Subjects</a>
-    <a href="/parent_dashboard">👨‍👩‍👦 Parent Dashboard</a>
-    <a href="/teach_dashboard">📘 Teacher Dashboard</a>
+
+    <!-- STUDENT MODE (session student basics always exist) -->
+    {% if session.get('character') %}
+        <a href="/dashboard">📊 Student Dashboard</a>
+        <a href="/subjects">🪐 Explore Subjects</a>
+        <a href="/choose-character">🎨 Galaxy Mentors</a>
+        <a href="/parent_dashboard">👨‍👩‍👦 Parent View</a>
+    {% endif %}
+
+    <!-- PARENT LOGIN -->
+    {% if session.get('parent_logged_in') %}
+        <a href="/parent_dashboard">📘 Parent Dashboard</a>
+        <a href="/parent/messages">💬 Message Teacher</a>
+        <a href="/parent/subjects">📚 Subjects</a>
+        <a href="/parent/progress">📈 Progress Reports</a>
+    {% endif %}
+
+    <!-- TEACHER LOGIN -->
+    {% if session.get('teacher_id') %}
+        <a href="/teacher/dashboard">📘 Teacher Dashboard</a>
+        <a href="/teacher/classes">🏫 My Classes</a>
+        <a href="/teacher/assignments">📝 Assign Practice</a>
+        <a href="/teacher/reports">📈 Analytics</a>
+        <a href="/teacher/messages">💬 Message Parents</a>
+    {% endif %}
+
+    <!-- OWNER OVERRIDE ALWAYS SEES THIS -->
+    {% if session.get('is_owner') %}
+        <hr style="border-color: rgba(255,255,255,0.2); width: 100%;">
+        <a href="/admin/control">👑 Owner Control Panel</a>
+        <a href="/teacher/dashboard">📘 All Teachers</a>
+        <a href="/teacher/assignments">📝 All Assignments</a>
+        <a href="/teacher/reports">📈 Full Analytics</a>
+    {% endif %}
 </div>
 
 <!-- ========================= -->
@@ -154,3 +184,4 @@
 
 </body>
 </html>
+

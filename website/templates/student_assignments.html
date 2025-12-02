@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Assignments</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="fade-in">
+
+<div class="page-title">Your Assignments</div>
+
+<div class="content-box">
+
+    {% if assignments and assignments|length > 0 %}
+        <div class="assignment-list">
+
+            {% for a in assignments %}
+            <div class="assignment-card">
+                <h3>{{ a.title }}</h3>
+                <p><strong>Subject:</strong> {{ a.subject|title }}</p>
+                <p><strong>Topic:</strong> {{ a.topic }}</p>
+
+                {% if a.due_date %}
+                    <p><strong>Due:</strong> {{ a.due_date.strftime("%B %d, %Y") }}</p>
+                {% endif %}
+
+                {% if a.status == "completed" %}
+                    <div class="badge badge-green">Completed</div>
+                    <a class="btn-blue" href="/assignment/{{ a.id }}/overview">View Results</a>
+                {% else %}
+                    <div class="badge badge-gold">Assigned</div>
+                    <a class="btn-blue" href="/assignment/{{ a.id }}/start">Start Assignment</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+        <p style="text-align:center; margin-top:20px;">
+            You currently have <strong>no assigned practice</strong> from your teacher.
+        </p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

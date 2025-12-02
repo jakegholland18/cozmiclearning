@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Take Assignment</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="fade-in">
+
+<div class="page-title">{{ assignment.title }}</div>
+
+<div class="content-box">
+
+    <div class="assignment-meta">
+        <p><strong>Subject:</strong> {{ assignment.subject|title }}</p>
+        <p><strong>Topic:</strong> {{ assignment.topic }}</p>
+        {% if assignment.instructions %}
+        <p><strong>Instructions:</strong> {{ assignment.instructions }}</p>
+        {% endif %}
+        {% if assignment.due_date %}
+        <p><strong>Due:</strong> {{ assignment.due_date.strftime("%B %d, %Y") }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ progress_percent }}%;"></div>
+    </div>
+    <p class="progress-label">{{ current_index + 1 }} / {{ total_questions }}</p>
+
+    <div class="question-box">
+        <h2>Question {{ current_index + 1 }}</h2>
+        <p>{{ question.question_text }}</p>
+
+        <form method="POST">
+
+            {% if question.question_type == "multiple_choice" %}
+                <div class="mc-option">
+                    <label><input type="radio" name="answer" value="A"> A. {{ question.choice_a }}</label>
+                </div>
+                <div class="mc-option">
+                    <label><input type="radio" name="answer" value="B"> B. {{ question.choice_b }}</label>
+                </div>
+                <div class="mc-option">
+                    <label><input type="radio" name="answer" value="C"> C. {{ question.choice_c }}</label>
+                </div>
+                <div class="mc-option">
+                    <label><input type="radio" name="answer" value="D"> D. {{ question.choice_d }}</label>
+                </div>
+
+            {% else %}
+                <textarea name="answer" placeholder="Type your answer..." required></textarea>
+            {% endif %}
+
+            <div class="btn-row">
+                {% if current_index > 0 %}
+                <a class="btn-gray" href="/assignment_take/{{ assignment.id }}?q={{ current_index - 1 }}">Previous</a>
+                {% endif %}
+
+                <button class="btn-blue" type="submit">Submit Answer</button>
+
+                {% if current_index + 1 < total_questions %}
+                <a class="btn-gray" href="/assignment_take/{{ assignment.id }}?q={{ current_index + 1 }}">Next</a>
+                {% endif %}
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
