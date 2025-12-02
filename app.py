@@ -60,10 +60,16 @@ from models import (
 )
 from sqlalchemy import func
 
+# Database configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cozmiclearning.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# Initialize database
 db.init_app(app)
+
+# Create database tables automatically
+with app.app_context():
+    db.create_all()
 
 # ============================================================
 # DATABASE SCHEMA FIX — Add parent_id to students
