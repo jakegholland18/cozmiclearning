@@ -65,6 +65,50 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
+# ============================================================
+# DATABASE SCHEMA FIX — Add parent_id to students
+# ============================================================
+import sqlite3
+import os
+
+DB_PATH = os.path.join(BASE_DIR, "cozmiclearning.db")  # same DB as your config
+
+def rebuild_database_if_needed():
+    """Rebuild SQLite DB if parent_id column does not exist."""
+    if not os.path.exists(DB_PATH):
+        print("📦 No database found — creating new one...")
+        db.create_all()
+        return
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # Check columns in students table
+        cursor.execute("PRAGMA table_info(students);")
+        columns = [col[1] for col in cursor.fetchall()]
+        conn.close()
+
+        if "parent_id" not in columns:
+            print("⚠️ parent_id missing — rebuilding database...")
+            os.remove(DB_PATH)
+            db.create_all()
+        else:
+            print("✅ Database OK — parent_id found.")
+
+    except Exception as e:
+        print("⚠️ DB check error:", e)
+        print("⚠️ Rebuilding DB just in case...")
+        try:
+            os.remove(DB_PATH)
+        except:
+            pass
+        db.create_all()
+
+
+with app.app_context():
+    rebuild_database_if_needed()
+
 with app.app_context():
     db.create_all()
 
