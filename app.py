@@ -1232,7 +1232,9 @@ def admin_login():
 
         flash("Incorrect admin password.", "error")
 
-    return render_template("admin_login.html")
+    # FIX: point to choose_login_role instead of missing admin_login.html
+    return render_template("choose_login_role.html")
+
 @app.route("/teacher/dashboard")
 def teacher_dashboard():
     teacher = get_current_teacher()
