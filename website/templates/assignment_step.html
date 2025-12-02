@@ -3,6 +3,7 @@
 <head>
     <title>CozmicLearning Mission</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/enhancements.js" defer></script>
     <style>
         .chat-container {
             width: 90%;
@@ -69,6 +70,9 @@
 
 <div class="chat-container fade-in">
     
+    <!-- PROGRESS BAR -->
+    <div id="progress-container" style="margin-bottom: 20px;"></div>
+
     <!-- NOVA AVATAR -->
     <div style="text-align: center;">
         <img src="/static/characters/nova.png" class="nova-avatar">
@@ -124,8 +128,18 @@
         Next Mission Step →
     </a>
     {% endif %}
-    
+
 </div>
+
+<script>
+    // Initialize progress bar
+    window.addEventListener('load', () => {
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = CozmicEnhancements.createProgressBar({{ index + 1 }}, {{ total }});
+        progressContainer.appendChild(progressBar);
+    });
+</script>
 
 </body>
 </html>
+
