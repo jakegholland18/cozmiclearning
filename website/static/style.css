@@ -1,9 +1,40 @@
 /* =======================================================
-   COZMICLEARNING — CINEMATIC GALAXY ARCADE THEME
-   (Mix of A: Cinematic Portal + C: Arcade Fun)
+   COZMICLEARNING — PREMIUM GALAXY ARCADE THEME
+   Modern Design System with Glassmorphism & Animation
 ======================================================= */
 
-/* ---------------- GLOBAL LAYOUT ---------------- */
+/* ==================== COLOR PALETTE ==================== */
+:root {
+    /* Primary Palette */
+    --color-primary: #5c6bff;
+    --color-primary-light: #7683ff;
+    --color-primary-dark: #4451d8;
+    
+    /* Accent Colors */
+    --color-accent-cyan: #00f2ff;
+    --color-accent-pink: #ff6fd8;
+    --color-accent-gold: #ffdd55;
+    --color-accent-green: #4caf50;
+    
+    /* Neutrals */
+    --color-bg-dark: #0a0e27;
+    --color-bg-darker: #050813;
+    --color-text-primary: #f7fbff;
+    --color-text-secondary: #c4d1ff;
+    --color-text-muted: #8a92b3;
+    
+    /* Surfaces */
+    --color-surface-light: rgba(255, 255, 255, 0.08);
+    --color-surface-medium: rgba(255, 255, 255, 0.12);
+    --color-surface-dark: rgba(0, 0, 0, 0.4);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ==================== GLOBAL LAYOUT ==================== */
 
 * {
     box-sizing: border-box;
@@ -12,11 +43,12 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Poppins', sans-serif;
-    color: #f7fbff;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--color-text-primary);
     overflow-x: hidden;
     position: relative;
-    background: radial-gradient(circle at top, #050819 0%, #02040b 45%, #000000 100%);
+    background: radial-gradient(circle at top, #0f1a3d 0%, var(--color-bg-darker) 40%, #000000 100%);
+    line-height: 1.6;
 }
 
 /* Star & nebula layers */
@@ -936,7 +968,312 @@ body::after {
     transform: translateY(0);
 }
 
-/* Character comment box */
+/* ================================================================
+   MODERN COMPONENTS — ENHANCED VISUAL DESIGN
+================================================================ */
+
+/* PREMIUM CARD */
+.premium-card {
+    background: linear-gradient(135deg, 
+        rgba(92, 107, 255, 0.12),
+        rgba(71, 200, 255, 0.08)
+    );
+    border: 1px solid rgba(118, 131, 255, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(92, 107, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.premium-card:hover {
+    border-color: rgba(118, 131, 255, 0.6);
+    box-shadow: 
+        0 16px 48px rgba(92, 107, 255, 0.2),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px);
+}
+
+.premium-card:hover::before {
+    opacity: 1;
+}
+
+/* MISSION CARD (for practice/subjects) */
+.mission-card-modern {
+    background: linear-gradient(145deg, 
+        rgba(30, 50, 120, 0.8),
+        rgba(15, 28, 60, 0.8)
+    );
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, #5c6bff, #00f2ff) 1;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.mission-card-modern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(92, 107, 255, 0.1), transparent 70%);
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    pointer-events: none;
+}
+
+.mission-card-modern:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+        0 12px 40px rgba(92, 107, 255, 0.3),
+        inset 0 0 20px rgba(92, 107, 255, 0.1);
+    border-color: #5c6bff;
+}
+
+.mission-card-modern:hover::before {
+    transform: translateX(100%);
+}
+
+.mission-card-modern h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+.mission-card-modern p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+/* STAT BOX (for dashboard) */
+.stat-box-modern {
+    background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.15),
+        rgba(71, 200, 255, 0.08)
+    );
+    border: 1px solid rgba(118, 131, 255, 0.35);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+}
+
+.stat-box-modern:hover {
+    transform: translateY(-6px);
+    border-color: rgba(118, 131, 255, 0.6);
+    box-shadow: 0 12px 36px rgba(92, 107, 255, 0.2);
+}
+
+.stat-box-modern .stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #5c6bff, #00f2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 10px 0;
+}
+
+.stat-box-modern .stat-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* GRADIENT TEXT */
+.text-gradient {
+    background: linear-gradient(135deg, #5c6bff, #00f2ff, #ff6fd8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+/* BADGE STYLES */
+.badge-modern {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(92, 107, 255, 0.2);
+    border: 1px solid rgba(92, 107, 255, 0.5);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #00f2ff;
+    transition: all 0.2s ease;
+}
+
+.badge-modern:hover {
+    background: rgba(92, 107, 255, 0.35);
+    box-shadow: 0 4px 12px rgba(92, 107, 255, 0.3);
+}
+
+/* SECTION HEADING */
+.section-heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--color-text-primary);
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #5c6bff, #00f2ff);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(92, 107, 255, 0.5);
+}
+
+/* GLASSMORPHISM CONTAINER */
+.glass-container {
+    background: rgba(15, 28, 60, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ENHANCED PLANET CARD */
+.planet-card-modern {
+    background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.15),
+        rgba(71, 200, 255, 0.08)
+    );
+    border: 1px solid rgba(118, 131, 255, 0.4);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.planet-card-modern::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(circle at center, rgba(92, 107, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    transform: scale(0);
+}
+
+.planet-card-modern:hover {
+    transform: translateY(-12px) scale(1.05);
+    border-color: rgba(118, 131, 255, 0.8);
+    box-shadow: 
+        0 16px 48px rgba(92, 107, 255, 0.3),
+        inset 0 0 24px rgba(92, 107, 255, 0.1),
+        0 0 20px rgba(0, 242, 255, 0.2);
+}
+
+.planet-card-modern::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* INPUT FIELD */
+.input-modern {
+    background: rgba(15, 28, 60, 0.6);
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--color-text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input-modern:focus {
+    outline: none;
+    border-color: rgba(92, 107, 255, 0.8);
+    background: rgba(15, 28, 60, 0.8);
+    box-shadow: 0 0 16px rgba(92, 107, 255, 0.3);
+}
+
+.input-modern::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* SELECT FIELD */
+.select-modern {
+    background: rgba(15, 28, 60, 0.6);
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--color-text-primary);
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.select-modern:focus {
+    outline: none;
+    border-color: rgba(92, 107, 255, 0.8);
+    box-shadow: 0 0 16px rgba(92, 107, 255, 0.3);
+}
+
+/* MODAL ENHANCED */
+.modal-modern {
+    background: linear-gradient(135deg,
+        rgba(20, 35, 80, 0.95),
+        rgba(15, 28, 60, 0.95)
+    );
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 
+        0 24px 64px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(92, 107, 255, 0.2);
+    animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* CHARACTER comment box */
 .character-comment {
     background: rgba(92, 107, 255, 0.15);
     border-left: 4px solid #5c6bff;
