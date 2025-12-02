@@ -3,6 +3,148 @@
 <head>
     <title>Assignments</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #050813 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #5c6bff, #00f2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .content-box {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .class-section {
+            background: linear-gradient(135deg,
+                rgba(92, 107, 255, 0.12),
+                rgba(71, 200, 255, 0.08)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.3),
+                inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+        }
+
+        .class-section h2 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #5c6bff, #00f2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .btn-blue {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #5c6bff, #7683ff);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(92, 107, 255, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(92, 107, 255, 0.5);
+        }
+
+        .assignment-list {
+            display: grid;
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .assignment-item {
+            background: linear-gradient(135deg,
+                rgba(71, 200, 255, 0.08),
+                rgba(92, 107, 255, 0.06)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.25);
+            border-radius: 14px;
+            padding: 20px;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .assignment-item:hover {
+            transform: translateY(-6px);
+            border-color: rgba(118, 131, 255, 0.5);
+            background: linear-gradient(135deg,
+                rgba(71, 200, 255, 0.12),
+                rgba(92, 107, 255, 0.08)
+            );
+            box-shadow: 
+                0 12px 32px rgba(92, 107, 255, 0.25),
+                inset 0 0 20px rgba(92, 107, 255, 0.08);
+        }
+
+        .assignment-item h3 {
+            font-size: 1.25rem;
+            color: #f7fbff;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .assignment-item p {
+            color: #c4d1ff;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .btn-light {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 18px;
+            background: rgba(118, 131, 255, 0.25);
+            color: #00f2ff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(118, 131, 255, 0.3);
+        }
+
+        .btn-light:hover {
+            background: rgba(118, 131, 255, 0.4);
+            border-color: rgba(118, 131, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            color: #8a92b3;
+            font-size: 1.05rem;
+            padding: 20px;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body class="fade-in">
 
@@ -11,37 +153,39 @@
 <div class="content-box">
 
    {% for cls in classes %}
-    <h2>{{ cls.class_name }} — Grade {{ cls.grade_level }}</h2>
+    <div class="class-section">
+        <h2>{{ cls.class_name }} — Grade {{ cls.grade_level }}</h2>
 
-    <!-- FIXED: correct create assignment route -->
-    <a href="/teacher/assignments/create?class_id={{ cls.id }}" class="btn-blue">
-        + Create New Assignment
-    </a>
+        <!-- FIXED: correct create assignment route -->
+        <a href="/teacher/assignments/create?class_id={{ cls.id }}" class="btn-blue">
+            + Create New Assignment
+        </a>
 
-    {% set assignments = assignment_map[cls.id] %}
+        {% set assignments = assignment_map[cls.id] %}
 
-    {% if assignments %}
-        <div class="assignment-list">
-            {% for a in assignments %}
-                <div class="assignment-item">
-                    <h3>{{ a.title }}</h3>
-                    <p><strong>Subject:</strong> {{ a.subject }}</p>
-                    <p><strong>Topic:</strong> {{ a.topic }}</p>
+        {% if assignments %}
+            <div class="assignment-list">
+                {% for a in assignments %}
+                    <div class="assignment-item">
+                        <h3>{{ a.title }}</h3>
+                        <p><strong>Subject:</strong> {{ a.subject }}</p>
+                        <p><strong>Topic:</strong> {{ a.topic }}</p>
 
-                    {% if a.due_date %}
-                        <p><strong>Due:</strong> {{ a.due_date.strftime("%b %d, %Y") }}</p>
-                    {% endif %}
+                        {% if a.due_date %}
+                            <p><strong>Due:</strong> {{ a.due_date.strftime("%b %d, %Y") }}</p>
+                        {% endif %}
 
-                    <!-- FIXED: correct route for viewing assignment -->
-                    <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
-                        View / Manage
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No assigned practice sets yet.</p>
-    {% endif %}
+                        <!-- FIXED: correct route for viewing assignment -->
+                        <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
+                            View / Manage
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">No assigned practice sets yet.</p>
+        {% endif %}
+    </div>
 
 {% endfor %}
 
