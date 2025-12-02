@@ -4,12 +4,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>CozmicLearning – Meet the Cozmic Squad</title>
+  <title>CozmicLearning – AI-Powered Education That Adapts to Every Student</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,277 +17,757 @@
     body {
       font-family: "Poppins", sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #0a0e27 0%, #050813 100%);
+      background: #02020a;
       color: #fff;
-      padding: 2.5rem 1.5rem 4rem;
+      overflow-x: hidden;
     }
 
-    .page { max-width: 1200px; margin: 0 auto; }
-
-    .page-header { 
-      text-align: center; 
-      margin-bottom: 3.5rem;
-      padding: 40px;
-      background: linear-gradient(135deg,
-          rgba(92, 107, 255, 0.08),
-          rgba(71, 200, 255, 0.05)
-      );
-      border: 1px solid rgba(118, 131, 255, 0.25);
-      border-radius: 24px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    /* Stars Background */
+    .stars {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 90%, white, transparent),
+        radial-gradient(2px 2px at 70% 20%, white, transparent);
+      background-size: 200% 200%;
+      animation: twinkle 20s ease-in-out infinite;
+      opacity: 0.4;
+      z-index: 0;
     }
 
-    .page-title {
-      font-size: clamp(2.1rem, 4vw, 2.8rem);
-      font-weight: 800;
-      margin-bottom: 0.8rem;
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .page { 
+      max-width: 1400px; 
+      margin: 0 auto; 
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ========================
+       HERO SECTION
+    ========================= */
+
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px 2rem 60px;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, rgba(92, 107, 255, 0.2), rgba(0, 242, 255, 0.15));
+      border: 1px solid rgba(92, 107, 255, 0.4);
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #00f2ff;
+      margin-bottom: 24px;
+      animation: fadeInDown 0.8s ease;
       letter-spacing: 0.05em;
-      background: linear-gradient(135deg, #5c6bff, #00f2ff);
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: fadeInUp 1s ease 0.2s backwards;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #5c6bff 0%, #00f2ff 50%, #84ff00 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      animation: rainbowShift 8s ease-in-out infinite;
+      background-size: 200% 200%;
     }
 
-    .page-subtitle {
-      font-size: 1rem;
+    @keyframes rainbowShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
       color: #c4d1ff;
-      max-width: 580px;
-      margin: 0.7rem auto;
-      line-height: 1.8;
+      max-width: 750px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeInUp 1s ease 0.4s backwards;
     }
 
-    /* Buttons */
+    .hero-cta-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeInUp 1s ease 0.6s backwards;
+    }
+
     .btn {
-      padding: 0.9rem 2rem;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #5c6bff, #7683ff);
-      color: white;
-      font-size: 1rem;
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-size: 1.1rem;
       font-weight: 700;
       border: none;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 10px 25px rgba(92, 107, 255, 0.4);
-      margin: 0.8rem auto;
+      text-decoration: none;
       display: inline-block;
     }
 
-    .btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 15px 35px rgba(92, 107, 255, 0.6);
+    .btn-primary {
+      background: linear-gradient(135deg, #5c6bff, #7683ff);
+      color: white;
+      box-shadow: 0 12px 30px rgba(92, 107, 255, 0.5);
     }
 
-    .characters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2rem;
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(92, 107, 255, 0.7);
     }
 
-    .character-card {
-      position: relative;
-      padding: 20px;
-      border-radius: 18px;
-      background: linear-gradient(135deg,
-          rgba(92, 107, 255, 0.12),
-          rgba(71, 200, 255, 0.08)
-      );
-      border: 1px solid rgba(118, 131, 255, 0.35);
-      box-shadow: 
-          0 12px 40px rgba(0, 0, 0, 0.3),
-          inset 1px 1px 0 rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      overflow: hidden;
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
 
-    .character-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: rgba(118, 131, 255, 0.6);
-      box-shadow: 
-          0 20px 50px rgba(92, 107, 255, 0.3),
-          inset 0 0 30px rgba(92, 107, 255, 0.1);
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px);
     }
 
-    .character-card::before {
-      content: "";
+    /* Floating Orbs */
+    .floating-orb {
       position: absolute;
-      width: 180px;
-      height: 180px;
-      top: -50px;
-      right: -50px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(92, 107, 255, 0.6), transparent 70%);
-      filter: blur(2px);
-      opacity: 0;
-      animation: pulseGlow 3s ease-in-out infinite;
-      z-index: 0;
+      filter: blur(60px);
+      opacity: 0.5;
+      animation: float 15s ease-in-out infinite;
+      pointer-events: none;
     }
 
-    .character-card:hover::before {
-      opacity: 1;
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(92, 107, 255, 0.6), transparent);
+      top: 10%;
+      left: -10%;
+      animation-delay: 0s;
     }
 
-    .character-top {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-end;
-      z-index: 2;
-      position: relative;
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(0, 242, 255, 0.5), transparent);
+      top: 40%;
+      right: -5%;
+      animation-delay: 3s;
     }
 
-    .character-image-wrap { 
-      width: 100px; 
-      position: relative;
-      flex-shrink: 0;
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(132, 255, 0, 0.4), transparent);
+      bottom: 20%;
+      left: 15%;
+      animation-delay: 6s;
     }
 
-    .character-image {
-      width: 100%;
-      animation: floatUpDown 3s ease-in-out infinite;
-      filter: drop-shadow(0 8px 20px rgba(92, 107, 255, 0.4));
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
     }
 
-    .character-info { flex: 1; }
+    /* ========================
+       FEATURES SECTION
+    ========================= */
 
-    .character-name {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 0.3rem;
-      color: #f7fbff;
-      background: linear-gradient(135deg, #5c6bff, #00f2ff);
+    .features {
+      padding: 100px 2rem;
+      background: linear-gradient(180deg, 
+        transparent 0%, 
+        rgba(92, 107, 255, 0.03) 50%, 
+        transparent 100%
+      );
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    .section-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(92, 107, 255, 0.15);
+      border: 1px solid rgba(92, 107, 255, 0.3);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #5c6bff;
+      margin-bottom: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff, #c4d1ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .character-role {
-      font-size: 0.75rem;
+    .section-subtitle {
+      font-size: 1.15rem;
+      color: #8a92b3;
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      padding: 35px;
+      background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.08),
+        rgba(71, 200, 255, 0.05)
+      );
+      border: 1px solid rgba(118, 131, 255, 0.25);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(92, 107, 255, 0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(118, 131, 255, 0.5);
+      box-shadow: 0 20px 50px rgba(92, 107, 255, 0.25);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      display: block;
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .feature-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .feature-desc {
+      font-size: 1rem;
+      color: #b3c0ff;
+      line-height: 1.7;
+    }
+
+    /* ========================
+       PLANETS SHOWCASE
+    ========================= */
+
+    .planets {
+      padding: 100px 2rem;
+      background: linear-gradient(135deg, 
+        rgba(5, 8, 19, 0.5) 0%, 
+        rgba(92, 107, 255, 0.05) 50%, 
+        rgba(5, 8, 19, 0.5) 100%
+      );
+    }
+
+    .planets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .planet-card {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 20px;
+      background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.1),
+        rgba(0, 242, 255, 0.05)
+      );
+      border: 1px solid rgba(118, 131, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+
+    .planet-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(92, 107, 255, 0.2), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .planet-card:hover::before {
+      opacity: 1;
+    }
+
+    .planet-card:hover {
+      transform: translateY(-10px) scale(1.05);
+      border-color: rgba(0, 242, 255, 0.6);
+      box-shadow: 0 25px 60px rgba(92, 107, 255, 0.4);
+    }
+
+    .planet-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 5px 15px rgba(92, 107, 255, 0.5));
+      animation: planetFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes planetFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+
+    .planet-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .planet-subject {
+      font-size: 0.85rem;
       color: #00f2ff;
-      margin-bottom: 0.6rem;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
+    }
+
+    /* ========================
+       STATS SECTION
+    ========================= */
+
+    .stats {
+      padding: 80px 2rem;
+      background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.08),
+        rgba(0, 242, 255, 0.05)
+      );
+      border-top: 1px solid rgba(118, 131, 255, 0.2);
+      border-bottom: 1px solid rgba(118, 131, 255, 0.2);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .stat-item {
+      padding: 20px;
+    }
+
+    .stat-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #5c6bff, #00f2ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      color: #8a92b3;
       font-weight: 600;
     }
 
-    .character-desc {
-      font-size: 0.85rem;
+    /* ========================
+       CTA SECTION
+    ========================= */
+
+    .cta-section {
+      padding: 100px 2rem;
+      text-align: center;
+    }
+
+    .cta-box {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 60px 40px;
+      background: linear-gradient(135deg,
+        rgba(92, 107, 255, 0.15),
+        rgba(0, 242, 255, 0.1)
+      );
+      border: 2px solid rgba(118, 131, 255, 0.4);
+      border-radius: 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 30px 80px rgba(92, 107, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(92, 107, 255, 0.3), transparent 60%);
+      opacity: 0.5;
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-subtitle {
+      font-size: 1.2rem;
       color: #c4d1ff;
-      line-height: 1.6;
+      margin-bottom: 35px;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
     }
 
-    @keyframes floatUpDown {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
 
-    @keyframes pulseGlow {
-      0%, 100% { transform: scale(1); opacity: 0.6; }
-      50% { transform: scale(1.15); opacity: 1; }
+    /* ========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 60px 1.5rem 40px;
+      }
+
+      .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .features, .planets, .cta-section {
+        padding: 60px 1.5rem;
+      }
+
+      .features-grid, .planets-grid {
+        gap: 20px;
+      }
+
+      .cta-box {
+        padding: 40px 25px;
+      }
     }
   </style>
 </head>
 
 <body>
+  <div class="stars"></div>
+  
   <main class="page">
 
-    <header class="page-header">
-      <h1 class="page-title">Meet the Cozmic Squad</h1>
-      <p class="page-subtitle">
-        Explore the galaxy with a guide who matches your style. Each Cosmic Mentor
-        teaches differently — but all of them make learning an adventure.
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="floating-orb orb-1"></div>
+      <div class="floating-orb orb-2"></div>
+      <div class="floating-orb orb-3"></div>
+
+      <div class="hero-badge">✨ AI-Powered Learning Platform</div>
+      
+      <h1 class="hero-title">
+        Learning That <span class="gradient-text">Adapts</span><br/>
+        to Every Student
+      </h1>
+      
+      <p class="hero-subtitle">
+        CozmicLearning combines AI tutoring, gamification, and personalized practice missions 
+        to make education engaging, effective, and uniquely tailored to each learner's needs.
       </p>
+      
+      <div class="hero-cta-group">
+        <a href="/choose_login_role" class="btn btn-primary">Get Started Free</a>
+        <a href="#features" class="btn btn-secondary">Explore Features</a>
+      </div>
+    </section>
 
-      <!-- Primary CTA for learning -->
-      <button class="btn" onclick="window.location.href='/choose-character'">
-        Begin Your Learning Journey
-      </button>
+    <!-- FEATURES SECTION -->
+    <section class="features" id="features">
+      <div class="section-header">
+        <div class="section-badge">Why CozmicLearning</div>
+        <h2 class="section-title">Everything You Need to Succeed</h2>
+        <p class="section-subtitle">
+          Powerful tools and personalized learning experiences that grow with your students
+        </p>
+      </div>
 
-      <!-- Login CTA -->
-      <button class="btn" onclick="window.location.href='/choose_login_role'">
-        Login / Sign Up
-      </button>
-    </header>
-
-    <!-- Character Showcase Grid -->
-    <section class="characters-grid">
-
-      <!-- Everly -->
-      <article class="character-card">
-        <div class="character-top">
-          <div class="character-image-wrap">
-            <img src="{{ url_for('static', filename='characters/everly.png') }}" class="character-image">
-          </div>
-          <div class="character-info">
-            <h2 class="character-name">Princess Everly Dawn</h2>
-            <div class="character-role">Heart Leader • Story Guide</div>
-            <p class="character-desc">Warm, imaginative, and courageous.</p>
-          </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-icon">🤖</span>
+          <h3 class="feature-title">AI Subject Tutors</h3>
+          <p class="feature-desc">
+            Get instant help across 11 subjects with AI-powered explanations that adapt to your grade level and learning style.
+          </p>
         </div>
-      </article>
 
-      <!-- Jasmine -->
-      <article class="character-card">
-        <div class="character-top">
-          <div class="character-image-wrap">
-            <img src="{{ url_for('static', filename='characters/jasmine.png') }}" class="character-image">
-          </div>
-          <div class="character-info">
-            <h2 class="character-name">Jasmine Starflare</h2>
-            <div class="character-role">Cosmic Princess • Reading Mentor</div>
-            <p class="character-desc">Brings star-bright creativity to reading.</p>
-          </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎮</span>
+          <h3 class="feature-title">Gamified Learning</h3>
+          <p class="feature-desc">
+            Earn tokens, level up, maintain streaks, and unlock achievements as you master new concepts and complete missions.
+          </p>
         </div>
-      </article>
 
-      <!-- Lio -->
-      <article class="character-card">
-        <div class="character-top">
-          <div class="character-image-wrap">
-            <img src="{{ url_for('static', filename='characters/lio.png') }}" class="character-image">
-          </div>
-          <div class="character-info">
-            <h2 class="character-name">Agent Lio Stormheart</h2>
-            <div class="character-role">Secret Agent • Logic Trainer</div>
-            <p class="character-desc">Sharp, strategic, elite problem-solver.</p>
-          </div>
+        <div class="feature-card">
+          <span class="feature-icon">🎯</span>
+          <h3 class="feature-title">Differentiated Practice</h3>
+          <p class="feature-desc">
+            Adaptive missions adjust difficulty based on performance, with scaffold, mastery, and challenge modes for every learner.
+          </p>
         </div>
-      </article>
 
-      <!-- Theo -->
-      <article class="character-card">
-        <div class="character-top">
-          <div class="character-image-wrap">
-            <img src="{{ url_for('static', filename='characters/theo.png') }}" class="character-image">
-          </div>
-          <div class="character-info">
-            <h2 class="character-name">Theo Sparks</h2>
-            <div class="character-role">STEM Buddy • Nerd Genius</div>
-            <p class="character-desc">Friendly, brilliant, unbelievably patient.</p>
-          </div>
+        <div class="feature-card">
+          <span class="feature-icon">👥</span>
+          <h3 class="feature-title">Character Mentors</h3>
+          <p class="feature-desc">
+            Choose from 5 unique AI personalities — each with their own teaching style, from Princess Everly to Agent Lio.
+          </p>
         </div>
-      </article>
 
-      <!-- Nova -->
-      <article class="character-card">
-        <div class="character-top">
-          <div class="character-image-wrap">
-            <img src="{{ url_for('static', filename='characters/nova.png') }}" class="character-image">
-          </div>
-          <div class="character-info">
-            <h2 class="character-name">Nova Circuit</h2>
-            <div class="character-role">Scientist • Curiosity Coach</div>
-            <p class="character-desc">Makes science magical and understandable.</p>
-          </div>
+        <div class="feature-card">
+          <span class="feature-icon">📊</span>
+          <h3 class="feature-title">Analytics Dashboard</h3>
+          <p class="feature-desc">
+            Teachers and parents track progress, ability levels, and subject mastery with comprehensive real-time insights.
+          </p>
         </div>
-      </article>
 
+        <div class="feature-card">
+          <span class="feature-icon">✝️</span>
+          <h3 class="feature-title">Faith-Integrated</h3>
+          <p class="feature-desc">
+            Every lesson includes a Christian worldview perspective, teaching students to think critically about truth.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANETS SHOWCASE -->
+    <section class="planets">
+      <div class="section-header">
+        <div class="section-badge">Explore the Galaxy</div>
+        <h2 class="section-title">11 Learning Planets</h2>
+        <p class="section-subtitle">
+          Each subject is a unique world waiting to be explored
+        </p>
+      </div>
+
+      <div class="planets-grid">
+        <div class="planet-card">
+          <div class="planet-icon">🔢</div>
+          <div class="planet-name">NumForge</div>
+          <div class="planet-subject">Math</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">⚗️</div>
+          <div class="planet-name">AtomSphere</div>
+          <div class="planet-subject">Science</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">✍️</div>
+          <div class="planet-name">InkHaven</div>
+          <div class="planet-subject">Writing</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">📖</div>
+          <div class="planet-name">LoreKeep</div>
+          <div class="planet-subject">Reading</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">🏛️</div>
+          <div class="planet-name">ChronoCore</div>
+          <div class="planet-subject">History</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">📿</div>
+          <div class="planet-name">FaithForge</div>
+          <div class="planet-subject">Bible</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">⚖️</div>
+          <div class="planet-name">LogicRealm</div>
+          <div class="planet-subject">Apologetics</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">💰</div>
+          <div class="planet-name">CoinVault</div>
+          <div class="planet-subject">Money</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">📈</div>
+          <div class="planet-name">WealthWave</div>
+          <div class="planet-subject">Investing</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">📚</div>
+          <div class="planet-name">StudyStation</div>
+          <div class="planet-subject">Study Skills</div>
+        </div>
+
+        <div class="planet-card">
+          <div class="planet-icon">⚡</div>
+          <div class="planet-name">PowerGrid</div>
+          <div class="planet-subject">Deep Study</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section class="stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">11</div>
+          <div class="stat-label">Subject Planets</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">5</div>
+          <div class="stat-label">AI Mentors</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Practice Missions</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">AI Tutoring</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="cta-section">
+      <div class="cta-box">
+        <h2 class="cta-title">Ready to Launch Your Learning Journey?</h2>
+        <p class="cta-subtitle">
+          Join students, parents, and teachers who are experiencing personalized education that actually works.
+        </p>
+        <div class="cta-buttons">
+          <a href="/choose_login_role" class="btn btn-primary">Sign Up Now</a>
+          <a href="/subjects" class="btn btn-secondary">Browse Subjects</a>
+        </div>
+      </div>
     </section>
 
   </main>
 </body>
 </html>
-
-
 
 
