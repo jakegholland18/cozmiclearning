@@ -201,6 +201,7 @@ from modules import (
     money_helper,
 )
 from modules.practice_helper import generate_practice_session
+from modules.answer_formatter import parse_into_sections
 
 # ============================================================
 # SUBJECT → FUNCTION MAP (PLANETS)
@@ -423,6 +424,58 @@ def subjects():
         planets=planets,
         character=session["character"],
     )
+
+
+# ------------------------------------------------------------
+# SUBJECT PREVIEW (Modal fragment) — Six-section with bullets
+# ------------------------------------------------------------
+@app.route("/subject-preview")
+def subject_preview():
+    init_user()
+
+    subject = request.args.get("subject", "terra_nova")
+    grade = session.get("grade", "8")
+    character = session.get("character", "everly")
+
+    # PowerGrid handled separately; return brief guidance
+    if subject == "power_grid":
+        preview_text = (
+            "SECTION 1 — OVERVIEW\nPowerGrid is your deep study hub with plan → research → draft → review.\n\n"
+            "SECTION 2 — KEY FACTS\n• Plan tasks clearly.\n• Keep sources organized.\n• Iterate drafts.\n\n"
+            "SECTION 3 — CHRISTIAN VIEW\nWe value truth, diligence, and wisdom in learning.\n\n"
+            "SECTION 4 — AGREEMENT\n• Careful reasoning matters.\n• Evidence strengthens claims.\n\n"
+            "SECTION 5 — DIFFERENCE\n• Worldviews shape conclusions.\n\n"
+            "SECTION 6 — PRACTICE\n• Build a study plan with 3 steps."
+        )
+    else:
+        func = subject_map.get(subject)
+        if not func:
+            return "<p>Unknown subject.</p>"
+
+        # Generic preview question to produce six-section output
+        question = "Give a concise overview and sample practice for this subject."
+        result = func(question, grade, character)
+        preview_text = result.get("raw_text") if isinstance(result, dict) else str(result)
+
+    sections = parse_into_sections(preview_text)
+
+    def render_list(items):
+        if not items:
+            return "<p></p>"
+        return "<ul>" + "".join(f"<li>{item}</li>" for item in items) + "</ul>"
+
+    html = (
+        f"<div>"
+        f"<h3>Section 1 — Overview</h3><p>{sections.get('overview','')}</p>"
+        f"<h3>Section 2 — Key Facts</h3>{render_list(sections.get('key_facts',[]))}"
+        f"<h3>Section 3 — Christian View</h3><p>{sections.get('christian_view','')}</p>"
+        f"<h3>Section 4 — Agreement</h3>{render_list(sections.get('agreement',[]))}"
+        f"<h3>Section 5 — Difference</h3>{render_list(sections.get('difference',[]))}"
+        f"<h3>Section 6 — Practice</h3>{render_list(sections.get('practice',[]))}"
+        f"</div>"
+    )
+
+    return html
 
 
 # ============================================================
