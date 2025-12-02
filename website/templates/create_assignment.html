@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>New Assignment</title>
+    <title>Create Assignment</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="fade-in">
@@ -10,7 +10,15 @@
 
 <div class="content-box">
 
-    <form method="POST">
+    <form method="POST" action="/teacher/assignments/create">
+
+        <label>Class</label>
+        <select name="class_id" required>
+            {% for cls in classes %}
+            <option value="{{ cls.id }}">{{ cls.name }}</option>
+            {% endfor %}
+        </select>
+
         <label>Title</label>
         <input type="text" name="title" required>
 
