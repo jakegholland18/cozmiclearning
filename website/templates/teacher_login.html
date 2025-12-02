@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Login – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            font-family: "Poppins", sans-serif;
+            color: white;
+        }
+
+        .auth-container {
+            max-width: 420px;
+            margin: 120px auto;
+            padding: 30px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 16px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #bfe6ff;
+            text-shadow: 0 0 10px #5fd6ff;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .auth-btn {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background: #008cff;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .auth-btn:hover { background: #006acc; }
+
+        .switch-link {
+            margin-top: 16px;
+            display: block;
+            color: #bfe6ff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="auth-container">
+    <div class="auth-title">Teacher Login</div>
+
+    <form method="POST">
+        <input type="email" name="email" placeholder="School Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        <button class="auth-btn" type="submit">Login</button>
+    </form>
+
+    <a href="/teacher/signup" class="switch-link">Create a new teacher account</a>
+</div>
+</body>
+</html>

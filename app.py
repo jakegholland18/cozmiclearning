@@ -4,10 +4,11 @@ import logging
 import traceback
 import re
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from flask import (
     Flask, render_template, request, redirect, session,
-    flash, jsonify, send_file
+    flash, jsonify, send_file, Response
 )
 from flask import got_request_exception
 
@@ -25,6 +26,25 @@ app = Flask(
 )
 
 app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
+
+# ============================================================
+# DATABASE + MODELS (FIRST TIME SETUP)
+# ============================================================
+
+from flask_bcrypt import Bcrypt
+from models import db, Teacher, Class, Student, AssessmentResult
+from sqlalchemy import func
+
+# Configure SQLite DB
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///cozmiclearning.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Init DB + bcrypt
+db.init_app(app)
+bcrypt = Bcrypt(app)
+
+with app.app_context():
+    db.create_all()
 
 # ============================================================
 # ERROR LOGGING
@@ -46,6 +66,8 @@ sys.path.append(os.path.abspath(os.path.join(BASE_DIR, "modules")))
 from modules.shared_ai import study_buddy_ai, powergrid_master_ai
 from modules.personality_helper import get_all_characters
 from modules.practice_helper import generate_practice_session
+from modules.auto_logger import log_practice_event, normalize_subject
+from modules.ability_helper import recalc_student_ability
 
 import modules.math_helper as math_helper
 import modules.text_helper as text_helper
@@ -95,9 +117,9 @@ def init_user():
         "conversation": [],
         "deep_study_chat": [],
         "practice": None,
-        "practice_step": 0,          # used as current index
-        "practice_attempts": 0,      # legacy; kept but per-question we use practice_progress
-        "practice_progress": [],     # per-question state (attempts, status, last_answer, chat)
+        "practice_step": 0,
+        "practice_attempts": 0,
+        "practice_progress": [],
     }
     for k, v in defaults.items():
         if k not in session:
@@ -137,17 +159,10 @@ def add_xp(amount):
 # ============================================================
 
 def _normalize_numeric_token(text: str) -> str:
-    """
-    Make '4', '4%', '4 percent', '$4', '4 dollars' all reduce to '4'.
-    We are intentionally generous for student inputs.
-    """
     t = text.lower().strip()
-    # remove common words
     for word in ["percent", "perc", "per cent", "dollars", "dollar", "usd"]:
         t = t.replace(word, "")
-    # remove commas
     t = t.replace(",", "")
-    # remove common symbols
     for ch in ["%", "$"]:
         t = t.replace(ch, "")
     return t.strip()
@@ -159,30 +174,21 @@ def _try_float(val: str):
         return None
 
 def answers_match(user_raw: str, expected_raw: str) -> bool:
-    """
-    Flexible answer comparison:
-    - Exact text match (case-insensitive)
-    - '4' == '4%' == '4 percent'
-    - '5' == '5.0'
-    """
     if user_raw is None or expected_raw is None:
         return False
 
     u_norm = user_raw.strip().lower()
     e_norm = expected_raw.strip().lower()
 
-    # Exact textual match
     if u_norm == e_norm and u_norm != "":
         return True
 
-    # Numeric-form match (ignoring %, $, words like "percent", "dollars")
     u_num_str = _normalize_numeric_token(user_raw)
     e_num_str = _normalize_numeric_token(expected_raw)
 
     if u_num_str and e_num_str and u_num_str == e_num_str:
         return True
 
-    # Try actual float comparison
     u_num = _try_float(u_num_str)
     e_num = _try_float(e_num_str)
     if u_num is not None and e_num is not None:
@@ -192,7 +198,7 @@ def answers_match(user_raw: str, expected_raw: str) -> bool:
     return False
 
 # ============================================================
-# ROUTES
+# ROUTES – CORE APP
 # ============================================================
 
 @app.route("/")
@@ -520,6 +526,9 @@ def start_practice():
             "character": character,
         })
 
+    # Save subject inside practice_data so logger + analytics can use it later
+    practice_data["subject"] = subject
+
     # Per-question progress: attempts, status, last_answer, chat
     progress = []
     for _ in steps:
@@ -532,7 +541,7 @@ def start_practice():
 
     session["practice"] = practice_data
     session["practice_progress"] = progress
-    session["practice_step"] = 0  # current index
+    session["practice_step"] = 0
     session["practice_attempts"] = 0
     session.modified = True
 
@@ -543,8 +552,8 @@ def start_practice():
         "index": 0,
         "total": len(steps),
         "prompt": first.get("prompt", "Let's start practicing!"),
-        "type": first.get("type", "free"),        # "multiple_choice" or "free"
-        "choices": first.get("choices", []),      # list of options if MC
+        "type": first.get("type", "free"),
+        "choices": first.get("choices", []),
         "character": character,
         "last_answer": "",
         "chat": [],
@@ -632,7 +641,6 @@ def practice_step():
 
     progress = session.get("practice_progress", [])
     if index >= len(progress):
-        # safety
         progress.extend(
             [{"attempts": 0, "status": "unanswered", "last_answer": "", "chat": []}
              for _ in range(index - len(progress) + 1)]
@@ -642,7 +650,7 @@ def practice_step():
     attempts = state.get("attempts", 0)
     expected_list = step.get("expected", [])
 
-    # If they somehow sent blank, treat as incorrect but don't bump attempts
+    # If they sent blank, treat as incorrect but don't bump attempts
     if not user_answer_stripped:
         return jsonify({
             "status": "incorrect",
@@ -653,20 +661,40 @@ def practice_step():
     # Flexible correctness check
     is_correct = False
     for exp in expected_list:
-        # MC expected is like ["a"], free-response might be text/number
         if answers_match(user_answer_raw, str(exp)):
             is_correct = True
             break
 
+    # For logging
+    student_id = session.get("student_id")
+    subject = practice_data.get("subject", "")
+    topic = practice_data.get("topic", "")
+    question_text = step.get("prompt", "")
+    question_type = step.get("type", "free")
+
     # ================= CORRECT ANSWER =================
     if is_correct:
         attempts += 1
+        old_status = state.get("status", "unanswered")
+
         state["attempts"] = attempts
         state["status"] = "correct"
         state["last_answer"] = user_answer_raw
         progress[index] = state
         session["practice_progress"] = progress
         session.modified = True
+
+        # Auto-log only on first time reaching "correct"
+        if student_id and old_status != "correct":
+            log_practice_event(
+                student_id=student_id,
+                subject=subject,
+                topic=topic,
+                question_text=question_text,
+                is_correct=True,
+                difficulty_level=None,
+                question_type=question_type,
+            )
 
         # Are all questions done?
         all_done = all(
@@ -683,7 +711,7 @@ def practice_step():
 
         return jsonify({
             "status": "correct",
-            "next_prompt": step.get("prompt", ""),  # stay on same question text
+            "next_prompt": step.get("prompt", ""),
             "type": step.get("type", "free"),
             "choices": step.get("choices", []),
             "character": character
@@ -705,11 +733,24 @@ def practice_step():
             "character": character
         })
 
-    # Third (or more) wrong try → guided walkthrough
+    # Third (or more) wrong try → guided walkthrough + mark given_up
+    old_status = state.get("status", "unanswered")
     state["status"] = "given_up"
     progress[index] = state
     session["practice_progress"] = progress
     session.modified = True
+
+    # Auto-log only on first time reaching "given_up"
+    if student_id and old_status not in ("correct", "given_up"):
+        log_practice_event(
+            student_id=student_id,
+            subject=subject,
+            topic=topic,
+            question_text=question_text,
+            is_correct=False,
+            difficulty_level=None,
+            question_type=question_type,
+        )
 
     explanation = step.get(
         "explanation",
@@ -730,7 +771,6 @@ def practice_step():
             "character": character
         })
 
-    # Otherwise, send explanation and keep them on this question
     return jsonify({
         "status": "guided",
         "explanation": explanation,
@@ -780,10 +820,8 @@ def practice_help_message():
     explanation = step.get("explanation", "")
     topic = practice_data.get("topic", "")
 
-    # Add student's message to chat history
     chat_history.append({"role": "student", "content": student_msg})
 
-    # Build a rich tutoring prompt reflecting your preferences
     ai_prompt = f"""
 You are COZMICLEARNING — a warm, patient cozmic mentor guiding students through the galaxy of learning.
 
@@ -828,7 +866,6 @@ Instead, start each bullet with a simple symbol like '•'.
     reply = study_buddy_ai(ai_prompt, grade, character)
     reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
 
-    # Save tutor reply into per-question chat history
     chat_history.append({"role": "tutor", "content": reply_text})
     state["chat"] = chat_history
     progress[index] = state
@@ -880,7 +917,7 @@ def dashboard():
     )
 
 # ============================================================
-# PARENT DASHBOARD
+# PARENT DASHBOARD (SESSION-BASED FOR NOW)
 # ============================================================
 
 @app.route("/parent_dashboard")
@@ -901,6 +938,274 @@ def parent_dashboard():
         tokens=session["tokens"],
         character=session["character"],
     )
+
+# ============================================================
+# TEACHER AUTH + DASHBOARD
+# ============================================================
+
+@app.route("/teacher/signup", methods=["GET", "POST"])
+def teacher_signup():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not name or not email or not password:
+            flash("Please fill out all fields.", "error")
+            return redirect("/teacher/signup")
+
+        existing = Teacher.query.filter_by(email=email).first()
+        if existing:
+            flash("An account with that email already exists. Please log in.", "error")
+            return redirect("/teacher/login")
+
+        hashed = bcrypt.generate_password_hash(password).decode("utf-8")
+        new_teacher = Teacher(name=name, email=email, password_hash=hashed)
+
+        db.session.add(new_teacher)
+        db.session.commit()
+
+        session["teacher_id"] = new_teacher.id
+        flash("Welcome to CozmicLearning Teacher Portal!", "info")
+        return redirect("/teacher/dashboard")
+
+    return render_template("teacher_signup.html")
+
+
+@app.route("/teacher/login", methods=["GET", "POST"])
+def teacher_login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        teacher = Teacher.query.filter_by(email=email).first()
+        if teacher and bcrypt.check_password_hash(teacher.password_hash, password):
+            session["teacher_id"] = teacher.id
+            flash("Logged in successfully.", "info")
+            return redirect("/teacher/dashboard")
+
+        flash("Invalid email or password.", "error")
+
+    return render_template("teacher_login.html")
+
+
+@app.route("/teacher/logout")
+def teacher_logout():
+    session.pop("teacher_id", None)
+    flash("You have been logged out.", "info")
+    return redirect("/teacher/login")
+
+
+@app.route("/teacher/dashboard")
+def teacher_dashboard():
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return redirect("/teacher/login")
+
+    teacher = Teacher.query.get(teacher_id)
+    classes = teacher.classes if teacher else []
+
+    return render_template(
+        "teacher_dashboard.html",
+        teacher=teacher,
+        classes=classes,
+    )
+
+
+@app.route("/teacher/add_class", methods=["POST"])
+def add_class():
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return redirect("/teacher/login")
+
+    class_name = request.form.get("class_name", "").strip()
+    grade = request.form.get("grade_level", "").strip()
+
+    if not class_name:
+        flash("Class name is required.", "error")
+        return redirect("/teacher/dashboard")
+
+    new_class = Class(teacher_id=teacher_id, class_name=class_name, grade_level=grade)
+    db.session.add(new_class)
+    db.session.commit()
+
+    flash("Class created successfully.", "info")
+    return redirect("/teacher/dashboard")
+
+
+@app.route("/teacher/add_student/<int:class_id>", methods=["POST"])
+def add_student(class_id):
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return redirect("/teacher/login")
+
+    cls = Class.query.get(class_id)
+    if not cls or cls.teacher_id != teacher_id:
+        flash("Class not found or not authorized.", "error")
+        return redirect("/teacher/dashboard")
+
+    name = request.form.get("student_name", "").strip()
+    email = request.form.get("email", "").strip()
+
+    if not name:
+        flash("Student name is required.", "error")
+        return redirect("/teacher/dashboard")
+
+    new_student = Student(class_id=class_id, student_name=name, student_email=email)
+    db.session.add(new_student)
+    db.session.commit()
+
+    flash("Student added to class.", "info")
+    return redirect("/teacher/dashboard")
+
+# ============================================================
+# TEACHER ANALYTICS + MANUAL RECORD ENTRY
+# ============================================================
+
+@app.route("/teacher/class/<int:class_id>/analytics")
+def teacher_class_analytics(class_id):
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return redirect("/teacher/login")
+
+    cls = Class.query.get(class_id)
+    if not cls or cls.teacher_id != teacher_id:
+        flash("Class not found or not authorized.", "error")
+        return redirect("/teacher/dashboard")
+
+    students = Student.query.filter_by(class_id=class_id).all()
+
+    # Recalculate ability tiers for each student (based on latest data)
+    for s in students:
+        recalc_student_ability(s)
+
+    # Subject-level averages
+    subject_averages = {}
+    rows = (
+        db.session.query(
+            AssessmentResult.subject,
+            func.avg(AssessmentResult.score_percent)
+        )
+        .join(Student, AssessmentResult.student_id == Student.id)
+        .filter(Student.class_id == class_id)
+        .group_by(AssessmentResult.subject)
+        .all()
+    )
+    for subj, avg_score in rows:
+        subject_averages[subj] = round(avg_score, 1)
+
+    # Ability distribution
+    ability_counts = {"struggling": 0, "on_level": 0, "advanced": 0}
+    for s in students:
+        lvl = s.ability_level or "on_level"
+        if lvl not in ability_counts:
+            ability_counts[lvl] = 0
+        ability_counts[lvl] += 1
+
+    # Pivot-style heatmap: rows = students, columns = (subject|topic)
+    all_results = (
+        AssessmentResult.query
+        .join(Student, AssessmentResult.student_id == Student.id)
+        .filter(Student.class_id == class_id)
+        .all()
+    )
+
+    topic_keys = []
+    topic_seen = set()
+    agg = defaultdict(lambda: {"sum": 0.0, "count": 0})
+
+    for r in all_results:
+        subj = (r.subject or "").strip() or "general"
+        topic = (r.topic or "").strip() or "General"
+        key = f"{subj.title()} | {topic}"
+
+        if key not in topic_seen:
+            topic_seen.add(key)
+            topic_keys.append(key)
+
+        idx = (r.student_id, key)
+        agg[idx]["sum"] += (r.score_percent or 0.0)
+        agg[idx]["count"] += 1
+
+    student_topic_matrix = defaultdict(dict)
+    for (student_id, key), data in agg.items():
+        avg_score = data["sum"] / max(data["count"], 1)
+        student_topic_matrix[student_id][key] = round(avg_score, 1)
+
+    student_topic_matrix = {sid: dict(inner) for sid, inner in student_topic_matrix.items()}
+
+    return render_template(
+        "class_analytics.html",
+        cls=cls,
+        students=students,
+        subject_averages=subject_averages,
+        ability_counts=ability_counts,
+        topic_keys=topic_keys,
+        matrix=student_topic_matrix,
+    )
+
+
+@app.route("/teacher/record_result", methods=["POST"])
+def teacher_record_result():
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return redirect("/teacher/login")
+
+    student_id = request.form.get("student_id")
+    subject_raw = request.form.get("subject", "").strip()
+    topic = request.form.get("topic", "").strip()
+    num_correct_raw = request.form.get("num_correct", "0")
+    num_questions_raw = request.form.get("num_questions", "1")
+    difficulty_level = request.form.get("difficulty_level") or None
+
+    try:
+        student_id = int(student_id)
+    except (TypeError, ValueError):
+        flash("Invalid student selection.", "error")
+        return redirect("/teacher/dashboard")
+
+    student = Student.query.get(student_id)
+    if not student:
+        flash("Student not found.", "error")
+        return redirect("/teacher/dashboard")
+
+    cls = Class.query.get(student.class_id)
+    if not cls or cls.teacher_id != teacher_id:
+        flash("Not authorized to modify this class.", "error")
+        return redirect("/teacher/dashboard")
+
+    try:
+        num_correct = int(num_correct_raw)
+        num_questions = int(num_questions_raw)
+    except ValueError:
+        flash("Invalid numbers for correct / total questions.", "error")
+        return redirect(f"/teacher/class/{cls.id}/analytics")
+
+    num_questions = max(num_questions, 1)
+    num_correct = max(min(num_correct, num_questions), 0)
+
+    normalized_subject = normalize_subject(subject_raw)
+    score_percent = (num_correct / num_questions) * 100
+
+    result = AssessmentResult(
+        student_id=student.id,
+        subject=normalized_subject,
+        topic=topic or "General",
+        num_correct=num_correct,
+        num_questions=num_questions,
+        score_percent=score_percent,
+        difficulty_level=difficulty_level or student.ability_level,
+        timestamp=datetime.utcnow(),
+    )
+
+    db.session.add(result)
+    db.session.commit()
+
+    recalc_student_ability(student)
+    db.session.commit()
+
+    flash("Result recorded successfully.", "info")
+    return redirect(f"/teacher/class/{cls.id}/analytics")
 
 # ============================================================
 # LEGAL
@@ -924,6 +1229,8 @@ def disclaimer():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
 
 
 

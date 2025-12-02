@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            padding-bottom: 80px;
+        }
+
+        .dashboard-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 25px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.45);
+        }
+
+        .dashboard-title {
+            font-size: 2.4rem;
+            text-align: center;
+            color: #bfe6ff;
+            text-shadow: 0 0 8px #5fd6ff;
+            margin-bottom: 30px;
+        }
+
+        .class-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 14px;
+        }
+
+        .class-title {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            color: #bfe6ff;
+        }
+
+        .class-subtitle {
+            font-size: 0.95rem;
+            color: #d0e9ff;
+            margin-bottom: 16px;
+        }
+
+        .form-inline input, .form-inline select {
+            padding: 10px;
+            width: 180px;
+            border-radius: 10px;
+            border: none;
+            margin-right: 8px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #008cff;
+            color: white;
+            font-weight: bold;
+            transition: 0.25s;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            background: #006acc;
+        }
+
+        .student-list {
+            margin-top: 10px;
+            padding-left: 10px;
+        }
+
+        .student-item {
+            margin: 6px 0;
+            font-size: 0.98rem;
+        }
+
+        .link-small {
+            font-size: 0.85rem;
+            margin-left: 8px;
+            color: #ffdf9b;
+            text-decoration: underline;
+        }
+
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ffbbbb;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <div class="dashboard-title">
+        Welcome, {{ teacher.name }} 👩‍🏫
+    </div>
+
+    <!-- Add Class -->
+    <div class="class-section">
+        <div class="class-title">Create New Class</div>
+        <div class="class-subtitle">
+            Set up a new group of students to track, analyze, and assign work to.
+        </div>
+
+        <form method="POST" action="/teacher/add_class" class="form-inline">
+            <input type="text" name="class_name" placeholder="Class Name" required>
+            <select name="grade_level">
+                <option value="">Grade</option>
+                <option>1</option><option>2</option><option>3</option>
+                <option>4</option><option>5</option><option>6</option>
+                <option>7</option><option>8</option><option>9</option>
+                <option>10</option><option>11</option><option>12</option>
+            </select>
+            <button class="btn" type="submit">Create</button>
+        </form>
+    </div>
+
+    <!-- Existing Classes -->
+    {% if classes %}
+        {% for c in classes %}
+        <div class="class-section">
+            <div class="class-title">{{ c.class_name }} (Grade {{ c.grade_level }})</div>
+            <div class="class-subtitle">
+                <a href="/teacher/class/{{ c.id }}/analytics" class="link-small">
+                    View Class Analytics & Ability Groups
+                </a>
+            </div>
+
+            <!-- Add Student -->
+            <form method="POST" action="/teacher/add_student/{{ c.id }}" class="form-inline">
+                <input type="text" name="student_name" placeholder="Student Name" required>
+                <input type="email" name="email" placeholder="Student Email (Optional)">
+                <button class="btn" type="submit">Add Student</button>
+            </form>
+
+            <!-- Student List -->
+            {% if c.students %}
+                <div class="student-list">
+                {% for s in c.students %}
+                    <div class="student-item">
+                        • {{ s.student_name }}
+                        {% if s.student_email %} ({{ s.student_email }}){% endif %}
+                        {% if s.average_score %}
+                            — Avg: {{ "%.1f"|format(s.average_score) }}%,
+                            Tier: {{ s.ability_level or "on_level" }}
+                        {% endif %}
+                        <a href="/teacher/student/{{ s.id }}/report" class="link-small">
+                            View Report
+                        </a>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="student-list">No students yet. Add your first student above.</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="class-section">
+            <p>No classes yet. Create your first class above!</p>
+        </div>
+    {% endif %}
+
+    <a href="/teacher/logout" class="logout">Log Out</a>
+</div>
+
+</body>
+</html>

@@ -15,15 +15,19 @@ def _difficulty_for_grade(grade_level: str) -> str:
     except:
         return "medium difficulty"
 
-    if g <= 3: return "very easy early-elementary difficulty"
-    if g <= 6: return "easy to medium upper-elementary difficulty"
-    if g <= 8: return "middle-school difficulty"
-    if g <= 10: return "medium-hard early high-school difficulty"
+    if g <= 3:
+        return "very easy early-elementary difficulty"
+    if g <= 6:
+        return "easy to medium upper-elementary difficulty"
+    if g <= 8:
+        return "middle-school difficulty"
+    if g <= 10:
+        return "medium-hard early high-school difficulty"
     return "advanced high-school difficulty"
 
 
 # ------------------------------------------------------------
-# Subject flavor shaping
+# Subject flavor shaping (CozmicLearning planets)
 # ------------------------------------------------------------
 
 def _subject_flavor(subject: str) -> str:
@@ -44,7 +48,7 @@ def _subject_flavor(subject: str) -> str:
 
 
 # ------------------------------------------------------------
-# MAIN PRACTICE GENERATOR
+# MAIN PRACTICE GENERATOR (CozmicLearning mission)
 # ------------------------------------------------------------
 
 def generate_practice_session(
@@ -53,6 +57,9 @@ def generate_practice_session(
     grade_level: str = "8",
     character: str = "everly",
 ) -> Dict[str, Any]:
+    """
+    Generate a 10-question practice 'mission' for CozmicLearning.
+    """
 
     difficulty = _difficulty_for_grade(grade_level)
     flavor = _subject_flavor(subject)
@@ -63,52 +70,49 @@ def generate_practice_session(
         topic = "the last skill the student reviewed"
 
     # ------------------------------------------------------------
-    # 🔥 NEW SYSTEM PROMPT — produces 10 mixed-question problems
+    # 🌌 COZMICLEARNING SYSTEM PROMPT
     # ------------------------------------------------------------
     system_prompt = f"""
-You are HOMEWORK BUDDY PRACTICE MODE.
+You are COZMICLEARNING PRACTICE MODE, a galaxy-themed tutor
+guiding students through "missions" of questions.
 
 GOAL:
-Generate a *10-question* interactive practice mission:
+Generate a 10-question interactive practice mission:
 • Some multiple-choice questions
 • Some free-response questions
 • Some word problems (if subject allows)
-• ALL tied to: {topic}
+• ALL tightly focused on this skill/topic: {topic}
 • Subject flavor: {flavor}
 • Difficulty: {difficulty}
-• Tone & style use the tutor voice: {voice}
+• Tone & style: use the tutor voice/personality: {voice}
 • Grade level rule: {depth_rule}
 
-VERY IMPORTANT OUTPUT RULES:
-Return ONLY VALID JSON in this exact format:
+THE EXPERIENCE:
+• It should feel like a learning "mission" on a CozmicLearning planet.
+• Questions should be clear, unambiguous, and age-appropriate.
+• Hints should gently guide, not generic.
+• Explanations should feel like a teacher walking them through it.
+
+RETURN ONLY VALID JSON in this format:
 
 {{
   "steps": [
     {{
-      "prompt": "string — what the tutor says for this problem",
+      "prompt": "...",
       "type": "multiple_choice" OR "free",
-      "choices": ["A. ...", "B. ...", "C. ...", "D. ..."],   (MC only)
-      "expected": ["a"],            (MC: correct letter(s) only)
-      "hint": "short helpful hint if wrong",
-      "explanation": "step-by-step walkthrough for 3rd attempt"
+      "choices": ["A. ...", "B. ..."], 
+      "expected": ["a"],
+      "hint": "...",
+      "explanation": "..."
     }}
   ],
-  "final_message": "short encouraging completion message"
+  "final_message": "..."
 }}
-
-STRICT RULES:
-• Exactly 10 questions.
-• NEVER omit "type". NEVER omit "choices" for MC questions.
-• expected must be VERY short (e.g., ["a"] or ["4"]).
-• Hints must be specific, not generic.
-• Explanations must be short & step-by-step.
-• Do NOT include markdown.
-• Do NOT include commentary outside JSON.
 """
 
     user_prompt = """
 Generate the full 10-question JSON practice session now.
-REMEMBER: ONLY return the JSON object. No commentary.
+ONLY return the JSON object. No commentary.
 """
 
     client = get_client()
@@ -128,7 +132,7 @@ REMEMBER: ONLY return the JSON object. No commentary.
     # ------------------------------------------------------------
     try:
         data = json.loads(raw)
-    except:
+    except Exception:
         return {
             "steps": [
                 {
@@ -136,11 +140,11 @@ REMEMBER: ONLY return the JSON object. No commentary.
                     "type": "free",
                     "choices": [],
                     "expected": [""],
-                    "hint": "Anything related to the topic works.",
-                    "explanation": "You can share any detail you remember.",
+                    "hint": "Anything related works.",
+                    "explanation": "Just share any detail you remember.",
                 }
             ],
-            "final_message": "Great work finishing the warm-up mission! 🚀",
+            "final_message": "Great work finishing this warm-up Cozmic mission! 🚀",
             "topic": topic,
         }
 
@@ -149,6 +153,7 @@ REMEMBER: ONLY return the JSON object. No commentary.
     # ------------------------------------------------------------
 
     valid_steps = []
+
     for step in data.get("steps", []):
         prompt = str(step.get("prompt", "")).strip()
 
@@ -157,54 +162,48 @@ REMEMBER: ONLY return the JSON object. No commentary.
             qtype = "free"
 
         choices = step.get("choices", []) if qtype == "multiple_choice" else []
-        if choices and not isinstance(choices, list):
+        if not isinstance(choices, list):
             choices = []
 
         expected_raw = step.get("expected", [])
         if not isinstance(expected_raw, list):
             expected_raw = [str(expected_raw)]
 
-        # Normalize expected answers
         expected = [str(x).lower().strip() for x in expected_raw if str(x).strip()]
 
         # ------------------------------------------------------------
-        # 🛠 FIX FOR MULTIPLE-CHOICE WRONG EXPECTED ANSWERS
+        # 🛠 FIX MULTIPLE-CHOICE EXPECTED ANSWERS
         # ------------------------------------------------------------
         if qtype == "multiple_choice":
             corrected = []
-
-            # Extract letters from "A. 5,004" etc.
             choice_letters = []
+
             for ch in choices:
                 try:
                     letter = ch.split(".")[0].strip().lower()
-                except:
+                except Exception:
                     letter = ""
                 choice_letters.append(letter)
 
-            # Try matching expected values to choices
             for exp in expected:
-                # If already valid letter
                 if len(exp) == 1 and exp in choice_letters:
                     corrected.append(exp)
                     continue
-
-                # Match numeric/text answer by substring inside choices
                 for idx, choice in enumerate(choices):
                     if exp and exp in choice.lower():
                         corrected.append(choice_letters[idx])
 
-            # Fallback to "a" if still empty
             if not corrected:
                 corrected = ["a"]
 
             expected = corrected
 
+        hint = str(step.get("hint", "Try focusing on what the question is asking.")).strip()
+        explanation = str(step.get("explanation", "Let's walk through this together.")).strip()
+
         # ------------------------------------------------------------
-
-        hint = str(step.get("hint", "Try thinking carefully about what the question is asking.")).strip()
-        explanation = str(step.get("explanation", "Let's walk through how to solve it.")).strip()
-
+        # 🔥 Add placeholder for "status" so auto_logger can read it later
+        # ------------------------------------------------------------
         valid_steps.append({
             "prompt": prompt,
             "type": qtype,
@@ -212,9 +211,9 @@ REMEMBER: ONLY return the JSON object. No commentary.
             "expected": expected or [""],
             "hint": hint,
             "explanation": explanation,
+            "status": "unanswered",   # <-- NEW FIELD (needed for analytics logging)
         })
 
-    # Guarantee at least 1 step
     if not valid_steps:
         valid_steps = [
             {
@@ -224,10 +223,14 @@ REMEMBER: ONLY return the JSON object. No commentary.
                 "expected": [""],
                 "hint": "Anything related works!",
                 "explanation": "Just share what you remember.",
+                "status": "unanswered",
             }
         ]
 
-    final_message = data.get("final_message", "You completed this practice mission! 🚀")
+    final_message = data.get(
+        "final_message",
+        "You completed this CozmicLearning practice mission! 🚀 Great work.",
+    )
 
     return {
         "steps": valid_steps,

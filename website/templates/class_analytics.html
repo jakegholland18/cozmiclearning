@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cls.class_name }} – Analytics</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 30px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.45);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+            color: #bfe6ff;
+            text-shadow: 0 0 12px #5fd6ff;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #d0e9ff;
+            margin-bottom: 18px;
+        }
+
+        .section {
+            margin-top: 28px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        h3 {
+            margin-bottom: 10px;
+            color: #ffdf9b;
+            font-size: 1.2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255,255,255,0.15);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .heat-cell {
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 48px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #008cff;
+            color: white;
+            font-weight: bold;
+            transition: 0.25s;
+            font-size: 0.85rem;
+        }
+
+        .btn:hover {
+            background: #006acc;
+        }
+
+        select, input[type="date"], input[type="text"], input[type="number"] {
+            padding: 7px;
+            border-radius: 8px;
+            border: none;
+            margin-right: 8px;
+            margin-top: 6px;
+        }
+
+        .legend {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            color: #d0e9ff;
+        }
+
+        .legend span {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-right: 6px;
+            margin-top: 4px;
+        }
+
+        .legend-low {
+            background: rgba(231, 76, 60, 0.55);
+        }
+
+        .legend-mid {
+            background: rgba(241, 196, 15, 0.55);
+        }
+
+        .legend-high {
+            background: rgba(46, 204, 113, 0.55);
+        }
+
+        .filter-row {
+            margin-top: 6px;
+            margin-bottom: 6px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 26px;
+            color: #ffdf9b;
+            text-decoration: underline;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>{{ cls.class_name }} – Analytics</h1>
+    <div class="subtitle">
+        Grade {{ cls.grade_level }} • Deep performance breakdown • Ability tiers • Skill-by-skill heatmap.
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FILTERS + CSV EXPORT -->
+    <!-- ========================================================= -->
+    <div class="section">
+        <h3>Filters & Export</h3>
+
+        <form method="GET" action="/teacher/class/{{ cls.id }}/analytics">
+            <div class="filter-row">
+                <input type="text" name="subject" placeholder="Filter by subject (e.g., math)"
+                       value="{{ subject_filter or '' }}">
+                <input type="date" name="start_date" value="{{ start_date_str or '' }}">
+                <input type="date" name="end_date" value="{{ end_date_str or '' }}">
+                <button class="btn" type="submit">Apply Filters</button>
+            </div>
+        </form>
+
+        <form method="GET" action="/teacher/class/{{ cls.id }}/analytics/export_csv">
+            <input type="hidden" name="subject" value="{{ subject_filter or '' }}">
+            <input type="hidden" name="start_date" value="{{ start_date_str or '' }}">
+            <input type="hidden" name="end_date" value="{{ end_date_str or '' }}">
+            <button class="btn" type="submit">Download CSV</button>
+        </form>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- ABILITY DISTRIBUTION -->
+    <!-- ========================================================= -->
+    <div class="section">
+        <h3>Ability Overview</h3>
+
+        <p>
+            <strong>Struggling:</strong> {{ ability_counts.get("struggling", 0) }} |
+            <strong>On-Level:</strong> {{ ability_counts.get("on_level", 0) }} |
+            <strong>Advanced:</strong> {{ ability_counts.get("advanced", 0) }}
+        </p>
+
+        <div class="legend">
+            <span class="legend-low">Below 60% – Needs urgent support</span>
+            <span class="legend-mid">60–84% – Developing</span>
+            <span class="legend-high">85%+ – Strong mastery</span>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PIVOT HEATMAP -->
+    <!-- ========================================================= -->
+    <div class="section">
+        <h3>Skill Heatmap (Student × Topic)</h3>
+
+        {% if topic_keys and students %}
+            <table>
+                <tr>
+                    <th>Student</th>
+                    {% for key in topic_keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+
+                {% for s in students %}
+                    {% set row_scores = matrix.get(s.id, {}) %}
+                    <tr>
+                        <td>{{ s.student_name }}</td>
+
+                        {% for key in topic_keys %}
+                            {% set val = row_scores.get(key) %}
+
+                            {% if val is none %}
+                                <td>
+                                    <div class="heat-cell" style="background: rgba(0,0,0,0.25);">
+                                        —
+                                    </div>
+                                </td>
+                            {% else %}
+                                {% set color = "rgba(241, 196, 15, 0.5)" %}
+                                {% if val >= 85 %}
+                                    {% set color = "rgba(46, 204, 113, 0.5)" %}
+                                {% elif (val < 60) %}
+                                    {% set color = "rgba(231, 76, 60, 0.5)" %}
+                                {% endif %}
+
+                                <td>
+                                    <div class="heat-cell" style="background: {{ color }};">
+                                        {{ "%.1f"|format(val) }}%
+                                    </div>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No detailed assessment data yet. Record some results below to populate this heatmap.</p>
+        {% endif %}
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- SUBJECT AVERAGES -->
+    <!-- ========================================================= -->
+    <div class="section">
+        <h3>Subject Averages (Class-Level)</h3>
+
+        {% if subject_averages %}
+            <table>
+                <tr>
+                    <th>Subject</th>
+                    <th>Average Score</th>
+                </tr>
+
+                {% for subj, avg in subject_averages.items() %}
+                <tr>
+                    <td>{{ subj|title }}</td>
+                    <td>{{ "%.1f"|format(avg) }}%</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No assessments recorded for this class yet (with these filters).</p>
+        {% endif %}
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- RECORD NEW ASSESSMENT -->
+    <!-- ========================================================= -->
+    <div class="section">
+        <h3>Record New Assessment Result</h3>
+
+        <form method="POST" action="/teacher/record_result">
+
+            <select name="student_id" required>
+                <option value="">Select Student</option>
+                {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.student_name }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="subject" placeholder="Subject (e.g., math)" required>
+            <input type="text" name="topic" placeholder="Topic (e.g., Fractions – Adding Unlike)" required>
+            <input type="number" name="num_correct" placeholder="# Correct" min="0" required>
+            <input type="number" name="num_questions" placeholder="# Questions" min="1" required>
+
+            <select name="difficulty_level">
+                <option value="">Difficulty (auto)</option>
+                <option value="struggling">Struggling Tier</option>
+                <option value="on_level">On-Level Tier</option>
+                <option value="advanced">Advanced Tier</option>
+            </select>
+
+            <button class="btn" type="submit">Save Result</button>
+        </form>
+    </div>
+
+    <a href="/teacher/dashboard" class="back-link">← Back to Teacher Dashboard</a>
+
+</div>
+
+</body>
+</html>
