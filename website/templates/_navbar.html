@@ -1,9 +1,17 @@
 <nav class="navbar">
     <div class="nav-left">
         <a href="/" class="nav-logo">
-            <span class="logo-text">
-                Co<span class="logo-z-wrapper"><span class="logo-z">Z</span><span class="rocket-top">🚀</span><span class="rocket-bottom">🚀</span></span>micLearning
-            </span>
+            <span class="neon-text">Co<span class="neon-z">Z</span>mic Learning</span>
+            <svg class="rocket-trail" width="120" height="20" viewBox="0 0 120 20">
+                <path class="trail-path" d="M 5 10 Q 30 5, 60 10 T 115 10" stroke="url(#trailGradient)" stroke-width="2" fill="none" opacity="0.6"/>
+                <defs>
+                    <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#5c6bff;stop-opacity:0" />
+                        <stop offset="50%" style="stop-color:#00f2ff;stop-opacity:0.8" />
+                        <stop offset="100%" style="stop-color:#84ff00;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+            </svg>
         </a>
     </div>
 
@@ -68,120 +76,157 @@
     text-decoration: none;
     display: inline-block;
     position: relative;
+    padding-bottom: 8px;
 }
 
-.logo-text {
-    background: linear-gradient(135deg, #5c6bff 0%, #00f2ff 50%, #84ff00 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    background-size: 200% 200%;
-    animation: logoGradientShift 5s ease-in-out infinite;
-    letter-spacing: 0.02em;
+/* Neon Glow Text Effect */
+.neon-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 
+        0 0 5px rgba(92, 107, 255, 0.8),
+        0 0 10px rgba(92, 107, 255, 0.6),
+        0 0 20px rgba(92, 107, 255, 0.4),
+        0 0 40px rgba(0, 242, 255, 0.3);
+    animation: neonPulse 2s ease-in-out infinite;
+    letter-spacing: 0.08em;
 }
 
-@keyframes logoGradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+@keyframes neonPulse {
+    0%, 100% {
+        text-shadow: 
+            0 0 5px rgba(92, 107, 255, 0.8),
+            0 0 10px rgba(92, 107, 255, 0.6),
+            0 0 20px rgba(92, 107, 255, 0.4),
+            0 0 40px rgba(0, 242, 255, 0.3);
+    }
+    50% {
+        text-shadow: 
+            0 0 8px rgba(92, 107, 255, 1),
+            0 0 15px rgba(92, 107, 255, 0.8),
+            0 0 30px rgba(92, 107, 255, 0.6),
+            0 0 50px rgba(0, 242, 255, 0.5),
+            0 0 70px rgba(0, 242, 255, 0.3);
+    }
 }
 
-/* Z with Rockets Styling */
-.logo-z-wrapper {
+/* Emphasized Z with Extra Glow */
+.neon-z {
+    font-size: 1.8rem;
+    color: #00f2ff;
+    text-shadow: 
+        0 0 8px rgba(0, 242, 255, 1),
+        0 0 15px rgba(0, 242, 255, 0.8),
+        0 0 25px rgba(0, 242, 255, 0.6),
+        0 0 40px rgba(132, 255, 0, 0.4),
+        0 0 60px rgba(132, 255, 0, 0.2);
+    animation: zFlicker 3s ease-in-out infinite;
     position: relative;
     display: inline-block;
     margin: 0 2px;
 }
 
-.logo-z {
-    font-size: 1.7rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, #ff6b6b, #ffa500, #ffeb3b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    background-size: 200% 200%;
-    animation: zGlow 3s ease-in-out infinite;
-    text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
-    position: relative;
-    display: inline-block;
-    transform: scale(1.15);
-}
-
-@keyframes zGlow {
-    0%, 100% { 
-        background-position: 0% 50%;
-        filter: brightness(1);
-    }
-    50% { 
-        background-position: 100% 50%;
-        filter: brightness(1.3);
-    }
-}
-
-/* Rocket Emojis */
-.rocket-top {
-    position: absolute;
-    top: -8px;
-    right: -15px;
-    font-size: 0.9rem;
-    transform: rotate(-45deg);
-    animation: rocketFloat 2s ease-in-out infinite;
-    filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.6));
-}
-
-.rocket-bottom {
-    position: absolute;
-    bottom: -8px;
-    left: -15px;
-    font-size: 0.9rem;
-    transform: rotate(135deg);
-    animation: rocketFloat 2s ease-in-out infinite 1s;
-    filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.6));
-}
-
-@keyframes rocketFloat {
-    0%, 100% { 
-        transform: rotate(-45deg) translateY(0);
+@keyframes zFlicker {
+    0%, 100% {
         opacity: 1;
+        text-shadow: 
+            0 0 8px rgba(0, 242, 255, 1),
+            0 0 15px rgba(0, 242, 255, 0.8),
+            0 0 25px rgba(0, 242, 255, 0.6),
+            0 0 40px rgba(132, 255, 0, 0.4),
+            0 0 60px rgba(132, 255, 0, 0.2);
     }
-    50% { 
-        transform: rotate(-45deg) translateY(-5px);
+    50% {
+        opacity: 0.95;
+        text-shadow: 
+            0 0 12px rgba(0, 242, 255, 1),
+            0 0 20px rgba(0, 242, 255, 1),
+            0 0 35px rgba(0, 242, 255, 0.8),
+            0 0 50px rgba(132, 255, 0, 0.6),
+            0 0 75px rgba(132, 255, 0, 0.4);
+    }
+    25%, 75% {
+        opacity: 0.98;
+    }
+}
+
+/* Rocket Trail SVG */
+.rocket-trail {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    pointer-events: none;
+}
+
+.trail-path {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: trailDraw 3s ease-in-out infinite;
+}
+
+@keyframes trailDraw {
+    0% {
+        stroke-dashoffset: 200;
+        opacity: 0;
+    }
+    30% {
+        stroke-dashoffset: 0;
         opacity: 0.8;
     }
-}
-
-.rocket-bottom {
-    animation-name: rocketFloatBottom;
-}
-
-@keyframes rocketFloatBottom {
-    0%, 100% { 
-        transform: rotate(135deg) translateY(0);
-        opacity: 1;
-    }
-    50% { 
-        transform: rotate(135deg) translateY(5px);
+    70% {
+        stroke-dashoffset: 0;
         opacity: 0.8;
     }
+    100% {
+        stroke-dashoffset: -200;
+        opacity: 0;
+    }
 }
 
-/* Logo Hover Effect */
-.nav-logo:hover .logo-text {
-    animation: logoGradientShift 1s ease-in-out infinite;
+/* Hover Effects */
+.nav-logo:hover .neon-text {
+    animation: neonPulse 0.8s ease-in-out infinite;
 }
 
-.nav-logo:hover .logo-z {
-    animation: zPulse 0.6s ease-in-out infinite;
+.nav-logo:hover .neon-z {
+    animation: zFlicker 1s ease-in-out infinite;
 }
 
-@keyframes zPulse {
-    0%, 100% { transform: scale(1.15); }
-    50% { transform: scale(1.25); }
+.nav-logo:hover .trail-path {
+    animation: trailDraw 1.5s ease-in-out infinite;
+    opacity: 1;
 }
 
-.nav-logo:hover .rocket-top,
-.nav-logo:hover .rocket-bottom {
-    animation-duration: 0.8s;
+/* Subtle scanline effect */
+.nav-logo::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        transparent 0%,
+        rgba(0, 242, 255, 0.03) 50%,
+        transparent 100%
+    );
+    background-size: 100% 4px;
+    animation: scanline 8s linear infinite;
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+@keyframes scanline {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 100%;
+    }
 }
 
 .nav-right a {
@@ -203,13 +248,16 @@
         font-size: 1.2rem;
     }
     
-    .logo-z {
-        font-size: 1.4rem;
+    .neon-text {
+        font-size: 1.2rem;
     }
     
-    .rocket-top,
-    .rocket-bottom {
-        font-size: 0.7rem;
+    .neon-z {
+        font-size: 1.5rem;
+    }
+    
+    .rocket-trail {
+        height: 15px;
     }
 }
 </style>
