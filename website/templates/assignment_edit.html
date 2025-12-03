@@ -93,7 +93,7 @@ async function generateMoreQuestions() {
   const numQuestions = parseInt(document.getElementById('moreQuestionsCount').value || '5', 10);
 
   const payload = {
-    practice_id: {{ assignment.id }},
+    practice_id: "{{ assignment.id }}",
     num_questions: numQuestions
   };
 

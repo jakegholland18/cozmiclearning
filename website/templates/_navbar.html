@@ -92,6 +92,8 @@
     z-index: 1000;
 }
 
+.nav-left { flex: 1 1 auto; min-width: 0; }
+
 .nav-logo {
     display: flex;
     align-items: center;
@@ -100,8 +102,11 @@
     position: relative;
     font-family: 'Poppins', sans-serif;
     font-weight: 900;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Rocket Emojis */
@@ -158,7 +163,7 @@
 
 /* THE BIG Z - Rocket Shaped */
 .letter-z {
-    font-size: 3rem;
+    font-size: 2.2rem;
     color: #00f2fe;
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #84ff00 100%);
     -webkit-background-clip: text;

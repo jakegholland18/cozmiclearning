@@ -16,26 +16,27 @@
 
     /* GRID */
     .planet-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 60px;
-        padding-bottom: 60px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 24px;
+        padding-bottom: 40px;
         position: relative;
         z-index: 10;
     }
 
     /* PLANET CARD */
     .planet-card {
-        width: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
-        padding: 22px 15px;
+        padding: 16px 12px;
         background: var(--glass-1);
         border: 1px solid var(--border-mid);
-        border-radius: 16px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         text-decoration: none;
         color: var(--text);
         position: relative;
@@ -54,9 +55,9 @@
     }
 
     .planet-card:hover {
-        transform: translateY(-12px) scale(1.06);
+        transform: translateY(-4px);
         border-color: var(--border-mid);
-        box-shadow: 0 16px 48px var(--shadow-soft), inset 0 0 24px var(--glass-1), 0 0 20px var(--glass-2);
+        box-shadow: 0 10px 30px var(--shadow-soft);
     }
 
     .planet-card:hover::before {
@@ -66,12 +67,11 @@
 
     /* PLANET IMAGE */
     .planet-img {
-        width: 160px;
-        height: 160px;
+        width: 120px;
+        height: 120px;
         object-fit: contain;
         margin-bottom: 12px;
-        filter: drop-shadow(0 0 14px rgba(255,255,255,0.5));
-        animation: float 4s ease-in-out infinite;
+        filter: drop-shadow(0 0 10px rgba(255,255,255,0.35));
     }
 
     @keyframes float {
@@ -82,47 +82,37 @@
 
     /* TITLES */
     .planet-title {
-        font-size: 1.4rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--gold), var(--warning));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 6px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 4px;
     }
 
     .planet-subtitle {
-        font-size: 0.95rem;
-        font-size: 1.05rem;
-        opacity: 0.85;
+        font-size: 0.9rem;
+        opacity: 0.8;
         color: var(--muted-2);
-        line-height: 1.35;
+        line-height: 1.3;
     }
 
     /* RESPONSIVE */
     @media(max-width: 900px) {
-        .planet-card {
-            width: 180px;
-        }
         .planet-img {
-            width: 130px;
-            height: 130px;
+            width: 110px;
+            height: 110px;
         }
     }
 
     @media(max-width: 600px) {
         .select-title {
-            font-size: 2.3rem;
-        }
-        .planet-card {
-            width: 160px;
+            font-size: 2rem;
         }
         .planet-img {
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
         }
         .planet-title {
-            font-size: 1.3rem;
+            font-size: 1rem;
         }
     }
 </style>
@@ -130,13 +120,7 @@
 
 <h1 class="select-title">Choose Your Learning Planet</h1>
 
-<!-- Quick mode legend -->
-<div style="text-align:center; margin-bottom: 20px; color:var(--muted); opacity:0.9;">
-    <span style="margin:0 8px;">Practice</span>
-    <span style="margin:0 8px;">Mastery</span>
-    <span style="margin:0 8px;">Scaffold</span>
-    <span style="margin:0 8px;">Challenge</span>
-</div>
+<!-- Simplified — removing extra mode legend to reduce clutter -->
 
 <div class="planet-grid">
     {% for subject, img, name, subtitle in planets %}
@@ -147,76 +131,11 @@
                 <div class="planet-title">{{ name }}</div>
                 <div class="planet-subtitle">{{ subtitle }}</div>
 
-                <div style="display:flex; justify-content:center; gap:8px; margin-top:12px;">
-                    <button class="mode-chip" data-mode="none" type="button">Practice</button>
-                    <button class="mode-chip" data-mode="mastery" type="button">Mastery</button>
-                    <button class="mode-chip" data-mode="scaffold" type="button">Scaffold</button>
-                    <button class="mode-chip" data-mode="adaptive" type="button">Challenge</button>
-                </div>
-
-                <button class="preview-chip" type="button" data-preview="{{ subject }}" style="margin-top:10px;">Preview lesson</button>
 
     </a>
     {% endfor %}
 </div>
 
-<!-- Preview Modal -->
-<div id="previewModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999;">
-    <div class="modal-content" style="max-width:820px; margin:60px auto; background:rgba(30,45,80,0.9); border:1px solid rgba(120,160,255,0.5); border-radius:16px; padding:20px; color:#eaf3ff; box-shadow:0 20px 60px rgba(0,0,0,0.45);">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="margin:0; font-size:1.4rem;">Lesson Preview</h2>
-            <button id="closePreview" type="button" style="background:#ff6b6b; color:white; border:none; padding:8px 12px; border-radius:10px; cursor:pointer;">Close</button>
-        </div>
-        <div id="previewBody" style="margin-top:12px; line-height:1.5;">
-            <!-- Six-section standard content will be injected here -->
-            <p>Loading preview...</p>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Lightweight client hooks; server can enhance later
-    document.querySelectorAll('.mode-chip').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const card = e.currentTarget.closest('.planet-card');
-            const subject = card?.dataset.subject;
-            const mode = e.currentTarget.dataset.mode;
-            if (!subject || !mode) return;
-            const url = `/choose-grade?subject=${encodeURIComponent(subject)}&mode=${encodeURIComponent(mode)}`;
-            window.location.href = url;
-        });
-    });
-
-    // Preview modal open/close
-    const modal = document.getElementById('previewModal');
-    const bodyEl = document.getElementById('previewBody');
-    document.querySelectorAll('.preview-chip').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const subject = e.currentTarget.dataset.preview;
-            bodyEl.innerHTML = '<p>Loading preview...</p>';
-            modal.style.display = 'block';
-            try {
-                // Placeholder fetch; endpoint can be implemented server-side later
-                const res = await fetch(`/subject-preview?subject=${encodeURIComponent(subject)}`);
-                if (res.ok) {
-                    const html = await res.text();
-                    bodyEl.innerHTML = html;
-                } else {
-                    bodyEl.innerHTML = '<p>Preview unavailable. Please try a mode.</p>';
-                }
-            } catch (err) {
-                bodyEl.innerHTML = '<p>Network error. Please try again.</p>';
-            }
-        });
-    });
-    document.getElementById('closePreview').addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    });
-</script>
+<!-- Removed mode chips and preview modal/scripts for a cleaner, purposeful page -->
 
 {% endblock %}
