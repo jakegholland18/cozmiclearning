@@ -1386,6 +1386,61 @@ def assignment_add_question(practice_id):
     )
 
 
+@csrf.exempt
+@app.route("/teacher/assignments/<int:practice_id>/generate_more", methods=["POST"])
+def assignment_generate_more(practice_id):
+    """Generate additional AI questions and add to existing assignment."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    assignment = AssignedPractice.query.get_or_404(practice_id)
+    if not is_owner(teacher) and assignment.teacher_id != teacher.id:
+        return jsonify({"error": "Not authorized"}), 403
+
+    data = request.get_json() or {}
+    num_questions = data.get("num_questions", 5)
+
+    # Generate questions using existing assignment settings
+    payload = assign_questions(
+        subject=assignment.subject,
+        topic=assignment.topic,
+        grade=str(assignment.class_ref.grade_level or "8"),
+        character="everly",
+        differentiation_mode=assignment.differentiation_mode or "none",
+        student_ability="on_level",
+        num_questions=num_questions,
+    )
+
+    # Add new questions to assignment
+    questions_data = payload.get("questions", [])
+    for q in questions_data:
+        choices = q.get("choices", [])
+        expected = q.get("expected", [])
+
+        new_q = AssignedQuestion(
+            practice_id=assignment.id,
+            question_text=q.get("prompt", ""),
+            question_type=q.get("type", "free"),
+            choice_a=choices[0] if len(choices) > 0 else None,
+            choice_b=choices[1] if len(choices) > 1 else None,
+            choice_c=choices[2] if len(choices) > 2 else None,
+            choice_d=choices[3] if len(choices) > 3 else None,
+            correct_answer=",".join(expected) if isinstance(expected, list) else str(expected),
+            explanation=q.get("explanation", ""),
+            difficulty_level="medium",
+        )
+        db.session.add(new_q)
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "questions_added": len(questions_data),
+        "message": f"Added {len(questions_data)} more questions to assignment"
+    }), 201
+
+
 @app.route("/teacher/questions/<int:question_id>/edit", methods=["GET", "POST"])
 def edit_question(question_id):
     teacher = get_current_teacher()
