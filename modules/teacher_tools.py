@@ -50,6 +50,70 @@ def generate_lesson_plan(subject: str, topic: str, grade: str, character: str) -
     return {"raw": raw, "sections": sections}
 
 
+def assign_questions(
+    subject: str,
+    topic: str,
+    grade: str = "8",
+    character: str = "everly",
+    differentiation_mode: str = "none",
+    student_ability: str = "on_level",
+    num_questions: int = 10,
+) -> Dict:
+    """
+    Generate a set of questions suitable for assignment.
+
+    Returns a dict with `questions` (list of question dicts) and metadata.
+    Question dict shape is aligned to the app's assignment model expectations:
+      {
+        "prompt": str,
+        "type": "multiple_choice" | "free",
+        "choices": [str],
+        "expected": [str],
+        "hint": str,
+        "explanation": str
+      }
+    """
+
+    session = generate_practice_session(
+        topic=topic,
+        subject=subject,
+        grade_level=grade,
+        character=character,
+        differentiation_mode=differentiation_mode,
+        student_ability=student_ability,
+    )
+
+    steps = session.get("steps", [])
+    # Trim to requested number of questions
+    if isinstance(num_questions, int) and num_questions > 0:
+        steps = steps[:num_questions]
+
+    questions: List[Dict] = []
+    for s in steps:
+        questions.append({
+            "prompt": s.get("prompt", ""),
+            "type": s.get("type", "free"),
+            "choices": s.get("choices", []) if s.get("type") == "multiple_choice" else [],
+            "expected": s.get("expected", [""]),
+            "hint": s.get("hint", "Think carefully."),
+            "explanation": s.get("explanation", "Let's walk through it together."),
+        })
+
+    payload = {
+        "created_at": datetime.utcnow().isoformat(),
+        "subject": subject,
+        "topic": topic,
+        "grade": grade,
+        "character": character,
+        "differentiation_mode": differentiation_mode,
+        "student_ability": student_ability,
+        "final_message": session.get("final_message", ""),
+        "questions": questions,
+    }
+
+    return payload
+
+
 def message_parents(class_id: int, teacher_id: int, message: str) -> Dict:
     """Stub: persist a message to parents of a class. Returns summary."""
     # In a future pass, add a Messages table. For now, return payload.

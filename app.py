@@ -288,6 +288,7 @@ from modules import (
 )
 from modules.practice_helper import generate_practice_session
 from modules.answer_formatter import parse_into_sections
+from modules.teacher_tools import assign_questions
 
 # ============================================================
 # SUBJECT → FUNCTION MAP (PLANETS)
@@ -1429,6 +1430,101 @@ def assignment_publish(assignment_id):
 
     flash("Mission published successfully!", "success")
     return redirect(f"/teacher/assignments/{assignment.id}")
+
+# ============================================================
+# TEACHER — AI QUESTION ASSIGNMENT GENERATOR
+# ============================================================
+
+@app.route("/teacher/assign_questions", methods=["POST"])
+def teacher_assign_questions():
+    """Generate AI questions and create assignment with AssignedQuestions."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    data = request.get_json() or {}
+
+    class_id = data.get("class_id", type=int)
+    title = safe_text(data.get("title", ""), 120)
+    subject = safe_text(data.get("subject", "terra_nova"), 50)
+    topic = safe_text(data.get("topic", ""), 500)
+    grade = safe_text(data.get("grade", "8"), 10)
+    character = safe_text(data.get("character", "everly"), 50)
+    differentiation_mode = data.get("differentiation_mode", "none")
+    student_ability = data.get("student_ability", "on_level")
+    num_questions = data.get("num_questions", 10)
+    due_str = data.get("due_date", "").strip()
+
+    if not class_id or not title or not topic:
+        return jsonify({"error": "Missing required fields: class_id, title, topic"}), 400
+
+    # Check teacher owns class
+    cls = Class.query.get(class_id)
+    if not cls:
+        return jsonify({"error": "Class not found"}), 404
+    if not is_owner(teacher) and cls.teacher_id != teacher.id:
+        return jsonify({"error": "Not authorized for this class"}), 403
+
+    # Parse due date
+    due_date = None
+    if due_str:
+        try:
+            due_date = datetime.strptime(due_str, "%Y-%m-%d")
+        except Exception:
+            due_date = None
+
+    # Generate questions using teacher_tools.assign_questions
+    payload = assign_questions(
+        subject=subject,
+        topic=topic,
+        grade=grade,
+        character=character,
+        differentiation_mode=differentiation_mode,
+        student_ability=student_ability,
+        num_questions=num_questions,
+    )
+
+    # Create AssignedPractice record
+    assignment = AssignedPractice(
+        class_id=class_id,
+        teacher_id=teacher.id,
+        title=title,
+        subject=subject,
+        topic=topic,
+        due_date=due_date,
+        differentiation_mode=differentiation_mode,
+        is_published=False,  # Teacher can review before publishing
+    )
+    db.session.add(assignment)
+    db.session.flush()  # Get assignment.id
+
+    # Create AssignedQuestion records from generated questions
+    questions_data = payload.get("questions", [])
+    for q in questions_data:
+        choices = q.get("choices", [])
+        expected = q.get("expected", [])
+
+        new_q = AssignedQuestion(
+            practice_id=assignment.id,
+            question_text=q.get("prompt", ""),
+            question_type=q.get("type", "free"),
+            choice_a=choices[0] if len(choices) > 0 else None,
+            choice_b=choices[1] if len(choices) > 1 else None,
+            choice_c=choices[2] if len(choices) > 2 else None,
+            choice_d=choices[3] if len(choices) > 3 else None,
+            correct_answer=",".join(expected) if isinstance(expected, list) else str(expected),
+            explanation=q.get("explanation", ""),
+            difficulty_level="medium",
+        )
+        db.session.add(new_q)
+
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "assignment_id": assignment.id,
+        "message": f"Generated {len(questions_data)} questions for assignment '{title}'",
+    }), 201
 
 # ============================================================
 # STUDENT – TAKE AI–GENERATED DIFFERENTIATED ASSIGNMENT
