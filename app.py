@@ -1376,7 +1376,7 @@ def assignment_edit(practice_id):
 
     if request.method == "POST":
         # Bulk update: iterate posted questions
-        qids = request.form.getlist("q_id")
+        qids = request.form.getlist("q_id[]")
         for qid in qids:
             q = AssignedQuestion.query.get(int(qid))
             if not q or q.practice_id != assignment.id:
