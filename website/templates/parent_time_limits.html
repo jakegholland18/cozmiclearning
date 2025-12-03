@@ -1,0 +1,335 @@
+{% extends "layout.html" %}
+
+{% block title %}Time Limits{% endblock %}
+
+{% block content %}
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #c084fc, #ff9500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        color: #8a92b3;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .control-box {
+        max-width: 700px;
+        margin: 0 auto;
+        background: linear-gradient(135deg,
+            rgba(92, 107, 255, 0.12),
+            rgba(71, 200, 255, 0.08)
+        );
+        border: 1px solid rgba(118, 131, 255, 0.35);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.3),
+            inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+    }
+
+    .current-status {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 32px;
+        border: 1px solid rgba(118, 131, 255, 0.3);
+        text-align: center;
+    }
+
+    .status-label {
+        font-size: 0.9rem;
+        color: #8a92b3;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .status-value {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #c084fc, #ff6fd8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .status-unlimited {
+        color: #47c8ff;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .form-section {
+        margin-bottom: 32px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #c4d1ff;
+        margin-bottom: 16px;
+    }
+
+    .form-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #c4d1ff;
+        min-width: 140px;
+    }
+
+    input[type="number"] {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid rgba(118, 131, 255, 0.3);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #f7fbff;
+        font-size: 1.1rem;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+        border-color: rgba(118, 131, 255, 0.6);
+        box-shadow: 0 0 20px rgba(92, 107, 255, 0.3);
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .preset-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .btn-preset {
+        padding: 10px 20px;
+        background: rgba(118, 131, 255, 0.15);
+        border: 1px solid rgba(118, 131, 255, 0.4);
+        border-radius: 8px;
+        color: #c4d1ff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-preset:hover {
+        background: rgba(118, 131, 255, 0.25);
+        border-color: rgba(118, 131, 255, 0.6);
+        transform: translateY(-2px);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    .btn-save {
+        flex: 1;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #c084fc, #ff6fd8);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(192, 132, 252, 0.3);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(192, 132, 252, 0.5);
+    }
+
+    .btn-remove {
+        flex: 1;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, rgba(255, 69, 58, 0.8), rgba(255, 111, 216, 0.6));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(255, 69, 58, 0.3);
+    }
+
+    .btn-remove:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(255, 69, 58, 0.5);
+    }
+
+    .info-box {
+        background: rgba(71, 200, 255, 0.1);
+        border-left: 4px solid #47c8ff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 32px;
+        color: #c4d1ff;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .info-box strong {
+        color: #47c8ff;
+    }
+
+    .student-list {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 24px;
+        border: 1px solid rgba(118, 131, 255, 0.2);
+    }
+
+    .student-item {
+        padding: 12px 16px;
+        background: rgba(118, 131, 255, 0.1);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: #c4d1ff;
+    }
+
+    .student-usage {
+        color: #8a92b3;
+        font-size: 0.9rem;
+    }
+
+    .usage-today {
+        color: #ff9f00;
+        font-weight: 700;
+    }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">⏰ Time Limits</h1>
+    <p class="page-subtitle">
+        Set daily screen time limits to help your children balance learning with other activities.
+    </p>
+</div>
+
+<div class="control-box">
+    <div class="current-status">
+        <div class="status-label">Current Daily Limit</div>
+        {% if parent.daily_limit_minutes %}
+        <div class="status-value">{{ parent.daily_limit_minutes }} minutes</div>
+        {% else %}
+        <div class="status-unlimited">🌟 Unlimited Access</div>
+        {% endif %}
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-section">
+            <div class="section-title">Set Time Limit</div>
+            
+            <div class="preset-buttons">
+                <button type="button" class="btn-preset" onclick="setMinutes(30)">30 min</button>
+                <button type="button" class="btn-preset" onclick="setMinutes(60)">1 hour</button>
+                <button type="button" class="btn-preset" onclick="setMinutes(90)">1.5 hours</button>
+                <button type="button" class="btn-preset" onclick="setMinutes(120)">2 hours</button>
+                <button type="button" class="btn-preset" onclick="setMinutes(180)">3 hours</button>
+            </div>
+
+            <div class="form-row">
+                <label for="daily_limit_minutes">Minutes per day:</label>
+                <input 
+                    type="number" 
+                    id="daily_limit_minutes" 
+                    name="daily_limit_minutes" 
+                    min="5" 
+                    max="480" 
+                    step="5"
+                    value="{{ parent.daily_limit_minutes or '' }}"
+                    placeholder="No limit"
+                >
+            </div>
+        </div>
+
+        {% if parent.students %}
+        <div class="form-section">
+            <div class="section-title">Your Students</div>
+            <div class="student-list">
+                {% for student in parent.students %}
+                <div class="student-item">
+                    <span class="student-name">{{ student.student_name }}</span>
+                    <span class="student-usage">
+                        Today: <span class="usage-today">{{ student.today_minutes or 0 }} min</span>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-save">💾 Save Time Limit</button>
+            <button type="submit" class="btn-remove" onclick="return confirmRemove()">
+                🔓 Remove Limit
+            </button>
+        </div>
+    </form>
+
+    <div class="info-box">
+        <strong>How it works:</strong>
+        <ul style="margin: 12px 0 0 20px; padding: 0;">
+            <li>Time limit applies to all your students</li>
+            <li>Timer starts when student logs in</li>
+            <li>Resets automatically at midnight each day</li>
+            <li>Students see a countdown timer while logged in</li>
+            <li>Access is blocked when limit is reached</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function setMinutes(minutes) {
+        document.getElementById('daily_limit_minutes').value = minutes;
+    }
+
+    function confirmRemove() {
+        const input = document.getElementById('daily_limit_minutes');
+        input.value = '';
+        return confirm('Are you sure you want to remove the time limit? Students will have unlimited access.');
+    }
+</script>
+
+{% endblock %}

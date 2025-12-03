@@ -788,11 +788,28 @@ def student_login():
             flash("No student found with that email.", "error")
             return redirect("/student/login")
 
+        # Track login time and reset daily minutes if new day
+        now = datetime.utcnow()
+        today = now.date()
+        
+        if student.last_login:
+            last_login_date = student.last_login.date()
+            if last_login_date != today:
+                # New day - reset minutes
+                student.today_minutes = 0
+        else:
+            # First login ever
+            student.today_minutes = 0
+        
+        student.last_login = now
+        db.session.commit()
+
         # Currently students don't use a password hash in DB.
         session["student_id"] = student.id
         session["user_role"] = "student"
         session["student_name"] = student.student_name
         session["student_email"] = student.student_email
+        session["login_time"] = now.isoformat()  # Track session start
 
         flash(f"Welcome back, {student.student_name}!", "info")
         return redirect("/dashboard")
@@ -3532,6 +3549,38 @@ Instead, start each bullet with a simple symbol like '•'.
 def dashboard():
     init_user()
 
+    # Time limit enforcement (Phase 3)
+    student_id = session.get("student_id")
+    time_limit_active = False
+    minutes_remaining = None
+    daily_limit = None
+    
+    if student_id:
+        student = Student.query.get(student_id)
+        if student and student.parent_id:
+            parent = Parent.query.get(student.parent_id)
+            if parent and parent.daily_limit_minutes:
+                daily_limit = parent.daily_limit_minutes
+                time_limit_active = True
+                
+                # Update current session minutes
+                if session.get("login_time"):
+                    login_time = datetime.fromisoformat(session["login_time"])
+                    session_minutes = int((datetime.utcnow() - login_time).total_seconds() / 60)
+                    student.today_minutes = max(student.today_minutes, session_minutes)
+                    db.session.commit()
+                
+                # Check if limit exceeded
+                if student.today_minutes >= daily_limit:
+                    flash(f"Daily time limit reached ({daily_limit} minutes). Please try again tomorrow!", "warning")
+                    return render_template(
+                        "time_limit_reached.html",
+                        daily_limit=daily_limit,
+                        minutes_used=student.today_minutes
+                    )
+                
+                minutes_remaining = daily_limit - student.today_minutes
+
     xp = session["xp"]
     level = session["level"]
     tokens = session["tokens"]
@@ -3564,6 +3613,9 @@ def dashboard():
         xp_to_next=xp_to_next,
         missions=missions,
         locked_characters=locked,
+        time_limit_active=time_limit_active,
+        minutes_remaining=minutes_remaining,
+        daily_limit=daily_limit,
     )
 
 
@@ -3650,6 +3702,48 @@ def parent_remove_student(student_id):
     
     flash(f"{student.student_name} has been unlinked from your account.", "success")
     return redirect("/parent/students")
+
+
+# ============================================================
+# PARENT - TIME LIMITS (PHASE 3)
+# ============================================================
+
+@app.route("/parent/time-limits", methods=["GET", "POST"])
+def parent_time_limits():
+    """Parent time limit controls - set daily minutes for all students."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+    
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/parent/login")
+    
+    if request.method == "POST":
+        limit = request.form.get("daily_limit_minutes")
+        
+        if limit == "" or limit is None:
+            # Remove limit
+            parent.daily_limit_minutes = None
+            flash("Daily time limit removed. Students have unlimited access.", "success")
+        else:
+            try:
+                minutes = int(limit)
+                if minutes < 5:
+                    flash("Time limit must be at least 5 minutes.", "error")
+                elif minutes > 480:
+                    flash("Time limit cannot exceed 480 minutes (8 hours).", "error")
+                else:
+                    parent.daily_limit_minutes = minutes
+                    flash(f"Daily time limit set to {minutes} minutes.", "success")
+            except ValueError:
+                flash("Invalid time limit value.", "error")
+        
+        db.session.commit()
+        return redirect("/parent/time-limits")
+    
+    return render_template("parent_time_limits.html", parent=parent)
 
 
 @app.route("/parent/analytics")

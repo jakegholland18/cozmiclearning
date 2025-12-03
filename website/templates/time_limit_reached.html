@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Time Limit Reached</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251203">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .limit-box {
+            width: 90%;
+            max-width: 500px;
+            background: linear-gradient(135deg,
+                rgba(255, 159, 0, 0.15),
+                rgba(255, 111, 216, 0.12)
+            );
+            border: 2px solid rgba(255, 159, 0, 0.5);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.4),
+                inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+        }
+
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ff9f00, #ff6fd8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            color: #c4d1ff;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(118, 131, 255, 0.3);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .stat-label {
+            color: #8a92b3;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: #ff9f00;
+            font-weight: 700;
+        }
+
+        .tip {
+            background: rgba(192, 132, 252, 0.1);
+            border-left: 4px solid #c084fc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 24px;
+            text-align: left;
+            color: #c4d1ff;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .btn-logout {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #c084fc, #ff6fd8);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(192, 132, 252, 0.3);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(192, 132, 252, 0.5);
+        }
+    </style>
+</head>
+<body class="fade-in">
+
+<div class="limit-box">
+    <div class="icon">⏰</div>
+    
+    <h1>Daily Time Limit Reached</h1>
+    
+    <p class="message">
+        You've reached your daily screen time limit for CozmicLearning. 
+        Great job learning today! Come back tomorrow to continue your journey.
+    </p>
+
+    <div class="stats">
+        <div class="stat-row">
+            <span class="stat-label">Daily Limit:</span>
+            <span class="stat-value">{{ daily_limit }} minutes</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">Time Used Today:</span>
+            <span class="stat-value">{{ minutes_used }} minutes</span>
+        </div>
+    </div>
+
+    <div class="tip">
+        💡 <strong>While you wait:</strong> Try reading a book, practicing math with paper and pencil, 
+        or asking your parent to review what you learned today!
+    </div>
+
+    <a href="/logout" class="btn-logout">Log Out</a>
+</div>
+
+</body>
+</html>

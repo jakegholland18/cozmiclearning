@@ -25,6 +25,9 @@ class Parent(db.Model):
     trial_end = db.Column(db.DateTime)
     subscription_active = db.Column(db.Boolean, default=False)
 
+    # Time limits (Phase 3)
+    daily_limit_minutes = db.Column(db.Integer, nullable=True)  # null = no limit
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # One parent → many students
@@ -103,6 +106,10 @@ class Student(db.Model):
 
     # Auto-updated from analytics
     average_score = db.Column(db.Float, default=0.0)
+
+    # Time tracking (Phase 3)
+    last_login = db.Column(db.DateTime, nullable=True)
+    today_minutes = db.Column(db.Integer, default=0)  # resets daily
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

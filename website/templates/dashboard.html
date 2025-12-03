@@ -205,6 +205,56 @@
     </div>
     {% endif %}
 
+    {% if time_limit_active and minutes_remaining is not none %}
+    <!-- Time Limit Countdown (Phase 3) -->
+    <div style="max-width: 600px; margin: 30px auto 20px; padding: 20px; background: linear-gradient(135deg, rgba(255, 159, 0, 0.15), rgba(255, 111, 216, 0.12)); border: 2px solid rgba(255, 159, 0, 0.4); border-radius: 16px; text-align: center;">
+        <div style="font-size: 0.9rem; color: #8a92b3; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">⏰ Time Remaining Today</div>
+        <div style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #ff9f00, #ff6fd8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">
+            <span id="countdown-display">{{ minutes_remaining }} min</span>
+        </div>
+        <div style="width: 100%; height: 12px; background: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; margin-top: 12px;">
+            <div id="time-progress-bar" style="height: 100%; background: linear-gradient(90deg, #84ff00, #47c8ff); transition: width 0.5s ease; width: {{ (minutes_remaining / daily_limit * 100)|int }}%;"></div>
+        </div>
+        <div style="font-size: 0.85rem; color: #8a92b3; margin-top: 8px;">Daily limit: {{ daily_limit }} minutes</div>
+    </div>
+
+    <script>
+        // Live countdown timer (Phase 3)
+        let minutesRemaining = {{ minutes_remaining }};
+        const dailyLimit = {{ daily_limit }};
+        
+        function updateCountdown() {
+            const display = document.getElementById('countdown-display');
+            const progressBar = document.getElementById('time-progress-bar');
+            
+            if (minutesRemaining > 0) {
+                display.textContent = minutesRemaining + ' min';
+                const percentRemaining = (minutesRemaining / dailyLimit) * 100;
+                progressBar.style.width = percentRemaining + '%';
+                
+                // Change color as time runs low
+                if (percentRemaining < 10) {
+                    progressBar.style.background = 'linear-gradient(90deg, #ff453a, #ff6b9d)';
+                } else if (percentRemaining < 25) {
+                    progressBar.style.background = 'linear-gradient(90deg, #ff9f00, #ffbd2e)';
+                }
+            } else {
+                display.textContent = 'Time\'s up!';
+                progressBar.style.width = '0%';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+        
+        // Update every minute
+        setInterval(() => {
+            minutesRemaining--;
+            updateCountdown();
+        }, 60000);
+    </script>
+    {% endif %}
+
     <div class="stats-grid">
         <div class="stat-box"><h3>XP</h3><p>{{ xp }}</p></div>
         <div class="stat-box"><h3>Level</h3><p>{{ level }}</p></div>
