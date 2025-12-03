@@ -422,10 +422,11 @@
     </div>
 
     <!-- Role Tabs -->
-    <div style="display: flex; justify-content: center; gap: 12px; margin: 30px auto 20px; max-width: 500px;">
-      <button class="role-tab active" data-role="student" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.3); background: rgba(92,107,255,0.15); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍🎓 Students</button>
-      <button class="role-tab" data-role="parent" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍👩‍👧 Parents</button>
-      <button class="role-tab" data-role="teacher" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">📘 Teachers</button>
+    <div style="display: flex; justify-content: center; gap: 10px; margin: 30px auto 20px; max-width: 700px; flex-wrap: wrap;">
+      <button class="role-tab active" data-role="student" style="flex: 1; min-width: 140px; padding: 12px 16px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.3); background: rgba(92,107,255,0.15); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍🎓 Students</button>
+      <button class="role-tab" data-role="parent" style="flex: 1; min-width: 140px; padding: 12px 16px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍👩‍👧 Parents</button>
+      <button class="role-tab" data-role="homeschool" style="flex: 1; min-width: 140px; padding: 12px 16px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">🏠 Homeschool</button>
+      <button class="role-tab" data-role="teacher" style="flex: 1; min-width: 140px; padding: 12px 16px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">📘 Teachers</button>
     </div>
 
     <!-- Billing Toggle -->
@@ -535,6 +536,64 @@
       </div>
     </div>
 
+    <!-- HOMESCHOOL PRICING -->
+    <div class="pricing-grid role-pricing" data-role="homeschool" style="display: none;">
+      <div class="plan-card">
+        <span class="plan-badge basic">Essential</span>
+        <h2 class="plan-name">Homeschool Essential</h2>
+        <p class="plan-desc">Perfect for small homeschool families</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">19.99</span><span class="yearly-price" style="display:none;">215</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $25/year</div>
+        
+        <ul class="plan-features">
+          <li>Up to 5 students (your children)</li>
+          <li>All 11 subject planets with unlimited questions</li>
+          <li>50 AI lesson plans per month</li>
+          <li>100 differentiated assignments per month</li>
+          <li>Parent dashboard + progress tracking</li>
+          <li>Weekly email reports for each child</li>
+          <li>Time limit controls</li>
+          <li>Basic class analytics</li>
+          <li>All differentiation modes</li>
+          <li>Email support</li>
+        </ul>
+        
+        <a href="/parent/signup?plan=homeschool_essential&billing=monthly" class="plan-cta basic-cta primary">Start Free Trial</a>
+      </div>
+
+      <div class="plan-card featured">
+        <span class="plan-badge premium">Complete</span>
+        <h2 class="plan-name">Homeschool Complete</h2>
+        <p class="plan-desc">Full-featured for serious homeschoolers</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">29.99</span><span class="yearly-price" style="display:none;">320</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $40/year</div>
+        
+        <ul class="plan-features">
+          <li><strong>Everything in Essential, plus:</strong></li>
+          <li>Unlimited students (co-ops welcome!)</li>
+          <li>Unlimited AI lesson plans</li>
+          <li>Unlimited differentiated assignments</li>
+          <li>Advanced analytics with subject heatmaps</li>
+          <li>Ability-based grouping & intervention suggestions</li>
+          <li>Export lesson plans & progress reports (PDF)</li>
+          <li>Bulk assignment tools</li>
+          <li>Custom grading & manual result entry</li>
+          <li>Priority email support</li>
+          <li>Early access to new features</li>
+        </ul>
+        
+        <a href="/parent/signup?plan=homeschool_complete&billing=monthly" class="plan-cta premium-cta primary">Start Free Trial</a>
+      </div>
+    </div>
+
     <!-- TEACHER PRICING -->
     <div class="pricing-grid role-pricing" data-role="teacher" style="display: none;">
       <div class="plan-card">
@@ -622,10 +681,28 @@
 
       <div class="faq-item">
         <button class="faq-question">
+          What's the difference between Homeschool and Parent plans?
+        </button>
+        <div class="faq-answer">
+          Homeschool plans combine parent monitoring features with teacher curriculum tools—perfect for teaching parents! You get AI lesson plan generation, differentiated assignments, class analytics, AND parent dashboard features like progress tracking and weekly reports. Regular Parent plans focus on monitoring your children's progress, while Homeschool plans give you the tools to actively teach and create lessons.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Can I use Homeschool plans for a co-op?
+        </button>
+        <div class="faq-answer">
+          Absolutely! Homeschool Essential supports up to 5 students, which works great for small family groups. Homeschool Complete has unlimited students, making it perfect for homeschool co-ops where you're teaching multiple families' children. You get all the teacher tools (lesson plans, assignments, analytics) plus parent-style progress tracking.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
           How many students can I have on my parent account?
         </button>
         <div class="faq-answer">
-          Basic plan allows up to 3 students per parent account. Premium plan has unlimited students, perfect for larger families or homeschool co-ops.
+          Regular Parent Basic allows up to 3 students. Parent Premium has unlimited students. For homeschoolers who need teaching tools, check out our Homeschool plans: Essential (5 students) or Complete (unlimited).
         </div>
       </div>
 

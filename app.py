@@ -562,6 +562,41 @@ def increment_question_count():
         session.modified = True
 
 
+def get_parent_plan_limits(parent):
+    """Get plan limits for parent/homeschool accounts. Returns (student_limit, lesson_plans_limit, assignments_limit, has_teacher_features)."""
+    if not parent or not parent.plan:
+        return (3, 0, 0, False)  # Default free limits
+    
+    plan = parent.plan.lower()
+    
+    # Homeschool plans (hybrid parent + teacher features)
+    if plan == "homeschool_essential":
+        return (5, 50, 100, True)  # 5 students, 50 lesson plans/mo, 100 assignments/mo, teacher features enabled
+    elif plan == "homeschool_complete":
+        return (float('inf'), float('inf'), float('inf'), True)  # Unlimited everything, teacher features enabled
+    
+    # Regular parent plans (no teacher features)
+    elif plan == "basic":
+        return (3, 0, 0, False)  # 3 students, no teacher tools
+    elif plan == "premium":
+        return (float('inf'), 0, 0, False)  # Unlimited students, no teacher tools
+    
+    # Default for unknown plans
+    return (3, 0, 0, False)
+
+
+def check_parent_student_limit(parent):
+    """Check if parent can add more students. Returns (allowed, current_count, limit)."""
+    if not parent:
+        return (False, 0, 0)
+    
+    student_limit, _, _, _ = get_parent_plan_limits(parent)
+    current_count = len(parent.students) if parent.students else 0
+    allowed = current_count < student_limit
+    
+    return (allowed, current_count, student_limit)
+
+
 # ============================================================
 # XP SYSTEM
 # ============================================================
@@ -824,11 +859,16 @@ def student_signup():
                 flash("Invalid parent access code. Please check with your parent.", "error")
                 return redirect("/student/signup")
             
-            # Check parent's subscription limits
-            current_student_count = len(parent.students)
-            if parent.plan == "basic" and current_student_count >= 3:
-                flash("Your parent's Basic plan only allows 3 students. They need to upgrade to Premium.", "error")
-                return redirect("/student/signup")
+            # Check parent's subscription limits using new helper
+            allowed, current_count, limit = check_parent_student_limit(parent)
+            if not allowed:
+                if limit == float('inf'):
+                    # Should never happen, but safety check
+                    pass
+                else:
+                    plan_name = parent.plan.replace('_', ' ').title()
+                    flash(f"Your parent's {plan_name} plan only allows {int(limit)} students. They need to upgrade.", "error")
+                    return redirect("/student/signup")
 
             # Student inherits parent's subscription plan
             trial_start = parent.trial_start
@@ -3761,6 +3801,10 @@ def parent_dashboard():
     parent_id = session.get("parent_id")
     parent = None
     unread_messages = 0
+    has_teacher_features = False
+    student_limit = 3
+    lesson_plans_limit = 0
+    assignments_limit = 0
     
     if parent_id:
         parent = Parent.query.get(parent_id)
@@ -3769,6 +3813,9 @@ def parent_dashboard():
             recipient_id=parent_id,
             is_read=False,
         ).count()
+        
+        # Get plan limits for homeschool features
+        student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
 
     progress = {
         s: (
@@ -3789,6 +3836,10 @@ def parent_dashboard():
         tokens=session["tokens"],
         unread_messages=unread_messages,
         character=session["character"],
+        has_teacher_features=has_teacher_features,
+        student_limit=student_limit if student_limit != float('inf') else None,
+        lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
+        assignments_limit=assignments_limit if assignments_limit != float('inf') else None,
     )
 
 
