@@ -3,147 +3,6 @@
 {% include "_navbar.html" %}
 
 <style>
-        /* Top utility bar - Sleek Galaxy Edition */
-        .utility-bar {
-            max-width: 1100px;
-            margin: 20px auto 0;
-            padding: 14px 20px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(92,107,255,0.18), rgba(71,200,255,0.12));
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            position: relative;
-            display: grid;
-            grid-template-columns: 1.3fr auto;
-            gap: 16px;
-            align-items: center;
-            box-shadow: 
-                0 8px 32px rgba(0,0,0,0.3),
-                0 0 40px rgba(92,107,255,0.2),
-                inset 0 1px 0 rgba(255,255,255,0.15);
-            backdrop-filter: blur(16px);
-            animation: floatBar 4s ease-in-out infinite;
-        }
-        
-        .utility-bar::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 14px;
-            padding: 2px;
-            background: linear-gradient(135deg, #ff6fd8, #c084fc, #5c6bff, #00f2ff);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0.6;
-        }
-        
-        @keyframes floatBar {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-        
-        .utility-item label { 
-            display:block; 
-            font-size:0.82rem; 
-            color:#c4d1ff; 
-            margin-bottom:6px; 
-            font-weight: 600;
-            text-shadow: 0 0 8px rgba(192,132,252,0.4);
-        }
-        
-        .utility-select, .utility-input {
-            width: 100%;
-            border-radius: 12px;
-            border: 2px solid rgba(118,131,255,0.4);
-            background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(18,30,50,0.5));
-            color: #f7fbff;
-            padding: 11px 14px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .utility-select:hover, .utility-input:hover {
-            border-color: rgba(192,132,252,0.7);
-            box-shadow: 0 0 16px rgba(192,132,252,0.3);
-        }
-        
-        .utility-select:focus, .utility-input:focus {
-            border-color: #c084fc;
-            box-shadow: 0 0 24px rgba(192,132,252,0.5);
-            background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(18,30,50,0.6));
-        }
-        
-        .utility-actions { display:flex; gap:10px; align-items:center; }
-        
-        .utility-btn {
-            padding: 10px 18px;
-            border-radius: 20px;
-            border: none;
-            background: linear-gradient(135deg, #5c6bff, #7683ff);
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 
-                0 6px 20px rgba(92,107,255,0.4),
-                inset 0 1px 0 rgba(255,255,255,0.2);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            text-decoration: none;
-            display: inline-block;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .utility-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.5s, height 0.5s;
-        }
-        
-        .utility-btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-        
-        .utility-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 
-                0 10px 30px rgba(92,107,255,0.6),
-                0 0 20px rgba(92,107,255,0.4),
-                inset 0 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        .utility-btn:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-        
-        .utility-logout { 
-            background: linear-gradient(135deg, rgba(255,111,216,0.3), rgba(192,132,252,0.25)); 
-            color: #ff6fd8; 
-            border: 2px solid rgba(255,111,216,0.5);
-            box-shadow: 
-                0 6px 20px rgba(255,111,216,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.15);
-        }
-        
-        .utility-logout:hover {
-            background: linear-gradient(135deg, rgba(255,111,216,0.5), rgba(192,132,252,0.4));
-            border-color: rgba(255,111,216,0.8);
-            box-shadow: 
-                0 10px 30px rgba(255,111,216,0.5),
-                0 0 20px rgba(255,111,216,0.4);
-        }
-        
-        .utility-emoji { font-size: 1.1rem; }
     body {
         background: linear-gradient(135deg, #0a0e27 0%, #050813 100%);
         margin: 0;
@@ -383,23 +242,6 @@
 
 <div class="stars"></div>
 
-<!-- Top Utility Bar (replaces teacher/parent/student links; logo remains) -->
-<div class="utility-bar" role="navigation" aria-label="Quick actions">
-    <div class="utility-item">
-        <label>🪐 Choose a subject</label>
-        <select id="subject-switcher" class="utility-select">
-            {% for key, val in subjects.items() %}
-                <option value="{{ key }}" {% if key == subject %}selected{% endif %}>{{ val }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="utility-actions">
-        <button id="go-practice" class="utility-btn" title="Switch to practice">🚀 Practice</button>
-        <button id="go-study" class="utility-btn" title="Switch to deep study">📚 Deep Study</button>
-        <a href="/logout" class="utility-btn utility-logout" aria-label="Logout">👩‍🚀 Logout</a>
-    </div>
-</div>
-
 <h1 class="select-title">{{ subject.replace("_"," ").title() }}</h1>
 <div class="sub-title">Grade {{ grade }}</div>
 
@@ -521,25 +363,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-// Utility bar behavior
-document.addEventListener("DOMContentLoaded", () => {
-    const subjectSel = document.getElementById("subject-switcher");
-    const grade = "{{ grade }}";
-
-    subjectSel?.addEventListener("change", () => {
-        const subj = subjectSel.value;
-        window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
-    });
-
-    document.getElementById("go-practice")?.addEventListener("click", () => {
-        const subj = subjectSel?.value || "{{ subject }}";
-        window.location.href = "/practice?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
-    });
-
-    document.getElementById("go-study")?.addEventListener("click", () => {
-        window.location.href = "/ask-question?subject=power_grid&grade=" + encodeURIComponent(grade);
-    });
-});
 </script>
 
 {% endblock %}
