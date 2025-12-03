@@ -2418,7 +2418,24 @@ def teacher_assign_questions():
         num_questions=num_questions,
     )
 
-    # Create AssignedPractice record
+    # Build preview JSON in mission format (compatible with assignment_preview.html)
+    questions_data = payload.get("questions", [])
+    mission_json = {
+        "steps": [
+            {
+                "prompt": q.get("prompt", ""),
+                "type": q.get("type", "free"),
+                "choices": q.get("choices", []),
+                "expected": q.get("expected", []),
+                "hint": q.get("hint", ""),
+                "explanation": q.get("explanation", "")
+            }
+            for q in questions_data
+        ],
+        "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
+    }
+
+    # Create AssignedPractice record with preview JSON
     assignment = AssignedPractice(
         class_id=class_id,
         teacher_id=teacher.id,
@@ -2428,12 +2445,12 @@ def teacher_assign_questions():
         due_date=due_date,
         differentiation_mode=differentiation_mode,
         is_published=False,  # Teacher can review before publishing
+        preview_json=json.dumps(mission_json)  # Store the mission preview
     )
     db.session.add(assignment)
     db.session.flush()  # Get assignment.id
 
     # Create AssignedQuestion records from generated questions
-    questions_data = payload.get("questions", [])
     for q in questions_data:
         choices = q.get("choices", [])
         expected = q.get("expected", [])
