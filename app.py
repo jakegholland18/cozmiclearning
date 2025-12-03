@@ -4318,10 +4318,12 @@ def dashboard():
 def parent_dashboard():
     init_user()
     
-    # Check subscription status for parents
-    access_check = check_subscription_access("parent")
-    if access_check != True:
-        return access_check  # Redirect to trial_expired
+    # Admin bypass - allow access without parent_id
+    if not session.get("bypass_auth"):
+        # Check subscription status for parents
+        access_check = check_subscription_access("parent")
+        if access_check != True:
+            return access_check  # Redirect to trial_expired
 
     parent_id = session.get("parent_id")
     parent = None
@@ -4335,17 +4337,18 @@ def parent_dashboard():
     if parent_id:
         parent = Parent.query.get(parent_id)
         
-        # Get trial days remaining
-        trial_days_remaining = get_days_remaining_in_trial(parent)
-        
-        unread_messages = Message.query.filter_by(
-            recipient_type="parent",
-            recipient_id=parent_id,
-            is_read=False,
-        ).count()
-        
-        # Get plan limits for homeschool features
-        student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
+        if parent:
+            # Get trial days remaining
+            trial_days_remaining = get_days_remaining_in_trial(parent)
+            
+            unread_messages = Message.query.filter_by(
+                recipient_type="parent",
+                recipient_id=parent_id,
+                is_read=False,
+            ).count()
+            
+            # Get plan limits for homeschool features
+            student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
 
     progress = {
         s: (
@@ -4355,6 +4358,21 @@ def parent_dashboard():
         )
         for s, data in session["progress"].items()
     }
+    
+    # Get all planets for subject explorer
+    planets = [
+        ("chrono_core", "chrono_core.png", "ChronoCore", "History"),
+        ("num_forge", "num_forge.png", "NumForge", "Math"),
+        ("atom_sphere", "atom_sphere.png", "AtomSphere", "Science"),
+        ("story_verse", "story_verse.png", "StoryVerse", "Reading"),
+        ("ink_haven", "ink_haven.png", "InkHaven", "Writing"),
+        ("faith_realm", "faith_realm.png", "FaithRealm", "Bible"),
+        ("coin_quest", "coin_quest.png", "CoinQuest", "Money"),
+        ("stock_star", "stock_star.png", "StockStar", "Investing"),
+        ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
+        ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
+        ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
+    ]
 
     return render_template(
         "parent_dashboard.html",
@@ -4371,6 +4389,7 @@ def parent_dashboard():
         lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
         assignments_limit=assignments_limit if assignments_limit != float('inf') else None,
         trial_days_remaining=trial_days_remaining,
+        planets=planets,
     )
 
 
