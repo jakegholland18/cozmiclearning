@@ -260,7 +260,27 @@
         <div class="stat-box"><h3>Level</h3><p>{{ level }}</p></div>
         <div class="stat-box"><h3>Tokens</h3><p>{{ tokens }}</p></div>
         <div class="stat-box"><h3>Streak</h3><p>{{ streak }} Days</p></div>
+        {% if show_usage %}
+        <div class="stat-box" style="{% if questions_remaining < 20 %}border: 2px solid #ff9800;{% endif %}">
+            <h3>Questions</h3>
+            <p>{{ questions_used }}/{{ questions_limit }}</p>
+            {% if questions_remaining < 20 %}
+            <small style="color: #ff9800; font-size: 0.8em; display: block; margin-top: 5px;">
+                {{ questions_remaining }} left
+            </small>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
+    
+    {% if show_usage and questions_remaining < 10 %}
+    <div style="background: rgba(255, 152, 0, 0.1); border: 1px solid #ff9800; border-radius: 10px; padding: 15px; margin: 20px auto; max-width: 600px; text-align: center;">
+        <p style="margin: 0; color: #ff9800;">
+            ⚠️ You're running low on questions ({{ questions_remaining }} remaining). 
+            <a href="/plans" style="color: #ff9800; text-decoration: underline;">Upgrade to Premium</a> for unlimited access!
+        </p>
+    </div>
+    {% endif %}
 
     <script>
         // Show character comment and celebration on dashboard load

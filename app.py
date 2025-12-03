@@ -488,11 +488,15 @@ def init_user():
         "student_email": None,
         "parent_name": None,
         "grade": "8",
+        # usage tracking for plan limits
+        "questions_this_month": 0,
+        "month_start": str(datetime.today().replace(day=1).date()),
     }
     for k, v in defaults.items():
         if k not in session:
             session[k] = v
     update_streak()
+    check_monthly_reset()
 
 
 # ============================================================
@@ -515,6 +519,47 @@ def update_streak():
         else:
             session["streak"] = 1
         session["last_visit"] = str(today)
+
+
+def check_monthly_reset():
+    """Reset question count if new month has started."""
+    month_start = session.get("month_start")
+    today = datetime.today().date()
+    first_of_month = today.replace(day=1)
+    
+    if not month_start or datetime.strptime(month_start, "%Y-%m-%d").date() < first_of_month:
+        session["questions_this_month"] = 0
+        session["month_start"] = str(first_of_month)
+        session.modified = True
+
+
+def check_question_limit():
+    """Check if student has exceeded their plan's question limit. Returns (allowed, remaining, limit)."""
+    if session.get("user_role") != "student":
+        return (True, float('inf'), float('inf'))
+    
+    student = Student.query.filter_by(email=session.get("student_email")).first()
+    if not student:
+        return (True, float('inf'), float('inf'))
+    
+    # Premium or trial gets unlimited
+    if student.plan == "premium" or not student.subscription_active:
+        return (True, float('inf'), float('inf'))
+    
+    # Basic plan: 100 questions/month
+    limit = 100
+    used = session.get("questions_this_month", 0)
+    remaining = max(0, limit - used)
+    allowed = used < limit
+    
+    return (allowed, remaining, limit)
+
+
+def increment_question_count():
+    """Increment question counter for the current month."""
+    if session.get("user_role") == "student":
+        session["questions_this_month"] = session.get("questions_this_month", 0) + 1
+        session.modified = True
 
 
 # ============================================================
@@ -2881,6 +2926,12 @@ def ask_question():
 def subject_answer():
     init_user()
 
+    # Check question limit for Basic plan students
+    allowed, remaining, limit = check_question_limit()
+    if not allowed:
+        flash(f"You've reached your monthly limit of {limit} questions. Upgrade to Premium for unlimited access!", "warning")
+        return redirect("/plans")
+
     grade = request.form.get("grade")
     subject = request.form.get("subject")
     question = request.form.get("question")
@@ -2907,6 +2958,9 @@ def subject_answer():
 
     add_xp(20)
     session["tokens"] += 2
+    
+    # Increment question count for Basic plan tracking
+    increment_question_count()
 
     return render_template(
         "subject.html",
@@ -2930,6 +2984,11 @@ def subject_answer():
 def followup_message():
     init_user()
 
+    # Check question limit for Basic plan students
+    allowed, remaining, limit = check_question_limit()
+    if not allowed:
+        return jsonify({"error": f"Monthly limit of {limit} questions reached. Upgrade to Premium for unlimited access!", "upgrade_required": True})
+
     data = request.get_json() or {}
     grade = data.get("grade")
     character = data.get("character") or session["character"]
@@ -2944,6 +3003,9 @@ def followup_message():
     conversation.append({"role": "assistant", "content": reply_text})
     session["conversation"] = conversation
     session.modified = True
+    
+    # Increment question count
+    increment_question_count()
 
     return jsonify({"reply": reply_text})
 
@@ -2952,6 +3014,11 @@ def followup_message():
 @csrf.exempt
 def deep_study_message():
     init_user()
+
+    # Check question limit for Basic plan students
+    allowed, remaining, limit = check_question_limit()
+    if not allowed:
+        return jsonify({"error": f"Monthly limit of {limit} questions reached. Upgrade to Premium for unlimited access!", "upgrade_required": True})
 
     data = request.get_json() or {}
     message = data.get("message", "")
@@ -2989,6 +3056,9 @@ Rules:
     conversation.append({"role": "assistant", "content": reply_text})
     session["deep_study_chat"] = conversation
     session.modified = True
+    
+    # Increment question count
+    increment_question_count()
 
     return jsonify({"reply": reply_text})
 
@@ -3653,6 +3723,11 @@ def dashboard():
         "Agent Cluehart": "Earn 200 XP",
         "Buddy Barkston": "Buy for 100 tokens",
     }
+    
+    # Plan usage tracking
+    allowed, remaining, limit = check_question_limit()
+    questions_used = session.get("questions_this_month", 0)
+    show_usage = session.get("user_role") == "student" and limit != float('inf')
 
     return render_template(
         "dashboard.html",
@@ -3668,6 +3743,10 @@ def dashboard():
         time_limit_active=time_limit_active,
         minutes_remaining=minutes_remaining,
         daily_limit=daily_limit,
+        show_usage=show_usage,
+        questions_used=questions_used,
+        questions_limit=limit if limit != float('inf') else None,
+        questions_remaining=remaining if remaining != float('inf') else None,
     )
 
 
