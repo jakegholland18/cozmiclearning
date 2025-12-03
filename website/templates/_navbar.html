@@ -60,14 +60,11 @@
             {% endif %}
 
         {% else %}
-            <!-- PUBLIC VISITOR -->
-            <a href="/choose-auth">Login</a>
-            <a href="/choose-auth">Sign Up</a>
-
-            {% if session.is_owner %}
-                <!-- Owner still sees admin link even logged out -->
-                <a href="/teacher/login">Admin Login</a>
-            {% endif %}
+            <!-- PUBLIC VISITOR: keep landing self-contained -->
+            <a href="#features" class="sparkle-a"><span class="nav-emoji">🛰️</span> Features</a>
+            <a href="#pricing" class="sparkle-b"><span class="nav-emoji">💫</span> Pricing</a>
+            <a href="#faq" class="sparkle-c"><span class="nav-emoji">🌌</span> FAQ</a>
+            <a href="#" onclick="openCharacterPreview(); return false;" class="sparkle-d"><span class="nav-emoji">👩‍🚀</span> Preview Characters</a>
         {% endif %}
     </div>
 </nav>
@@ -277,11 +274,72 @@
     text-decoration: none;
     font-size: 0.95rem;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .nav-right a:hover {
     color: #00f2ff;
     text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Tiny star sparkles on hover */
+.nav-right a {
+    position: relative;
+}
+.nav-right a::after {
+    content: '✦ ✧ ✦';
+    position: absolute;
+    right: -26px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: #9fd7ff;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(0, 242, 255, 0.5));
+    pointer-events: none;
+}
+.sparkle-a::after { content: '✦ ✧ ✦'; }
+.sparkle-b::after { content: '✧ ✦ ✧'; }
+.sparkle-c::after { content: '✦ ✦ ✧'; }
+.sparkle-d::after { content: '✧ ✧ ✦'; }
+.nav-right a:hover::after {
+    opacity: 1;
+    animation: sparkleTrail 0.9s ease-in-out;
+}
+
+@keyframes sparkleTrail {
+    0% { transform: translateY(-50%) translateX(0) scale(0.9); opacity: 0; }
+    20% { opacity: 1; }
+    50% { transform: translateY(-60%) translateX(6px) scale(1.05); }
+    80% { transform: translateY(-50%) translateX(0) scale(1); opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Space emoji animations */
+.nav-emoji {
+    display: inline-block;
+    filter: drop-shadow(0 0 6px rgba(92,107,255,0.6));
+    animation: orbit 3.2s ease-in-out infinite;
+}
+
+@keyframes orbit {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-2px) rotate(8deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* Comet trail on hover */
+.nav-right a:hover .nav-emoji {
+    animation: comet 0.8s ease-in-out;
+}
+
+@keyframes comet {
+    0% { transform: translateX(0) scale(1); filter: drop-shadow(0 0 6px rgba(0,242,255,0.6)); }
+    50% { transform: translateX(4px) scale(1.1); filter: drop-shadow(0 0 10px rgba(79,172,254,0.8)); }
+    100% { transform: translateX(0) scale(1); }
 }
 
 /* Responsive */

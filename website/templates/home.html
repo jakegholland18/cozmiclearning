@@ -12,13 +12,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --bg: #02020a;
+      --text: #ffffff;
+      --muted: #c4d1ff;
+      --muted-2: #b3c0ff;
+      --muted-3: #8a92b3;
+      --primary: #5c6bff;
+      --primary-2: #7683ff;
+      --accent: #00f2ff;
+      --accent-2: #4facfe;
+      --success: #84ff00;
+      --gold: #ffd54f;
+      --warning: #ff9f1c;
+      --pink: #ff6b9d;
+      --shadow-strong: rgba(92, 107, 255, 0.5);
+      --shadow-soft: rgba(92, 107, 255, 0.3);
+      --border-soft: rgba(118, 131, 255, 0.3);
+      --border-mid: rgba(118, 131, 255, 0.4);
+      --glass-1: rgba(92, 107, 255, 0.08);
+      --glass-2: rgba(0, 242, 255, 0.08);
+      --glass-3: rgba(132, 255, 0, 0.08);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Poppins", sans-serif;
       min-height: 100vh;
-      background: #02020a;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       overflow-x: hidden;
     }
 
@@ -162,11 +184,11 @@
       display: inline-block;
       padding: 8px 20px;
       background: linear-gradient(135deg, rgba(92, 107, 255, 0.2), rgba(0, 242, 255, 0.15));
-      border: 1px solid rgba(92, 107, 255, 0.4);
+      border: 1px solid var(--border-mid);
       border-radius: 30px;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #00f2ff;
+      color: var(--accent);
       margin-bottom: 24px;
       animation: fadeInDown 0.8s ease 0.3s backwards;
       letter-spacing: 0.05em;
@@ -192,7 +214,7 @@
     }
 
     .hero-title .gradient-text {
-      background: linear-gradient(135deg, #5c6bff 0%, #00f2ff 50%, #84ff00 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--success) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -218,7 +240,7 @@
 
     .hero-subtitle {
       font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-      color: #c4d1ff;
+      color: var(--muted);
       max-width: 750px;
       margin: 0 auto 40px;
       line-height: 1.7;
@@ -246,9 +268,9 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #5c6bff, #7683ff);
-      color: white;
-      box-shadow: 0 12px 30px rgba(92, 107, 255, 0.5);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: var(--text);
+      box-shadow: 0 12px 30px var(--shadow-strong);
     }
 
     .btn-primary:hover {
@@ -258,7 +280,7 @@
 
     .btn-secondary {
       background: rgba(255, 255, 255, 0.1);
-      color: #fff;
+      color: var(--text);
       border: 2px solid rgba(255, 255, 255, 0.3);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
@@ -334,11 +356,11 @@
       display: inline-block;
       padding: 6px 16px;
       background: rgba(92, 107, 255, 0.15);
-      border: 1px solid rgba(92, 107, 255, 0.3);
+      border: 1px solid var(--border-soft);
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #5c6bff;
+      color: var(--primary);
       margin-bottom: 16px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -348,7 +370,7 @@
       font-size: clamp(2rem, 4vw, 3rem);
       font-weight: 800;
       margin-bottom: 16px;
-      background: linear-gradient(135deg, #fff, #c4d1ff);
+      background: linear-gradient(135deg, var(--text), var(--muted));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -356,7 +378,7 @@
 
     .section-subtitle {
       font-size: 1.15rem;
-      color: #8a92b3;
+      color: var(--muted-3);
       max-width: 650px;
       margin: 0 auto;
       line-height: 1.7;
@@ -373,13 +395,13 @@
     .feature-card {
       padding: 35px;
       background: linear-gradient(135deg,
-        rgba(92, 107, 255, 0.08),
+        var(--glass-1),
         rgba(71, 200, 255, 0.05)
       );
       border: 1px solid rgba(118, 131, 255, 0.25);
       border-radius: 20px;
       backdrop-filter: blur(10px);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
       position: relative;
       overflow: hidden;
       cursor: pointer;
@@ -399,9 +421,9 @@
     }
 
     .feature-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(118, 131, 255, 0.5);
-      box-shadow: 0 20px 50px rgba(92, 107, 255, 0.25);
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(118, 131, 255, 0.6);
+      box-shadow: 0 20px 60px rgba(92, 107, 255, 0.28), 0 10px 30px rgba(0, 242, 255, 0.15);
     }
 
     .feature-card::after {
@@ -410,7 +432,7 @@
       bottom: 15px;
       right: 20px;
       font-size: 0.75rem;
-      color: #5c6bff;
+      color: var(--primary);
       opacity: 0;
       transition: opacity 0.3s ease;
       font-weight: 600;
@@ -426,6 +448,7 @@
       margin-bottom: 20px;
       display: block;
       animation: floatIcon 3s ease-in-out infinite;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     @keyframes floatIcon {
@@ -433,16 +456,41 @@
       50% { transform: translateY(-10px); }
     }
 
+    .feature-card:hover .feature-icon {
+      transform: translateY(-6px) scale(1.06) rotate(-2deg);
+      filter: drop-shadow(0 6px 16px rgba(92, 107, 255, 0.5));
+    }
+
+    /* Parallax tilt effect */
+    .feature-card {
+      perspective: 600px;
+    }
+    .feature-card:hover .feature-title,
+    .feature-card:hover .feature-desc {
+      transform: translateZ(12px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .feature-card:hover,
+      .feature-card:hover .feature-icon,
+      .feature-card:hover .feature-title,
+      .feature-card:hover .feature-desc {
+        transform: none !important;
+        animation: none !important;
+      }
+    }
+
     .feature-title {
       font-size: 1.4rem;
       font-weight: 700;
       margin-bottom: 12px;
-      color: #fff;
+      color: var(--text);
     }
 
     .feature-desc {
       font-size: 1rem;
-      color: #b3c0ff;
+      color: var(--muted-2);
       line-height: 1.7;
     }
 
@@ -475,7 +523,7 @@
         rgba(92, 107, 255, 0.1),
         rgba(0, 242, 255, 0.05)
       );
-      border: 1px solid rgba(118, 131, 255, 0.3);
+      border: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -505,10 +553,7 @@
     }
 
     .planet-icon {
-      font-size: 4rem;
-      margin-bottom: 15px;
-      filter: drop-shadow(0 5px 15px rgba(92, 107, 255, 0.5));
-      animation: planetFloat 4s ease-in-out infinite;
+      display: none;
     }
 
     @keyframes planetFloat {
@@ -516,16 +561,172 @@
       50% { transform: translateY(-15px) rotate(5deg); }
     }
 
+    /* CODED PLANETS */
+    .planet-visual {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 8px 18px rgba(92, 107, 255, 0.35), 0 0 18px rgba(79,172,254,0.25);
+      animation: planetFloat 5s ease-in-out infinite;
+      margin-bottom: 12px;
+    }
+    /* Atmosphere haze (applies to all planets) */
+    .planet-haze {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 242, 255, 0.12), transparent 60%);
+      filter: blur(4px);
+      pointer-events: none;
+    }
+    .planet-visual::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: radial-gradient(120px 60px at 30% 30%, rgba(255,255,255,0.08), transparent 60%);
+      pointer-events: none;
+    }
+    /* Variants */
+    /* NumForge (Math): grid latitude/longitude lines */
+    .planet-numforge { 
+      background: radial-gradient(circle at 30% 30%, #6c8cff, #3a47ff 45%, #1b1f5e 75%);
+    }
+    .planet-numforge::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: 50%;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 10px 10px, 10px 10px;
+      background-position: center center;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+      filter: blur(0.2px);
+    }
+    /* AtomSphere (Science): rings + aurora glow */
+    .planet-atomsphere { background: radial-gradient(circle at 60% 40%, #00e5ff, #00a8ff 50%, #0a1f3f 80%); box-shadow: 0 0 22px rgba(0,242,255,0.35); }
+    /* InkHaven (Writing): soft stripes like brush strokes */
+    .planet-inkhaven { background: radial-gradient(circle at 40% 60%, #ff7ab2, #ff3d7a 50%, #3f0a2a 80%); }
+    .planet-inkhaven::before { content:''; position:absolute; inset:0; border-radius:50%; background: repeating-linear-gradient(25deg, rgba(255,255,255,0.10) 0 6px, transparent 6px 14px); mix-blend-mode: soft-light; opacity:0.8; }
+    /* StoryVerse (Reading): concentric bands like chapters */
+    .planet-storyverse { background: radial-gradient(circle at 35% 35%, #ffd56b, #ff9f1c 50%, #4a2c00 80%); }
+    .planet-storyverse::before { content:''; position:absolute; inset:0; border-radius:50%; background: radial-gradient(circle, rgba(255,255,255,0.12) 15%, transparent 16%), radial-gradient(circle, rgba(255,255,255,0.10) 30%, transparent 31%), radial-gradient(circle, rgba(255,255,255,0.08) 45%, transparent 46%); mix-blend-mode: soft-light; }
+    /* ChronoCore (History): subtle clock arcs */
+    .planet-chronocore { background: radial-gradient(circle at 40% 40%, #a29bfe, #6c5ce7 50%, #2d2766 80%); }
+    .planet-chronocore::before { content:''; position:absolute; inset:0; border-radius:50%; background:
+      conic-gradient(from 0deg, rgba(255,255,255,0.12) 0 5deg, transparent 5deg 60deg, rgba(255,255,255,0.12) 60deg 65deg, transparent 65deg 180deg, rgba(255,255,255,0.12) 180deg 185deg, transparent 185deg 360deg);
+      mix-blend-mode: soft-light; }
+    /* FaithRealm (Bible): gentle cross sheen */
+    .planet-faithrealm { background: radial-gradient(circle at 45% 45%, #9fffd1, #00d19a 55%, #0a3f2f 85%); }
+    .planet-faithrealm::before { content:''; position:absolute; inset:0; border-radius:50%; background:
+      linear-gradient(rgba(255,255,255,0.18) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.18) 2px, transparent 2px);
+      background-size: 100% 100%, 100% 100%; background-position:center; mask: radial-gradient(circle, transparent 44%, #000 45% 55%, transparent 56%); mix-blend-mode: soft-light; }
+    /* TruthForge (Apologetics): facets like forged metal */
+    .planet-truthforge { background: radial-gradient(circle at 35% 35%, #fff597, #ffd54f 50%, #574100 85%); }
+    .planet-truthforge::before { content:''; position:absolute; inset:0; border-radius:50%; background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 40%), linear-gradient(-45deg, rgba(255,255,255,0.10), transparent 50%); mix-blend-mode: overlay; }
+    /* CoinQuest (Money): coin-like rim */
+    .planet-coinquest { background: radial-gradient(circle at 55% 45%, #ffd3a5, #fdc830 50%, #4a2e00 80%); }
+    .planet-coinquest::before { content:''; position:absolute; inset:0; border-radius:50%; box-shadow: inset 0 0 0 3px rgba(255, 210, 100, 0.35); }
+    /* StockStar (Investing): ascending bands */
+    .planet-stockstar { background: radial-gradient(circle at 50% 40%, #9be15a, #00e3ae 55%, #0b3f38 85%); }
+    .planet-stockstar::before { content:''; position:absolute; inset:0; border-radius:50%; background: linear-gradient(20deg, rgba(255,255,255,0.10) 0 12px, transparent 12px 24px); mix-blend-mode: soft-light; }
+    /* TerraNova (General Knowledge): continents texture */
+    .planet-terranova { background: radial-gradient(circle at 50% 50%, #b2f0ff, #5ec0ff 55%, #0a2e5f 85%); }
+    .planet-terranova::before { content:''; position:absolute; inset:0; border-radius:50%; background: radial-gradient(ellipse at 40% 60%, rgba(0,255,170,0.25) 0 15%, transparent 20%), radial-gradient(ellipse at 65% 40%, rgba(0,255,170,0.22) 0 12%, transparent 18%); mix-blend-mode: soft-light; }
+    /* PowerGrid (Deep Study): electric grid sheen */
+    .planet-powergrid { background: radial-gradient(circle at 45% 45%, #b186ff, #6f00ff 55%, #1a003d 85%); box-shadow: 0 0 24px rgba(111,0,255,0.35); }
+    .planet-powergrid::before { content:''; position:absolute; inset:0; border-radius:50%; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0 2px, transparent 2px 10px), repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 10px); opacity:0.7; mix-blend-mode: soft-light; }
+
+    /* Rings for some planets */
+    .planet-ring::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 140px; height: 22px;
+      transform: translate(-50%, -50%) rotate(-12deg);
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(255,255,255,0.35), rgba(79,172,254,0.25));
+      box-shadow: 0 0 20px rgba(79,172,254,0.35);
+      filter: blur(0.4px);
+      pointer-events: none;
+    }
+    .planet-ring::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 140px; height: 22px;
+      transform: translate(-50%, -50%) rotate(12deg);
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(0,242,255,0.35), rgba(132,255,0,0.25));
+      box-shadow: 0 0 20px rgba(0,242,255,0.35);
+      filter: blur(0.4px);
+      pointer-events: none;
+    }
+
+    /* Planet theme hover tints */
+    .planet-card:hover .planet-numforge { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(58,71,255,0.45), 0 0 26px rgba(58,71,255,0.35); }
+    .planet-card:hover .planet-atomsphere { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(0,242,255,0.45), 0 0 26px rgba(0,242,255,0.35); }
+    .planet-card:hover .planet-inkhaven { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(255,61,122,0.45), 0 0 26px rgba(255,61,122,0.35); }
+    .planet-card:hover .planet-storyverse { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(255,159,28,0.45), 0 0 26px rgba(255,159,28,0.35); }
+    .planet-card:hover .planet-chronocore { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(108,92,231,0.45), 0 0 26px rgba(108,92,231,0.35); }
+    .planet-card:hover .planet-faithrealm { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(0,209,154,0.45), 0 0 26px rgba(0,209,154,0.35); }
+    .planet-card:hover .planet-truthforge { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(255,213,79,0.45), 0 0 26px rgba(255,213,79,0.35); }
+    .planet-card:hover .planet-coinquest { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(253,200,48,0.45), 0 0 26px rgba(253,200,48,0.35); }
+    .planet-card:hover .planet-stockstar { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(0,227,174,0.45), 0 0 26px rgba(0,227,174,0.35); }
+    .planet-card:hover .planet-terranova { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(94,192,255,0.45), 0 0 26px rgba(94,192,255,0.35); }
+    .planet-card:hover .planet-powergrid { box-shadow: inset -10px -10px 25px rgba(0,0,0,0.35), inset 8px 8px 25px rgba(255,255,255,0.08), 0 12px 24px rgba(111,0,255,0.45), 0 0 26px rgba(111,0,255,0.35); }
+
+    /* Orbit lines on card hover */
+        /* Orbiting moon for select planets */
+        .planet-moon {
+          position: absolute;
+          left: 50%; top: 50%;
+          width: 14px; height: 14px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 30% 30%, #ffffff, #cbd5e1 60%, #718096);
+          box-shadow: 0 0 10px rgba(255,255,255,0.6);
+          transform-origin: -40px 0; /* radius of orbit */
+          animation: moonOrbit 4.5s linear infinite;
+        }
+        @keyframes moonOrbit {
+          from { transform: rotate(0deg) translateX(40px); }
+          to { transform: rotate(360deg) translateX(40px); }
+        }
+
+        /* Twinkle stars overlay for FaithRealm */
+        .twinkle { position:absolute; inset:0; border-radius:50%; pointer-events:none; }
+        .twinkle::before, .twinkle::after {
+          content:'✦'; position:absolute; color:#9fd7ff; font-size:0.9rem; text-shadow:0 0 8px rgba(0,242,255,0.7);
+          animation: twinkleAnim 1.6s ease-in-out infinite;
+        }
+        .twinkle::before { left: 18%; top: 25%; animation-delay: 0.2s; }
+        .twinkle::after { right: 22%; bottom: 20%; animation-delay: 0.9s; }
+        @keyframes twinkleAnim { 0%,100%{ opacity:0.4; transform: scale(0.9);} 50%{ opacity:1; transform: scale(1.1);} }
+    .planet-card:hover::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 242, 255, 0.35);
+      animation: orbitLine 1.8s linear infinite;
+    }
+    @keyframes orbitLine {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     .planet-name {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text);
       margin-bottom: 5px;
     }
 
     .planet-subject {
       font-size: 0.85rem;
-      color: #00f2ff;
+      color: var(--accent);
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
@@ -560,7 +761,7 @@
     .stat-number {
       font-size: 3.5rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #5c6bff, #00f2ff);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -570,7 +771,7 @@
 
     .stat-label {
       font-size: 1rem;
-      color: #8a92b3;
+      color: var(--muted-3);
       font-weight: 600;
     }
 
@@ -591,10 +792,10 @@
         rgba(92, 107, 255, 0.15),
         rgba(0, 242, 255, 0.1)
       );
-      border: 2px solid rgba(118, 131, 255, 0.4);
+      border: 2px solid var(--border-mid);
       border-radius: 30px;
       backdrop-filter: blur(15px);
-      box-shadow: 0 30px 80px rgba(92, 107, 255, 0.3);
+      box-shadow: 0 30px 80px var(--shadow-soft);
       position: relative;
       overflow: hidden;
     }
@@ -617,7 +818,7 @@
 
     .cta-subtitle {
       font-size: 1.2rem;
-      color: #c4d1ff;
+      color: var(--muted);
       margin-bottom: 35px;
       line-height: 1.7;
       position: relative;
@@ -696,7 +897,7 @@
         rgba(20, 25, 50, 0.95),
         rgba(30, 35, 60, 0.95)
       );
-      border: 2px solid rgba(118, 131, 255, 0.4);
+      border: 2px solid var(--border-mid);
       border-radius: 24px;
       max-width: 800px;
       width: 100%;
@@ -753,7 +954,7 @@
       font-size: 2.2rem;
       font-weight: 800;
       margin-bottom: 12px;
-      background: linear-gradient(135deg, #5c6bff, #00f2ff);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -761,7 +962,7 @@
 
     .modal-subtitle {
       font-size: 1.1rem;
-      color: #8a92b3;
+      color: var(--muted-3);
       margin-bottom: 30px;
       line-height: 1.6;
     }
@@ -792,13 +993,13 @@
 
     .modal-feature-text strong {
       display: block;
-      color: #fff;
+      color: var(--text);
       font-size: 1.05rem;
       margin-bottom: 5px;
     }
 
     .modal-feature-text p {
-      color: #b3c0ff;
+      color: var(--muted-2);
       line-height: 1.6;
       font-size: 0.95rem;
     }
@@ -810,8 +1011,8 @@
 
     .modal-btn {
       padding: 14px 35px;
-      background: linear-gradient(135deg, #5c6bff, #7683ff);
-      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: var(--text);
       border: none;
       border-radius: 12px;
       font-size: 1.05rem;
@@ -826,6 +1027,40 @@
     .modal-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 15px 35px rgba(92, 107, 255, 0.6);
+    }
+
+    /* Lightbox for character images */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10001;
+      animation: modalFadeIn 0.2s ease;
+    }
+    .lightbox-overlay.active { display: flex; }
+    .lightbox-image {
+      max-width: 85vw;
+      max-height: 85vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      border: 2px solid var(--border-mid);
+    }
+    .lightbox-caption {
+      margin-top: 16px;
+      max-width: 75vw;
+      text-align: center;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--muted);
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(92,107,255,0.15), rgba(0,242,255,0.12));
+      border: 1px solid rgba(118,131,255,0.35);
+      text-shadow: 0 0 12px rgba(92,107,255,0.35), 0 0 18px rgba(0,242,255,0.25);
     }
   </style>
 </head>
@@ -862,7 +1097,7 @@
       </p>
       
       <div class="hero-cta-group">
-        <a href="/choose_login_role" class="btn btn-primary">Get Started Free</a>
+        <a href="#" onclick="openCharacterPreview(); return false;" class="btn btn-primary">Get Started Free</a>
         <a href="#features" class="btn btn-secondary">Explore Features</a>
       </div>
     </section>
@@ -948,67 +1183,67 @@
 
       <div class="planets-grid">
         <div class="planet-card">
-          <div class="planet-icon">🔢</div>
+          <div class="planet-visual planet-numforge"><span class="planet-haze"></span></div>
           <div class="planet-name">NumForge</div>
           <div class="planet-subject">Math</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">⚗️</div>
+          <div class="planet-visual planet-atomsphere planet-ring"><span class="planet-haze"></span><span class="planet-moon"></span></div>
           <div class="planet-name">AtomSphere</div>
           <div class="planet-subject">Science</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">✍️</div>
+          <div class="planet-visual planet-inkhaven"><span class="planet-haze"></span></div>
           <div class="planet-name">InkHaven</div>
           <div class="planet-subject">Writing</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">📖</div>
+          <div class="planet-visual planet-storyverse"><span class="planet-haze"></span></div>
           <div class="planet-name">StoryVerse</div>
           <div class="planet-subject">Reading</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">🏛️</div>
+          <div class="planet-visual planet-chronocore"><span class="planet-haze"></span></div>
           <div class="planet-name">ChronoCore</div>
           <div class="planet-subject">History</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">📿</div>
+          <div class="planet-visual planet-faithrealm"><span class="planet-haze"></span><span class="twinkle"></span></div>
           <div class="planet-name">FaithRealm</div>
           <div class="planet-subject">Bible</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">⚖️</div>
+          <div class="planet-visual planet-truthforge"><span class="planet-haze"></span></div>
           <div class="planet-name">TruthForge</div>
           <div class="planet-subject">Apologetics</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">💰</div>
+          <div class="planet-visual planet-coinquest"><span class="planet-haze"></span></div>
           <div class="planet-name">CoinQuest</div>
           <div class="planet-subject">Money</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">📈</div>
+          <div class="planet-visual planet-stockstar planet-ring"><span class="planet-haze"></span><span class="planet-moon"></span></div>
           <div class="planet-name">StockStar</div>
           <div class="planet-subject">Investing</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">📚</div>
+          <div class="planet-visual planet-terranova"><span class="planet-haze"></span><span class="planet-moon"></span></div>
           <div class="planet-name">TerraNova</div>
           <div class="planet-subject">General Knowledge</div>
         </div>
 
         <div class="planet-card">
-          <div class="planet-icon">⚡</div>
+          <div class="planet-visual planet-powergrid planet-ring"><span class="planet-haze"></span></div>
           <div class="planet-name">PowerGrid</div>
           <div class="planet-subject">Deep Study</div>
         </div>
@@ -1019,23 +1254,85 @@
     <section class="stats">
       <div class="stats-grid">
         <div class="stat-item">
-          <div class="stat-number">11</div>
+          <div class="stat-number" data-target="11">0</div>
           <div class="stat-label">Subject Planets</div>
         </div>
 
         <div class="stat-item">
-          <div class="stat-number">5</div>
+          <div class="stat-number" data-target="5">0</div>
           <div class="stat-label">AI Mentors</div>
         </div>
 
         <div class="stat-item">
-          <div class="stat-number">∞</div>
+          <div class="stat-number" data-target="1000" data-suffix="+">0</div>
           <div class="stat-label">Practice Missions</div>
         </div>
 
         <div class="stat-item">
-          <div class="stat-number">24/7</div>
+          <div class="stat-number" data-target="24" data-suffix="/7">0</div>
           <div class="stat-label">AI Tutoring</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section class="cta-section" id="pricing">
+      <div class="section-header" style="margin-bottom:40px;">
+        <div class="section-badge">Pricing</div>
+        <h2 class="section-title">Simple, Transparent, and Generous</h2>
+        <p class="section-subtitle">CozmicLearning is free while we grow. Paid plans will arrive later with team features.</p>
+      </div>
+      <div class="cta-box" style="max-width:1000px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
+          <div style="padding:24px;border-radius:16px;border:1px solid rgba(118,131,255,0.3);background:rgba(92,107,255,0.08);">
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Free</h3>
+            <p style="color:#c4d1ff;margin-bottom:16px;">Students & Parents</p>
+            <p style="font-size:2rem;font-weight:800;margin-bottom:12px;">$0</p>
+            <p style="color:#b3c0ff;">AI tutors, missions, streaks, and progress tracking.</p>
+          </div>
+          <div style="padding:24px;border-radius:16px;border:1px solid rgba(118,131,255,0.3);background:rgba(0,242,255,0.08);">
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Classroom (Soon)</h3>
+            <p style="color:#c4d1ff;margin-bottom:16px;">Teachers</p>
+            <p style="font-size:2rem;font-weight:800;margin-bottom:12px;">TBD</p>
+            <p style="color:#b3c0ff;">Assignments, analytics, differentiation modes, class management.</p>
+          </div>
+          <div style="padding:24px;border-radius:16px;border:1px solid rgba(118,131,255,0.3);background:rgba(132,255,0,0.08);">
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Schools (Later)</h3>
+            <p style="color:#c4d1ff;margin-bottom:16px;">Teams</p>
+            <p style="font-size:2rem;font-weight:800;margin-bottom:12px;">TBD</p>
+            <p style="color:#b3c0ff;">Bulk admin, SSO, reporting, and support.</p>
+          </div>
+        </div>
+        <div class="cta-buttons" style="margin-top:24px;">
+          <a href="#" onclick="openCharacterPreview(); return false;" class="btn btn-primary">Start Free</a>
+          <a href="#faq" class="btn btn-secondary">Read FAQ</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="features" id="faq" style="padding-top:60px;">
+      <div class="section-header">
+        <div class="section-badge">FAQ</div>
+        <h2 class="section-title">Questions People Ask</h2>
+        <p class="section-subtitle">Short answers about how CozmicLearning works, our worldview, and privacy.</p>
+      </div>
+      <div style="max-width:900px;margin:0 auto;">
+        <div class="faq-item" style="margin-bottom:14px;">
+          <button class="faq-question" style="width:100%;text-align:left;padding:16px 18px;border-radius:12px;border:1px solid rgba(118,131,255,0.3);background:rgba(92,107,255,0.08);color:#fff;font-weight:700;">Is it really free?</button>
+          <div class="faq-answer" style="display:none;padding:14px 18px;color:#b3c0ff;">Yes. We’re offering CozmicLearning free for families while we grow. Teacher and school plans will come later.</div>
+        </div>
+        <div class="faq-item" style="margin-bottom:14px;">
+          <button class="faq-question" style="width:100%;text-align:left;padding:16px 18px;border-radius:12px;border:1px solid rgba(118,131,255,0.3);background:rgba(0,242,255,0.08);color:#fff;font-weight:700;">How does the Christian worldview show up?</button>
+          <div class="faq-answer" style="display:none;padding:14px 18px;color:#b3c0ff;">Every explanation follows a six-section format including Christian View, Agreement, and Difference. We teach respectfully and encourage critical thinking.</div>
+        </div>
+        <div class="faq-item" style="margin-bottom:14px;">
+          <button class="faq-question" style="width:100%;text-align:left;padding:16px 18px;border-radius:12px;border:1px solid rgba(118,131,255,0.3);background:rgba(132,255,0,0.08);color:#fff;font-weight:700;">Do you save student data?</button>
+          <div class="faq-answer" style="display:none;padding:14px 18px;color:#b3c0ff;">We store progress and assignments to help personalize learning. We do not sell data. You can request deletion at any time.</div>
+        </div>
+        <div class="faq-item" style="margin-bottom:14px;">
+          <button class="faq-question" style="width:100%;text-align:left;padding:16px 18px;border-radius:12px;border:1px solid rgba(118,131,255,0.3);background:rgba(92,107,255,0.08);color:#fff;font-weight:700;">Will it work for all grades?</button>
+          <div class="faq-answer" style="display:none;padding:14px 18px;color:#b3c0ff;">Yes. Explanations auto-scale by grade (1–12), from simple language to deeper reasoning and college-level rigor for upper grades.</div>
         </div>
       </div>
     </section>
@@ -1048,7 +1345,7 @@
           Join students, parents, and teachers who are experiencing personalized education that actually works.
         </p>
         <div class="cta-buttons">
-          <a href="/choose_login_role" class="btn btn-primary">Sign Up Now</a>
+          <a href="#" onclick="openCharacterPreview(); return false;" class="btn btn-primary">Sign Up Now</a>
           <a href="#" onclick="openCharacterPreview(); return false;" class="btn btn-secondary">Preview Characters</a>
         </div>
       </div>
@@ -1057,6 +1354,45 @@
   </main>
 
   <script>
+    // Stats count-up animation when visible
+    (function initStatCounters(){
+      const counters = document.querySelectorAll('.stat-number[data-target]');
+      if (!('IntersectionObserver' in window)) return;
+      const duration = 1200;
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const target = parseInt(el.getAttribute('data-target'), 10);
+            const suffix = el.getAttribute('data-suffix') || '';
+            const start = performance.now();
+            function step(ts){
+              const p = Math.min((ts - start) / duration, 1);
+              const eased = p < 0.5 ? 2*p*p : -1 + (4 - 2*p) * p; // easeInOutQuad
+              const val = Math.floor(target * eased);
+              el.textContent = val + suffix;
+              if (p < 1) requestAnimationFrame(step); else el.textContent = target + suffix;
+            }
+            requestAnimationFrame(step);
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(c => observer.observe(c));
+    })();
+
+    // FAQ accordion toggle
+    (function initFAQ(){
+      document.querySelectorAll('.faq-item').forEach(item => {
+        const btn = item.querySelector('.faq-question');
+        const ans = item.querySelector('.faq-answer');
+        btn.addEventListener('click', () => {
+          const open = ans.style.display === 'block';
+          ans.style.display = open ? 'none' : 'block';
+        });
+      });
+    })();
+
     const featureContent = {
       'ai-tutors': {
         icon: '🤖',
@@ -1268,7 +1604,7 @@
       html += `
         </div>
         <div class="modal-cta">
-          <a href="${content.ctaLink}" class="modal-btn">${content.cta}</a>
+          <a href="#" class="modal-btn" onclick="closeFeatureModal(); return false;">Close</a>
         </div>
       `;
 
@@ -1300,43 +1636,48 @@
         <p class="modal-subtitle">Choose the learning companion that matches your style</p>
         <div class="modal-features">
           <div class="modal-feature-item">
-            <span class="modal-feature-icon">👸</span>
+            <img src="/static/characters/everly.png" alt="Princess Everly Dawn" style="width:80px;height:80px;border-radius:12px;object-fit:cover;cursor:zoom-in;" data-full="/static/characters/everly.png" />
             <div class="modal-feature-text">
               <strong>Princess Everly Dawn</strong>
               <p>Brave and gentle warrior-princess mentor. Warm, steady, kind, and lightly elegant. Perfect for students who love stories and creative connections.</p>
+              <p><a href="/static/characters/everly.png" target="_blank" rel="noopener" style="color:#5c6bff;text-decoration:underline;">Open image</a></p>
             </div>
           </div>
           <div class="modal-feature-item">
-            <span class="modal-feature-icon">✨</span>
+            <img src="/static/characters/jasmine.png" alt="Jasmine Starflare" style="width:80px;height:80px;border-radius:12px;object-fit:cover;cursor:zoom-in;" data-full="/static/characters/jasmine.png" />
             <div class="modal-feature-text">
               <strong>Jasmine Starflare</strong>
               <p>Calm cosmic explorer. Graceful, soft, curious, and bright. Brings galactic calm and inspiration to reading and writing lessons.</p>
+              <p><a href="/static/characters/jasmine.png" target="_blank" rel="noopener" style="color:#5c6bff;text-decoration:underline;">Open image</a></p>
             </div>
           </div>
           <div class="modal-feature-item">
-            <span class="modal-feature-icon">🕵️</span>
+            <img src="/static/characters/lio.png" alt="Special Agent Lio Stormheart" style="width:80px;height:80px;border-radius:12px;object-fit:cover;cursor:zoom-in;" data-full="/static/characters/lio.png" />
             <div class="modal-feature-text">
               <strong>Special Agent Lio Stormheart</strong>
               <p>Smooth space-agent guide. Cool, observant, clear, and steady like a space James Bond. Great for logical thinkers who want step-by-step problem solving.</p>
+              <p><a href="/static/characters/lio.png" target="_blank" rel="noopener" style="color:#5c6bff;text-decoration:underline;">Open image</a></p>
             </div>
           </div>
           <div class="modal-feature-item">
-            <span class="modal-feature-icon">🤓</span>
+            <img src="/static/characters/theo.png" alt="Theo Sparks" style="width:80px;height:80px;border-radius:12px;object-fit:cover;cursor:zoom-in;" data-full="/static/characters/theo.png" />
             <div class="modal-feature-text">
               <strong>Theo Sparks</strong>
               <p>Thoughtful super-intelligent mentor. Nerdy-smart, calm, slow, academic but gentle. Makes STEM subjects accessible with patient explanations.</p>
+              <p><a href="/static/characters/theo.png" target="_blank" rel="noopener" style="color:#5c6bff;text-decoration:underline;">Open image</a></p>
             </div>
           </div>
           <div class="modal-feature-item">
-            <span class="modal-feature-icon">🔬</span>
+            <img src="/static/characters/nova.png" alt="Nova Circuit" style="width:80px;height:80px;border-radius:12px;object-fit:cover;cursor:zoom-in;" data-full="/static/characters/nova.png" />
             <div class="modal-feature-text">
               <strong>Nova Circuit</strong>
               <p>Excited but gentle scientist inventor. Curious, upbeat, softly enthusiastic. Turns every question into a mini-investigation with a hands-on approach.</p>
+              <p><a href="/static/characters/nova.png" target="_blank" rel="noopener" style="color:#5c6bff;text-decoration:underline;">Open image</a></p>
             </div>
           </div>
         </div>
         <div class="modal-cta">
-          <a href="/choose_login_role" class="modal-btn">Choose Your Mentor</a>
+          <a href="#" class="modal-btn" onclick="closeFeatureModal(); return false;">Close</a>
         </div>
       `;
 
@@ -1344,6 +1685,55 @@
       modal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
+
+    // Image lightbox inside modal
+    (function initLightbox(){
+      const modal = document.getElementById('feature-modal');
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      const img = document.createElement('img');
+      img.className = 'lightbox-image';
+      const cap = document.createElement('div');
+      cap.className = 'lightbox-caption';
+      overlay.appendChild(img);
+      overlay.appendChild(cap);
+      document.body.appendChild(overlay);
+
+      // open
+      modal.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target && target.tagName === 'IMG' && target.dataset.full) {
+          img.src = target.dataset.full;
+          const name = target.getAttribute('alt') || 'Character';
+          const bios = {
+            'Princess Everly Dawn': '✨ Brave and gentle warrior-princess mentor. Warm, steady, kind, and lightly elegant — she turns lessons into living stories and cheers you on with grace.',
+            'Jasmine Starflare': '🌈 Calm cosmic explorer. Graceful, soft, curious, and bright — she brings galactic calm to reading and writing with poetic spark.',
+            'Special Agent Lio Stormheart': '🎯 Smooth space-agent guide. Cool, observant, and clear — a strategic mentor for step-by-step mastery and confident thinking.',
+            'Theo Sparks': '🧠 Thoughtful super‑intelligent mentor. Nerdy‑smart, calm, and gentle — he makes STEM click with patient, crystal‑clear explanations.',
+            'Nova Circuit': '⚡ Excited yet gentle scientist‑inventor. Curious and upbeat — every question becomes a mini‑investigation with hands‑on wonder.',
+          };
+          cap.innerHTML = `<strong style="color:#fff;letter-spacing:0.02em;">${name}</strong><br>${bios[name] || ''}`;
+          overlay.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+      // close
+      overlay.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        img.src = '';
+        cap.textContent = '';
+        document.body.style.overflow = '';
+      });
+      // esc closes
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+          overlay.classList.remove('active');
+          img.src = '';
+          cap.textContent = '';
+          document.body.style.overflow = '';
+        }
+      });
+    })();
   </script>
 </body>
 </html>
