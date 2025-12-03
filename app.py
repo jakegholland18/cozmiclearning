@@ -1729,6 +1729,60 @@ def teacher_dashboard():
         trial_days_remaining=trial_days_remaining,
     )
 
+
+@app.route("/teacher/settings", methods=["GET", "POST"])
+def teacher_settings():
+    """Teacher account settings - subscription, profile, password"""
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+    
+    # Check subscription status
+    access_check = check_subscription_access("teacher")
+    if access_check != True:
+        return access_check
+    
+    if request.method == "POST":
+        action = request.form.get("action")
+        
+        if action == "update_profile":
+            name = request.form.get("name", "").strip()
+            if name:
+                teacher.name = name
+                db.session.commit()
+                flash("Profile updated successfully.", "success")
+            else:
+                flash("Name cannot be empty.", "error")
+        
+        elif action == "change_password":
+            current_pw = request.form.get("current_password", "")
+            new_pw = request.form.get("new_password", "")
+            confirm_pw = request.form.get("confirm_password", "")
+            
+            if not check_password_hash(teacher.password_hash, current_pw):
+                flash("Current password is incorrect.", "error")
+            elif new_pw != confirm_pw:
+                flash("New passwords do not match.", "error")
+            elif len(new_pw) < 6:
+                flash("Password must be at least 6 characters.", "error")
+            else:
+                teacher.password_hash = generate_password_hash(new_pw)
+                db.session.commit()
+                flash("Password changed successfully.", "success")
+        
+        return redirect("/teacher/settings")
+    
+    # Get trial info
+    trial_days_remaining = get_days_remaining_in_trial(teacher)
+    
+    return render_template(
+        "teacher_settings.html",
+        teacher=teacher,
+        is_owner=is_owner(teacher),
+        trial_days_remaining=trial_days_remaining
+    )
+
+
 # ============================================================
 # TEACHER – CLASSES + STUDENTS
 # ============================================================

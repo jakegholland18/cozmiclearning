@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Settings - CozmicLearning{% endblock %}
+
+{% block content %}
+<style>
+.settings-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.settings-header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.settings-section {
+    background: rgba(20, 20, 60, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.settings-section h2 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-section h2 .emoji {
+    font-size: 1.8rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #d6e3ff;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: rgba(79,172,254,0.6);
+    background: rgba(255,255,255,0.08);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(79,172,254,0.4);
+}
+
+.subscription-info {
+    background: rgba(132,255,0,0.1);
+    border: 1px solid rgba(132,255,0,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.subscription-info.trial {
+    background: rgba(255,193,7,0.1);
+    border-color: rgba(255,193,7,0.3);
+}
+
+.subscription-info.expired {
+    background: rgba(255,107,157,0.1);
+    border-color: rgba(255,107,157,0.3);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #a0aec0;
+    font-weight: 600;
+}
+
+.info-value {
+    color: #fff;
+    font-weight: 600;
+}
+
+.upgrade-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff6b9d, #c44569);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255,107,157,0.4);
+}
+
+.danger-zone {
+    background: rgba(255,107,157,0.05);
+    border: 1px solid rgba(255,107,157,0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.danger-zone h3 {
+    color: #ff6b9d;
+    margin-bottom: 15px;
+}
+</style>
+
+<div class="settings-container">
+    <div class="settings-header">
+        <h1>⚙️ Account Settings</h1>
+        <p style="color: #a0aec0;">Manage your CozmicLearning teacher account</p>
+    </div>
+
+    <!-- Subscription Info -->
+    <div class="settings-section">
+        <h2><span class="emoji">💳</span> Subscription</h2>
+        
+        {% if teacher.subscription_active %}
+            <div class="subscription-info">
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" style="color: #84ff00;">✅ Active</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Plan</span>
+                    <span class="info-value">{{ teacher.plan|title or 'Basic' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Billing</span>
+                    <span class="info-value">{{ teacher.billing|title or 'Monthly' }}</span>
+                </div>
+            </div>
+        {% elif trial_days_remaining and trial_days_remaining > 0 %}
+            <div class="subscription-info trial">
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" style="color: #ffc107;">🎁 Free Trial</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Days Remaining</span>
+                    <span class="info-value">{{ trial_days_remaining }} days</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trial Ends</span>
+                    <span class="info-value">{{ teacher.trial_end.strftime('%B %d, %Y') if teacher.trial_end else 'N/A' }}</span>
+                </div>
+                <a href="/plans" class="upgrade-btn">🚀 Upgrade Now</a>
+            </div>
+        {% else %}
+            <div class="subscription-info expired">
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" style="color: #ff6b9d;">⚠️ Trial Expired</span>
+                </div>
+                <p style="margin-top: 15px; color: #a0aec0;">
+                    Your 7-day free trial has ended. Upgrade to continue using CozmicLearning.
+                </p>
+                <a href="/plans" class="upgrade-btn">🚀 Upgrade to Premium</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="settings-section">
+        <h2><span class="emoji">👤</span> Profile</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="update_profile">
+            
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" value="{{ teacher.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" value="{{ teacher.email }}" disabled style="opacity: 0.6; cursor: not-allowed;">
+                <small style="color: #718096;">Email cannot be changed</small>
+            </div>
+            
+            <button type="submit" class="btn-primary">💾 Save Changes</button>
+        </form>
+    </div>
+
+    <!-- Password Settings -->
+    <div class="settings-section">
+        <h2><span class="emoji">🔒</span> Change Password</h2>
+        <form method="POST">
+            <input type="hidden" name="action" value="change_password">
+            
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" name="current_password" required>
+            </div>
+            
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" name="new_password" required minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" name="confirm_password" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn-primary">🔑 Update Password</button>
+        </form>
+    </div>
+
+    <!-- Account Info -->
+    <div class="settings-section">
+        <h2><span class="emoji">📊</span> Account Information</h2>
+        <div class="info-row">
+            <span class="info-label">Account Created</span>
+            <span class="info-value">{{ teacher.created_at.strftime('%B %d, %Y') if teacher.created_at else 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Account Type</span>
+            <span class="info-value">Teacher</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Total Classes</span>
+            <span class="info-value">{{ teacher.classes|length }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
