@@ -287,23 +287,62 @@
             <button type="submit">Ask CozmicLearning</button>
         </form>
 
-        <!-- MODE 2 -->
+        <!-- MODE 2 - Enhanced PowerGrid -->
         <form action="/powergrid_submit" method="POST" enctype="multipart/form-data" class="ask-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <h3 style="margin-top:0;">📚 Build a Custom Study Guide</h3>
-            <p>Upload a file or type a topic. PowerGrid will create a full study guide.</p>
+            <p>Upload files, paste URLs, or enter a topic. PowerGrid will create your perfect study guide.</p>
 
             <input type="hidden" name="grade" value="{{ grade }}">
 
+            <!-- Study Mode Selection -->
+            <div style="margin-bottom: 15px;">
+                <label><strong>Study Mode:</strong></label>
+                <select name="study_mode" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
+                    <option value="standard">📚 Standard (Balanced)</option>
+                    <option value="quick">⚡ Quick Summary</option>
+                    <option value="deep">🔬 Deep Dive (Maximum Detail)</option>
+                    <option value="socratic">💭 Socratic (Question-Based)</option>
+                </select>
+            </div>
+
+            <!-- Learning Style Selection -->
+            <div style="margin-bottom: 15px;">
+                <label><strong>Learning Style:</strong></label>
+                <select name="learning_style" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
+                    <option value="balanced">🎯 Balanced (Mix of All)</option>
+                    <option value="visual">👁️ Visual (Diagrams & Charts)</option>
+                    <option value="auditory">👂 Auditory (Verbal Patterns)</option>
+                    <option value="kinesthetic">✋ Kinesthetic (Hands-On)</option>
+                </select>
+            </div>
+
+            <!-- Multiple File Upload -->
             <div class="upload-box">
-                <label><strong>Upload a file (PDF, DOCX, TXT, or Image):</strong></label>
-                <input type="file" name="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg">
+                <label><strong>Upload Files (Multiple Supported):</strong></label>
+                <input type="file" name="file" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg,.bmp,.tiff" multiple>
+                <small style="color:#8a92b3; display:block; margin-top:5px;">Supports: PDF, DOCX, TXT, Images (OCR)</small>
             </div>
 
             <div class="divider">OR</div>
 
-            <textarea name="topic" placeholder="Type a topic you want turned into an advanced study guide..."></textarea>
+            <!-- URL Import -->
+            <div style="margin-bottom: 15px;">
+                <label><strong>Import from Web Article:</strong></label>
+                <input type="url" name="url" placeholder="https://example.com/article" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
+            </div>
+
+            <!-- YouTube URL -->
+            <div style="margin-bottom: 15px;">
+                <label><strong>YouTube Video (Transcript):</strong></label>
+                <input type="url" name="youtube_url" placeholder="https://youtube.com/watch?v=..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
+            </div>
+
+            <div class="divider">OR</div>
+
+            <!-- Manual Topic -->
+            <textarea name="topic" placeholder="Type a topic you want turned into a study guide..."></textarea>
 
             <button type="submit">Generate Study Guide</button>
         </form>

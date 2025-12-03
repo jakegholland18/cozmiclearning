@@ -9,3 +9,9 @@ pypdf2
 reportlab
 flask
 Flask-WTF==1.2.1
+python-docx==1.1.0
+pytesseract==0.3.10
+Pillow==10.2.0
+requests==2.31.0
+beautifulsoup4==4.12.3
+youtube-transcript-api==0.6.2

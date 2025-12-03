@@ -1,71 +1,789 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div class="stars"></div>
+<style>
+/* PowerGrid Electric Theme */
+body {
+    background: linear-gradient(135deg, #0a0e1f 0%, #050813 100%);
+    overflow-x: hidden;
+}
 
-<div class="character-wrapper fade-in">
-    <img src="/static/characters/{{ character }}.png" class="character-img">
-    <div class="character-name">{{ character|title }}</div>
+.stars {
+    background: 
+        radial-gradient(2px 2px at 20% 30%, #00f2ff, transparent),
+        radial-gradient(2px 2px at 60% 70%, #00f2ff, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, #00f2ff, transparent);
+    animation: electricTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes electricTwinkle {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+}
+
+/* Circuit Board Background Pattern */
+.circuit-bg {
+    position: fixed;
+    inset: 0;
+    background-image: 
+        linear-gradient(90deg, rgba(0,242,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(0,242,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+    animation: circuitPulse 8s ease-in-out infinite;
+}
+
+@keyframes circuitPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Lightning Bolts */
+.lightning-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.lightning {
+    position: absolute;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(180deg, transparent, #00f2ff, transparent);
+    box-shadow: 0 0 20px #00f2ff, 0 0 40px #00f2ff;
+    animation: lightningStrike 4s ease-in-out infinite;
+    opacity: 0;
+}
+
+.lightning:nth-child(1) { left: 20%; top: -100px; animation-delay: 0s; }
+.lightning:nth-child(2) { left: 60%; top: -100px; animation-delay: 2s; }
+.lightning:nth-child(3) { left: 85%; top: -100px; animation-delay: 3.5s; }
+
+@keyframes lightningStrike {
+    0% { transform: translateY(0) scaleY(0); opacity: 0; }
+    5% { transform: translateY(200px) scaleY(2); opacity: 1; }
+    10% { transform: translateY(400px) scaleY(1.5); opacity: 0.8; }
+    15% { transform: translateY(600px) scaleY(0); opacity: 0; }
+    100% { transform: translateY(600px) scaleY(0); opacity: 0; }
+}
+
+/* PowerGrid Container */
+.powergrid-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+/* Energy Core Header */
+.energy-core {
+    text-align: center;
+    margin: 30px 0 40px;
+    position: relative;
+}
+
+.energy-title {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #00f2ff, #00b8d4, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(0,242,255,0.5);
+    animation: energyPulse 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes energyPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(0,242,255,0.6)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 40px rgba(0,242,255,1)); }
+}
+
+.energy-subtitle {
+    color: #6dd5ed;
+    font-size: 1.1rem;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+/* Power Level Battery */
+.power-battery {
+    width: 300px;
+    height: 30px;
+    border: 3px solid #00f2ff;
+    border-radius: 20px;
+    margin: 20px auto;
+    position: relative;
+    background: rgba(0,0,0,0.5);
+    box-shadow: 
+        0 0 20px rgba(0,242,255,0.4),
+        inset 0 0 10px rgba(0,242,255,0.2);
+}
+
+.power-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00f2ff, #4facfe, #00f2ff);
+    border-radius: 17px;
+    width: 0%;
+    transition: width 1s ease-out;
+    box-shadow: 0 0 20px rgba(0,242,255,0.8);
+    animation: energyFlow 2s linear infinite;
+}
+
+@keyframes energyFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.power-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+/* Study Mode Selector */
+.mode-selector {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 30px 0;
+}
+
+.mode-btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    border: 2px solid #00f2ff;
+    background: linear-gradient(135deg, rgba(0,242,255,0.1), rgba(79,172,254,0.05));
+    color: #00f2ff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(0,242,255,0.2);
+}
+
+.mode-btn:hover, .mode-btn.active {
+    background: linear-gradient(135deg, #00f2ff, #4facfe);
+    color: white;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 
+        0 8px 25px rgba(0,242,255,0.5),
+        0 0 30px rgba(0,242,255,0.4);
+}
+
+/* Main Study Guide */
+.study-guide-wrapper {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+/* Table of Contents */
+.toc-panel {
+    background: linear-gradient(135deg, rgba(0,242,255,0.08), rgba(79,172,254,0.05));
+    border: 2px solid rgba(0,242,255,0.3);
+    border-radius: 20px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 8px 32px rgba(0,242,255,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.toc-title {
+    color: #00f2ff;
+    font-weight: 700;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-item {
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6dd5ed;
+    font-size: 0.9rem;
+}
+
+.toc-item:hover {
+    background: rgba(0,242,255,0.15);
+    color: #00f2ff;
+    transform: translateX(5px);
+}
+
+.toc-item.active {
+    background: rgba(0,242,255,0.25);
+    color: white;
+    border-left: 3px solid #00f2ff;
+}
+
+/* Study Guide Content */
+.study-content {
+    background: linear-gradient(135deg, rgba(0,242,255,0.05), rgba(79,172,254,0.03));
+    border: 2px solid rgba(0,242,255,0.25);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.3),
+        0 0 60px rgba(0,242,255,0.15);
+    backdrop-filter: blur(10px);
+}
+
+.study-section {
+    margin-bottom: 40px;
+    padding: 25px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 15px;
+    border-left: 4px solid #00f2ff;
+    transition: all 0.3s ease;
+}
+
+.study-section:hover {
+    background: rgba(0,242,255,0.08);
+    box-shadow: 0 0 30px rgba(0,242,255,0.2);
+}
+
+.section-title {
+    color: #00f2ff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-content {
+    color: #c4d1ff;
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+/* Progress Tracker */
+.progress-tracker {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, rgba(0,242,255,0.15), rgba(79,172,254,0.1));
+    border: 2px solid #00f2ff;
+    border-radius: 20px;
+    padding: 15px 20px;
+    box-shadow: 0 8px 32px rgba(0,242,255,0.4);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.progress-text {
+    color: #00f2ff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00f2ff, #4facfe);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(0,242,255,0.8);
+}
+
+/* Highlight System */
+.highlightable {
+    cursor: text;
+    position: relative;
+}
+
+.highlight {
+    background: rgba(255,235,59,0.3);
+    border-bottom: 2px solid #ffd54f;
+    padding: 2px 0;
+    cursor: pointer;
+}
+
+/* Flashcard Panel */
+.flashcard-panel {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(132,255,0,0.08), rgba(0,242,255,0.05));
+    border: 2px solid rgba(132,255,0,0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(132,255,0,0.2);
+}
+
+.flashcard {
+    background: rgba(0,0,0,0.4);
+    border: 2px solid rgba(132,255,0,0.4);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.flashcard:hover {
+    transform: rotateY(5deg) scale(1.02);
+    box-shadow: 0 8px 25px rgba(132,255,0,0.4);
+}
+
+.flashcard-term {
+    color: #84ff00;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.flashcard-def {
+    color: #c4d1ff;
+    line-height: 1.6;
+}
+
+/* Quiz Mode */
+.quiz-container {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(255,107,157,0.08), rgba(192,132,252,0.05));
+    border: 2px solid rgba(255,107,157,0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(255,107,157,0.2);
+}
+
+.quiz-question {
+    background: rgba(0,0,0,0.4);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ff6fd8;
+}
+
+.quiz-q-text {
+    color: #ff6fd8;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.quiz-options {
+    display: grid;
+    gap: 10px;
+}
+
+.quiz-option {
+    padding: 12px 18px;
+    background: rgba(0,242,255,0.1);
+    border: 2px solid rgba(0,242,255,0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #c4d1ff;
+}
+
+.quiz-option:hover {
+    background: rgba(0,242,255,0.2);
+    border-color: #00f2ff;
+    transform: translateX(5px);
+}
+
+.quiz-option.correct {
+    background: rgba(132,255,0,0.2);
+    border-color: #84ff00;
+}
+
+.quiz-option.incorrect {
+    background: rgba(255,63,52,0.2);
+    border-color: #ff3f34;
+}
+
+/* Action Buttons */
+.action-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+    justify-content: center;
+}
+
+.power-btn {
+    padding: 14px 28px;
+    border-radius: 25px;
+    border: none;
+    background: linear-gradient(135deg, #00f2ff, #4facfe);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,242,255,0.4);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.power-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+}
+
+.power-btn:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.power-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(0,242,255,0.6);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .study-guide-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .toc-panel {
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .energy-title {
+        font-size: 2rem;
+    }
+    
+    .power-battery {
+        width: 200px;
+    }
+    
+    .study-content {
+        padding: 20px;
+    }
+    
+    .progress-tracker {
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+    }
+}
+</style>
+
+<div class="circuit-bg"></div>
+<div class="lightning-container">
+    <div class="lightning"></div>
+    <div class="lightning"></div>
+    <div class="lightning"></div>
 </div>
 
-<div class="answer-box fade-in">
-    <h2 class="answer-title">⚡ PowerGrid Master Study Guide</h2>
-
-    {% if pdf_url %}
-        <a href="{{ pdf_url }}" download class="btn btn-primary">📘 Download Study Guide PDF</a>
-        <br><br>
-    {% endif %}
-
-    <pre class="answer-text">{{ answer }}</pre>
-</div>
-
-<div class="chat-section fade-in">
-    <h3 class="chat-title">💬 Continue the Conversation</h3>
-
-    <div class="chat-log" id="chat-log">
-        {% for msg in conversation %}
-            {% if msg.role == "user" %}
-                <div class="chat-msg msg-user">{{ msg.content }}</div>
-            {% else %}
-                <div class="chat-msg msg-ai">{{ msg.content }}</div>
-            {% endif %}
-        {% endfor %}
+<div class="powergrid-container">
+    <!-- Energy Core Header -->
+    <div class="energy-core">
+        <div class="energy-title">⚡ POWERGRID ⚡</div>
+        <div class="energy-subtitle">Master Study Guide Generator</div>
+        
+        <!-- Power Battery -->
+        <div class="power-battery">
+            <div class="power-fill" id="powerFill"></div>
+            <div class="power-text" id="powerText">Energy Level: 0%</div>
+        </div>
     </div>
 
-    <div class="chat-input">
-        <textarea id="chat-msg" placeholder="Ask a follow-up question…"></textarea>
-        <button onclick="sendFollowup()">Send</button>
+    <!-- Study Mode Selector -->
+    <div class="mode-selector">
+        <button class="mode-btn active" data-mode="standard">📚 Standard</button>
+        <button class="mode-btn" data-mode="quick">⚡ Quick Summary</button>
+        <button class="mode-btn" data-mode="deep">🔬 Deep Dive</button>
+        <button class="mode-btn" data-mode="socratic">💭 Socratic Mode</button>
+        <button class="mode-btn" data-mode="flashcards">🎴 Flashcards</button>
+        <button class="mode-btn" data-mode="quiz">🎯 Quiz Me</button>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        {% if pdf_url %}
+        <a href="{{ pdf_url }}" download class="power-btn">📘 Download PDF</a>
+        {% endif %}
+        <button class="power-btn" onclick="printStudyGuide()">🖨️ Print Guide</button>
+        <button class="power-btn" onclick="shareWithTeacher()">👩‍🏫 Share with Teacher</button>
+        <button class="power-btn" onclick="saveToLibrary()">💾 Save to Library</button>
+        <button class="power-btn" onclick="toggleHighlightMode()">🖍️ Highlight Mode</button>
+    </div>
+
+    <!-- Study Guide with TOC -->
+    <div class="study-guide-wrapper">
+        <!-- Table of Contents -->
+        <div class="toc-panel">
+            <div class="toc-title">📑 Contents</div>
+            <ul class="toc-list" id="tocList">
+                <!-- Generated by JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Main Study Content -->
+        <div class="study-content" id="studyContent">
+            <div class="highlightable">
+                {{ answer|safe }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard Panel (hidden by default) -->
+    <div class="flashcard-panel" id="flashcardPanel" style="display:none;">
+        <h3 style="color: #84ff00; margin-bottom: 20px;">🎴 Generated Flashcards</h3>
+        <div id="flashcardContainer"></div>
+    </div>
+
+    <!-- Quiz Panel (hidden by default) -->
+    <div class="quiz-container" id="quizPanel" style="display:none;">
+        <h3 style="color: #ff6fd8; margin-bottom: 20px;">🎯 Practice Quiz</h3>
+        <div id="quizContainer"></div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="progress-tracker">
+        <div class="progress-text" id="progressText">Progress: 0%</div>
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div style="color: #6dd5ed; font-size: 0.85rem; margin-top: 5px;" id="timeEstimate">Est. time: --</div>
     </div>
 </div>
 
 <script>
-async function sendFollowup() {
-    const msgBox = document.getElementById("chat-msg");
-    const log = document.getElementById("chat-log");
+// Study Mode Management
+let currentMode = 'standard';
+let highlightMode = false;
+const studyText = {{ answer|tojson }};
 
-    const text = msgBox.value.trim();
-    if (!text) return;
-    msgBox.value = "";
-
-    log.innerHTML += `<div class="chat-msg msg-user">${text}</div>`;
-    log.scrollTop = log.scrollHeight;
-
-    const response = await fetch("/followup_message", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            subject: "power_grid",
-            grade: "{{ grade }}",
-            character: "{{ character }}",
-            message: text
-        })
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    generateTOC();
+    trackProgress();
+    animatePowerBattery();
+    calculateReadingTime();
+    
+    // Mode selector
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentMode = btn.dataset.mode;
+            handleModeChange(currentMode);
+        });
     });
+});
 
-    const data = await response.json();
-    const reply = data.reply || "I'm not sure — try rephrasing it!";
+// Generate Table of Contents
+function generateTOC() {
+    const content = document.getElementById('studyContent');
+    const tocList = document.getElementById('tocList');
+    const sections = content.querySelectorAll('h1, h2, h3');
+    
+    sections.forEach((section, index) => {
+        const id = `section-${index}`;
+        section.id = id;
+        section.classList.add('section-title');
+        
+        const li = document.createElement('li');
+        li.className = 'toc-item';
+        li.textContent = section.textContent;
+        li.onclick = () => {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            document.querySelectorAll('.toc-item').forEach(item => item.classList.remove('active'));
+            li.classList.add('active');
+        };
+        tocList.appendChild(li);
+    });
+}
 
-    log.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
-    log.scrollTop = log.scrollHeight;
+// Track Reading Progress
+function trackProgress() {
+    const content = document.getElementById('studyContent');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        
+        progressFill.style.width = scrollPercent + '%';
+        progressText.textContent = `Progress: ${Math.round(scrollPercent)}%`;
+        
+        // Update TOC active state
+        const sections = Array.from(document.querySelectorAll('.section-title'));
+        const current = sections.reverse().find(section => section.offsetTop <= scrollTop + 100);
+        if (current) {
+            document.querySelectorAll('.toc-item').forEach(item => item.classList.remove('active'));
+            const index = Array.from(document.querySelectorAll('.section-title')).indexOf(current);
+            document.querySelectorAll('.toc-item')[index]?.classList.add('active');
+        }
+    });
+}
+
+// Animate Power Battery
+function animatePowerBattery() {
+    let power = 0;
+    const fill = document.getElementById('powerFill');
+    const text = document.getElementById('powerText');
+    
+    const interval = setInterval(() => {
+        power += 2;
+        fill.style.width = power + '%';
+        text.textContent = `Energy Level: ${power}%`;
+        
+        if (power >= 100) {
+            clearInterval(interval);
+            text.textContent = 'Fully Charged! ⚡';
+        }
+    }, 30);
+}
+
+// Calculate Reading Time
+function calculateReadingTime() {
+    const words = studyText.split(/\s+/).length;
+    const wpm = 200; // average reading speed
+    const minutes = Math.ceil(words / wpm);
+    document.getElementById('timeEstimate').textContent = `Est. time: ${minutes} min`;
+}
+
+// Handle Mode Changes
+function handleModeChange(mode) {
+    const flashcardPanel = document.getElementById('flashcardPanel');
+    const quizPanel = document.getElementById('quizPanel');
+    
+    flashcardPanel.style.display = 'none';
+    quizPanel.style.display = 'none';
+    
+    if (mode === 'flashcards') {
+        flashcardPanel.style.display = 'block';
+        generateFlashcards();
+    } else if (mode === 'quiz') {
+        quizPanel.style.display = 'block';
+        generateQuiz();
+    } else if (mode === 'quick') {
+        // TODO: Show condensed summary
+        alert('Quick summary mode - showing condensed version');
+    } else if (mode === 'deep') {
+        // TODO: Show expanded version
+        alert('Deep dive mode - showing detailed version');
+    } else if (mode === 'socratic') {
+        // TODO: Start Socratic questioning
+        alert('Socratic mode - AI will ask you questions');
+    }
+}
+
+// Generate Flashcards
+function generateFlashcards() {
+    const container = document.getElementById('flashcardContainer');
+    container.innerHTML = '';
+    
+    // Extract key terms (simplified - would use AI in production)
+    const lines = studyText.split('\n');
+    const flashcards = [];
+    
+    lines.forEach(line => {
+        if (line.includes(':')) {
+            const [term, def] = line.split(':');
+            if (term && def && term.length < 50) {
+                flashcards.push({ term: term.trim(), def: def.trim() });
+            }
+        }
+    });
+    
+    flashcards.slice(0, 10).forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'flashcard';
+        div.innerHTML = `
+            <div class="flashcard-term">${card.term}</div>
+            <div class="flashcard-def" style="display:none;">${card.def}</div>
+        `;
+        div.onclick = () => {
+            div.querySelector('.flashcard-def').style.display = 
+                div.querySelector('.flashcard-def').style.display === 'none' ? 'block' : 'none';
+        };
+        container.appendChild(div);
+    });
+}
+
+// Generate Quiz
+function generateQuiz() {
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '<p style="color: #c4d1ff;">Quiz generation coming soon! AI will create practice questions from your study guide.</p>';
+}
+
+// Highlight Mode
+function toggleHighlightMode() {
+    highlightMode = !highlightMode;
+    alert(highlightMode ? 'Highlight mode ON - select text to highlight' : 'Highlight mode OFF');
+    
+    if (highlightMode) {
+        document.getElementById('studyContent').addEventListener('mouseup', handleHighlight);
+    } else {
+        document.getElementById('studyContent').removeEventListener('mouseup', handleHighlight);
+    }
+}
+
+function handleHighlight() {
+    const selection = window.getSelection();
+    if (selection.toString().length > 0) {
+        const range = selection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.className = 'highlight';
+        range.surroundContents(span);
+    }
+}
+
+// Action Functions
+function printStudyGuide() {
+    window.print();
+}
+
+function shareWithTeacher() {
+    alert('Study guide will be shared with your teacher!');
+    // TODO: Implement server-side sharing
+}
+
+function saveToLibrary() {
+    alert('Study guide saved to your personal library!');
+    // TODO: Implement library storage
 }
 </script>
 

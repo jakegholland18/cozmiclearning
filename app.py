@@ -2911,36 +2911,116 @@ def powergrid_submit():
 
     grade = request.form.get("grade")
     topic = request.form.get("topic", "").strip()
-    uploaded = request.files.get("file")
+    url_input = request.form.get("url", "").strip()
+    youtube_url = request.form.get("youtube_url", "").strip()
+    study_mode = request.form.get("study_mode", "standard")  # quick, standard, deep, socratic
+    learning_style = request.form.get("learning_style", "balanced")  # visual, auditory, kinesthetic, balanced
+    
+    uploaded_files = request.files.getlist("file")  # Multiple files support
 
     session["grade"] = grade
 
-    text = ""
-    if uploaded and uploaded.filename:
-        ext = uploaded.filename.lower()
-        path = os.path.join("/tmp", uploaded.filename)
-        uploaded.save(path)
+    text_parts = []
+    
+    # Process URL import
+    if url_input:
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            response = requests.get(url_input, timeout=10)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Extract main content (simplified - would need better parsing)
+            for script in soup(["script", "style"]):
+                script.decompose()
+            web_text = soup.get_text()
+            text_parts.append(f"--- Content from {url_input} ---\n{web_text[:5000]}")  # Limit to 5000 chars
+        except Exception as e:
+            app.logger.error(f"URL import error: {e}")
+            text_parts.append(f"Could not import from URL: {str(e)}")
+    
+    # Process YouTube transcript
+    if youtube_url:
+        try:
+            from youtube_transcript_api import YouTubeTranscriptApi
+            import re
+            # Extract video ID
+            video_id_match = re.search(r'(?:v=|\/)([0-9A-Za-z_-]{11}).*', youtube_url)
+            if video_id_match:
+                video_id = video_id_match.group(1)
+                transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                transcript_text = ' '.join([entry['text'] for entry in transcript])
+                text_parts.append(f"--- YouTube Transcript ---\n{transcript_text}")
+        except Exception as e:
+            app.logger.error(f"YouTube transcript error: {e}")
+            text_parts.append(f"Could not extract YouTube transcript: {str(e)}")
+    
+    # Process uploaded files (multiple files)
+    if uploaded_files and uploaded_files[0].filename:
+        for uploaded in uploaded_files:
+            if not uploaded.filename:
+                continue
+                
+            ext = uploaded.filename.lower()
+            path = os.path.join("/tmp", uploaded.filename)
+            uploaded.save(path)
 
-        if ext.endswith(".txt"):
-            with open(path, "r") as f:
-                text = f.read()
-        elif ext.endswith(".pdf"):
             try:
-                from PyPDF2 import PdfReader
-
-                pdf = PdfReader(path)
-                text = "\n".join(page.extract_text() or "" for page in pdf.pages)
-            except Exception:
-                text = "Could not read PDF content."
-        else:
-            text = f"Study this:\n\n{topic}"
+                if ext.endswith(".txt"):
+                    with open(path, "r", encoding='utf-8') as f:
+                        text_parts.append(f"--- From {uploaded.filename} ---\n{f.read()}")
+                
+                elif ext.endswith(".pdf"):
+                    try:
+                        from PyPDF2 import PdfReader
+                        pdf = PdfReader(path)
+                        pdf_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+                        text_parts.append(f"--- From {uploaded.filename} ---\n{pdf_text}")
+                    except Exception as e:
+                        text_parts.append(f"Could not read PDF {uploaded.filename}: {str(e)}")
+                
+                elif ext.endswith((".docx", ".doc")):
+                    try:
+                        from docx import Document
+                        doc = Document(path)
+                        docx_text = "\n".join([para.text for para in doc.paragraphs])
+                        text_parts.append(f"--- From {uploaded.filename} ---\n{docx_text}")
+                    except Exception as e:
+                        text_parts.append(f"Could not read DOCX {uploaded.filename}: {str(e)}")
+                
+                elif ext.endswith((".png", ".jpg", ".jpeg", ".bmp", ".tiff")):
+                    try:
+                        import pytesseract
+                        from PIL import Image
+                        img = Image.open(path)
+                        ocr_text = pytesseract.image_to_string(img)
+                        text_parts.append(f"--- OCR from {uploaded.filename} ---\n{ocr_text}")
+                    except Exception as e:
+                        text_parts.append(f"Could not OCR image {uploaded.filename}: {str(e)}")
+                
+                else:
+                    text_parts.append(f"Unsupported file type: {uploaded.filename}")
+                    
+            except Exception as e:
+                app.logger.error(f"File processing error for {uploaded.filename}: {e}")
+                text_parts.append(f"Error processing {uploaded.filename}")
+    
+    # Add manual topic if provided
+    if topic:
+        text_parts.append(f"--- Topic Request ---\n{topic}")
+    
+    # Combine all text sources
+    if text_parts:
+        combined_text = "\n\n".join(text_parts)
     else:
-        text = topic or "No topic provided."
+        combined_text = "No content provided."
 
+    # Generate study guide with mode and style
     study_guide = study_helper.generate_powergrid_master_guide(
-        text, grade, session["character"]
+        combined_text, grade, session["character"], 
+        mode=study_mode, learning_style=learning_style
     )
 
+    # Generate PDF
     import uuid
     from textwrap import wrap
 
@@ -2949,18 +3029,30 @@ def powergrid_submit():
     try:
         from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import letter
+        from reportlab.lib.units import inch
 
         c = canvas.Canvas(pdf_path, pagesize=letter)
         width, height = letter
         y = height - 50
 
+        # Header
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(40, y, "PowerGrid Master Study Guide")
+        y -= 30
+        c.setFont("Helvetica", 10)
+        c.drawString(40, y, f"Generated: {datetime.now().strftime('%B %d, %Y')}")
+        y -= 30
+
+        # Content
+        c.setFont("Helvetica", 11)
         for line in study_guide.split("\n"):
-            for wrapped in wrap(line, 110):
-                c.drawString(40, y, wrapped)
-                y -= 15
+            for wrapped in wrap(line if line else " ", 95):
                 if y < 40:
                     c.showPage()
                     y = height - 50
+                    c.setFont("Helvetica", 11)
+                c.drawString(40, y, wrapped)
+                y -= 15
 
         c.save()
         session["study_pdf"] = pdf_path
@@ -2974,10 +3066,10 @@ def powergrid_submit():
     session.modified = True
 
     return render_template(
-        "subject.html",
+        "powergrid.html",
         subject="power_grid",
         grade=grade,
-        question=topic,
+        question=topic or "Multi-source study guide",
         answer=study_guide,
         character=session["character"],
         conversation=session["conversation"],
