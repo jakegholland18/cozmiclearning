@@ -427,6 +427,7 @@
 
                 <!-- Add student form -->
                 <form class="inline-form" method="POST" action="/teacher/add_student/{{ c.id }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="text" name="student_name" placeholder="Student name" required>
                     <input type="email" name="email" placeholder="Student email (optional)">
                     <button class="btn" type="submit">Add Student</button>
