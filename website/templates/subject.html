@@ -215,7 +215,45 @@
         <br><br>
     {% endif %}
 
-    <pre class="answer-text">{{ answer }}</pre>
+        {% if sections %}
+            <div class="teaching-sections">
+                <h3 style="margin:16px 0 8px;color:#f7fbff;">SECTION 1 — OVERVIEW</h3>
+                <div class="answer-text">{{ sections.overview }}</div>
+
+                <h3 style="margin:20px 0 8px;color:#f7fbff;">SECTION 2 — KEY FACTS</h3>
+                <div class="answer-text">
+                    {% for para in sections.key_facts %}
+                        <p style="margin:0 0 10px 0;">{{ para }}</p>
+                    {% endfor %}
+                </div>
+
+                <h3 style="margin:20px 0 8px;color:#f7fbff;">SECTION 3 — CHRISTIAN VIEW</h3>
+                <div class="answer-text">{{ sections.christian_view }}</div>
+
+                <h3 style="margin:20px 0 8px;color:#f7fbff;">SECTION 4 — AGREEMENT</h3>
+                <div class="answer-text">
+                    {% for para in sections.agreement %}
+                        <p style="margin:0 0 10px 0;">{{ para }}</p>
+                    {% endfor %}
+                </div>
+
+                <h3 style="margin:20px 0 8px;color:#f7fbff;">SECTION 5 — DIFFERENCE</h3>
+                <div class="answer-text">
+                    {% for para in sections.difference %}
+                        <p style="margin:0 0 10px 0;">{{ para }}</p>
+                    {% endfor %}
+                </div>
+
+                <h3 style="margin:20px 0 8px;color:#f7fbff;">SECTION 6 — PRACTICE</h3>
+                <div class="answer-text">
+                    {% for para in sections.practice %}
+                        <p style="margin:0 0 10px 0;">{{ para }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <pre class="answer-text">{{ answer }}</pre>
+        {% endif %}
 
     <!-- START PRACTICE BUTTON -->
     <div class="practice-box">
