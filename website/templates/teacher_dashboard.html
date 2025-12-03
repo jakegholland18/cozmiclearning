@@ -141,10 +141,10 @@
 
         /* ======================== LAYOUT ======================== */
         .layout {
-            max-width: 1100px;
+            max-width: 1400px;
             margin: 28px auto 60px;
             display: grid;
-            grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 26px;
             padding: 0 20px;
             position: relative;
@@ -158,6 +158,10 @@
             padding: 24px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), inset 1px 1px 0 rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
         }
 
         .card h2 {
@@ -317,6 +321,45 @@
             border-radius: 10px;
             font-size: 0.85rem;
             color: #ffdd55;
+        }
+
+        /* ======================== CHAT MESSAGES ======================== */
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 16px 0;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            background: var(--glass-2);
+            border-left: 3px solid var(--accent);
+            margin-left: 20px;
+        }
+
+        .chat-message.assistant {
+            background: var(--glass-1);
+            border-left: 3px solid var(--primary);
+            margin-right: 20px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
         }
     </style>
 </head>
@@ -539,11 +582,98 @@
 
         <div id="lessonPlanResult" style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85rem; color: var(--muted); display: none; max-height: 500px; overflow-y: auto;"></div>
     </div>
+
+    <!-- ============ TEACHER'S PET AI ASSISTANT ============ -->
+    <div class="card full-width">
+        <h2>🐾 Teacher's Pet — Your AI Assistant</h2>
+        <small>Ask me anything about CozmicLearning, teaching strategies, or get help with anything!</small>
+
+        <div id="teachersPetMessages" class="chat-messages">
+            <div class="chat-message assistant">
+                👋 Hi! I'm Teacher's Pet, your AI teaching assistant. I can help you with:
+                <br>• Questions about CozmicLearning features
+                <br>• Teaching strategies and lesson ideas
+                <br>• Differentiation approaches
+                <br>• Student engagement tips
+                <br>• Any other questions you have!
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="teachersPetInput" placeholder="Ask Teacher's Pet anything..." onkeypress="if(event.key==='Enter') askTeachersPet()">
+            <button class="btn" onclick="askTeachersPet()">Ask</button>
+        </div>
+    </div>
 </div>
 
 </body>
 
 <script>
+let teachersPetHistory = [];
+
+async function askTeachersPet() {
+    const input = document.getElementById('teachersPetInput');
+    const messagesDiv = document.getElementById('teachersPetMessages');
+    const question = input.value.trim();
+    
+    if (!question) return;
+
+    // Add user message to UI
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-message user';
+    userMsg.textContent = question;
+    messagesDiv.appendChild(userMsg);
+    
+    // Add loading message
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'chat-message assistant';
+    loadingMsg.innerHTML = '<em>Thinking...</em>';
+    messagesDiv.appendChild(loadingMsg);
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    input.value = '';
+
+    try {
+        const res = await fetch('/teacher/teachers_pet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                question: question,
+                history: teachersPetHistory
+            })
+        });
+
+        const data = await res.json();
+        
+        // Remove loading message
+        messagesDiv.removeChild(loadingMsg);
+        
+        if (res.ok && data.answer) {
+            // Add assistant response
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'chat-message assistant';
+            assistantMsg.textContent = data.answer;
+            messagesDiv.appendChild(assistantMsg);
+            
+            // Update history
+            teachersPetHistory = data.history || [];
+        } else {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'chat-message assistant';
+            errorMsg.innerHTML = `<em style="color: var(--warning);">Sorry, I encountered an error. Please try again.</em>`;
+            messagesDiv.appendChild(errorMsg);
+        }
+    } catch (err) {
+        messagesDiv.removeChild(loadingMsg);
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'chat-message assistant';
+        errorMsg.innerHTML = `<em style="color: var(--warning);">Network error: ${err.message}</em>`;
+        messagesDiv.appendChild(errorMsg);
+    }
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
 async function generateLessonPlan() {
     const resultDiv = document.getElementById('lessonPlanResult');
     resultDiv.style.display = 'block';

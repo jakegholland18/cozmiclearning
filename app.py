@@ -1616,6 +1616,82 @@ def teacher_generate_lesson_plan():
     }), 200
 
 # ============================================================
+# TEACHER — TEACHER'S PET AI ASSISTANT
+# ============================================================
+
+@csrf.exempt
+@app.route("/teacher/teachers_pet", methods=["POST"])
+def teachers_pet_assistant():
+    """Teacher's Pet: AI assistant for teachers to ask questions about CozmicLearning and teaching."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    data = request.get_json() or {}
+    question = safe_text(data.get("question", ""), 2000)
+    history = data.get("history", [])
+
+    if not question:
+        return jsonify({"error": "Question is required"}), 400
+
+    # Build context about CozmicLearning for Teacher's Pet
+    context_prompt = """You are Teacher's Pet, a friendly and helpful AI assistant for teachers using CozmicLearning.
+
+CozmicLearning is an AI-powered educational platform with these key features:
+- 11 subject "planets": NumForge (math), AtomSphere (science), FaithRealm (Bible), ChronoCore (history), InkHaven (writing), TruthForge (apologetics), StockStar (investing), CoinQuest (money), TerraNova (general), StoryVerse (reading), PowerGrid (study guide)
+- Differentiation modes: adaptive, gap_fill, mastery, scaffold
+- Student ability levels: struggling, on_level, advanced
+- AI-generated practice missions with 10 questions per session
+- Six-section teaching format: Overview, Key Facts, Christian View, Agreement, Difference, Practice
+- Teacher tools: assign questions, generate lesson plans, class analytics, student progress reports
+- Gamification: tokens, XP, levels, streaks
+- Characters: Everly, Lio, Nova for personalized tutoring
+
+Answer teacher questions about:
+1. How to use CozmicLearning features
+2. Teaching strategies and differentiation
+3. Student engagement and gamification
+4. Lesson planning and curriculum
+5. General teaching questions
+
+Be warm, encouraging, and practical. Give specific examples when helpful."""
+
+    # Build conversation with history
+    messages = [{"role": "system", "content": context_prompt}]
+    
+    # Add previous conversation history (last 10 exchanges to avoid token limit)
+    for msg in history[-10:]:
+        messages.append(msg)
+    
+    # Add current question
+    messages.append({"role": "user", "content": question})
+
+    try:
+        from modules.shared_ai import get_client
+        client = get_client()
+        
+        response = client.responses.create(
+            model="gpt-4.1-mini",
+            max_output_tokens=800,
+            input=messages,
+        )
+        
+        answer = response.output_text.strip()
+        
+        # Update history
+        history.append({"role": "user", "content": question})
+        history.append({"role": "assistant", "content": answer})
+        
+        return jsonify({
+            "success": True,
+            "answer": answer,
+            "history": history,
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"AI error: {str(e)}"}), 500
+
+# ============================================================
 # STUDENT – TAKE AI–GENERATED DIFFERENTIATED ASSIGNMENT
 # ============================================================
 
