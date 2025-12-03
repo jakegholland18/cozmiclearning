@@ -3,78 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <title>CozmicLearning</title>
-
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="/static/enhancements.js" defer></script>
 
     <style>
+        :root {
+            --bg: #02020a;
+            --text: #ffffff;
+            --muted: #c4d1ff;
+            --muted-2: #b3c0ff;
+            --muted-3: #8a92b3;
+            --primary: #5c6bff;
+            --primary-2: #7683ff;
+            --accent: #00f2ff;
+            --accent-2: #4facfe;
+            --success: #84ff00;
+            --gold: #ffd54f;
+            --warning: #ff9f1c;
+            --pink: #ff6b9d;
+            --shadow-strong: rgba(92, 107, 255, 0.5);
+            --shadow-soft: rgba(92, 107, 255, 0.3);
+            --border-soft: rgba(118, 131, 255, 0.3);
+            --border-mid: rgba(118, 131, 255, 0.4);
+            --glass-1: rgba(92, 107, 255, 0.08);
+            --glass-2: rgba(0, 242, 255, 0.08);
+            --glass-3: rgba(132, 255, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background: radial-gradient(circle at top, #0f1a2b, #000814);
-            color: white;
             font-family: "Poppins", sans-serif;
-            margin: 0;
-            padding: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Stars Background */
+        .stars {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent),
+                radial-gradient(1px 1px at 33% 90%, white, transparent),
+                radial-gradient(2px 2px at 70% 20%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 20s ease-in-out infinite;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
 
         nav {
             width: 100%;
-            padding: 15px 35px;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(6px);
+            padding: 18px 35px;
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.06));
+            backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 999;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border-soft);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         nav a {
-            color: #e4e7ff;
+            color: var(--muted);
             text-decoration: none;
-            margin: 0 12px;
+            margin: 0 14px;
             font-weight: 500;
-            transition: 0.2s;
+            font-size: 0.96rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         nav a:hover {
-            color: #73b4ff;
+            color: var(--accent);
+            transform: translateY(-2px);
         }
 
         .brand {
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #73b4ff, #c8a8ff);
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
         }
 
         .container {
             padding: 40px 30px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: auto;
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
 
 <body>
+    <div class="stars"></div>
 
-    <!-- =========================
-         GLOBAL NAVIGATION
-    ========================== -->
+    <!-- GLOBAL NAVIGATION -->
     <nav>
-
-        <div class="brand" onclick="window.location.href='/'">
-            CozmicLearning
-        </div>
+        <div class="brand" onclick="window.location.href='/'">CozmicLearning</div>
 
         <div class="nav-links">
-
             <!-- Public Links -->
             <a href="/">Home</a>
-            <a href="/choose-auth-role">Login</a>
+            <a href="/choose_login_role">Login</a>
 
             <!-- Student Links -->
             {% if session.get('is_student') %}
@@ -96,19 +148,16 @@
                 <a href="/teacher/logout">Logout</a>
             {% endif %}
 
-            <!-- OWNER OVERRIDE (CAN SEE EVERYTHING) -->
+            <!-- OWNER OVERRIDE -->
             {% if session.get('is_owner') %}
                 <a href="/teacher/dashboard" style="color:#ffd47f">Admin Teacher</a>
                 <a href="/parent_dashboard" style="color:#ffd47f">Admin Parent</a>
                 <a href="/dashboard" style="color:#ffd47f">Admin Student</a>
             {% endif %}
-
         </div>
     </nav>
 
-    <!-- =========================
-         PAGE CONTENT
-    ========================== -->
+    <!-- PAGE CONTENT -->
     <div class="container">
         {% block content %}{% endblock %}
     </div>

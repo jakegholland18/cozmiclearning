@@ -2,38 +2,14 @@
 {% block content %}
 
 <style>
-    body {
-        background: var(--bg-gradient-main);
-        overflow-x: hidden;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* STARFIELD */
-    .stars {
-        position: absolute;
-        inset: 0;
-        background: url('/static/stars.png');
-        background-size: cover;
-        opacity: 0.45;
-        animation: drift 45s linear infinite;
-        z-index: -1;
-    }
-
-    @keyframes drift {
-        from { transform: translateY(0); }
-        to { transform: translateY(-1200px); }
-    }
-
     /* PAGE TITLE */
     .select-title {
         text-align: center;
         margin-top: 50px;
         font-size: 3rem;
         font-weight: 700;
-        color: #cfe8ff;
-        text-shadow: 0 0 25px rgba(130,180,255,0.7),
-                     0 0 10px rgba(255,255,255,0.3);
+        color: var(--muted);
+        text-shadow: 0 0 25px var(--shadow-soft);
         letter-spacing: 1.5px;
         margin-bottom: 40px;
     }
@@ -54,17 +30,14 @@
         width: 220px;
         text-align: center;
         padding: 22px 15px;
-        background: linear-gradient(135deg,
-            rgba(92, 107, 255, 0.15),
-            rgba(71, 200, 255, 0.08)
-        );
-        border: 1px solid rgba(118, 131, 255, 0.4);
+        background: var(--glass-1);
+        border: 1px solid var(--border-mid);
         border-radius: 16px;
         backdrop-filter: blur(12px);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-decoration: none;
-        color: white;
+        color: var(--text);
         position: relative;
         overflow: hidden;
     }
@@ -73,7 +46,7 @@
         content: '';
         position: absolute;
         inset: -50%;
-        background: radial-gradient(circle at center, rgba(92, 107, 255, 0.2), transparent);
+        background: radial-gradient(circle at center, var(--glass-1), transparent);
         opacity: 0;
         transform: scale(0);
         transition: all 0.4s ease;
@@ -82,11 +55,8 @@
 
     .planet-card:hover {
         transform: translateY(-12px) scale(1.06);
-        border-color: rgba(118, 131, 255, 0.8);
-        box-shadow: 
-            0 16px 48px rgba(92, 107, 255, 0.3),
-            inset 0 0 24px rgba(92, 107, 255, 0.1),
-            0 0 20px rgba(0, 242, 255, 0.2);
+        border-color: var(--border-mid);
+        box-shadow: 0 16px 48px var(--shadow-soft), inset 0 0 24px var(--glass-1), 0 0 20px var(--glass-2);
     }
 
     .planet-card:hover::before {
@@ -114,24 +84,18 @@
     .planet-title {
         font-size: 1.4rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #ffd86a, #ffb84c);
+        background: linear-gradient(135deg, var(--gold), var(--warning));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        text-shadow: 0 0 10px rgba(255, 210, 80, 0.3);
         margin-bottom: 6px;
     }
 
     .planet-subtitle {
         font-size: 0.95rem;
-        color: var(--color-text-secondary);
-        opacity: 0.9;
-    }
-
-    .planet-subtitle {
         font-size: 1.05rem;
         opacity: 0.85;
-        color: #bcd9ff;
+        color: var(--muted-2);
         line-height: 1.35;
     }
 
@@ -164,12 +128,10 @@
 </style>
 
 
-<div class="stars"></div>
-
 <h1 class="select-title">Choose Your Learning Planet</h1>
 
 <!-- Quick mode legend -->
-<div style="text-align:center; margin-bottom: 20px; color:#dff6ff; opacity:0.9;">
+<div style="text-align:center; margin-bottom: 20px; color:var(--muted); opacity:0.9;">
     <span style="margin:0 8px;">Practice</span>
     <span style="margin:0 8px;">Mastery</span>
     <span style="margin:0 8px;">Scaffold</span>

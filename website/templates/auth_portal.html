@@ -2,18 +2,81 @@
 <html>
 <head>
     <title>Sign In / Sign Up</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css?v=20251202">
 
     <style>
+        :root {
+            --bg: #02020a;
+            --text: #ffffff;
+            --muted: #c4d1ff;
+            --muted-2: #b3c0ff;
+            --muted-3: #8a92b3;
+            --primary: #5c6bff;
+            --primary-2: #7683ff;
+            --accent: #00f2ff;
+            --accent-2: #4facfe;
+            --success: #84ff00;
+            --gold: #ffd54f;
+            --warning: #ff9f1c;
+            --pink: #ff6b9d;
+            --shadow-strong: rgba(92, 107, 255, 0.5);
+            --shadow-soft: rgba(92, 107, 255, 0.3);
+            --border-soft: rgba(118, 131, 255, 0.3);
+            --border-mid: rgba(118, 131, 255, 0.4);
+            --glass-1: rgba(92, 107, 255, 0.08);
+            --glass-2: rgba(0, 242, 255, 0.08);
+            --glass-3: rgba(132, 255, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Stars Background */
+        .stars {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent),
+                radial-gradient(1px 1px at 33% 90%, white, transparent),
+                radial-gradient(2px 2px at 70% 20%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 20s ease-in-out infinite;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
         .auth-container {
             width: 90%;
             max-width: 600px;
             margin: 80px auto;
             padding: 30px;
-            background: rgba(255,255,255,0.06);
+            background: var(--glass-1);
             border-radius: 20px;
             text-align: center;
             box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-soft);
+            backdrop-filter: blur(10px);
         }
 
         .auth-button {
@@ -21,8 +84,8 @@
             width: 100%;
             margin: 15px 0;
             padding: 18px;
-            background: #4a90e2;
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: var(--text);
             text-decoration: none;
             border-radius: 12px;
             font-size: 1.2rem;
@@ -30,17 +93,19 @@
         }
 
         .auth-button:hover {
-            background: #6ab0ff;
+            filter: brightness(1.1);
         }
 
         .auth-title {
             font-size: 2rem;
             margin-bottom: 25px;
+            color: var(--muted);
         }
     </style>
 </head>
 
-<body class="fade-in">
+ <body class="fade-in">
+ <div class="stars"></div>
 <div class="auth-container">
     <div class="auth-title">Choose Your Portal</div>
 

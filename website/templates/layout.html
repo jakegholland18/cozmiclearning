@@ -3,12 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <title>CozmicLearning</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css?v=20251202">
+
+    <style>
+        :root {
+            --bg: #02020a;
+            --text: #ffffff;
+            --muted: #c4d1ff;
+            --muted-2: #b3c0ff;
+            --muted-3: #8a92b3;
+            --primary: #5c6bff;
+            --primary-2: #7683ff;
+            --accent: #00f2ff;
+            --accent-2: #4facfe;
+            --success: #84ff00;
+            --gold: #ffd54f;
+            --warning: #ff9f1c;
+            --pink: #ff6b9d;
+            --shadow-strong: rgba(92, 107, 255, 0.5);
+            --shadow-soft: rgba(92, 107, 255, 0.3);
+            --border-soft: rgba(118, 131, 255, 0.3);
+            --border-mid: rgba(118, 131, 255, 0.4);
+            --glass-1: rgba(92, 107, 255, 0.08);
+            --glass-2: rgba(0, 242, 255, 0.08);
+            --glass-3: rgba(132, 255, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            display: flex;
+        }
+
+        /* Stars Background */
+        .stars {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent),
+                radial-gradient(1px 1px at 33% 90%, white, transparent),
+                radial-gradient(2px 2px at 70% 20%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 20s ease-in-out infinite;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.12), rgba(71, 200, 255, 0.08));
+            border-right: 1px solid var(--border-soft);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            backdrop-filter: blur(12px);
+            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sidebar a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: transparent;
+        }
+
+        .sidebar a:hover {
+            background: var(--glass-1);
+            color: var(--accent);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(92, 107, 255, 0.2);
+        }
+
+        .sidebar hr {
+            border: none;
+            border-top: 1px solid var(--border-soft);
+            margin: 16px 0;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            padding: 40px;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="stars"></div>
 
-    <!-- ========== SIDEBAR ========== -->
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <h2 class="sidebar-title">🌌 CozmicLearning</h2>
 
@@ -36,7 +162,7 @@
         {% endif %}
 
         {% if session.get('is_admin') %}
-            <hr style="border-color: rgba(255,255,255,0.25); width: 100%;">
+            <hr>
             <a href="/admin/dashboard">👑 Admin Dashboard</a>
             <a href="/admin/teachers">📘 All Teachers</a>
             <a href="/admin/students">👨‍🎓 All Students</a>
@@ -48,14 +174,14 @@
     </div>
 
 
-    <!-- ========== PAGE CONTENT ========== -->
+    <!-- PAGE CONTENT -->
     <div class="main-content">
         {% block content %}
         {% endblock %}
     </div>
 
 
-    <!-- ========== GLOBAL PASSWORD TOGGLE SCRIPT ========== -->
+    <!-- PASSWORD TOGGLE SCRIPT -->
     <script>
     function togglePassword(id) {
         const field = document.getElementById(id);
