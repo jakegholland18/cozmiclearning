@@ -1,0 +1,187 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .reply-container {
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        transform: translateX(-4px);
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .original-message {
+        padding: 20px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-left: 4px solid var(--accent);
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .original-message h3 {
+        margin: 0 0 12px 0;
+        color: var(--accent);
+        font-size: 1rem;
+    }
+    
+    .original-message-meta {
+        font-size: 0.85rem;
+        color: var(--muted-3);
+        margin-bottom: 12px;
+    }
+    
+    .original-message-body {
+        color: var(--muted-2);
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+    
+    .form-card {
+        padding: 24px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 8px;
+        background: rgba(13,17,40,0.5);
+        color: var(--text);
+        font-size: 1rem;
+        font-family: inherit;
+    }
+    
+    .form-group textarea {
+        min-height: 200px;
+        resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0,242,255,0.1);
+    }
+    
+    .form-group input[readonly] {
+        background: rgba(13,17,40,0.3);
+        color: var(--muted-3);
+        cursor: not-allowed;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: var(--text);
+    }
+    
+    .btn-secondary {
+        background: rgba(118,131,255,0.2);
+        color: var(--text);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+</style>
+
+<div class="reply-container">
+    <a href="/parent/messages/{{ original_message.id }}" class="back-link">← Back to Message</a>
+
+    <div class="page-header">
+        <h1>↩️ Reply to Teacher</h1>
+    </div>
+
+    <div class="original-message">
+        <h3>Original Message</h3>
+        <div class="original-message-meta">
+            <strong>From:</strong> Teacher • 
+            <strong>Date:</strong> {{ original_message.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+            {% if original_message.student_id %} • 
+            <strong>About:</strong> {{ original_message.student.student_name }}
+            {% endif %}
+        </div>
+        <div class="original-message-body">{{ original_message.body }}</div>
+    </div>
+
+    <div class="form-card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" name="subject" id="subject" value="Re: {{ original_message.subject }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="body">Your Reply</label>
+                <textarea name="body" id="body" placeholder="Write your reply to the teacher..." required autofocus></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="/parent/messages/{{ original_message.id }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">📤 Send Reply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

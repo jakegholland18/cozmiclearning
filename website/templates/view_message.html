@@ -1,0 +1,262 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .message-container {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        transform: translateX(-4px);
+    }
+    
+    .message-card {
+        padding: 24px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .message-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(118,131,255,0.3);
+    }
+    
+    .message-subject {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--text);
+    }
+    
+    .message-meta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: var(--muted-3);
+    }
+    
+    .message-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .message-body {
+        line-height: 1.8;
+        color: var(--muted-2);
+        white-space: pre-wrap;
+        margin-bottom: 24px;
+    }
+    
+    .badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge.progress-report {
+        background: var(--success);
+        color: var(--bg);
+    }
+    
+    .progress-report {
+        padding: 20px;
+        background: rgba(0,242,255,0.08);
+        border: 1px solid rgba(0,242,255,0.3);
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+    
+    .progress-report h3 {
+        margin: 0 0 16px 0;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .report-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+        background: rgba(13,17,40,0.5);
+        border-radius: 8px;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--muted-3);
+        margin-bottom: 4px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+    
+    .stat-value.struggling { color: #ff6b6b; }
+    .stat-value.on_level { color: #51cf66; }
+    .stat-value.advanced { color: #00f2ff; }
+    
+    .recent-results {
+        margin-top: 16px;
+    }
+    
+    .recent-results h4 {
+        margin: 0 0 12px 0;
+        color: var(--text);
+        font-size: 1rem;
+    }
+    
+    .result-item {
+        padding: 12px;
+        background: rgba(13,17,40,0.3);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .result-subject {
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .result-score {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .result-date {
+        font-size: 0.85rem;
+        color: var(--muted-3);
+    }
+    
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: var(--text);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+</style>
+
+<div class="message-container">
+    <a href="{{ back_url }}" class="back-link">← Back to Messages</a>
+
+    <div class="message-card">
+        <div class="message-header">
+            <h1 class="message-subject">{{ message.subject }}</h1>
+            <div class="message-meta">
+                <div class="message-meta-item">
+                    <strong>From:</strong> {{ sender_label }}
+                </div>
+                <div class="message-meta-item">
+                    <strong>Date:</strong> {{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </div>
+                {% if message.student_id %}
+                <div class="message-meta-item">
+                    <strong>About:</strong> {{ message.student.student_name }}
+                </div>
+                {% endif %}
+                {% if message.progress_report_json %}
+                <span class="badge progress-report">📊 Includes Progress Report</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="message-body">{{ message.body }}</div>
+
+        {% if progress_report %}
+        <div class="progress-report">
+            <h3>📊 Progress Report</h3>
+            
+            <div class="report-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Average Score</div>
+                    <div class="stat-value">{{ "%.1f"|format(progress_report.avg_score) }}%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Ability Level</div>
+                    <div class="stat-value {{ progress_report.ability_level }}">
+                        {% if progress_report.ability_level == "struggling" %}
+                        🔴 Needs Support
+                        {% elif progress_report.ability_level == "on_level" %}
+                        🟢 On Level
+                        {% elif progress_report.ability_level == "advanced" %}
+                        🔵 Advanced
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if progress_report.recent_results %}
+            <div class="recent-results">
+                <h4>Recent Assessments</h4>
+                {% for result in progress_report.recent_results %}
+                <div class="result-item">
+                    <div>
+                        <div class="result-subject">{{ result.subject }}</div>
+                        <div class="result-date">{{ result.date }}</div>
+                    </div>
+                    <div class="result-score">{{ result.score }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if show_reply_button %}
+        <div class="actions">
+            <a href="/parent/messages/reply/{{ message.id }}" class="btn btn-primary">↩️ Reply to Teacher</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

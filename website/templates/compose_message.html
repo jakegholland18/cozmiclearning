@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .compose-container {
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .form-card {
+        padding: 24px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .form-group select,
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 8px;
+        background: rgba(13,17,40,0.5);
+        color: var(--text);
+        font-size: 1rem;
+        font-family: inherit;
+    }
+    
+    .form-group textarea {
+        min-height: 200px;
+        resize: vertical;
+    }
+    
+    .form-group select:focus,
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0,242,255,0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: var(--text);
+    }
+    
+    .btn-secondary {
+        background: rgba(118,131,255,0.2);
+        color: var(--text);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+    
+    .info-box {
+        padding: 16px;
+        background: rgba(0,242,255,0.1);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: var(--muted-2);
+    }
+</style>
+
+<div class="compose-container">
+    <div class="page-header">
+        <h1>✉️ Compose Message</h1>
+    </div>
+
+    <div class="form-card">
+        <div class="info-box">
+            💡 Select a student to message their parent about their progress
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="student_id">Student</label>
+                <select name="student_id" id="student_id" required>
+                    <option value="">Select a student...</option>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.student_name }} ({{ student.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" name="subject" id="subject" placeholder="e.g., Weekly Progress Update" required>
+            </div>
+
+            <div class="form-group">
+                <label for="body">Message</label>
+                <textarea name="body" id="body" placeholder="Write your message to the parent..." required></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="/teacher/messages" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">📤 Send Message</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    .report-container {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .back-link:hover {
+        transform: translateX(-4px);
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .student-info {
+        padding: 16px;
+        background: rgba(0,242,255,0.1);
+        border-left: 4px solid var(--accent);
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .student-info h3 {
+        margin: 0 0 8px 0;
+        color: var(--text);
+    }
+    
+    .progress-preview {
+        padding: 24px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .preview-header {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(118,131,255,0.3);
+    }
+    
+    .preview-header h3 {
+        margin: 0;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .report-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+        background: rgba(13,17,40,0.5);
+        border-radius: 8px;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--muted-3);
+        margin-bottom: 4px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+    
+    .stat-value.struggling { color: #ff6b6b; }
+    .stat-value.on_level { color: #51cf66; }
+    .stat-value.advanced { color: #00f2ff; }
+    
+    .recent-results {
+        margin-top: 16px;
+    }
+    
+    .recent-results h4 {
+        margin: 0 0 12px 0;
+        color: var(--text);
+        font-size: 1rem;
+    }
+    
+    .result-item {
+        padding: 12px;
+        background: rgba(13,17,40,0.3);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .result-subject {
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .result-score {
+        font-weight: 700;
+        color: var(--accent);
+    }
+    
+    .result-date {
+        font-size: 0.85rem;
+        color: var(--muted-3);
+    }
+    
+    .form-card {
+        padding: 24px;
+        background: rgba(92,107,255,0.08);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 8px;
+        background: rgba(13,17,40,0.5);
+        color: var(--text);
+        font-size: 1rem;
+        font-family: inherit;
+    }
+    
+    .form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0,242,255,0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: var(--text);
+    }
+    
+    .btn-secondary {
+        background: rgba(118,131,255,0.2);
+        color: var(--text);
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px var(--shadow-strong);
+    }
+</style>
+
+<div class="report-container">
+    <a href="/teacher/messages" class="back-link">← Back to Messages</a>
+
+    <div class="page-header">
+        <h1>📊 Send Progress Report</h1>
+    </div>
+
+    <div class="student-info">
+        <h3>Student: {{ student.student_name }}</h3>
+        <p style="margin: 0; color: var(--muted-3);">Sending to: {{ student.parent.parent_name }} ({{ student.parent.email }})</p>
+    </div>
+
+    <div class="progress-preview">
+        <div class="preview-header">
+            <h3>📈 Automated Progress Report Preview</h3>
+        </div>
+
+        <div class="report-stats">
+            <div class="stat-card">
+                <div class="stat-label">Average Score</div>
+                <div class="stat-value">{{ "%.1f"|format(report.avg_score) }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ability Level</div>
+                <div class="stat-value {{ report.ability_level }}">
+                    {% if report.ability_level == "struggling" %}
+                    🔴 Needs Support
+                    {% elif report.ability_level == "on_level" %}
+                    🟢 On Level
+                    {% elif report.ability_level == "advanced" %}
+                    🔵 Advanced
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if report.recent_results %}
+        <div class="recent-results">
+            <h4>Recent Assessments (Last 10)</h4>
+            {% for result in report.recent_results %}
+            <div class="result-item">
+                <div>
+                    <div class="result-subject">{{ result.subject }}</div>
+                    <div class="result-date">{{ result.date }}</div>
+                </div>
+                <div class="result-score">{{ result.score }}%</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="form-card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="subject">Subject Line</label>
+                <input type="text" name="subject" id="subject" value="Progress Report for {{ student.student_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Additional Notes (Optional)</label>
+                <textarea name="notes" id="notes" placeholder="Add any comments or observations about the student's progress..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <a href="/teacher/messages" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">📤 Send Progress Report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
