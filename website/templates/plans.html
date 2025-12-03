@@ -421,6 +421,13 @@
       </p>
     </div>
 
+    <!-- Role Tabs -->
+    <div style="display: flex; justify-content: center; gap: 12px; margin: 30px auto 20px; max-width: 500px;">
+      <button class="role-tab active" data-role="student" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.3); background: rgba(92,107,255,0.15); color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍🎓 Students</button>
+      <button class="role-tab" data-role="parent" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">👨‍👩‍👧 Parents</button>
+      <button class="role-tab" data-role="teacher" style="flex: 1; padding: 12px 20px; border-radius: 10px; border: 2px solid rgba(118,131,255,0.2); background: rgba(92,107,255,0.05); color: #c4d1ff; font-weight: 600; cursor: pointer; transition: all 0.3s;">📘 Teachers</button>
+    </div>
+
     <!-- Billing Toggle -->
     <div class="billing-toggle">
       <button id="monthly-toggle" class="toggle-btn active">Monthly</button>
@@ -430,14 +437,61 @@
       </button>
     </div>
 
-    <!-- Pricing Grid -->
-    <div class="pricing-grid">
-      
-      <!-- Basic Plan -->
+    <!-- STUDENT PRICING -->
+    <div class="pricing-grid role-pricing" data-role="student">
       <div class="plan-card">
         <span class="plan-badge basic">Basic</span>
-        <h2 class="plan-name">Basic Plan</h2>
+        <h2 class="plan-name">Student Basic</h2>
         <p class="plan-desc">Perfect for individual learners</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">7.99</span><span class="yearly-price" style="display:none;">85</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $11/year</div>
+        
+        <ul class="plan-features">
+          <li>Access to all 11 subject planets</li>
+          <li>100 questions per month</li>
+          <li>Basic practice missions</li>
+          <li>Gamification: tokens, XP, streaks</li>
+          <li>Progress tracking</li>
+          <li>Email support</li>
+        </ul>
+        
+        <a href="/student/signup?plan=basic&billing=monthly" class="plan-cta basic-cta primary">Start Free Trial</a>
+      </div>
+
+      <div class="plan-card featured">
+        <span class="plan-badge premium">Most Popular</span>
+        <h2 class="plan-name">Student Premium</h2>
+        <p class="plan-desc">Full access for serious learners</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">12.99</span><span class="yearly-price" style="display:none;">140</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $16/year</div>
+        
+        <ul class="plan-features">
+          <li><strong>Everything in Basic, plus:</strong></li>
+          <li>Unlimited questions and responses</li>
+          <li>All differentiation modes</li>
+          <li>Advanced analytics</li>
+          <li>Priority email support</li>
+          <li>Early access to new features</li>
+        </ul>
+        
+        <a href="/student/signup?plan=premium&billing=monthly" class="plan-cta premium-cta primary">Start Free Trial</a>
+      </div>
+    </div>
+
+    <!-- PARENT PRICING -->
+    <div class="pricing-grid role-pricing" data-role="parent" style="display: none;">
+      <div class="plan-card">
+        <span class="plan-badge basic">Basic</span>
+        <h2 class="plan-name">Parent Basic</h2>
+        <p class="plan-desc">Perfect for small families</p>
         <p class="plan-trial">Includes free 1-week trial</p>
         
         <div class="plan-price">
@@ -446,23 +500,20 @@
         <div class="plan-savings yearly-savings" style="display:none;">Save $45/year</div>
         
         <ul class="plan-features">
-          <li>Access to all 11 subject planets</li>
-          <li>Limited monthly Q&A quota</li>
+          <li>Up to 3 students</li>
+          <li>All 11 subject planets</li>
           <li>Practice missions with hints</li>
-          <li>Gamification: tokens, XP, streaks</li>
-          <li>Progress tracking</li>
-          <li>Up to 3 students per parent account</li>
+          <li>Basic progress tracking</li>
           <li>Email support</li>
         </ul>
         
-        <a href="/choose_login_role?plan=basic&billing=monthly" class="plan-cta basic-cta primary">Start Free Trial</a>
+        <a href="/parent/signup?plan=basic&billing=monthly" class="plan-cta basic-cta primary">Start Free Trial</a>
       </div>
 
-      <!-- Premium Plan -->
       <div class="plan-card featured">
         <span class="plan-badge premium">Most Popular</span>
-        <h2 class="plan-name">Premium Plan</h2>
-        <p class="plan-desc">Full access for serious learners</p>
+        <h2 class="plan-name">Parent Premium</h2>
+        <p class="plan-desc">Full access for families</p>
         <p class="plan-trial">Includes free 1-week trial</p>
         
         <div class="plan-price">
@@ -472,18 +523,68 @@
         
         <ul class="plan-features">
           <li><strong>Everything in Basic, plus:</strong></li>
-          <li>Unlimited questions and responses</li>
-          <li>All differentiation modes (scaffold, mastery, challenge)</li>
+          <li>Unlimited students</li>
           <li>Advanced analytics and reports</li>
-          <li>Weekly parent email reports</li>
-          <li>Unlimited students per parent account</li>
+          <li>Weekly email reports</li>
+          <li>Time limit controls</li>
           <li>Priority email support</li>
           <li>Early access to new features</li>
         </ul>
         
-        <a href="/choose_login_role?plan=premium&billing=monthly" class="plan-cta premium-cta primary">Start Free Trial</a>
+        <a href="/parent/signup?plan=premium&billing=monthly" class="plan-cta premium-cta primary">Start Free Trial</a>
+      </div>
+    </div>
+
+    <!-- TEACHER PRICING -->
+    <div class="pricing-grid role-pricing" data-role="teacher" style="display: none;">
+      <div class="plan-card">
+        <span class="plan-badge basic">Basic</span>
+        <h2 class="plan-name">Teacher Basic</h2>
+        <p class="plan-desc">For individual teachers</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">15.99</span><span class="yearly-price" style="display:none;">170</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $22/year</div>
+        
+        <ul class="plan-features">
+          <li>Up to 3 classes</li>
+          <li>Up to 50 total students</li>
+          <li>50 AI lesson plans/month</li>
+          <li>100 AI assignments/month</li>
+          <li>All 11 subjects & differentiation modes</li>
+          <li>Basic analytics</li>
+          <li>Parent messaging</li>
+        </ul>
+        
+        <a href="/teacher/signup?plan=basic&billing=monthly" class="plan-cta basic-cta primary">Start Free Trial</a>
       </div>
 
+      <div class="plan-card featured">
+        <span class="plan-badge premium">Most Popular</span>
+        <h2 class="plan-name">Teacher Premium</h2>
+        <p class="plan-desc">For full-time educators</p>
+        <p class="plan-trial">Includes free 1-week trial</p>
+        
+        <div class="plan-price">
+          <span class="currency">$</span><span class="monthly-price">25.99</span><span class="yearly-price" style="display:none;">280</span><span class="period monthly-period">/mo</span><span class="period yearly-period" style="display:none;">/yr</span>
+        </div>
+        <div class="plan-savings yearly-savings" style="display:none;">Save $32/year</div>
+        
+        <ul class="plan-features">
+          <li><strong>Everything in Basic, plus:</strong></li>
+          <li>Unlimited classes & students</li>
+          <li>Unlimited AI lesson plans</li>
+          <li>Unlimited AI assignments</li>
+          <li>Advanced analytics with heatmaps</li>
+          <li>Export capabilities (PDF, CSV)</li>
+          <li>Bulk operations</li>
+          <li>Priority support</li>
+        </ul>
+        
+        <a href="/teacher/signup?plan=premium&billing=monthly" class="plan-cta premium-cta primary">Start Free Trial</a>
+      </div>
     </div>
 
     <!-- FAQ Section -->
@@ -530,10 +631,19 @@
 
       <div class="faq-item">
         <button class="faq-question">
-          Do teachers need a paid account?
+          What are the limits for teacher accounts?
         </button>
         <div class="faq-answer">
-          Teachers can create assignments and track student progress with a free account. Optional paid teacher plans unlock additional features like AI lesson plan generation and advanced class analytics.
+          Teacher Basic allows up to 3 classes with 50 total students, 50 AI lesson plans/month, and 100 AI assignments/month. Teacher Premium offers unlimited classes, students, and AI generation—perfect for full-time educators managing multiple courses.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Can students sign up independently without a parent?
+        </button>
+        <div class="faq-answer">
+          Yes! Students can create their own accounts and choose between Basic ($7.99/mo with 100 questions/month) or Premium ($12.99/mo with unlimited questions). Student accounts work great for older learners who want to study independently.
         </div>
       </div>
 
@@ -560,19 +670,51 @@
   </main>
 
   <script>
+    // Role tab switching
+    (function initRoleTabs() {
+      const tabs = document.querySelectorAll('.role-tab');
+      const pricingGrids = document.querySelectorAll('.role-pricing');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const role = tab.dataset.role;
+          
+          // Update active tab
+          tabs.forEach(t => {
+            if (t.dataset.role === role) {
+              t.style.background = 'rgba(92,107,255,0.15)';
+              t.style.borderColor = 'rgba(118,131,255,0.3)';
+              t.style.color = '#fff';
+              t.classList.add('active');
+            } else {
+              t.style.background = 'rgba(92,107,255,0.05)';
+              t.style.borderColor = 'rgba(118,131,255,0.2)';
+              t.style.color = '#c4d1ff';
+              t.classList.remove('active');
+            }
+          });
+          
+          // Show corresponding pricing grid
+          pricingGrids.forEach(grid => {
+            grid.style.display = grid.dataset.role === role ? 'grid' : 'none';
+          });
+        });
+      });
+    })();
+
     // Billing toggle functionality
     (function initBillingToggle() {
       const monthlyBtn = document.getElementById('monthly-toggle');
       const yearlyBtn = document.getElementById('yearly-toggle');
-      const monthlyPrices = document.querySelectorAll('.monthly-price');
-      const yearlyPrices = document.querySelectorAll('.yearly-price');
-      const monthlyPeriods = document.querySelectorAll('.monthly-period');
-      const yearlyPeriods = document.querySelectorAll('.yearly-period');
-      const yearlySavings = document.querySelectorAll('.yearly-savings');
-      const basicCta = document.querySelector('.basic-cta');
-      const premiumCta = document.querySelector('.premium-cta');
 
       function setMode(mode) {
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const yearlyPrices = document.querySelectorAll('.yearly-price');
+        const monthlyPeriods = document.querySelectorAll('.monthly-period');
+        const yearlyPeriods = document.querySelectorAll('.yearly-period');
+        const yearlySavings = document.querySelectorAll('.yearly-savings');
+        const allCtas = document.querySelectorAll('.plan-cta');
+        
         if (mode === 'monthly') {
           monthlyBtn.classList.add('active');
           yearlyBtn.classList.remove('active');
@@ -581,8 +723,11 @@
           monthlyPeriods.forEach(el => el.style.display = 'inline');
           yearlyPeriods.forEach(el => el.style.display = 'none');
           yearlySavings.forEach(el => el.style.display = 'none');
-          basicCta.href = '/choose_login_role?plan=basic&billing=monthly';
-          premiumCta.href = '/choose_login_role?plan=premium&billing=monthly';
+          
+          // Update all CTAs to monthly
+          allCtas.forEach(cta => {
+            cta.href = cta.href.replace('billing=yearly', 'billing=monthly');
+          });
         } else {
           monthlyBtn.classList.remove('active');
           yearlyBtn.classList.add('active');
@@ -591,8 +736,11 @@
           monthlyPeriods.forEach(el => el.style.display = 'none');
           yearlyPeriods.forEach(el => el.style.display = 'inline');
           yearlySavings.forEach(el => el.style.display = 'block');
-          basicCta.href = '/choose_login_role?plan=basic&billing=yearly';
-          premiumCta.href = '/choose_login_role?plan=premium&billing=yearly';
+          
+          // Update all CTAs to yearly
+          allCtas.forEach(cta => {
+            cta.href = cta.href.replace('billing=monthly', 'billing=yearly');
+          });
         }
       }
 
