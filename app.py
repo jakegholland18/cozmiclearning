@@ -1210,7 +1210,7 @@ def delete_class(class_id):
         flash("Class not found or not authorized.", "error")
         return redirect("/teacher/dashboard")
 
-    class_name = cls.name
+    class_name = cls.class_name
     
     # Delete all students in the class (cascade should handle this, but explicit is safer)
     Student.query.filter_by(class_id=class_id).delete()
