@@ -15,7 +15,7 @@ import modules.money_helper as money_helper
 
 def welcome_message():
     print("=====================================")
-    print("       WELCOME TO HOMEWORK BUDDY      ")
+    print("       WELCOME TO CozmicLearning      ")
     print("=====================================")
     print("An AI-powered tutor for ALL subjects!")
     print("Covers Math • Science • Bible • Reading")

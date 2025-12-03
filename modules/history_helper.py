@@ -29,7 +29,7 @@ You are a gentle history tutor for a grade {grade} student.
 The student asked about:
 \"{topic}\"
 
-Use the SIX-section Homework Buddy structure.
+Use the SIX-section CozmicLearning structure.
 NO bullet points allowed. Only short paragraphs.
 IMPORTANT GUARDRAILS:
 - Teach full, age-appropriate historical facts and established scholarship.
@@ -74,7 +74,7 @@ The student asked this history question from a Christian perspective:
 
 \"{topic}\"
 
-Use the SIX-section Homework Buddy structure.
+Use the SIX-section CozmicLearning structure.
 NO bullet points.
 IMPORTANT GUARDRAILS:
 - Teach full, age-appropriate historical facts without omitting established discoveries.
@@ -163,7 +163,7 @@ Create a gentle history quiz for a grade {grade_level} student.
 
 Topic: \"{topic}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points.
 
 SECTION 1 — OVERVIEW

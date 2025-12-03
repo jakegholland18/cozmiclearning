@@ -25,7 +25,7 @@ def is_christian_request(text: str) -> bool:
 # ------------------------------------------------------------
 def bible_lesson(topic: str, grade_level="8", character="everly"):
     """
-    Full Bible lesson using the mandatory 6-section Homework Buddy format.
+    Full Bible lesson using the mandatory 6-section CozmicLearning format.
     Output is paragraph-based only — no bullet points.
     """
 
@@ -35,7 +35,7 @@ You are a gentle Christian Bible tutor for a grade {grade_level} student.
 The student asked:
 \"{topic}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points allowed — only short paragraphs.
 
 SECTION 1 — OVERVIEW
@@ -91,7 +91,7 @@ You are a gentle Bible tutor teaching a grade {grade_level} student.
 The student asked:
 \"{verse_question}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points — only short, calm paragraphs.
 
 SECTION 1 — OVERVIEW
@@ -189,7 +189,7 @@ You are a gentle Christian worldview tutor for a grade {grade_level} student.
 The student asked:
 \"{question}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullets — all paragraphs.
 
 SECTION 1 — OVERVIEW

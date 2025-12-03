@@ -51,7 +51,7 @@ def grade_depth_instruction(grade: str) -> str:
 # SYSTEM PROMPT — STRICT FORMAT FOR NORMAL SUBJECTS
 # -------------------------------------------------------
 BASE_SYSTEM_PROMPT = """
-You are HOMEWORK BUDDY — a warm, gentle tutor who loves God and loves students.
+You are CozmicLearning — a warm, gentle tutor who loves God and loves students.
 
 Your mission is two-fold:
 1. Help students learn and understand with excellence
@@ -140,7 +140,7 @@ def powergrid_master_ai(prompt: str, grade: str, character: str) -> str:
     depth_rule = grade_depth_instruction(grade)
 
     system_prompt = f"""
-You are HOMEWORK BUDDY — a brilliant, concise, high-efficiency tutor
+You are CozmicLearning — a brilliant, concise, high-efficiency tutor
 on the PowerGrid planet who loves God and seeks to be a light to students.
 
 GOAL:

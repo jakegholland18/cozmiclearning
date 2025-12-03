@@ -29,7 +29,7 @@ You are a gentle investing tutor helping a grade {grade} student.
 The student asked:
 "{topic}"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points. ONLY short paragraphs.
 {depth}
 
@@ -71,7 +71,7 @@ The student asked this investing question from a Christian perspective:
 
 "{topic}"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points.
 {depth}
 
@@ -163,7 +163,7 @@ Create a gentle investing quiz for a grade {grade_level} student.
 
 Topic: \"{topic}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points.
 
 SECTION 1 — OVERVIEW

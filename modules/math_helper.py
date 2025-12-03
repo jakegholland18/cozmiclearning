@@ -29,7 +29,7 @@ You are a gentle math tutor for a grade {grade} student.
 The student asked:
 \"{question}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points. ONLY calm paragraphs.
 
 SECTION 1 — OVERVIEW
@@ -66,7 +66,7 @@ The student asked this math question from a Christian perspective:
 
 \"{question}\"
 
-Use the SIX-section Homework Buddy format.
+Use the SIX-section CozmicLearning format.
 NO bullet points.
 
 SECTION 1 — OVERVIEW

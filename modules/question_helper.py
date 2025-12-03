@@ -29,7 +29,7 @@ The student asked a general question:
 
 \"{question}\"
 
-Please answer using the SIX-section Homework Buddy format.
+Please answer using the SIX-section CozmicLearning format.
 NO bullet points anywhere. Only calm, short paragraphs.
 
 SECTION 1 — OVERVIEW
@@ -63,7 +63,7 @@ The student asked this question from a Christian perspective:
 
 \"{question}\"
 
-Please answer using the SIX-section Homework Buddy structure.
+Please answer using the SIX-section CozmicLearning structure.
 NO bullet points.
 
 SECTION 1 — OVERVIEW

@@ -26,7 +26,7 @@ def is_apologetics_question(text: str) -> bool:
 # ------------------------------------------------------------
 def apologetics_answer(question: str, grade_level="8", character="everly"):
     """
-    Full apologetics explanation using the 6-section Homework Buddy style.
+    Full apologetics explanation using the 6-section CozmicLearning style.
     Output must contain 6 labeled sections, all paragraph-based.
     """
 
@@ -36,7 +36,7 @@ You are a gentle Christian apologetics tutor for a grade {grade_level} student.
 The student asked:
 \"{question}\"
 
-Answer using the SIX-section Homework Buddy format.
+Answer using the SIX-section CozmicLearning format.
 NO bullet points — only calm, simple paragraphs.
 
 SECTION 1 — OVERVIEW
@@ -90,7 +90,7 @@ Tone: warm, gentle, calm, respectful, kid-safe, never preachy.
 def apologetics_clarify(question: str, grade_level="8", character="everly"):
     """
     A softer, simpler apologetics answer for younger students,
-    still following the 6-section Homework Buddy style.
+    still following the 6-section CozmicLearning style.
     """
 
     prompt = f"""
@@ -99,7 +99,7 @@ You are a gentle Christian apologetics tutor.
 The student said:
 \"{question}\"
 
-Give a softer version of the SIX-section Homework Buddy format.
+Give a softer version of the SIX-section CozmicLearning format.
 NO bullet points — only paragraphs.
 
 SECTION 1 — OVERVIEW
