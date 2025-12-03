@@ -47,15 +47,16 @@ def parse_into_sections(text: str) -> dict:
     """
     Converts raw AI text using SECTION labels into a structured dictionary.
     Works for ALL helpers.
+    All sections are paragraphs (strings), not lists, per CozmicLearning format.
     """
 
     sections = {
         "overview": "",
-        "key_facts": [],
+        "key_facts": "",
         "christian_view": "",
-        "agreement": [],
-        "difference": [],
-        "practice": [],
+        "agreement": "",
+        "difference": "",
+        "practice": "",
     }
 
     if not text:
@@ -78,15 +79,15 @@ def parse_into_sections(text: str) -> dict:
         if "section 1" in label:
             sections["overview"] = content
         elif "section 2" in label:
-            sections["key_facts"] = _normalize_list(content)
+            sections["key_facts"] = content
         elif "section 3" in label:
             sections["christian_view"] = content
         elif "section 4" in label:
-            sections["agreement"] = _normalize_list(content)
+            sections["agreement"] = content
         elif "section 5" in label:
-            sections["difference"] = _normalize_list(content)
+            sections["difference"] = content
         elif "section 6" in label:
-            sections["practice"] = _normalize_list(content)
+            sections["practice"] = content
 
     return sections
 
@@ -102,15 +103,30 @@ def format_answer(
 ):
     """
     Normalize sections + return structure subject.html expects.
+    If raw_text is provided, parse it into sections automatically.
+    All sections are paragraphs (strings), not lists.
     """
-
+    # If raw_text is provided, parse it and merge with any explicitly provided sections
+    if raw_text:
+        parsed = parse_into_sections(raw_text)
+        return {
+            "overview": (overview or parsed.get("overview", "")).strip(),
+            "key_facts": (key_facts or parsed.get("key_facts", "")).strip(),
+            "christian_view": (christian_view or parsed.get("christian_view", "")).strip(),
+            "agreement": (agreement or parsed.get("agreement", "")).strip(),
+            "difference": (difference or parsed.get("difference", "")).strip(),
+            "practice": (practice or parsed.get("practice", "")).strip(),
+            "raw_text": raw_text,
+        }
+    
+    # Otherwise use the explicitly provided values
     return {
         "overview": (overview or "").strip(),
-        "key_facts": _normalize_list(key_facts),
+        "key_facts": (key_facts or "").strip(),
         "christian_view": (christian_view or "").strip(),
-        "agreement": _normalize_list(agreement),
-        "difference": _normalize_list(difference),
-        "practice": _normalize_list(practice),
+        "agreement": (agreement or "").strip(),
+        "difference": (difference or "").strip(),
+        "practice": (practice or "").strip(),
         "raw_text": raw_text or "",
     }
 

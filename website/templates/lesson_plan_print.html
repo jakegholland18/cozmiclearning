@@ -73,45 +73,66 @@
         <strong>Created:</strong> {{ lesson.created_at.strftime('%B %d, %Y') }}
     </div>
 
-    {% if sections.overview %}
+    {% if sections.learning_objectives %}
     <div class="section">
-        <h2>SECTION 1 — OVERVIEW</h2>
-        <div class="section-content">{{ sections.overview }}</div>
+        <h2>SECTION 1 - LEARNING OBJECTIVES</h2>
+        <div class="section-content">{{ sections.learning_objectives }}</div>
     </div>
     {% endif %}
 
-    {% if sections.key_facts %}
+    {% if sections.materials_needed %}
     <div class="section">
-        <h2>SECTION 2 — KEY FACTS</h2>
-        <div class="section-content">{{ sections.key_facts }}</div>
+        <h2>SECTION 2 - MATERIALS NEEDED</h2>
+        <div class="section-content">{{ sections.materials_needed }}</div>
     </div>
     {% endif %}
 
-    {% if sections.christian_view %}
+    {% if sections.introduction_hook %}
     <div class="section">
-        <h2>SECTION 3 — CHRISTIAN VIEW</h2>
-        <div class="section-content">{{ sections.christian_view }}</div>
+        <h2>SECTION 3 - INTRODUCTION/HOOK</h2>
+        <div class="section-content">{{ sections.introduction_hook }}</div>
     </div>
     {% endif %}
 
-    {% if sections.agreement %}
+    {% if sections.main_teaching_points %}
     <div class="section">
-        <h2>SECTION 4 — AGREEMENT</h2>
-        <div class="section-content">{{ sections.agreement }}</div>
+        <h2>SECTION 4 - MAIN TEACHING POINTS</h2>
+        <div class="section-content">{{ sections.main_teaching_points }}</div>
     </div>
     {% endif %}
 
-    {% if sections.difference %}
+    {% if sections.activities_practice %}
     <div class="section">
-        <h2>SECTION 5 — DIFFERENCE</h2>
-        <div class="section-content">{{ sections.difference }}</div>
+        <h2>SECTION 5 - ACTIVITIES/PRACTICE</h2>
+        <div class="section-content">{{ sections.activities_practice }}</div>
     </div>
     {% endif %}
 
-    {% if sections.practice %}
+    {% if sections.assessment %}
     <div class="section">
-        <h2>SECTION 6 — PRACTICE</h2>
-        <div class="section-content">{{ sections.practice }}</div>
+        <h2>SECTION 6 - ASSESSMENT</h2>
+        <div class="section-content">{{ sections.assessment }}</div>
+    </div>
+    {% endif %}
+
+    {% if sections.differentiation_tips %}
+    <div class="section">
+        <h2>SECTION 7 - DIFFERENTIATION TIPS</h2>
+        <div class="section-content">{{ sections.differentiation_tips }}</div>
+    </div>
+    {% endif %}
+
+    {% if sections.christian_integration %}
+    <div class="section">
+        <h2>SECTION 8 - CHRISTIAN INTEGRATION</h2>
+        <div class="section-content">{{ sections.christian_integration }}</div>
+    </div>
+    {% endif %}
+
+    {% if sections.closure_summary %}
+    <div class="section">
+        <h2>SECTION 9 - CLOSURE/SUMMARY</h2>
+        <div class="section-content">{{ sections.closure_summary }}</div>
     </div>
     {% endif %}
 

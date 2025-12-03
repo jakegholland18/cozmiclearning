@@ -113,63 +113,93 @@
     </div>
 
     <div class="lesson-sections">
-        {% if sections.overview %}
+        {% if sections.learning_objectives %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 1 — OVERVIEW</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('overview')">Regenerate</button>
+                <h3>SECTION 1 - LEARNING OBJECTIVES</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('learning_objectives')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-overview">{{ sections.overview }}</div>
+            <div class="section-content" id="section-learning_objectives">{{ sections.learning_objectives }}</div>
         </div>
         {% endif %}
 
-        {% if sections.key_facts %}
+        {% if sections.materials_needed %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 2 — KEY FACTS</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('key_facts')">Regenerate</button>
+                <h3>SECTION 2 - MATERIALS NEEDED</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('materials_needed')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-key_facts">{{ sections.key_facts }}</div>
+            <div class="section-content" id="section-materials_needed">{{ sections.materials_needed }}</div>
         </div>
         {% endif %}
 
-        {% if sections.christian_view %}
+        {% if sections.introduction_hook %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 3 — CHRISTIAN VIEW</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('christian_view')">Regenerate</button>
+                <h3>SECTION 3 - INTRODUCTION/HOOK</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('introduction_hook')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-christian_view">{{ sections.christian_view }}</div>
+            <div class="section-content" id="section-introduction_hook">{{ sections.introduction_hook }}</div>
         </div>
         {% endif %}
 
-        {% if sections.agreement %}
+        {% if sections.main_teaching_points %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 4 — AGREEMENT</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('agreement')">Regenerate</button>
+                <h3>SECTION 4 - MAIN TEACHING POINTS</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('main_teaching_points')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-agreement">{{ sections.agreement }}</div>
+            <div class="section-content" id="section-main_teaching_points">{{ sections.main_teaching_points }}</div>
         </div>
         {% endif %}
 
-        {% if sections.difference %}
+        {% if sections.activities_practice %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 5 — DIFFERENCE</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('difference')">Regenerate</button>
+                <h3>SECTION 5 - ACTIVITIES/PRACTICE</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('activities_practice')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-difference">{{ sections.difference }}</div>
+            <div class="section-content" id="section-activities_practice">{{ sections.activities_practice }}</div>
         </div>
         {% endif %}
 
-        {% if sections.practice %}
+        {% if sections.assessment %}
         <div class="lesson-section">
             <div class="section-header">
-                <h3>SECTION 6 — PRACTICE</h3>
-                <button class="btn btn-small btn-secondary" onclick="regenerateSection('practice')">Regenerate</button>
+                <h3>SECTION 6 - ASSESSMENT</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('assessment')">Regenerate</button>
             </div>
-            <div class="section-content" id="section-practice">{{ sections.practice }}</div>
+            <div class="section-content" id="section-assessment">{{ sections.assessment }}</div>
+        </div>
+        {% endif %}
+
+        {% if sections.differentiation_tips %}
+        <div class="lesson-section">
+            <div class="section-header">
+                <h3>SECTION 7 - DIFFERENTIATION TIPS</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('differentiation_tips')">Regenerate</button>
+            </div>
+            <div class="section-content" id="section-differentiation_tips">{{ sections.differentiation_tips }}</div>
+        </div>
+        {% endif %}
+
+        {% if sections.christian_integration %}
+        <div class="lesson-section">
+            <div class="section-header">
+                <h3>SECTION 8 - CHRISTIAN INTEGRATION</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('christian_integration')">Regenerate</button>
+            </div>
+            <div class="section-content" id="section-christian_integration">{{ sections.christian_integration }}</div>
+        </div>
+        {% endif %}
+
+        {% if sections.closure_summary %}
+        <div class="lesson-section">
+            <div class="section-header">
+                <h3>SECTION 9 - CLOSURE/SUMMARY</h3>
+                <button class="btn btn-small btn-secondary" onclick="regenerateSection('closure_summary')">Regenerate</button>
+            </div>
+            <div class="section-content" id="section-closure_summary">{{ sections.closure_summary }}</div>
         </div>
         {% endif %}
     </div>

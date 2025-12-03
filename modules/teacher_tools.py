@@ -35,19 +35,104 @@ def generate_quiz(subject: str, grade: str, differentiation_mode: str, num_quest
 
 
 def generate_lesson_plan(subject: str, topic: str, grade: str, character: str) -> Dict:
-    """Generate a six-section lesson plan using shared_ai pattern."""
-    prompt = (
-        f"Create a teacher-friendly lesson plan for {subject} on '{topic}'. "
-        f"Use the six-section format. {grade_depth_instruction(grade)}"
-    )
+    """Generate a comprehensive teacher lesson plan with 9 practical sections."""
+    prompt = f"""Create a complete teacher lesson plan for teaching {subject.replace('_', ' ')} on the topic: '{topic}' for grade {grade}.
+
+Use this EXACT structure with 9 sections:
+
+SECTION 1 - LEARNING OBJECTIVES
+[Clear, measurable learning goals - what students will know/be able to do by the end]
+
+SECTION 2 - MATERIALS NEEDED
+[List all resources, supplies, and materials required for the lesson]
+
+SECTION 3 - INTRODUCTION/HOOK
+[Engaging activity or question to capture student attention and introduce the topic - 5-10 minutes]
+
+SECTION 4 - MAIN TEACHING POINTS
+[Core content and concepts to teach - step-by-step instructional content]
+
+SECTION 5 - ACTIVITIES/PRACTICE
+[Hands-on activities, exercises, or practice problems for students to apply learning]
+
+SECTION 6 - ASSESSMENT
+[How to check for understanding - questions to ask, exit tickets, quick checks]
+
+SECTION 7 - DIFFERENTIATION TIPS
+[Strategies for struggling students, on-level students, and advanced students]
+
+SECTION 8 - CHRISTIAN INTEGRATION
+[Biblical connections, Scripture references, and faith integration points]
+
+SECTION 9 - CLOSURE/SUMMARY
+[How to wrap up the lesson and reinforce key takeaways - 5 minutes]
+
+Make it practical, actionable, and ready to use in a classroom. {grade_depth_instruction(grade)}"""
+
     result = study_buddy_ai(prompt, grade, character)
     if isinstance(result, dict) and result.get("raw_text"):
         raw = result["raw_text"]
     else:
         raw = str(result)
-    # Format into sections to render on subject page or teacher view
-    sections = format_answer(raw_text=raw)
+    
+    # Parse the 9-section format
+    sections = _parse_teacher_lesson_plan(raw)
     return {"raw": raw, "sections": sections}
+
+
+def _parse_teacher_lesson_plan(text: str) -> Dict:
+    """Parse teacher lesson plan with 9 sections."""
+    import re
+    
+    sections = {
+        "learning_objectives": "",
+        "materials_needed": "",
+        "introduction_hook": "",
+        "main_teaching_points": "",
+        "activities_practice": "",
+        "assessment": "",
+        "differentiation_tips": "",
+        "christian_integration": "",
+        "closure_summary": "",
+    }
+    
+    if not text:
+        return sections
+    
+    pattern = re.compile(r"(SECTION\s+[1-9][^\n]*)", re.IGNORECASE)
+    parts = pattern.split(text)
+    
+    if len(parts) == 1:
+        sections["learning_objectives"] = parts[0].strip()
+        return sections
+    
+    it = iter(parts)
+    _ = next(it, "")
+    
+    for label_line, content in zip(it, it):
+        label = label_line.lower()
+        content = content.strip()
+        
+        if "section 1" in label:
+            sections["learning_objectives"] = content
+        elif "section 2" in label:
+            sections["materials_needed"] = content
+        elif "section 3" in label:
+            sections["introduction_hook"] = content
+        elif "section 4" in label:
+            sections["main_teaching_points"] = content
+        elif "section 5" in label:
+            sections["activities_practice"] = content
+        elif "section 6" in label:
+            sections["assessment"] = content
+        elif "section 7" in label:
+            sections["differentiation_tips"] = content
+        elif "section 8" in label:
+            sections["christian_integration"] = content
+        elif "section 9" in label:
+            sections["closure_summary"] = content
+    
+    return sections
 
 
 def assign_questions(
