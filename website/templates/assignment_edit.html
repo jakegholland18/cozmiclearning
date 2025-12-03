@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container" style="max-width: 1000px; margin: 24px auto;">
+  <style>
+    .question-block label { display: block; margin-bottom: 6px; color: #c4d1ff; }
+    .question-block textarea,
+    .question-block input[type="text"],
+    .question-block select { width: 100%; box-sizing: border-box; }
+    .question-block { display: block; }
+    .question-block .row-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+    .question-block .row-flex { display: flex; gap: 8px; margin-top: 8px; align-items: flex-end; }
+    .actions-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  </style>
   <h2 style="margin-bottom: 8px;">Edit Assignment: {{ assignment.title }}</h2>
   <small style="color:#8a92b3;">Subject: {{ assignment.subject }} · Class: {{ assignment.class_ref.class_name }}</small>
 
@@ -13,7 +23,7 @@
       <label><strong>Question {{ loop.index }} Text</strong></label>
       <textarea name="question_text_{{ q.id }}" rows="3" style="width:100%;">{{ q.question_text }}</textarea>
 
-      <div style="display:flex; gap:8px; margin-top:8px;">
+      <div class="row-flex">
         <div>
           <label>Type</label>
           <select name="question_type_{{ q.id }}" class="question-type">
@@ -31,7 +41,7 @@
         </div>
       </div>
 
-      <div class="mc-choices" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:8px;">
+      <div class="mc-choices row-2" style="display:grid;">
         <div>
           <label>Choice A</label>
           <input type="text" name="choice_a_{{ q.id }}" value="{{ q.choice_a or '' }}">
@@ -50,7 +60,7 @@
         </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-top:8px;">
+      <div class="row-2">
         <div>
           <label>Correct Answer(s)</label>
           <input type="text" name="correct_answer_{{ q.id }}" value="{{ q.correct_answer or '' }}" placeholder="e.g., A or A,B" class="correct-answer">
@@ -63,8 +73,10 @@
     </div>
     {% endfor %}
 
-    <button class="btn" type="submit">Save Changes</button>
-    <a class="btn" href="/teacher/assignments/{{ assignment.id }}" style="margin-left:8px; background: transparent; border:1px solid rgba(118,131,255,0.4);">Back to Overview</a>
+    <div class="actions-row">
+      <button class="btn" type="submit">Save Changes</button>
+      <a class="btn" href="/teacher/assignments/{{ assignment.id }}" style="background: transparent; border:1px solid rgba(118,131,255,0.4);">Back to Overview</a>
+    </div>
   </form>
 
   <!-- Generate More Questions -->
@@ -72,7 +84,7 @@
     <h3 style="margin-bottom: 8px;">Generate More Questions</h3>
     <small style="color:#8a92b3;">Add AI-generated questions to this assignment using the same settings.</small>
 
-    <div style="display: flex; gap: 8px; margin-top: 12px; align-items: flex-end;">
+    <div class="actions-row">
       <div>
         <label style="font-size: 0.85rem;">Number of Questions</label>
         <input type="number" id="moreQuestionsCount" value="5" min="1" max="20" style="width: 100px;">

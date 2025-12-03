@@ -183,7 +183,15 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p class="empty-state">No assigned practice sets yet.</p>
+            <div class="empty-state">
+                No assigned practice sets yet for this class.
+                <div style="margin-top:12px;">
+                    <a href="/teacher/assignments/create?class_id={{ cls.id }}" class="btn-blue">+ Create Your First Assignment</a>
+                </div>
+                <div style="margin-top:10px; font-size:0.9rem; color:#c4d1ff;">
+                    Tip: Choose a subject and topic; CozmicLearning will auto-generate differentiated practice.
+                </div>
+            </div>
         {% endif %}
     </div>
 

@@ -70,6 +70,23 @@
             border: 1px solid rgba(255, 111, 216, 0.3);
         }
 
+        /* Progress bar */
+        .progress-row { margin-top: 6px; }
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(192, 132, 252, 0.15);
+            border: 1px solid rgba(255, 111, 216, 0.25);
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff6fd8, #c084fc, #84ff00);
+            transition: width 0.35s ease;
+        }
+
         .main-layout {
             display: grid;
             grid-template-columns: 2fr 1.35fr;
@@ -648,6 +665,7 @@
             <img id="character-avatar" class="avatar" src="/static/characters/{{ character }}.png">
 
             <h2 class="prompt-title">🚀 Practice Mission</h2>
+            <div id="topic-recap" style="text-align:center; color:#c4d1ff; font-size:0.95rem; margin-bottom:8px; display:none;"></div>
 
             <!-- TOPIC SELECTION -->
             <div id="topic-section" class="topic-row">
@@ -662,6 +680,10 @@
             <div id="practice-section" style="display:none;">
                 <div id="practice-prompt" class="prompt-box">
                     Loading your practice mission...
+                </div>
+
+                <div class="progress-row">
+                    <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
                 </div>
 
                 <div id="last-answer" class="last-answer" style="display:none;"></div>
@@ -759,6 +781,10 @@ function startPracticeFromTopic() {
 
     currentTopic = topic;
 
+    const recap = document.getElementById("topic-recap");
+    recap.style.display = "block";
+    recap.innerText = "Practicing topic: " + topic;
+
     document.getElementById("topic-section").style.display = "none";
     document.getElementById("practice-section").style.display = "block";
 
@@ -818,6 +844,8 @@ function startPractice() {
         document.getElementById("question-index").innerText = currentIndex + 1;
         document.getElementById("question-total").innerText = totalQuestions;
 
+        updateProgressBar();
+
         promptBox.innerText = data.prompt || "Ready!";
         document.getElementById("character-avatar").src =
             "/static/characters/" + (data.character || "{{ character }}") + ".png";
@@ -838,6 +866,14 @@ function updateNavButtons() {
 
     document.getElementById("question-index").innerText = currentIndex + 1;
     document.getElementById("question-total").innerText = totalQuestions;
+
+    updateProgressBar();
+}
+
+function updateProgressBar() {
+    const fill = document.getElementById("progress-fill");
+    const percent = totalQuestions > 0 ? Math.min(100, Math.max(0, Math.round(((currentIndex + 1) / totalQuestions) * 100))) : 0;
+    fill.style.width = percent + "%";
 }
 
 // Decide whether question is multiple choice or free response
@@ -1030,6 +1066,7 @@ function navigateToQuestion(index) {
                     ? "We walked through this one together."
                     : "");
         status.innerHTML = "";
+        updateProgressBar();
     });
 }
 
