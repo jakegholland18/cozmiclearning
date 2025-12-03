@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>Student Sign Up</title>
-    <link rel="stylesheet" href="/static/style.css?v=20251202">
-    <link rel="stylesheet" href="/static/css/auth.css?v=20251202">
+    <link rel="stylesheet" href="/static/style.css?v=20251203">
+    <link rel="stylesheet" href="/static/css/auth.css?v=20251203">
 
     <script>
         function togglePassword() {
@@ -11,16 +11,183 @@
             field.type = field.type === "password" ? "text" : "password";
         }
     </script>
+    <style>
+        .mode-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 12px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            background: rgba(92, 107, 255, 0.05);
+            color: #c4d1ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .mode-btn:hover {
+            background: rgba(92, 107, 255, 0.1);
+            border-color: rgba(118, 131, 255, 0.5);
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #5c6bff, #7683ff);
+            color: #fff;
+            border-color: #5c6bff;
+            box-shadow: 0 4px 12px rgba(92, 107, 255, 0.4);
+        }
+        .mode-btn .emoji {
+            display: block;
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+        .mode-btn .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .mode-btn .desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .parent-code-field {
+            display: none;
+        }
+        .plan-selector {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(92, 107, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            display: none;
+        }
+        .plan-selector-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .billing-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            justify-content: center;
+        }
+        .billing-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            background: rgba(92, 107, 255, 0.05);
+            color: #c4d1ff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .billing-btn.active {
+            background: linear-gradient(135deg, #5c6bff, #7683ff);
+            color: #fff;
+            border-color: #5c6bff;
+        }
+        .billing-btn .savings {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 6px;
+            background: rgba(132, 255, 0, 0.2);
+            color: #84ff00;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+        .plan-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .plan-option {
+            padding: 16px;
+            border-radius: 10px;
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            background: rgba(0, 242, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .plan-option:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: rgba(118, 131, 255, 0.6);
+        }
+        .plan-option.selected {
+            border-color: #5c6bff;
+            background: rgba(92, 107, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(92, 107, 255, 0.3);
+        }
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .plan-badge.basic {
+            background: rgba(0, 242, 255, 0.2);
+            color: #7beaff;
+        }
+        .plan-badge.premium {
+            background: rgba(132, 255, 0, 0.2);
+            color: #aafc7b;
+        }
+        .plan-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .plan-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .plan-period {
+            font-size: 0.9rem;
+            color: #8a92b3;
+        }
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+            font-size: 0.85rem;
+            color: #b3c0ff;
+        }
+        .plan-features li {
+            padding: 4px 0;
+        }
+        .plan-features li::before {
+            content: "✓";
+            color: #84ff00;
+            margin-right: 6px;
+            font-weight: 700;
+        }
+        @media (max-width: 600px) {
+            .mode-selector {
+                flex-direction: column;
+            }
+            .plan-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body class="fade-in">
 
 <div class="auth-box">
 
     <h2 class="auth-title">🌟 Join CozmicLearning</h2>
-    <p class="auth-subtitle">Create your account to start missions and earn XP.</p>
-    <div id="planBadge" style="display:none;margin:8px 0 14px;">
-        <span style="display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(118,131,255,0.35);background:rgba(92,107,255,0.12);color:#cfe8ff;font-size:0.9rem;">Selected: <strong id="planName"></strong> — <span id="billingMode"></span></span>
-    </div>
+    <p class="auth-subtitle">Create your account and start learning with AI tutors.</p>
 
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -32,10 +199,75 @@
         {% endwith %}
     </div>
 
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+        <div class="mode-btn active" id="standalone-btn" onclick="setMode('standalone')">
+            <span class="emoji">🚀</span>
+            <div class="title">Independent</div>
+            <div class="desc">Study on your own</div>
+        </div>
+        <div class="mode-btn" id="parent-btn" onclick="setMode('parent_linked')">
+            <span class="emoji">👨‍👩‍👧</span>
+            <div class="title">With Parent</div>
+            <div class="desc">Link to parent account</div>
+        </div>
+    </div>
+
     <form method="POST" class="auth-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="plan" id="planField" value="">
-        <input type="hidden" name="billing" id="billingField" value="">
+        <input type="hidden" name="signup_mode" id="signup-mode" value="standalone">
+        <input type="hidden" name="plan" id="plan-field" value="{{ selected_plan or 'basic' }}">
+        <input type="hidden" name="billing" id="billing-field" value="{{ selected_billing or 'monthly' }}">
+
+        <!-- Plan Selector (for standalone students only) -->
+        <div class="plan-selector" id="plan-selector">
+            <div class="plan-selector-title">Choose Your Plan</div>
+            
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <button type="button" class="billing-btn active" id="monthly-btn">
+                    Monthly
+                </button>
+                <button type="button" class="billing-btn" id="yearly-btn">
+                    Yearly <span class="savings">Save 15%+</span>
+                </button>
+            </div>
+
+            <!-- Plan Options -->
+            <div class="plan-options">
+                <div class="plan-option selected" data-plan="basic" onclick="selectPlan('basic')">
+                    <div class="plan-badge basic">Basic</div>
+                    <div class="plan-name">Basic Plan</div>
+                    <div class="plan-price">
+                        <span class="monthly-price">$9.99</span>
+                        <span class="yearly-price" style="display:none;">$75</span>
+                        <span class="plan-period monthly-period">/mo</span>
+                        <span class="plan-period yearly-period" style="display:none;">/yr</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>11 subjects</li>
+                        <li>Limited Q&A</li>
+                        <li>7-day free trial</li>
+                    </ul>
+                </div>
+
+                <div class="plan-option" data-plan="premium" onclick="selectPlan('premium')">
+                    <div class="plan-badge premium">Premium</div>
+                    <div class="plan-name">Premium Plan</div>
+                    <div class="plan-price">
+                        <span class="monthly-price">$15.99</span>
+                        <span class="yearly-price" style="display:none;">$160</span>
+                        <span class="plan-period monthly-period">/mo</span>
+                        <span class="plan-period yearly-period" style="display:none;">/yr</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>Unlimited Q&A</li>
+                        <li>Advanced analytics</li>
+                        <li>7-day free trial</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
         <div>
             <label>Your Name</label>
@@ -43,7 +275,7 @@
         </div>
 
         <div>
-            <label>Student Email</label>
+            <label>Email</label>
             <input type="email" name="email" placeholder="you@example.com" required>
         </div>
 
@@ -55,9 +287,10 @@
             </div>
         </div>
 
-        <div>
+        <!-- Parent Code Field (hidden by default) -->
+        <div class="parent-code-field" id="parent-code-field">
             <label>Parent Access Code</label>
-            <input type="text" name="parent_code" placeholder="6-character code from your parent" required maxlength="6" style="text-transform: uppercase;">
+            <input type="text" name="parent_code" id="parent-code" placeholder="6-character code from your parent" maxlength="6" style="text-transform: uppercase;">
             <small style="color: #8a92b3; display: block; margin-top: 4px;">Ask your parent for their unique access code</small>
         </div>
 
@@ -66,7 +299,7 @@
             <input type="text" name="class_code" placeholder="Ask your teacher for the code">
         </div>
 
-        <button class="auth-submit" type="submit">Create Account</button>
+        <button class="auth-submit" type="submit">Create Account & Start Learning</button>
 
         <div class="auth-actions">
             <a class="btn-secondary" href="/choose_login_role">Switch Role</a>
@@ -75,31 +308,92 @@
     </form>
 
     <p class="auth-footer">
-        Already have an account? <a href="/student/login">Log in here</a>
-        <br>
-        <span class="hint">• Password tip: 8+ chars, one number. • Your parent must create an account first to get an access code.</span>
+        Already have an account? <a href="/student/login">Log in</a><br>
+        <a href="/plans">View pricing plans</a><br>
+        <span class="hint">• 7-day free trial • No credit card required • Cancel anytime</span>
     </p>
 
 </div>
 
-        <script>
-        (function initPlanCapture(){
-            const params = new URLSearchParams(window.location.search);
-            const plan = params.get('plan');
-            const billing = params.get('billing');
-            const planMap = { basic: 'Basic', premium: 'Premium' };
-            const billingMap = { monthly: 'Monthly', yearly: 'Yearly' };
-            if (planMap[plan] && billingMap[billing]) {
-                document.getElementById('planName').textContent = planMap[plan];
-                document.getElementById('billingMode').textContent = billingMap[billing];
-                document.getElementById('planBadge').style.display = 'block';
-                const planField = document.getElementById('planField');
-                const billingField = document.getElementById('billingField');
-                if (planField) planField.value = plan;
-                if (billingField) billingField.value = billing;
-            }
-        })();
-        </script>
+<script>
+    const standaloneBtn = document.getElementById('standalone-btn');
+    const parentBtn = document.getElementById('parent-btn');
+    const signupModeField = document.getElementById('signup-mode');
+    const parentCodeField = document.getElementById('parent-code-field');
+    const parentCodeInput = document.getElementById('parent-code');
+    const planSelector = document.getElementById('plan-selector');
+
+    function setMode(mode) {
+        signupModeField.value = mode;
+        
+        if (mode === 'standalone') {
+            standaloneBtn.classList.add('active');
+            parentBtn.classList.remove('active');
+            parentCodeField.style.display = 'none';
+            parentCodeInput.removeAttribute('required');
+            planSelector.style.display = 'block';
+        } else {
+            standaloneBtn.classList.remove('active');
+            parentBtn.classList.add('active');
+            parentCodeField.style.display = 'block';
+            parentCodeInput.setAttribute('required', 'required');
+            planSelector.style.display = 'none';
+        }
+    }
+
+    // Billing toggle
+    const monthlyBtn = document.getElementById('monthly-btn');
+    const yearlyBtn = document.getElementById('yearly-btn');
+    const billingField = document.getElementById('billing-field');
+    const monthlyPrices = document.querySelectorAll('.monthly-price');
+    const yearlyPrices = document.querySelectorAll('.yearly-price');
+    const monthlyPeriods = document.querySelectorAll('.monthly-period');
+    const yearlyPeriods = document.querySelectorAll('.yearly-period');
+
+    function setBilling(mode) {
+        billingField.value = mode;
+        
+        if (mode === 'monthly') {
+            monthlyBtn.classList.add('active');
+            yearlyBtn.classList.remove('active');
+            monthlyPrices.forEach(el => el.style.display = 'inline');
+            yearlyPrices.forEach(el => el.style.display = 'none');
+            monthlyPeriods.forEach(el => el.style.display = 'inline');
+            yearlyPeriods.forEach(el => el.style.display = 'none');
+        } else {
+            monthlyBtn.classList.remove('active');
+            yearlyBtn.classList.add('active');
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            yearlyPrices.forEach(el => el.style.display = 'inline');
+            monthlyPeriods.forEach(el => el.style.display = 'none');
+            yearlyPeriods.forEach(el => el.style.display = 'inline');
+        }
+    }
+
+    monthlyBtn.addEventListener('click', () => setBilling('monthly'));
+    yearlyBtn.addEventListener('click', () => setBilling('yearly'));
+
+    // Plan selection
+    function selectPlan(planName) {
+        document.getElementById('plan-field').value = planName;
+        document.querySelectorAll('.plan-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        document.querySelector(`.plan-option[data-plan="${planName}"]`).classList.add('selected');
+    }
+
+    // Initialize from URL params or default
+    (function init() {
+        const params = new URLSearchParams(window.location.search);
+        const plan = params.get('plan') || '{{ selected_plan }}' || 'basic';
+        const billing = params.get('billing') || '{{ selected_billing }}' || 'monthly';
+        
+        selectPlan(plan);
+        setBilling(billing);
+        setMode('standalone'); // Default to standalone mode
+    })();
+</script>
+
 </body>
 </html>
 

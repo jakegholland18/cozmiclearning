@@ -747,14 +747,24 @@ def logout():
 @app.route("/student/signup", methods=["GET", "POST"])
 def student_signup():
     init_user()
+    
+    # Get plan from query string for standalone students
+    selected_plan = request.args.get("plan", "basic")
+    selected_billing = request.args.get("billing", "monthly")
+    
     if request.method == "POST":
         name = safe_text(request.form.get("name", ""), 100)
         email = safe_email(request.form.get("email", ""))
         password = request.form.get("password", "")
         parent_code = safe_text(request.form.get("parent_code", ""), 10).upper().strip()
+        signup_mode = request.form.get("signup_mode", "standalone")  # standalone or parent_linked
+        
+        # Plan selections for standalone students
+        plan = safe_text(request.form.get("plan", ""), 50) or "basic"
+        billing = safe_text(request.form.get("billing", ""), 20) or "monthly"
 
-        if not name or not email or not password or not parent_code:
-            flash("All fields are required, including parent access code.", "error")
+        if not name or not email or not password:
+            flash("Name, email, and password are required.", "error")
             return redirect("/student/signup")
 
         existing_student = Student.query.filter_by(student_email=email).first()
@@ -762,29 +772,47 @@ def student_signup():
             flash("A student with that email already exists.", "error")
             return redirect("/student/login")
 
-        # Find parent by access code
-        parent = Parent.query.filter_by(access_code=parent_code).first()
-        if not parent:
-            flash("Invalid parent access code. Please check with your parent.", "error")
-            return redirect("/student/signup")
-        
-        # Check parent's subscription limits
-        current_student_count = len(parent.students)
-        if parent.plan == "basic" and current_student_count >= 3:
-            flash("Your parent's Basic plan only allows 3 students. They need to upgrade to Premium.", "error")
-            return redirect("/student/signup")
-        # Premium plan has unlimited students, no check needed
+        # Handle parent-linked signup
+        if signup_mode == "parent_linked" and parent_code:
+            parent = Parent.query.filter_by(access_code=parent_code).first()
+            if not parent:
+                flash("Invalid parent access code. Please check with your parent.", "error")
+                return redirect("/student/signup")
+            
+            # Check parent's subscription limits
+            current_student_count = len(parent.students)
+            if parent.plan == "basic" and current_student_count >= 3:
+                flash("Your parent's Basic plan only allows 3 students. They need to upgrade to Premium.", "error")
+                return redirect("/student/signup")
 
-        # Student inherits parent's subscription plan
+            # Student inherits parent's subscription plan
+            trial_start = parent.trial_start
+            trial_end = parent.trial_end
+            subscription_active = parent.subscription_active
+            student_plan = parent.plan
+            student_billing = parent.billing
+            parent_id = parent.id
+            welcome_msg = f"Welcome to CozmicLearning, {name}! Your account is linked to {parent.name}."
+        else:
+            # Standalone student signup (independent account)
+            trial_start = datetime.utcnow()
+            trial_end = trial_start + timedelta(days=7)
+            subscription_active = True  # Trial is active
+            student_plan = plan
+            student_billing = billing
+            parent_id = None
+            welcome_msg = f"Welcome to CozmicLearning, {name}! Your 7-day free trial has started."
+
+        # Create student account
         new_student = Student(
             student_name=name,
             student_email=email,
-            parent_id=parent.id,
-            plan=parent.plan,
-            billing=parent.billing,
-            trial_start=parent.trial_start,
-            trial_end=parent.trial_end,
-            subscription_active=parent.subscription_active,
+            parent_id=parent_id,
+            plan=student_plan,
+            billing=student_billing,
+            trial_start=trial_start,
+            trial_end=trial_end,
+            subscription_active=subscription_active,
         )
         db.session.add(new_student)
         db.session.commit()
@@ -794,10 +822,10 @@ def student_signup():
         session["student_name"] = name
         session["student_email"] = email
 
-        flash(f"Welcome to CozmicLearning, {name}! Your account is linked to {parent.name}.", "info")
+        flash(welcome_msg, "info")
         return redirect("/dashboard")
 
-    return render_template("student_signup.html")
+    return render_template("student_signup.html", selected_plan=selected_plan, selected_billing=selected_billing)
 
 
 @app.route("/student/login", methods=["GET", "POST"])
