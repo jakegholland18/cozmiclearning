@@ -972,8 +972,23 @@ def trial_expired():
 @app.route("/admin")
 def admin_dashboard():
     """Admin-only dashboard to navigate all modes - HIDDEN FROM REGULAR USERS"""
+    # Debug: Check what's in session
+    print(f"DEBUG: Session keys: {list(session.keys())}")
+    print(f"DEBUG: is_admin() result: {is_admin()}")
+    
     if not is_admin():
-        flash("Access denied.", "error")
+        # Provide more helpful error message
+        if session.get("teacher_id"):
+            teacher = Teacher.query.get(session["teacher_id"])
+            flash(f"Admin access denied. Your email: {teacher.email if teacher else 'unknown'}. Owner email: {OWNER_EMAIL}", "error")
+        elif session.get("student_id"):
+            student = Student.query.get(session["student_id"])
+            flash(f"Admin access denied. Your email: {student.student_email if student else 'unknown'}. Owner email: {OWNER_EMAIL}", "error")
+        elif session.get("parent_id"):
+            parent = Parent.query.get(session["parent_id"])
+            flash(f"Admin access denied. Your email: {parent.email if parent else 'unknown'}. Owner email: {OWNER_EMAIL}", "error")
+        else:
+            flash("Admin access denied. Please log in first.", "error")
         return redirect("/")
     
     # Get all users for switching
@@ -1571,6 +1586,8 @@ def teacher_login():
         if teacher and check_password_hash(teacher.password_hash, password):
             session["teacher_id"] = teacher.id
             session["user_role"] = "teacher"
+            # Set is_owner flag for navbar admin button
+            session["is_owner"] = is_owner(teacher)
             flash("Logged in successfully.", "info")
             return redirect("/teacher/dashboard")
 
