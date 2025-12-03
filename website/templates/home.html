@@ -1461,72 +1461,6 @@
       </div>
     </section>
 
-    <script>
-      // Wait for DOM to be fully loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        // Role Tab Switching
-        document.querySelectorAll('.role-tab').forEach(tab => {
-          tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            const role = this.dataset.role;
-            
-            // Update tab styles
-            document.querySelectorAll('.role-tab').forEach(t => {
-              t.classList.remove('active');
-              t.style.background = 'rgba(255,255,255,0.05)';
-              t.style.color = 'var(--muted)';
-              t.style.borderColor = 'var(--border-soft)';
-            });
-            this.classList.add('active');
-            this.style.background = 'rgba(79,172,254,0.2)';
-            this.style.color = '#fff';
-            this.style.borderColor = 'rgba(79,172,254,0.5)';
-            
-            // Show corresponding pricing
-            document.querySelectorAll('.role-pricing').forEach(pricing => {
-              pricing.style.display = 'none';
-            });
-            const targetPricing = document.querySelector(`.role-pricing[data-role="${role}"]`);
-            if (targetPricing) {
-              targetPricing.style.display = 'grid';
-            }
-          });
-        });
-        
-        // Monthly/Yearly Toggle
-        const monthlyBtn = document.getElementById('price-monthly');
-        const yearlyBtn = document.getElementById('price-yearly');
-        
-        if (monthlyBtn) {
-          monthlyBtn.addEventListener('click', function() {
-            document.querySelectorAll('.price').forEach(p => {
-              p.textContent = p.dataset.monthly;
-            });
-            monthlyBtn.style.opacity = '1';
-            yearlyBtn.style.opacity = '0.8';
-            // Update all links to monthly billing
-            document.querySelectorAll('a[href*="billing=yearly"]').forEach(link => {
-              link.href = link.href.replace('billing=yearly', 'billing=monthly');
-            });
-          });
-        }
-        
-        if (yearlyBtn) {
-          yearlyBtn.addEventListener('click', function() {
-            document.querySelectorAll('.price').forEach(p => {
-              p.textContent = p.dataset.yearly;
-            });
-            yearlyBtn.style.opacity = '1';
-            monthlyBtn.style.opacity = '0.8';
-            // Update all links to yearly billing
-            document.querySelectorAll('a[href*="billing=monthly"]').forEach(link => {
-              link.href = link.href.replace('billing=monthly', 'billing=yearly');
-            });
-          });
-        }
-      });
-    </script>
-
     <!-- FAQ SECTION -->
     <section class="features" id="faq" style="padding-top:60px;">
       <div class="section-header">
@@ -1982,6 +1916,75 @@
         }
       });
     })();
+  </script>
+
+  <!-- Pricing Role Tab & Toggle Script -->
+  <script>
+    // Role Tab Switching (runs after DOM is loaded since script is at bottom)
+    document.querySelectorAll('.role-tab').forEach(tab => {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const role = this.dataset.role;
+        
+        console.log('Role tab clicked:', role); // Debug
+        
+        // Update tab styles
+        document.querySelectorAll('.role-tab').forEach(t => {
+          t.classList.remove('active');
+          t.style.background = 'rgba(255,255,255,0.05)';
+          t.style.color = 'var(--muted)';
+          t.style.borderColor = 'var(--border-soft)';
+        });
+        this.classList.add('active');
+        this.style.background = 'rgba(79,172,254,0.2)';
+        this.style.color = '#fff';
+        this.style.borderColor = 'rgba(79,172,254,0.5)';
+        
+        // Show corresponding pricing
+        document.querySelectorAll('.role-pricing').forEach(pricing => {
+          pricing.style.display = 'none';
+        });
+        const targetPricing = document.querySelector(`.role-pricing[data-role="${role}"]`);
+        if (targetPricing) {
+          targetPricing.style.display = 'grid';
+          console.log('Showing pricing for:', role); // Debug
+        } else {
+          console.error('No pricing found for role:', role); // Debug
+        }
+      });
+    });
+    
+    // Monthly/Yearly Toggle
+    const monthlyBtn = document.getElementById('price-monthly');
+    const yearlyBtn = document.getElementById('price-yearly');
+    
+    if (monthlyBtn) {
+      monthlyBtn.addEventListener('click', function() {
+        document.querySelectorAll('.price').forEach(p => {
+          p.textContent = p.dataset.monthly;
+        });
+        monthlyBtn.style.opacity = '1';
+        yearlyBtn.style.opacity = '0.8';
+        // Update all links to monthly billing
+        document.querySelectorAll('a[href*="billing=yearly"]').forEach(link => {
+          link.href = link.href.replace('billing=yearly', 'billing=monthly');
+        });
+      });
+    }
+    
+    if (yearlyBtn) {
+      yearlyBtn.addEventListener('click', function() {
+        document.querySelectorAll('.price').forEach(p => {
+          p.textContent = p.dataset.yearly;
+        });
+        yearlyBtn.style.opacity = '1';
+        monthlyBtn.style.opacity = '0.8';
+        // Update all links to yearly billing
+        document.querySelectorAll('a[href*="billing=monthly"]').forEach(link => {
+          link.href = link.href.replace('billing=monthly', 'billing=yearly');
+        });
+      });
+    }
   </script>
 
   <!-- Admin Access Link (bottom right corner) -->
