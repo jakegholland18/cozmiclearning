@@ -1016,55 +1016,28 @@ def admin_set_mode(mode):
     session.pop("parent_id", None)
     session.pop("teacher_id", None)
     
-    # Set admin mode
+    # Set admin mode and bypass flag - no user required!
     session["admin_mode"] = mode
     session["bypass_auth"] = True  # Flag to bypass all auth checks
+    session["is_owner"] = True  # Give owner privileges
     
-    # Create mock user IDs for browsing
+    # Set appropriate redirect based on mode
     if mode == "student":
-        # Get first student or create demo
-        student = Student.query.first()
-        if student:
-            session["student_id"] = student.id
-            init_user()
-            flash(f"🔧 Admin mode: Viewing as Student ({student.student_name})", "info")
-            return redirect("/dashboard")
-        else:
-            flash("No students in database. Please create one first.", "error")
-            return redirect("/admin_portal")
+        flash(f"🔧 Admin mode: Student View (Full Access)", "info")
+        return redirect("/subjects")  # Go to subjects page
     
     elif mode == "parent":
-        parent = Parent.query.first()
-        if parent:
-            session["parent_id"] = parent.id
-            flash(f"🔧 Admin mode: Viewing as Parent ({parent.name})", "info")
-            return redirect("/parent_dashboard")
-        else:
-            flash("No parents in database. Please create one first.", "error")
-            return redirect("/admin_portal")
+        flash(f"🔧 Admin mode: Parent View (Full Access)", "info")
+        return redirect("/parent_dashboard")
     
     elif mode == "teacher":
-        teacher = Teacher.query.first()
-        if teacher:
-            session["teacher_id"] = teacher.id
-            session["is_owner"] = True
-            flash(f"🔧 Admin mode: Viewing as Teacher ({teacher.name})", "info")
-            return redirect("/teacher/dashboard")
-        else:
-            flash("No teachers in database. Please create one first.", "error")
-            return redirect("/admin_portal")
+        flash(f"🔧 Admin mode: Teacher View (Full Access)", "info")
+        return redirect("/teacher/dashboard")
     
     elif mode == "homeschool":
-        # Homeschool is parent mode with special flag
-        parent = Parent.query.first()
-        if parent:
-            session["parent_id"] = parent.id
-            session["homeschool_mode"] = True
-            flash(f"🔧 Admin mode: Viewing as Homeschool Parent ({parent.name})", "info")
-            return redirect("/parent_dashboard")
-        else:
-            flash("No parents in database. Please create one first.", "error")
-            return redirect("/admin_portal")
+        session["homeschool_mode"] = True
+        flash(f"🔧 Admin mode: Homeschool View (Full Access)", "info")
+        return redirect("/parent_dashboard")
     
     return redirect("/admin_portal")
 
