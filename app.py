@@ -3436,16 +3436,16 @@ def dashboard():
 
 @app.route("/parent_dashboard")
 def parent_dashboard():
-        parent_id = session.get("parent_id")
-        unread_messages = 0
-        if parent_id:
-            unread_messages = Message.query.filter_by(
-                recipient_type="parent",
-                recipient_id=parent_id,
-                is_read=False
-            ).count()
-
     init_user()
+
+    parent_id = session.get("parent_id")
+    unread_messages = 0
+    if parent_id:
+        unread_messages = Message.query.filter_by(
+            recipient_type="parent",
+            recipient_id=parent_id,
+            is_read=False,
+        ).count()
 
     progress = {
         s: (
@@ -3463,7 +3463,7 @@ def parent_dashboard():
         xp=session["xp"],
         level=session["level"],
         tokens=session["tokens"],
-            unread_messages=unread_messages,
+        unread_messages=unread_messages,
         character=session["character"],
     )
 
