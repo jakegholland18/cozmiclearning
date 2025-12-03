@@ -1527,6 +1527,53 @@ def teacher_assign_questions():
     }), 201
 
 # ============================================================
+# TEACHER — PREVIEW AI QUESTIONS (NO PERSISTENCE)
+# ============================================================
+
+@app.route("/teacher/preview_questions", methods=["POST"])
+def teacher_preview_questions():
+    """Generate AI questions for preview only (no DB write)."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    data = request.get_json() or {}
+
+    subject = safe_text(data.get("subject", "terra_nova"), 50)
+    topic = safe_text(data.get("topic", ""), 500)
+    grade = safe_text(data.get("grade", "8"), 10)
+    character = safe_text(data.get("character", "everly"), 50)
+    differentiation_mode = data.get("differentiation_mode", "none")
+    student_ability = data.get("student_ability", "on_level")
+    num_questions = data.get("num_questions", 10)
+
+    if not topic:
+        return jsonify({"error": "Topic is required"}), 400
+
+    # Generate questions using teacher_tools.assign_questions
+    payload = assign_questions(
+        subject=subject,
+        topic=topic,
+        grade=grade,
+        character=character,
+        differentiation_mode=differentiation_mode,
+        student_ability=student_ability,
+        num_questions=num_questions,
+    )
+
+    return jsonify({
+        "success": True,
+        "questions": payload.get("questions", []),
+        "metadata": {
+            "subject": subject,
+            "topic": topic,
+            "grade": grade,
+            "differentiation_mode": differentiation_mode,
+            "student_ability": student_ability,
+        }
+    }), 200
+
+# ============================================================
 # STUDENT – TAKE AI–GENERATED DIFFERENTIATED ASSIGNMENT
 # ============================================================
 
