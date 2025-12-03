@@ -80,6 +80,84 @@ from models import (
     AssignedQuestion,
 )
 from sqlalchemy import func
+import json
+
+# ------------------------------------------------------------
+# Simple backup/restore for teachers/classes/students
+# ------------------------------------------------------------
+
+BACKUP_PATH = os.path.join(PERSIST_DIR, "classes_backup.json")
+
+def backup_classes_to_json():
+    try:
+        teachers = Teacher.query.all()
+        payload = []
+        for t in teachers:
+            t_classes = []
+            for c in t.classes:
+                c_students = []
+                for s in c.students:
+                    c_students.append({
+                        "name": getattr(s, "name", None),
+                        "email": getattr(s, "email", None),
+                        "grade_level": getattr(c, "grade_level", None),
+                    })
+                t_classes.append({
+                    "class_name": c.class_name,
+                    "grade_level": c.grade_level,
+                    "id": c.id,
+                    "students": c_students,
+                })
+            payload.append({
+                "teacher": {
+                    "name": getattr(t, "name", None),
+                    "email": getattr(t, "email", None),
+                },
+                "classes": t_classes,
+            })
+
+        with open(BACKUP_PATH, "w") as f:
+            json.dump({"data": payload, "saved_at": datetime.utcnow().isoformat()}, f, indent=2)
+        print(f"✅ Classes backup saved to {BACKUP_PATH}")
+    except Exception as e:
+        print(f"⚠️ Failed to backup classes: {e}")
+
+
+def restore_classes_from_json_if_empty():
+    try:
+        existing = Class.query.count()
+        if existing > 0:
+            return
+        if not os.path.exists(BACKUP_PATH):
+            return
+        with open(BACKUP_PATH, "r") as f:
+            data = json.load(f)
+        items = data.get("data", [])
+        restored = 0
+        for item in items:
+            tinfo = item.get("teacher", {})
+            email = (tinfo.get("email") or "").lower()
+            if not email:
+                continue
+            teacher = Teacher.query.filter_by(email=email).first()
+            if not teacher:
+                # Create minimal teacher account (password not set here)
+                teacher = Teacher(name=tinfo.get("name"), email=email, password_hash=generate_password_hash("TempPass123!"))
+                db.session.add(teacher)
+                db.session.flush()
+            for c in item.get("classes", []):
+                cls = Class(teacher_id=teacher.id, class_name=c.get("class_name"), grade_level=c.get("grade_level"))
+                db.session.add(cls)
+                db.session.flush()
+                for s in c.get("students", []):
+                    stu = Student(class_id=cls.id, name=s.get("name"), email=s.get("email"))
+                    db.session.add(stu)
+                restored += 1
+        db.session.commit()
+        if restored:
+            print(f"✅ Restored {restored} classes from backup")
+    except Exception as e:
+        print(f"⚠️ Failed to restore classes: {e}")
 
 # SQLAlchemy config
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
@@ -110,6 +188,8 @@ def seed_owner():
 with app.app_context():
     db.create_all()  # ensure tables exist
     seed_owner()
+    # Attempt restore from backup if DB is empty
+    restore_classes_from_json_if_empty()
 
 # ============================================================
 # SAFE DB VALIDATION (NO DELETE)
@@ -1074,6 +1154,8 @@ def add_class():
     cls = Class(teacher_id=teacher.id, class_name=class_name, grade_level=grade)
     db.session.add(cls)
     db.session.commit()
+    # Save backup after creating class
+    backup_classes_to_json()
 
     flash("Class created successfully.", "info")
     return redirect("/teacher/dashboard")
@@ -1100,6 +1182,8 @@ def add_student(class_id):
     student = Student(class_id=class_id, student_name=name, student_email=email)
     db.session.add(student)
     db.session.commit()
+    # Save backup after adding student
+    backup_classes_to_json()
 
     flash("Student added to class.", "info")
     return redirect("/teacher/dashboard")
