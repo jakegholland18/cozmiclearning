@@ -2213,6 +2213,32 @@ def assignment_step(practice_id):
 # CLASS ANALYTICS (TEACHER VIEW) – DB RESULTS ONLY
 # ============================================================
 
+@app.route("/teacher/analytics")
+def teacher_analytics_overview():
+    """Overview page - redirect to first class analytics or show class selector."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    # Get all teacher's classes
+    if is_owner(teacher):
+        classes = Class.query.order_by(Class.id).all()
+    else:
+        classes = Class.query.filter_by(teacher_id=teacher.id).order_by(Class.id).all()
+
+    # If only one class, redirect directly to it
+    if len(classes) == 1:
+        return redirect(f"/teacher/class/{classes[0].id}/analytics")
+    
+    # If no classes, show message
+    if not classes:
+        flash("No classes found. Create a class first.", "info")
+        return redirect("/teacher/dashboard")
+    
+    # Multiple classes - redirect to first one (could create a selector page instead)
+    return redirect(f"/teacher/class/{classes[0].id}/analytics")
+
+
 @app.route("/teacher/class/<int:class_id>/analytics")
 def teacher_class_analytics(class_id):
     teacher = get_current_teacher()
