@@ -649,6 +649,27 @@
 
 <div class="practice-wrapper">
 
+    <!-- Top Utility Bar for consistency -->
+    <div class="utility-bar" role="navigation" aria-label="Quick actions" style="margin-bottom:12px;">
+        <div class="utility-item">
+            <label>🪐 Subject</label>
+            <select id="subject-switcher" class="utility-select">
+                {% for key, val in subjects.items() %}
+                    <option value="{{ key }}" {% if key == subject %}selected{% endif %}>{{ val }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="utility-item">
+            <label>🔭 Search topics or questions</label>
+            <input id="global-search" class="utility-input" type="text" placeholder="e.g., percentages, thesis statement, photosynthesis...">
+        </div>
+        <div class="utility-actions">
+            <button id="go-ask" class="utility-btn">🔎 Ask Question</button>
+            <button id="go-study" class="utility-btn">📚 Deep Study</button>
+            <a href="/logout" class="utility-btn utility-logout" aria-label="Logout">👩‍🚀 Logout</a>
+        </div>
+    </div>
+
     <div class="top-row">
         <button class="return-btn" type="button" onclick="goBackToQuestionScreen()">
             ⬅️ Return to previous screen
@@ -1113,6 +1134,37 @@ document.getElementById("help-msg-input").addEventListener("keydown", function(e
         e.preventDefault();
         sendHelpMessage();
     }
+});
+</script>
+
+<script>
+// Utility bar behavior
+document.addEventListener("DOMContentLoaded", () => {
+    const subjectSel = document.getElementById("subject-switcher");
+    const searchInput = document.getElementById("global-search");
+    const grade = "{{ grade }}";
+
+    subjectSel?.addEventListener("change", () => {
+        const subj = subjectSel.value;
+        window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
+    });
+
+    searchInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && searchInput.value.trim()) {
+            const subj = subjectSel?.value || "{{ subject }}";
+            const q = searchInput.value.trim();
+            window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade) + "&q=" + encodeURIComponent(q);
+        }
+    });
+
+    document.getElementById("go-ask")?.addEventListener("click", () => {
+        const subj = subjectSel?.value || "{{ subject }}";
+        window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
+    });
+
+    document.getElementById("go-study")?.addEventListener("click", () => {
+        window.location.href = "/ask-question?subject=power_grid&grade=" + encodeURIComponent(grade);
+    });
 });
 </script>
 

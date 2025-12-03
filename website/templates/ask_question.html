@@ -3,6 +3,45 @@
 {% include "_navbar.html" %}
 
 <style>
+        /* Top utility bar */
+        .utility-bar {
+            max-width: 1100px;
+            margin: 14px auto 0;
+            padding: 8px 12px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08));
+            border: 1px solid rgba(118,131,255,0.35);
+            display: grid;
+            grid-template-columns: 1.1fr 2fr auto;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .utility-item label { display:block; font-size:0.8rem; color:#8a92b3; margin-bottom:4px; }
+        .utility-select, .utility-input {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid rgba(118,131,255,0.35);
+            background: rgba(0,0,0,0.3);
+            color: #f7fbff;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .utility-actions { display:flex; gap:8px; align-items:center; }
+        .utility-btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(118,131,255,0.35);
+            background: linear-gradient(135deg, #5c6bff, #7683ff);
+            color: white;
+            font-weight:700;
+            cursor:pointer;
+            box-shadow: 0 6px 18px rgba(92,107,255,0.3);
+        }
+        .utility-logout { background: rgba(255,111,216,0.2); color:#ff6fd8; border-color: rgba(255,111,216,0.35); }
+        .utility-emoji { font-size: 1.1rem; }
     body {
         background: linear-gradient(135deg, #0a0e27 0%, #050813 100%);
         margin: 0;
@@ -242,6 +281,27 @@
 
 <div class="stars"></div>
 
+<!-- Top Utility Bar -->
+<div class="utility-bar" role="navigation" aria-label="Quick actions">
+    <div class="utility-item">
+        <label>🪐 Subject</label>
+        <select id="subject-switcher" class="utility-select">
+            {% for key, val in subjects.items() %}
+                <option value="{{ key }}" {% if key == subject %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="utility-item">
+        <label>🔭 Search topics or questions</label>
+        <input id="global-search" class="utility-input" type="text" placeholder="e.g., percentages, thesis statement, photosynthesis...">
+    </div>
+    <div class="utility-actions">
+        <button id="go-practice" class="utility-btn">🚀 Practice</button>
+        <button id="go-study" class="utility-btn">📚 Deep Study</button>
+        <a href="/logout" class="utility-btn utility-logout" aria-label="Logout">👩‍🚀 Logout</a>
+    </div>
+</div>
+
 <h1 class="select-title">{{ subject.replace("_"," ").title() }}</h1>
 <div class="sub-title">Grade {{ grade }}</div>
 
@@ -361,6 +421,36 @@ document.addEventListener("DOMContentLoaded", () => {
         field.closest("form").addEventListener("submit", showThinking);
     });
 
+});
+
+// Utility bar behavior
+document.addEventListener("DOMContentLoaded", () => {
+    const subjectSel = document.getElementById("subject-switcher");
+    const searchInput = document.getElementById("global-search");
+    const grade = "{{ grade }}";
+
+    subjectSel?.addEventListener("change", () => {
+        const subj = subjectSel.value;
+        window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
+    });
+
+    // Search: redirect to ask-question with current subject and a query param (frontend only)
+    searchInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && searchInput.value.trim()) {
+            const subj = subjectSel?.value || "{{ subject }}";
+            const q = searchInput.value.trim();
+            window.location.href = "/ask-question?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade) + "&q=" + encodeURIComponent(q);
+        }
+    });
+
+    document.getElementById("go-practice")?.addEventListener("click", () => {
+        const subj = subjectSel?.value || "{{ subject }}";
+        window.location.href = "/practice?subject=" + encodeURIComponent(subj) + "&grade=" + encodeURIComponent(grade);
+    });
+
+    document.getElementById("go-study")?.addEventListener("click", () => {
+        window.location.href = "/ask-question?subject=power_grid&grade=" + encodeURIComponent(grade);
+    });
 });
 </script>
 
