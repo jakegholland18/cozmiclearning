@@ -3008,9 +3008,12 @@ def powergrid_submit():
     if topic:
         text_parts.append(f"--- Topic Request ---\n{topic}")
     
-    # Combine all text sources
+    # Combine all text sources with length limits to prevent memory issues
     if text_parts:
         combined_text = "\n\n".join(text_parts)
+        # Limit total input to 15000 characters to prevent timeout/memory issues
+        if len(combined_text) > 15000:
+            combined_text = combined_text[:15000] + "\n\n[Content truncated due to length...]"
     else:
         combined_text = "No content provided."
 

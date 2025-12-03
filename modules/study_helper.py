@@ -137,7 +137,7 @@ def generate_powergrid_master_guide(text, grade_level="8", character="everly", m
 
     # Mode-specific adjustments
     if mode == "quick":
-        word_limit = 600
+        word_limit = 400
         format_instructions = """
 QUICK SUMMARY FORMAT:
 1. KEY CONCEPT (1 sentence)
@@ -147,7 +147,7 @@ QUICK SUMMARY FORMAT:
 5. REMEMBER THIS (1 key takeaway)
 """
     elif mode == "deep":
-        word_limit = 2500
+        word_limit = 1500
         format_instructions = """
 DEEP DIVE FORMAT:
 1. COMPREHENSIVE OVERVIEW (full paragraph)
@@ -161,7 +161,7 @@ DEEP DIVE FORMAT:
 9. CHRISTIAN WORLDVIEW (expanded perspective)
 """
     elif mode == "socratic":
-        word_limit = 1500
+        word_limit = 1000
         format_instructions = """
 SOCRATIC LEARNING FORMAT:
 1. OPENING QUESTION (What do you already know about this?)
@@ -173,7 +173,7 @@ SOCRATIC LEARNING FORMAT:
 5. CHRISTIAN PERSPECTIVE QUESTION (How does this relate to God's design?)
 """
     else:  # standard
-        word_limit = 1200
+        word_limit = 800
         format_instructions = """
 STANDARD FORMAT:
 1. OVERVIEW (3–5 sentences)
