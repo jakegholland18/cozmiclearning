@@ -637,6 +637,7 @@ async function askTeachersPet() {
         const res = await fetch('/teacher/teachers_pet', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ 
                 question: question,
                 history: teachersPetHistory
@@ -690,6 +691,7 @@ async function generateLessonPlan() {
         const res = await fetch('/teacher/generate_lesson_plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify(payload)
         });
 
@@ -747,6 +749,7 @@ async function previewQuestions() {
         const res = await fetch('/teacher/preview_questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify(payload)
         });
 
@@ -821,13 +824,15 @@ async function submitAssignQuestions() {
         const res = await fetch('/teacher/assign_questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify(payload)
         });
 
         const data = await res.json();
         
         if (res.ok) {
-            resultDiv.innerHTML = `<strong style="color: var(--success);">✓ Success!</strong> ${data.message}<br><a href="/teacher/assignments/${data.assignment_id}" style="color: var(--accent); text-decoration: underline;">View Assignment</a>`;
+            const editUrl = data.edit_url || `/teacher/assignments/${data.assignment_id}/edit`;
+            resultDiv.innerHTML = `<strong style="color: var(--success);">✓ Success!</strong> ${data.message}<br><a href="${editUrl}" style="color: var(--accent); text-decoration: underline;">Edit Questions</a> · <a href="/teacher/assignments/${data.assignment_id}" style="color: var(--muted); text-decoration: underline;">Overview</a>`;
         } else {
             resultDiv.innerHTML = `<strong style="color: var(--warning);">✗ Error:</strong> ${data.error || 'Unknown error'}`;
         }
@@ -844,7 +849,7 @@ async function submitAssign(){
         student_ids: document.getElementById('assignStudentIds').value.split(',').map(s=>parseInt(s.trim(),10)).filter(Boolean),
         character: 'everly'
     };
-    const res = await fetch('/teacher/tools/assign', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const res = await fetch('/teacher/tools/assign', {method:'POST', headers:{'Content-Type':'application/json'}, credentials: 'same-origin', body: JSON.stringify(payload)});
     document.getElementById('assignResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 
@@ -855,7 +860,7 @@ async function submitQuiz(){
         differentiation_mode: document.getElementById('quizMode').value,
         num_questions: parseInt(document.getElementById('quizCount').value||'6', 10)
     };
-    const res = await fetch('/teacher/tools/quiz', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const res = await fetch('/teacher/tools/quiz', {method:'POST', headers:{'Content-Type':'application/json'}, credentials: 'same-origin', body: JSON.stringify(payload)});
     document.getElementById('quizResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 
@@ -866,7 +871,7 @@ async function submitLesson(){
         grade: document.getElementById('lessonGrade').value.trim(),
         character: document.getElementById('lessonCharacter').value.trim() || 'everly'
     };
-    const res = await fetch('/teacher/tools/lesson_plan', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const res = await fetch('/teacher/tools/lesson_plan', {method:'POST', headers:{'Content-Type':'application/json'}, credentials: 'same-origin', body: JSON.stringify(payload)});
     document.getElementById('lessonResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 
@@ -876,19 +881,19 @@ async function submitMessage(){
         teacher_id: parseInt(document.getElementById('msgTeacherId').value, 10),
         message: document.getElementById('msgContent').value
     };
-    const res = await fetch('/teacher/tools/message_parents', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+    const res = await fetch('/teacher/tools/message_parents', {method:'POST', headers:{'Content-Type':'application/json'}, credentials: 'same-origin', body: JSON.stringify(payload)});
     document.getElementById('msgResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 
 async function loadAnalytics(){
     const classId = parseInt(document.getElementById('analyticsClassId').value,10);
-    const res = await fetch(`/teacher/tools/analytics/${classId}`);
+    const res = await fetch(`/teacher/tools/analytics/${classId}`, { credentials: 'same-origin' });
     document.getElementById('analyticsResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 
 async function loadReport(){
     const sid = parseInt(document.getElementById('reportStudentId').value,10);
-    const res = await fetch(`/teacher/tools/report/${sid}`);
+    const res = await fetch(`/teacher/tools/report/${sid}`, { credentials: 'same-origin' });
     document.getElementById('reportResult').textContent = JSON.stringify(await res.json(), null, 2);
 }
 </script>
