@@ -250,6 +250,40 @@ body {
         0 8px 32px rgba(0,0,0,0.3),
         0 0 60px rgba(0,242,255,0.15);
     backdrop-filter: blur(10px);
+    line-height: 1.9;
+}
+
+.study-content h2 {
+    color: #00f2ff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 35px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(0,242,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.study-content h2:first-child {
+    margin-top: 0;
+}
+
+.study-content p {
+    margin-bottom: 15px;
+    line-height: 1.9;
+    color: #c4d1ff;
+    font-size: 1.05rem;
+}
+
+.study-content strong {
+    color: #00f2ff;
+    font-weight: 700;
+}
+
+.study-content em {
+    color: #6dd5ed;
+    font-style: italic;
 }
 
 .study-section {
@@ -558,8 +592,8 @@ body {
 
         <!-- Main Study Content -->
         <div class="study-content" id="studyContent">
-            <div class="highlightable">
-                {{ answer|safe }}
+            <div class="highlightable" id="formattedContent">
+                <!-- Content formatted by JavaScript -->
             </div>
         </div>
     </div>
@@ -594,6 +628,7 @@ const studyText = {{ answer|tojson }};
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    formatStudyGuide();
     generateTOC();
     trackProgress();
     animatePowerBattery();
@@ -609,6 +644,55 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Format Study Guide with proper HTML structure
+function formatStudyGuide() {
+    const container = document.getElementById('formattedContent');
+    const lines = studyText.split('\n');
+    let html = '';
+    let currentSection = '';
+    
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) {
+            html += '<br>';
+            return;
+        }
+        
+        // Detect section headers (ALL CAPS or numbered sections)
+        if (line === line.toUpperCase() && line.length > 3 && line.length < 100) {
+            html += `<h2 class="section-title">${line}</h2>`;
+            currentSection = line;
+        }
+        // Detect numbered sections like "1. OVERVIEW" or "SECTION 1 —"
+        else if (line.match(/^(SECTION\s+\d+|\d+\.)\s*—?\s*[A-Z]/)) {
+            html += `<h2 class="section-title">${line}</h2>`;
+            currentSection = line;
+        }
+        // Bullet points
+        else if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
+            html += `<div style="margin-left: 20px; margin-bottom: 8px; color: #c4d1ff;">⚡ ${line.substring(1).trim()}</div>`;
+        }
+        // Sub-bullets (indented)
+        else if (line.match(/^\s{2,}[-•*]/)) {
+            html += `<div style="margin-left: 40px; margin-bottom: 6px; color: #a8b9ff; font-size: 0.95rem;">→ ${line.trim().substring(1).trim()}</div>`;
+        }
+        // Questions (for Socratic mode)
+        else if (line.endsWith('?')) {
+            html += `<div style="margin: 15px 0; padding: 12px; background: rgba(0,242,255,0.1); border-left: 3px solid #00f2ff; border-radius: 8px; color: #00f2ff; font-weight: 600;">${line}</div>`;
+        }
+        // Code or examples (lines with special chars)
+        else if (line.includes('```') || line.includes('===') || line.includes('---')) {
+            html += `<div style="margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; font-family: monospace; color: #84ff00; font-size: 0.9rem;">${line.replace(/```/g, '')}</div>`;
+        }
+        // Regular paragraphs
+        else {
+            html += `<p style="margin-bottom: 15px; line-height: 1.8; color: #c4d1ff; font-size: 1.05rem;">${line}</p>`;
+        }
+    });
+    
+    container.innerHTML = html;
+}
 
 // Generate Table of Contents
 function generateTOC() {
