@@ -81,6 +81,7 @@ def assign_questions(
         character=character,
         differentiation_mode=differentiation_mode,
         student_ability=student_ability,
+        context="teacher",  # Clean, professional format for assignments
     )
 
     steps = session.get("steps", [])

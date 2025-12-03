@@ -104,15 +104,17 @@ def generate_practice_session(
     grade_level: str = "8",
     character: str = "everly",
     differentiation_mode: str = "none",
-    student_ability: str = "on_level",  # NEW
+    student_ability: str = "on_level",
+    context: str = "student",  # "student" or "teacher"
 ) -> Dict[str, Any]:
     """
     Generate a 10-question practice 'mission' with differentiation support.
+    Context: "student" = gamified mission style; "teacher" = clean professional format.
     """
 
     difficulty = _difficulty_for_grade(grade_level)
     flavor = _subject_flavor(subject)
-    voice = build_character_voice(character)
+    voice = build_character_voice(character) if context == "student" else ""
     depth_rule = grade_depth_instruction(grade_level)
 
     if not topic:
@@ -121,7 +123,32 @@ def generate_practice_session(
     # ------------------------------------------------------------
     # 🌌 BASE SYSTEM PROMPT
     # ------------------------------------------------------------
-    base_prompt = f"""
+    if context == "teacher":
+        # Professional, clean format for teacher assignments
+        base_prompt = f"""
+You are an educational content generator creating practice questions for teacher assignments.
+
+GOAL:
+Generate 10 clear, grade-appropriate practice questions:
+• Mix of multiple-choice and free-response
+• Focused on: {topic}
+• Subject area: {flavor}
+• Difficulty: {difficulty}
+• Grade level: {depth_rule}
+
+STUDENT CONTEXT:
+• Student ability level: {student_ability}
+• Applied differentiation mode: {differentiation_mode}
+
+FORMAT REQUIREMENTS:
+• Direct, professional question prompts (no narrative framing)
+• Clear, unambiguous wording
+• Concise hints that guide without giving away the answer
+• Brief, instructional explanations
+• Standard academic tone"""
+    else:
+        # Gamified mission style for student practice
+        base_prompt = f"""
 You are COZMICLEARNING PRACTICE MODE, a galaxy-themed tutor
 guiding students through "missions" of questions.
 
