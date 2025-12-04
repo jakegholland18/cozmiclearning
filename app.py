@@ -1407,14 +1407,48 @@ def admin_portal():
 
 @app.route("/admin_mode/<mode>")
 def admin_set_mode(mode):
-    """DEPRECATED: Old bypass mode - redirects to new admin dashboard"""
+    """Quick access to different user modes - auto-selects first available user"""
     if not session.get("admin_authenticated"):
         flash("Admin authentication required.", "error")
         return redirect("/secret_admin_login")
 
-    # Redirect to new admin dashboard instead of using bypass mode
-    flash("⚠️ The old admin mode system has been replaced. Please use the new Admin Dashboard.", "info")
-    return redirect("/admin")
+    # Handle different modes
+    if mode == "student":
+        # Find first student and switch to their view
+        student = Student.query.first()
+        if not student:
+            flash("No students found in database. Create a student first.", "error")
+            return redirect("/admin")
+        return redirect(f"/admin/switch_to_student/{student.id}")
+
+    elif mode == "parent":
+        # Find first parent (non-homeschool) and switch to their view
+        parent = Parent.query.filter(
+            ~Parent.plan.in_(["homeschool_essential", "homeschool_complete"])
+        ).first()
+        if not parent:
+            # If no regular parent, try any parent
+            parent = Parent.query.first()
+        if not parent:
+            flash("No parents found in database. Create a parent first.", "error")
+            return redirect("/admin")
+        return redirect(f"/admin/switch_to_parent/{parent.id}")
+
+    elif mode == "teacher":
+        # Find first teacher and switch to their view
+        teacher = Teacher.query.first()
+        if not teacher:
+            flash("No teachers found in database. Create a teacher first.", "error")
+            return redirect("/admin")
+        return redirect(f"/admin/switch_to_teacher/{teacher.id}")
+
+    elif mode == "homeschool":
+        # Redirect to homeschool switch (which auto-selects homeschool parent)
+        return redirect("/admin/switch_to_homeschool")
+
+    else:
+        flash("Invalid mode specified.", "error")
+        return redirect("/admin")
 
 
 @app.route("/admin_logout")
