@@ -527,8 +527,8 @@ db.Index('idx_class_teacher_id', Class.teacher_id)
 
 # Message Indices (conversation history)
 db.Index('idx_message_student_id', Message.student_id)
-db.Index('idx_message_timestamp', Message.timestamp)  # For chronological sorting
-db.Index('idx_message_student_timestamp', Message.student_id, Message.timestamp)  # Composite for student history
+db.Index('idx_message_created_at', Message.created_at)  # For chronological sorting
+db.Index('idx_message_student_created_at', Message.student_id, Message.created_at)  # Composite for student history
 
 # Assigned Practice Indices
 db.Index('idx_assigned_practice_class_id', AssignedPractice.class_id)
@@ -546,7 +546,7 @@ db.Index('idx_student_submission_submitted_at', StudentSubmission.submitted_at)
 
 # Question Log Indices
 db.Index('idx_question_log_student_id', QuestionLog.student_id)
-db.Index('idx_question_log_timestamp', QuestionLog.timestamp)
+db.Index('idx_question_log_created_at', QuestionLog.created_at)
 
 # Activity Log Indices
 db.Index('idx_activity_log_student_id', ActivityLog.student_id)
@@ -559,11 +559,12 @@ db.Index('idx_student_achievement_achievement_id', StudentAchievement.achievemen
 
 # Game Session Indices
 db.Index('idx_game_session_student_id', GameSession.student_id)
-db.Index('idx_game_session_game_id', GameSession.game_id)
+db.Index('idx_game_session_game_key', GameSession.game_key)
+db.Index('idx_game_session_started_at', GameSession.started_at)
 
 # Game Leaderboard Indices
 db.Index('idx_game_leaderboard_student_id', GameLeaderboard.student_id)
-db.Index('idx_game_leaderboard_game_id', GameLeaderboard.game_id)
+db.Index('idx_game_leaderboard_game_key', GameLeaderboard.game_key)
 db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For high score queries
 
 
