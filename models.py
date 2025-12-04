@@ -525,10 +525,10 @@ db.Index('idx_student_created_at', Student.created_at)  # For recent students qu
 # Class Indices
 db.Index('idx_class_teacher_id', Class.teacher_id)
 
-# Conversation Indices (heavily queried)
-db.Index('idx_conversation_student_id', Conversation.student_id)
-db.Index('idx_conversation_timestamp', Conversation.timestamp)  # For chronological sorting
-db.Index('idx_conversation_student_timestamp', Conversation.student_id, Conversation.timestamp)  # Composite for student history
+# Message Indices (conversation history)
+db.Index('idx_message_student_id', Message.student_id)
+db.Index('idx_message_timestamp', Message.timestamp)  # For chronological sorting
+db.Index('idx_message_student_timestamp', Message.student_id, Message.timestamp)  # Composite for student history
 
 # Assigned Practice Indices
 db.Index('idx_assigned_practice_class_id', AssignedPractice.class_id)
@@ -544,13 +544,9 @@ db.Index('idx_student_submission_student_id', StudentSubmission.student_id)
 db.Index('idx_student_submission_assignment_id', StudentSubmission.assignment_id)
 db.Index('idx_student_submission_submitted_at', StudentSubmission.submitted_at)
 
-# Question Progress Indices
-db.Index('idx_question_progress_student_id', QuestionProgress.student_id)
-db.Index('idx_question_progress_question_id', QuestionProgress.question_id)
-
-# Learning Session Indices
-db.Index('idx_learning_session_student_id', LearningSession.student_id)
-db.Index('idx_learning_session_date', LearningSession.session_date)
+# Question Log Indices
+db.Index('idx_question_log_student_id', QuestionLog.student_id)
+db.Index('idx_question_log_timestamp', QuestionLog.timestamp)
 
 # Activity Log Indices
 db.Index('idx_activity_log_student_id', ActivityLog.student_id)
@@ -561,13 +557,13 @@ db.Index('idx_activity_log_activity_type', ActivityLog.activity_type)
 db.Index('idx_student_achievement_student_id', StudentAchievement.student_id)
 db.Index('idx_student_achievement_achievement_id', StudentAchievement.achievement_id)
 
-# Arcade Score Indices
-db.Index('idx_arcade_score_student_id', ArcadeScore.student_id)
-db.Index('idx_arcade_score_game_id', ArcadeScore.game_id)
+# Game Session Indices
+db.Index('idx_game_session_student_id', GameSession.student_id)
+db.Index('idx_game_session_game_id', GameSession.game_id)
 
-# Leaderboard Indices
-db.Index('idx_leaderboard_student_id', ArcadeLeaderboard.student_id)
-db.Index('idx_leaderboard_game_id', ArcadeLeaderboard.game_id)
-db.Index('idx_leaderboard_all_time_score', ArcadeLeaderboard.all_time_score)  # For high score queries
+# Game Leaderboard Indices
+db.Index('idx_game_leaderboard_student_id', GameLeaderboard.student_id)
+db.Index('idx_game_leaderboard_game_id', GameLeaderboard.game_id)
+db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For high score queries
 
 
