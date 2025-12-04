@@ -621,9 +621,14 @@ def init_user():
         "questions_this_month": 0,
         "month_start": str(datetime.today().replace(day=1).date()),
     }
-    for k, v in defaults.items():
-        if k not in session:
+    # Always set defaults for admin mode to ensure full student experience
+    if session.get('admin_mode'):
+        for k, v in defaults.items():
             session[k] = v
+    else:
+        for k, v in defaults.items():
+            if k not in session:
+                session[k] = v
     update_streak()
     check_monthly_reset()
 
@@ -956,7 +961,7 @@ def subjects():
     return render_template(
         "subjects.html",
         planets=planets,
-        character=session["character"],
+        character=session.get("character", "everly"),
     )
 
 
