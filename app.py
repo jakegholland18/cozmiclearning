@@ -568,25 +568,29 @@ def is_owner(teacher: Teacher | None) -> bool:
 
 
 def is_admin() -> bool:
-    """Check if current session user is admin (owner email in any role)"""
+    """Check if current session user is admin (owner email in any role OR admin session flags)"""
+    # Check for admin session flags (secret admin login)
+    if session.get("admin_authenticated") or session.get("bypass_auth") or session.get("is_owner"):
+        return True
+
     # Check if logged in as teacher/owner
     if session.get("teacher_id"):
         teacher = Teacher.query.get(session["teacher_id"])
         if teacher and teacher.email and teacher.email.lower() == OWNER_EMAIL.lower():
             return True
-    
+
     # Check if logged in as student with owner email
     if session.get("student_id"):
         student = Student.query.get(session["student_id"])
         if student and student.student_email and student.student_email.lower() == OWNER_EMAIL.lower():
             return True
-    
+
     # Check if logged in as parent with owner email
     if session.get("parent_id"):
         parent = Parent.query.get(session["parent_id"])
         if parent and parent.email and parent.email.lower() == OWNER_EMAIL.lower():
             return True
-    
+
     return False
 
 
@@ -596,6 +600,14 @@ def is_admin() -> bool:
 
 
 def init_user():
+    # Preserve admin flags before setting defaults
+    admin_flags = {
+        "admin_authenticated": session.get("admin_authenticated"),
+        "bypass_auth": session.get("bypass_auth"),
+        "admin_mode": session.get("admin_mode"),
+        "is_owner": session.get("is_owner"),
+    }
+
     defaults = {
         "tokens": 0,
         "xp": 0,
@@ -631,6 +643,12 @@ def init_user():
         for k, v in defaults.items():
             if k not in session:
                 session[k] = v
+
+    # Restore admin flags after setting defaults
+    for flag, value in admin_flags.items():
+        if value is not None:
+            session[flag] = value
+
     update_streak()
     check_monthly_reset()
 
