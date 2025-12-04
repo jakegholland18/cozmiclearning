@@ -461,6 +461,15 @@
                 <div class="role-badge">Class Portal</div>
             </div>
         </a>
+
+        <a id="homeschoolLink" href="/homeschool/login">
+            <div class="role-card">
+                <div class="role-icon">🏠</div>
+                <div class="role-title">Homeschool</div>
+                <div class="role-desc">Teach and track your children with combined parent + teacher tools.</div>
+                <div class="role-badge">Homeschool Hub</div>
+            </div>
+        </a>
     </div>
 
     <!-- BACK TO LAUNCH PAD BUTTON -->
@@ -516,7 +525,7 @@ function togglePassword(id) {
         planNameEl.textContent = planLabel;
         billingEl.textContent = billingLabel;
         badge.style.display = 'block';
-        ['studentLink','parentLink','teacherLink'].forEach(id => {
+        ['studentLink','parentLink','teacherLink','homeschoolLink'].forEach(id => {
             const a = document.getElementById(id);
             if (!a) return;
             const url = new URL(a.href, window.location.origin);
