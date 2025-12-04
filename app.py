@@ -1038,8 +1038,16 @@ def arcade_play(game_key):
     
     from modules.arcade_helper import (
         generate_speed_math,
+        generate_number_detective,
+        generate_fraction_frenzy,
+        generate_equation_race,
+        generate_element_match,
         generate_vocab_builder,
+        generate_spelling_sprint,
+        generate_grammar_quest,
         generate_science_quiz,
+        generate_history_timeline,
+        generate_geography_dash,
         ARCADE_GAMES
     )
     
@@ -1050,16 +1058,25 @@ def arcade_play(game_key):
     
     grade = session.get("grade", "5")
     
-    # Generate questions based on game type
-    if game_key == "speed_math":
-        questions = generate_speed_math(grade)
-    elif game_key == "vocab_builder":
-        questions = generate_vocab_builder(grade)
-    elif game_key in ["lab_quiz_rush", "planet_explorer"]:
-        questions = generate_science_quiz(grade)
-    else:
-        # Default to speed math for now
-        questions = generate_speed_math(grade)
+    # Map each game to its specific generator
+    game_generators = {
+        "speed_math": generate_speed_math,
+        "number_detective": generate_number_detective,
+        "fraction_frenzy": generate_fraction_frenzy,
+        "equation_race": generate_equation_race,
+        "element_match": generate_element_match,
+        "lab_quiz_rush": generate_science_quiz,
+        "planet_explorer": generate_science_quiz,
+        "vocab_builder": generate_vocab_builder,
+        "spelling_sprint": generate_spelling_sprint,
+        "grammar_quest": generate_grammar_quest,
+        "history_timeline": generate_history_timeline,
+        "geography_dash": generate_geography_dash,
+    }
+    
+    # Get the appropriate generator for this game
+    generator = game_generators.get(game_key, generate_speed_math)
+    questions = generator(grade)
     
     # Store questions in session
     session["current_game"] = {

@@ -471,3 +471,305 @@ def get_student_stats(student_id, game_key=None):
         "best_score": max(s.score for s in sessions),
         "recent_sessions": sessions[-5:]  # Last 5 sessions
     }
+
+
+# ============================================================
+# ADDITIONAL MATH GAMES
+# ============================================================
+
+def generate_number_detective(grade_level):
+    """Find patterns and solve number mysteries"""
+    grade = int(grade_level) if grade_level.isdigit() else 5
+    questions = []
+    
+    for _ in range(20):
+        pattern_type = random.choice(["sequence", "missing", "odd_one_out"])
+        
+        if pattern_type == "sequence":
+            # Number sequences
+            start = random.randint(2, 20)
+            step = random.choice([2, 3, 5, 10])
+            seq = [start + i * step for i in range(5)]
+            answer = seq[-1] + step
+            questions.append({
+                "question": f"What comes next? {', '.join(map(str, seq))}, __",
+                "answer": answer,
+                "type": "sequence",
+                "options": [answer, answer + 1, answer - 1, answer + step]
+            })
+        
+        elif pattern_type == "missing":
+            # Find missing number in pattern
+            start = random.randint(5, 30)
+            step = random.choice([3, 4, 5, 7])
+            seq = [start + i * step for i in range(4)]
+            missing_idx = random.randint(1, 2)
+            answer = seq[missing_idx]
+            seq[missing_idx] = "?"
+            questions.append({
+                "question": f"Find the missing number: {', '.join(map(str, seq))}",
+                "answer": answer,
+                "type": "missing",
+                "options": [answer, answer + 1, answer - 1, answer + step]
+            })
+        
+        else:
+            # Odd one out
+            base = random.randint(2, 10) * 2  # Even number
+            evens = [base + i * 2 for i in range(3)]
+            odd = random.randint(1, 20) * 2 + 1
+            nums = evens + [odd]
+            random.shuffle(nums)
+            questions.append({
+                "question": f"Which number is odd? {', '.join(map(str, nums))}",
+                "answer": odd,
+                "type": "odd_one_out",
+                "options": nums
+            })
+    
+    return questions
+
+
+def generate_fraction_frenzy(grade_level):
+    """Match equivalent fractions"""
+    questions = []
+    
+    for _ in range(20):
+        # Generate simple fractions and their equivalents
+        num = random.randint(1, 8)
+        den = random.randint(num + 1, 12)
+        mult = random.choice([2, 3, 4])
+        
+        equiv_num = num * mult
+        equiv_den = den * mult
+        
+        question_type = random.choice(["match", "simplify"])
+        
+        if question_type == "match":
+            questions.append({
+                "question": f"Which fraction equals {num}/{den}?",
+                "answer": f"{equiv_num}/{equiv_den}",
+                "type": "match",
+                "options": [
+                    f"{equiv_num}/{equiv_den}",
+                    f"{equiv_num + 1}/{equiv_den}",
+                    f"{equiv_num}/{equiv_den + 1}",
+                    f"{num}/{den + 1}"
+                ]
+            })
+        else:
+            # Simplify fraction
+            questions.append({
+                "question": f"Simplify: {equiv_num}/{equiv_den}",
+                "answer": f"{num}/{den}",
+                "type": "simplify",
+                "options": [
+                    f"{num}/{den}",
+                    f"{num + 1}/{den}",
+                    f"{num}/{den + 1}",
+                    f"{equiv_num}/{den}"
+                ]
+            })
+    
+    return questions
+
+
+def generate_equation_race(grade_level):
+    """Solve equations faster than your grade level"""
+    grade = int(grade_level) if grade_level.isdigit() else 5
+    questions = []
+    
+    for _ in range(20):
+        if grade <= 6:
+            # Simple one-step equations: x + a = b or x - a = b
+            a = random.randint(5, 30)
+            x = random.randint(10, 50)
+            op = random.choice(["+", "-"])
+            
+            if op == "+":
+                b = x + a
+                questions.append({
+                    "question": f"Solve: x + {a} = {b}",
+                    "answer": x,
+                    "type": "one_step"
+                })
+            else:
+                b = x - a
+                questions.append({
+                    "question": f"Solve: x - {a} = {b}",
+                    "answer": x,
+                    "type": "one_step"
+                })
+        else:
+            # Two-step equations: ax + b = c
+            a = random.randint(2, 10)
+            x = random.randint(5, 20)
+            b = random.randint(5, 30)
+            c = a * x + b
+            
+            questions.append({
+                "question": f"Solve: {a}x + {b} = {c}",
+                "answer": x,
+                "type": "two_step"
+            })
+    
+    return questions
+
+
+# ============================================================
+# SCIENCE GAMES
+# ============================================================
+
+def generate_element_match(grade_level):
+    """Match chemical symbols to element names"""
+    elements = [
+        {"symbol": "H", "name": "Hydrogen", "options": ["Hydrogen", "Helium", "Hafnium", "Holmium"]},
+        {"symbol": "O", "name": "Oxygen", "options": ["Oxygen", "Osmium", "Oganesson", "Oxide"]},
+        {"symbol": "C", "name": "Carbon", "options": ["Carbon", "Calcium", "Copper", "Chromium"]},
+        {"symbol": "N", "name": "Nitrogen", "options": ["Nitrogen", "Neon", "Nickel", "Nobelium"]},
+        {"symbol": "Fe", "name": "Iron", "options": ["Iron", "Fluorine", "Fermium", "Francium"]},
+        {"symbol": "Au", "name": "Gold", "options": ["Gold", "Silver", "Aluminum", "Argon"]},
+        {"symbol": "Ag", "name": "Silver", "options": ["Silver", "Gold", "Argon", "Arsenic"]},
+        {"symbol": "Na", "name": "Sodium", "options": ["Sodium", "Nitrogen", "Neon", "Nickel"]},
+        {"symbol": "Cl", "name": "Chlorine", "options": ["Chlorine", "Calcium", "Carbon", "Copper"]},
+        {"symbol": "He", "name": "Helium", "options": ["Helium", "Hydrogen", "Hafnium", "Holmium"]},
+        {"symbol": "Ca", "name": "Calcium", "options": ["Calcium", "Carbon", "Cadmium", "Californium"]},
+        {"symbol": "K", "name": "Potassium", "options": ["Potassium", "Krypton", "Phosphorus", "Platinum"]},
+        {"symbol": "Mg", "name": "Magnesium", "options": ["Magnesium", "Manganese", "Mercury", "Molybdenum"]},
+        {"symbol": "Zn", "name": "Zinc", "options": ["Zinc", "Zirconium", "Xenon", "Yttrium"]},
+        {"symbol": "Cu", "name": "Copper", "options": ["Copper", "Carbon", "Curium", "Cesium"]},
+    ]
+    
+    questions = []
+    for _ in range(20):
+        elem = random.choice(elements)
+        random.shuffle(elem["options"])
+        questions.append({
+            "question": f"What element is '{elem['symbol']}'?",
+            "answer": elem["name"],
+            "options": elem["options"][:],
+            "type": "element"
+        })
+    
+    return questions
+
+
+# ============================================================
+# WRITING & LANGUAGE GAMES
+# ============================================================
+
+def generate_spelling_sprint(grade_level):
+    """Spell words correctly as fast as you can"""
+    grade = int(grade_level) if grade_level.isdigit() else 5
+    
+    word_lists = {
+        "elementary": ["apple", "beach", "friend", "school", "happy", "pizza", "yellow", "elephant", "birthday", "library"],
+        "middle": ["beautiful", "necessary", "receive", "separate", "definitely", "tomorrow", "although", "government", "experience", "restaurant"],
+        "high": ["accommodate", "necessary", "occurrence", "occasionally", "recommend", "embarrass", "conscience", "rhythm", "privilege", "maintenance"]
+    }
+    
+    if grade <= 4:
+        words = word_lists["elementary"] * 2
+    elif grade <= 8:
+        words = word_lists["middle"] * 2
+    else:
+        words = word_lists["high"] * 2
+    
+    questions = []
+    for word in words[:20]:
+        # Create misspelled versions
+        misspelled = [
+            word[:2] + word[2:].replace('e', 'a', 1),  # Vowel swap
+            word[:-1] + ('s' if word[-1] != 's' else 'z'),  # Wrong ending
+            word[:3] + word[4:] if len(word) > 4 else word + 'e'  # Missing/extra letter
+        ]
+        
+        options = [word] + misspelled[:3]
+        random.shuffle(options)
+        
+        questions.append({
+            "question": f"Spell correctly: {word.upper()}",
+            "answer": word,
+            "options": options,
+            "type": "spelling"
+        })
+    
+    return questions
+
+
+def generate_grammar_quest(grade_level):
+    """Fix grammatical errors in record time"""
+    questions = [
+        {"question": "Their going to the store", "answer": "They're going to the store", "error": "their/they're"},
+        {"question": "The cat is sleeping in it's bed", "answer": "The cat is sleeping in its bed", "error": "its/it's"},
+        {"question": "Me and him went to school", "answer": "He and I went to school", "error": "pronoun case"},
+        {"question": "She don't like apples", "answer": "She doesn't like apples", "error": "subject-verb agreement"},
+        {"question": "I seen that movie before", "answer": "I have seen that movie before", "error": "past participle"},
+        {"question": "Your the best!", "answer": "You're the best!", "error": "your/you're"},
+        {"question": "Between you and I", "answer": "Between you and me", "error": "pronoun case"},
+        {"question": "I could of done better", "answer": "I could have done better", "error": "could of/could have"},
+        {"question": "There house is big", "answer": "Their house is big", "error": "there/their"},
+        {"question": "Its a beautiful day", "answer": "It's a beautiful day", "error": "its/it's"},
+    ]
+    
+    # Expand to 20 questions
+    questions = questions * 2
+    random.shuffle(questions)
+    return questions[:20]
+
+
+# ============================================================
+# HISTORY & GEOGRAPHY GAMES
+# ============================================================
+
+def generate_history_timeline(grade_level):
+    """Put historical events in the correct order"""
+    events = [
+        {"event": "Declaration of Independence", "year": 1776},
+        {"event": "Civil War Begins", "year": 1861},
+        {"event": "World War I Starts", "year": 1914},
+        {"event": "Great Depression", "year": 1929},
+        {"event": "World War II Ends", "year": 1945},
+        {"event": "Moon Landing", "year": 1969},
+        {"event": "Fall of Berlin Wall", "year": 1989},
+        {"event": "Internet Created", "year": 1989},
+        {"event": "American Revolution", "year": 1775},
+        {"event": "Constitution Signed", "year": 1787},
+    ]
+    
+    questions = []
+    for _ in range(20):
+        # Pick 4 random events
+        selected = random.sample(events, 4)
+        correct_order = sorted(selected, key=lambda x: x['year'])
+        shuffled = selected.copy()
+        random.shuffle(shuffled)
+        
+        questions.append({
+            "question": "Put these events in chronological order (earliest first):",
+            "events": [e["event"] for e in shuffled],
+            "answer": ", ".join([e["event"] for e in correct_order]),
+            "type": "timeline"
+        })
+    
+    return questions
+
+
+def generate_geography_dash(grade_level):
+    """Identify countries, capitals, and landmarks"""
+    questions = [
+        {"question": "What is the capital of France?", "answer": "Paris", "options": ["Paris", "London", "Berlin", "Rome"]},
+        {"question": "Which country has the Great Wall?", "answer": "China", "options": ["China", "Japan", "Korea", "Mongolia"]},
+        {"question": "What is the largest ocean?", "answer": "Pacific", "options": ["Pacific", "Atlantic", "Indian", "Arctic"]},
+        {"question": "Where are the pyramids of Giza?", "answer": "Egypt", "options": ["Egypt", "Mexico", "Peru", "Iraq"]},
+        {"question": "What is the capital of Japan?", "answer": "Tokyo", "options": ["Tokyo", "Beijing", "Seoul", "Bangkok"]},
+        {"question": "Which continent is Australia in?", "answer": "Oceania", "options": ["Oceania", "Asia", "Africa", "Antarctica"]},
+        {"question": "What is the longest river?", "answer": "Nile", "options": ["Nile", "Amazon", "Mississippi", "Yangtze"]},
+        {"question": "Where is the Eiffel Tower?", "answer": "Paris", "options": ["Paris", "London", "Rome", "Madrid"]},
+        {"question": "What is the capital of Italy?", "answer": "Rome", "options": ["Rome", "Milan", "Venice", "Florence"]},
+        {"question": "Which ocean is between US and Europe?", "answer": "Atlantic", "options": ["Atlantic", "Pacific", "Indian", "Arctic"]},
+    ]
+    
+    questions = questions * 2
+    random.shuffle(questions)
+    return questions[:20]
