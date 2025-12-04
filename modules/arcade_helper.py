@@ -28,7 +28,7 @@ ARCADE_GAMES = [
         "description": "Find patterns and solve number mysteries",
         "subject": "math",
         "icon": "🕵️",
-        "grades": "3-8"
+        "grades": "1-12"
     },
     {
         "game_key": "fraction_frenzy",
@@ -36,7 +36,7 @@ ARCADE_GAMES = [
         "description": "Match equivalent fractions under time pressure",
         "subject": "math",
         "icon": "🍕",
-        "grades": "3-7"
+        "grades": "1-12"
     },
     {
         "game_key": "equation_race",
@@ -44,7 +44,7 @@ ARCADE_GAMES = [
         "description": "Solve equations faster than your grade level",
         "subject": "math",
         "icon": "🏎️",
-        "grades": "5-12"
+        "grades": "1-12"
     },
     
     # Science Games
@@ -54,7 +54,7 @@ ARCADE_GAMES = [
         "description": "Match chemical symbols to element names",
         "subject": "science",
         "icon": "🧪",
-        "grades": "6-12"
+        "grades": "1-12"
     },
     {
         "game_key": "lab_quiz_rush",
@@ -62,7 +62,7 @@ ARCADE_GAMES = [
         "description": "Rapid-fire science trivia challenge",
         "subject": "science",
         "icon": "⚗️",
-        "grades": "4-12"
+        "grades": "1-12"
     },
     {
         "game_key": "planet_explorer",
@@ -70,7 +70,7 @@ ARCADE_GAMES = [
         "description": "Test your astronomy and space knowledge",
         "subject": "science",
         "icon": "🪐",
-        "grades": "2-8"
+        "grades": "1-12"
     },
     
     # Reading & Vocabulary
@@ -80,7 +80,7 @@ ARCADE_GAMES = [
         "description": "Match words to definitions in a race against time",
         "subject": "reading",
         "icon": "📚",
-        "grades": "3-12"
+        "grades": "1-12"
     },
     {
         "game_key": "spelling_sprint",
@@ -88,7 +88,7 @@ ARCADE_GAMES = [
         "description": "Spell words correctly as fast as you can",
         "subject": "writing",
         "icon": "✍️",
-        "grades": "1-8"
+        "grades": "1-12"
     },
     {
         "game_key": "grammar_quest",
@@ -96,7 +96,7 @@ ARCADE_GAMES = [
         "description": "Fix grammatical errors in record time",
         "subject": "writing",
         "icon": "📝",
-        "grades": "4-10"
+        "grades": "1-12"
     },
     
     # History & Geography
@@ -106,7 +106,7 @@ ARCADE_GAMES = [
         "description": "Put historical events in the correct order",
         "subject": "history",
         "icon": "⏰",
-        "grades": "5-12"
+        "grades": "1-12"
     },
     {
         "game_key": "geography_dash",
@@ -114,7 +114,7 @@ ARCADE_GAMES = [
         "description": "Identify countries, capitals, and landmarks",
         "subject": "history",
         "icon": "🗺️",
-        "grades": "3-12"
+        "grades": "1-12"
     },
 ]
 

@@ -1033,7 +1033,7 @@ def arcade_game(game_key):
 
 @app.route("/arcade/play/<game_key>", methods=["GET", "POST"])
 def arcade_play(game_key):
-    """Generate and play a game"""
+    """Generate and play a game - with optional grade selection"""
     init_user()
     
     from modules.arcade_helper import (
@@ -1056,7 +1056,19 @@ def arcade_play(game_key):
         flash("Game not found!", "error")
         return redirect("/arcade")
     
-    grade = session.get("grade", "5")
+    # Check if grade was provided in URL (from grade selection screen)
+    selected_grade = request.args.get("grade")
+    
+    # If no grade selected, show grade selection screen
+    if not selected_grade:
+        return render_template(
+            "arcade_grade_select.html",
+            game=game_info,
+            character=session.get("character", "everly")
+        )
+    
+    # Use selected grade instead of session grade
+    grade = selected_grade
     
     # Map each game to its specific generator
     game_generators = {
@@ -1078,12 +1090,13 @@ def arcade_play(game_key):
     generator = game_generators.get(game_key, generate_speed_math)
     questions = generator(grade)
     
-    # Store questions in session
+    # Store questions in session along with selected grade
     session["current_game"] = {
         "game_key": game_key,
         "questions": questions,
         "current_index": 0,
         "correct": 0,
+        "selected_grade": grade,
         "start_time": datetime.utcnow().isoformat()
     }
     session.modified = True
@@ -1093,7 +1106,7 @@ def arcade_play(game_key):
         game=game_info,
         questions=questions,
         grade=grade,
-        character=session["character"]
+        character=session.get("character", "everly")
     )
 
 
@@ -1114,7 +1127,10 @@ def arcade_submit():
     time_seconds = data.get("time_seconds", 0)
     
     student_id = session.get("student_id")
-    grade = session.get("grade", "5")
+    
+    # Get selected grade from current game session, fallback to student's grade
+    current_game = session.get("current_game", {})
+    grade = current_game.get("selected_grade") or session.get("grade", "5")
     
     if not student_id:
         return jsonify({"error": "Not logged in"}), 401

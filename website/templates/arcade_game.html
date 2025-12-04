@@ -140,6 +140,9 @@
         <div class="game-icon-large">{{ game.icon }}</div>
         <h1 class="game-title-large">{{ game.name }}</h1>
         <p class="game-description-large">{{ game.description }}</p>
+        <p style="color: var(--muted-2); margin-bottom: 20px; font-weight: 600;">
+            📚 Grades {{ game.grades }} • Adaptive Difficulty
+        </p>
         <a href="/arcade/play/{{ game.game_key }}" class="play-now-btn">Play Now! 🚀</a>
     </div>
 
