@@ -288,6 +288,16 @@ def rebuild_database_if_needed():
         cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='question_logs';")
         question_logs_exists = cur.fetchone() is not None
         
+        # Define ensure_column helper BEFORE using it
+        def ensure_column(table, cols, name, type_sql):
+            if name not in cols:
+                try:
+                    cur.execute(f"ALTER TABLE {table} ADD COLUMN {name} {type_sql}")
+                    conn.commit()
+                    print(f"✅ Added column {table}.{name}")
+                except Exception as e:
+                    print(f"⚠️ Could not add column {table}.{name}: {e}")
+        
         if question_logs_exists:
             # Check for new columns in question_logs
             cur.execute("PRAGMA table_info(question_logs);")
@@ -299,16 +309,6 @@ def rebuild_database_if_needed():
             ensure_column("question_logs", log_cols, "appeal_reviewed_by", "VARCHAR(100)")
             ensure_column("question_logs", log_cols, "appeal_reviewed_at", "DATETIME")
             ensure_column("question_logs", log_cols, "appeal_notes", "TEXT")
-
-        # Attempt light, non-destructive ALTERs for new subscription columns
-        def ensure_column(table, cols, name, type_sql):
-            if name not in cols:
-                try:
-                    cur.execute(f"ALTER TABLE {table} ADD COLUMN {name} {type_sql}")
-                    conn.commit()
-                    print(f"✅ Added column {table}.{name}")
-                except Exception as e:
-                    print(f"⚠️ Could not add column {table}.{name}: {e}")
 
         ensure_column("students", student_cols, "plan", "TEXT")
         ensure_column("students", student_cols, "billing", "TEXT")
@@ -378,6 +378,15 @@ def rebuild_database_if_needed():
         print("⚠️ No destructive rebuild performed.")
 
 rebuild_database_if_needed()
+
+# Initialize achievements
+try:
+    from modules.achievement_helper import initialize_achievements
+    with app.app_context():
+        initialize_achievements()
+    print("✅ Achievements initialized")
+except Exception as e:
+    print(f"⚠️ Achievement initialization failed: {e}")
 
 # ============================================================
 # PASSWORD RESET TOKEN STORE (In-memory for now)
@@ -801,10 +810,26 @@ def get_stripe_price_id(role, plan, billing):
 def add_xp(amount: int):
     session["xp"] += amount
     xp_needed = session["level"] * 100
+    
+    # Log level up activity
     if session["xp"] >= xp_needed:
         session["xp"] -= xp_needed
         session["level"] += 1
         flash(f"LEVEL UP! You are now Level {session['level']}!", "info")
+        
+        # Log level up event
+        student_id = session.get("student_id")
+        if student_id:
+            try:
+                from modules.achievement_helper import log_activity
+                log_activity(
+                    student_id=student_id,
+                    activity_type="level_up",
+                    description=f"Leveled up to Level {session['level']}!",
+                    xp_earned=0
+                )
+            except Exception as e:
+                print(f"Failed to log level up activity: {e}")
 
 
 # ============================================================
@@ -4206,6 +4231,21 @@ CozmicLearning Team
     add_xp(20)
     session["tokens"] += 2
     
+    # Log question activity
+    student_id = session.get("student_id")
+    if student_id:
+        try:
+            from modules.achievement_helper import log_activity
+            log_activity(
+                student_id=student_id,
+                activity_type="question_answered",
+                subject=subject,
+                description=f"Asked a question in {SUBJECT_LABELS.get(subject, subject)}",
+                xp_earned=20
+            )
+        except Exception as e:
+            print(f"Failed to log question activity: {e}")
+    
     # Increment question count for Basic plan tracking
     increment_question_count()
 
@@ -5097,6 +5137,66 @@ def dashboard():
     allowed, remaining, limit = check_question_limit()
     questions_used = session.get("questions_this_month", 0)
     show_usage = session.get("user_role") == "student" and limit != float('inf')
+    
+    # Achievement & activity data
+    from modules.achievement_helper import get_student_achievements, get_recent_activities, check_and_award_achievements
+    
+    student_achievements = []
+    recent_activities = []
+    newly_unlocked = []
+    progress_data = {"dates": [], "xp": [], "subjects": {}}
+    
+    if student_id:
+        # Check for new achievements
+        session_data = {
+            "xp": xp,
+            "level": level,
+            "streak": streak,
+            "tokens": tokens
+        }
+        newly_unlocked = check_and_award_achievements(student_id, session_data)
+        
+        # Get earned achievements and recent activity
+        student_achievements = get_student_achievements(student_id)
+        recent_activities = get_recent_activities(student_id, limit=8)
+        
+        # Generate progress chart data (last 7 days)
+        from datetime import timedelta
+        from models import ActivityLog, AssessmentResult
+        
+        today = datetime.utcnow()
+        dates = []
+        xp_values = []
+        
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            dates.append(day.strftime('%a'))
+            
+            # Sum XP earned on this day
+            day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+            day_end = day_start + timedelta(days=1)
+            
+            day_xp = db.session.query(db.func.sum(ActivityLog.xp_earned)).filter(
+                ActivityLog.student_id == student_id,
+                ActivityLog.created_at >= day_start,
+                ActivityLog.created_at < day_end
+            ).scalar() or 0
+            
+            xp_values.append(day_xp)
+        
+        progress_data["dates"] = dates
+        progress_data["xp"] = xp_values
+        
+        # Subject performance (count by subject)
+        subject_counts = db.session.query(
+            ActivityLog.subject,
+            db.func.count(ActivityLog.id)
+        ).filter(
+            ActivityLog.student_id == student_id,
+            ActivityLog.subject.isnot(None)
+        ).group_by(ActivityLog.subject).all()
+        
+        progress_data["subjects"] = {subj.replace('_', ' ').title(): count for subj, count in subject_counts if subj}
 
     return render_template(
         "dashboard.html",
@@ -5117,6 +5217,10 @@ def dashboard():
         questions_limit=limit if limit != float('inf') else None,
         questions_remaining=remaining if remaining != float('inf') else None,
         trial_days_remaining=trial_days_remaining,
+        achievements=student_achievements,
+        recent_activities=recent_activities,
+        newly_unlocked=newly_unlocked,
+        progress_data=progress_data,
     )
 
 

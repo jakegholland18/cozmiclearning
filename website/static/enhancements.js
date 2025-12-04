@@ -276,6 +276,42 @@ function makeButtonsFriendly() {
 // INITIALIZATION
 // ================================================================
 
+// ================================================================
+// ACHIEVEMENT UNLOCK POPUP
+// ================================================================
+
+function showAchievementUnlock(icon, name, description) {
+    // Create achievement popup
+    const popup = document.createElement('div');
+    popup.className = 'achievement-popup';
+    popup.innerHTML = `
+        <div class="achievement-icon">${icon}</div>
+        <div class="achievement-content">
+            <div class="achievement-title">Achievement Unlocked!</div>
+            <div class="achievement-name">${name}</div>
+            <div class="achievement-desc">${description}</div>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    // Trigger animation
+    setTimeout(() => popup.classList.add('show'), 100);
+    
+    // Launch confetti
+    launchConfetti(40);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => popup.remove(), 500);
+    }, 5000);
+}
+
+// ================================================================
+// INIT & EXPORTS
+// ================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
     initializeHelpButton();
     makeButtonsFriendly();
@@ -290,4 +326,5 @@ window.CozmicEnhancements = {
     createProgressBar,
     createDifficultyBadge,
     createTypingIndicator,
+    showAchievementUnlock,
 };

@@ -368,6 +368,56 @@ class QuestionLog(db.Model):
     student = db.relationship("Student", backref="question_logs", lazy=True)
 
 
+# ============================================================
+# ACHIEVEMENTS & BADGES
+# ============================================================
+
+class Achievement(db.Model):
+    __tablename__ = "achievements"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    description = db.Column(db.String(255))
+    icon = db.Column(db.String(50))  # emoji or icon identifier
+    category = db.Column(db.String(50))  # streak, level, mastery, exploration, milestone
+    requirement_value = db.Column(db.Integer)  # e.g., 7 for "7-day streak"
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentAchievement(db.Model):
+    __tablename__ = "student_achievements"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    achievement_id = db.Column(db.Integer, db.ForeignKey("achievements.id"))
+    
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    student = db.relationship("Student", backref="earned_achievements")
+    achievement = db.relationship("Achievement")
+
+
+# ============================================================
+# ACTIVITY LOG
+# ============================================================
+
+class ActivityLog(db.Model):
+    __tablename__ = "activity_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    
+    activity_type = db.Column(db.String(50))  # question_answered, assignment_completed, achievement_earned, level_up
+    subject = db.Column(db.String(50), nullable=True)
+    description = db.Column(db.String(255))
+    xp_earned = db.Column(db.Integer, default=0)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    student = db.relationship("Student", backref="activities")
+
 
 
 
