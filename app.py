@@ -319,6 +319,8 @@ def rebuild_database_if_needed():
         ensure_column("students", student_cols, "trial_start", "DATETIME")
         ensure_column("students", student_cols, "trial_end", "DATETIME")
         ensure_column("students", student_cols, "subscription_active", "BOOLEAN")
+        ensure_column("students", student_cols, "password_hash", "VARCHAR(255)")  # Security fix: password authentication
+        ensure_column("students", student_cols, "date_of_birth", "DATE")  # COPPA compliance: age verification
 
         ensure_column("parents", parent_cols, "plan", "TEXT")
         ensure_column("parents", parent_cols, "billing", "TEXT")
@@ -1950,15 +1952,37 @@ def student_signup():
         name = safe_text(request.form.get("name", ""), 100)
         email = safe_email(request.form.get("email", ""))
         password = request.form.get("password", "")
+        date_of_birth_str = request.form.get("date_of_birth", "")
         parent_code = safe_text(request.form.get("parent_code", ""), 10).upper().strip()
         signup_mode = request.form.get("signup_mode", "standalone")  # standalone or parent_linked
-        
+
         # Plan selections for standalone students
         plan = safe_text(request.form.get("plan", ""), 50) or "basic"
         billing = safe_text(request.form.get("billing", ""), 20) or "monthly"
 
-        if not name or not email or not password:
-            flash("Name, email, and password are required.", "error")
+        if not name or not email or not password or not date_of_birth_str:
+            flash("Name, email, password, and date of birth are required.", "error")
+            return redirect("/student/signup")
+
+        # Parse and validate date of birth
+        try:
+            date_of_birth = datetime.strptime(date_of_birth_str, "%Y-%m-%d").date()
+        except ValueError:
+            flash("Invalid date of birth format. Please use YYYY-MM-DD.", "error")
+            return redirect("/student/signup")
+
+        # Calculate age for COPPA compliance
+        today = datetime.utcnow().date()
+        age = today.year - date_of_birth.year - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
+
+        # COPPA Compliance: Children under 13 MUST have parent linking
+        if age < 13 and (signup_mode != "parent_linked" or not parent_code):
+            flash("Children under 13 must sign up with a parent access code for COPPA compliance. Please ask your parent or guardian to create an account first.", "error")
+            return redirect("/student/signup")
+
+        # Password strength validation
+        if len(password) < 8:
+            flash("Password must be at least 8 characters long.", "error")
             return redirect("/student/signup")
 
         existing_student = Student.query.filter_by(student_email=email).first()
@@ -2002,10 +2026,15 @@ def student_signup():
             parent_id = None
             welcome_msg = f"Welcome to CozmicLearning, {name}! Your 7-day free trial has started."
 
+        # Hash password for secure storage
+        password_hash = generate_password_hash(password)
+
         # Create student account
         new_student = Student(
             student_name=name,
             student_email=email,
+            password_hash=password_hash,
+            date_of_birth=date_of_birth,
             parent_id=parent_id,
             plan=student_plan,
             billing=student_billing,
@@ -2039,10 +2068,15 @@ def student_login():
             flash("No student found with that email.", "error")
             return redirect("/student/login")
 
+        # Verify password
+        if not student.password_hash or not check_password_hash(student.password_hash, password):
+            flash("Incorrect password. Please try again.", "error")
+            return redirect("/student/login")
+
         # Track login time and reset daily minutes if new day
         now = datetime.utcnow()
         today = now.date()
-        
+
         if student.last_login:
             last_login_date = student.last_login.date()
             if last_login_date != today:
@@ -2051,11 +2085,11 @@ def student_login():
         else:
             # First login ever
             student.today_minutes = 0
-        
+
         student.last_login = now
         db.session.commit()
 
-        # Currently students don't use a password hash in DB.
+        # Set session after successful authentication
         session["student_id"] = student.id
         session["user_role"] = "student"
         session["student_name"] = student.student_name

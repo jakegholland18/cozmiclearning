@@ -96,6 +96,8 @@ class Student(db.Model):
 
     student_name = db.Column(db.String(120))
     student_email = db.Column(db.String(120))
+    password_hash = db.Column(db.String(255))  # For secure authentication
+    date_of_birth = db.Column(db.Date)  # For age verification and COPPA compliance
 
     # Subscription fields
     plan = db.Column(db.String(50))           # free/basic/premium

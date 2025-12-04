@@ -282,9 +282,15 @@
         </div>
 
         <div>
-            <label>Password</label>
+            <label>Date of Birth</label>
+            <input type="date" name="date_of_birth" id="date_of_birth" required onchange="checkAge()">
+            <small id="age-warning" style="color: #ff9500; display: none; margin-top: 4px;">⚠️ Children under 13 must sign up with a parent access code for safety and COPPA compliance.</small>
+        </div>
+
+        <div>
+            <label>Password <small style="color: #8a92b3;">(min. 8 characters)</small></label>
             <div class="password-field">
-                <input id="password" name="password" type="password" placeholder="••••••••" required>
+                <input id="password" name="password" type="password" placeholder="••••••••" required minlength="8">
                 <span class="password-toggle" onclick="togglePassword()">👁</span>
             </div>
         </div>
@@ -326,10 +332,53 @@
     const parentCodeField = document.getElementById('parent-code-field');
     const parentCodeInput = document.getElementById('parent-code');
     const planSelector = document.getElementById('plan-selector');
+    const ageWarning = document.getElementById('age-warning');
+    const dobField = document.getElementById('date_of_birth');
+
+    function checkAge() {
+        const dob = new Date(dobField.value);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+
+        // Adjust age if birthday hasn't occurred this year
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+
+        // COPPA Compliance: Children under 13 must use parent-linked mode
+        if (age < 13) {
+            ageWarning.style.display = 'block';
+            setMode('parent_linked');
+            standaloneBtn.style.opacity = '0.5';
+            standaloneBtn.style.pointerEvents = 'none';
+        } else {
+            ageWarning.style.display = 'none';
+            standaloneBtn.style.opacity = '1';
+            standaloneBtn.style.pointerEvents = 'auto';
+        }
+    }
 
     function setMode(mode) {
+        // Check if standalone mode is disabled due to age
+        const dob = dobField.value ? new Date(dobField.value) : null;
+        if (dob) {
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+
+            // Prevent standalone mode for children under 13
+            if (age < 13 && mode === 'standalone') {
+                alert('Children under 13 must sign up with a parent access code for safety and COPPA compliance.');
+                return;
+            }
+        }
+
         signupModeField.value = mode;
-        
+
         if (mode === 'standalone') {
             standaloneBtn.classList.add('active');
             parentBtn.classList.remove('active');
