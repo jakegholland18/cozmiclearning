@@ -226,7 +226,7 @@
             <a href="/teacher/messages">💬 Message Parents</a>
         {% endif %}
 
-        {% if session.get('is_admin') %}
+        {% if session.get('is_admin') or session.get('is_owner') or session.get('admin_authenticated') or session.get('bypass_auth') %}
             <hr>
             <a href="/admin/dashboard">👑 Admin Dashboard</a>
             <a href="/admin/teachers">📘 All Teachers</a>
