@@ -4,10 +4,26 @@
 
 {% block content %}
 <style>
+    body { margin: 0; padding: 0; background: var(--bg-gradient-main); font-family: "Poppins", sans-serif; color: white; }
+    .stars { position: fixed; inset: 0; background: url('/static/stars.png'); background-size: cover; opacity: 0.25; z-index: -1; animation: drift 65s linear infinite; }
+    @keyframes drift { from { transform: translateY(0); } to { transform: translateY(-2200px); } }
+
+    .sidebar { width: 260px; height: 100vh; background: rgba(0,0,0,0.45); backdrop-filter: blur(14px); border-right: 1px solid rgba(255,255,255,0.12); position: fixed; top: 0; left: 0; padding: 30px 20px; overflow-y: auto; }
+    .sidebar h2 { margin: 0 0 40px; font-size: 1.7rem; text-align: center; color: #bfe6ff; text-shadow: 0 0 12px rgba(255,255,255,0.4); }
+    .nav-link { display: block; padding: 14px 18px; border-radius: 12px; color: white; margin-bottom: 12px; text-decoration: none; background: rgba(255,255,255,0.05); transition: 0.25s; }
+    .nav-link:hover { background: rgba(255,255,255,0.15); transform: translateX(4px); }
+    .nav-link.active { background: rgba(79,172,254,0.3); border-left: 4px solid #4facfe; }
+    .logout { margin-top: 40px; background: rgba(255,100,100,0.25); }
+
+    .admin-modes { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .admin-modes h3 { font-size: 0.9rem; color: #a0aec0; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    .mode-link { display: block; padding: 10px 14px; border-radius: 8px; color: white; margin-bottom: 8px; text-decoration: none; background: rgba(255,255,255,0.03); transition: 0.25s; font-size: 0.9rem; }
+    .mode-link:hover { background: rgba(255,255,255,0.1); transform: translateX(3px); }
+
     .moderation-dashboard {
         max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
+        margin-left: 280px;
+        padding: 40px 20px;
     }
     
     .stats-grid {
@@ -202,6 +218,28 @@
         color: #333;
     }
 </style>
+
+<div class="stars"></div>
+
+<div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a class="nav-link" href="/admin">📊 Dashboard</a>
+    <a class="nav-link" href="/admin/students">👥 Students</a>
+    <a class="nav-link" href="/admin/teachers">👨‍🏫 Teachers</a>
+    <a class="nav-link" href="/admin/parents">👪 Parents</a>
+    <a class="nav-link" href="/admin/assignments">📝 Assignments</a>
+    <a class="nav-link active" href="/admin/moderation">🛡️ Content Moderation</a>
+
+    <div class="admin-modes">
+        <h3>Quick Access Modes</h3>
+        <a class="mode-link" href="/admin_mode/student">👨‍🚀 Student View</a>
+        <a class="mode-link" href="/admin_mode/parent">👨‍👩‍👧‍👦 Parent View</a>
+        <a class="mode-link" href="/admin_mode/teacher">👩‍🏫 Teacher View</a>
+        <a class="mode-link" href="/admin_mode/homeschool">🏠 Homeschool View</a>
+    </div>
+
+    <a class="nav-link logout" href="/admin_logout">Log Out</a>
+</div>
 
 <div class="moderation-dashboard">
     <h1 style="margin-bottom: 30px;">🛡️ Content Moderation Dashboard</h1>
