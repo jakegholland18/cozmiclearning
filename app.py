@@ -1411,18 +1411,32 @@ def admin_switch_to_student(student_id):
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
-    
+
     student = Student.query.get(student_id)
     if not student:
         flash("Student not found.", "error")
         return redirect("/admin")
-    
+
+    # Save admin flags before clearing
+    admin_authenticated = session.get("admin_authenticated")
+    bypass_auth = session.get("bypass_auth")
+    is_owner_flag = session.get("is_owner")
+
     # Clear session and log in as this student
     session.clear()
     session["student_id"] = student.id
     session["admin_mode"] = True
+
+    # Restore admin flags
+    if admin_authenticated:
+        session["admin_authenticated"] = True
+    if bypass_auth:
+        session["bypass_auth"] = True
+    if is_owner_flag:
+        session["is_owner"] = True
+
     init_user()
-    
+
     flash(f"🔧 Admin mode: Viewing as student {student.student_name}", "success")
     return redirect("/dashboard")
 
@@ -1433,17 +1447,30 @@ def admin_switch_to_parent(parent_id):
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
-    
+
     parent = Parent.query.get(parent_id)
     if not parent:
         flash("Parent not found.", "error")
         return redirect("/admin")
-    
+
+    # Save admin flags before clearing
+    admin_authenticated = session.get("admin_authenticated")
+    bypass_auth = session.get("bypass_auth")
+    is_owner_flag = session.get("is_owner")
+
     # Clear session and log in as this parent
     session.clear()
     session["parent_id"] = parent.id
     session["admin_mode"] = True
-    
+
+    # Restore admin flags
+    if admin_authenticated:
+        session["admin_authenticated"] = True
+    if bypass_auth:
+        session["bypass_auth"] = True
+    if is_owner_flag:
+        session["is_owner"] = True
+
     flash(f"🔧 Admin mode: Viewing as parent {parent.name}", "success")
     return redirect("/parent_dashboard")
 
@@ -1454,17 +1481,30 @@ def admin_switch_to_teacher(teacher_id):
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
-    
+
     teacher = Teacher.query.get(teacher_id)
     if not teacher:
         flash("Teacher not found.", "error")
         return redirect("/admin")
-    
+
+    # Save admin flags before clearing
+    admin_authenticated = session.get("admin_authenticated")
+    bypass_auth = session.get("bypass_auth")
+    is_owner_flag = session.get("is_owner")
+
     # Clear session and log in as this teacher
     session.clear()
     session["teacher_id"] = teacher.id
     session["admin_mode"] = True
-    
+
+    # Restore admin flags
+    if admin_authenticated:
+        session["admin_authenticated"] = True
+    if bypass_auth:
+        session["bypass_auth"] = True
+    if is_owner_flag:
+        session["is_owner"] = True
+
     flash(f"🔧 Admin mode: Viewing as teacher {teacher.name}", "success")
     return redirect("/teacher/dashboard")
 
