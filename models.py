@@ -419,5 +419,77 @@ class ActivityLog(db.Model):
     student = db.relationship("Student", backref="activities")
 
 
+# ============================================================
+# ARCADE MODE - LEARNING GAMES
+# ============================================================
+
+class ArcadeGame(db.Model):
+    """Catalog of available arcade games"""
+    __tablename__ = "arcade_games"
+
+    id = db.Column(db.Integer, primary_key=True)
+    game_key = db.Column(db.String(50), unique=True)  # speed_math, vocab_builder, etc.
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(255))
+    subject = db.Column(db.String(50))  # math, science, reading, writing
+    icon = db.Column(db.String(50))  # emoji
+    difficulty_levels = db.Column(db.String(100))  # JSON array of grade ranges
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class GameSession(db.Model):
+    """Individual game play sessions with scores"""
+    __tablename__ = "game_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    game_key = db.Column(db.String(50))  # References ArcadeGame.game_key
+    
+    # Game metadata
+    grade_level = db.Column(db.String(10))
+    difficulty = db.Column(db.String(20))  # easy, medium, hard
+    
+    # Performance metrics
+    score = db.Column(db.Integer)
+    time_seconds = db.Column(db.Integer)
+    accuracy = db.Column(db.Float)  # Percentage
+    questions_answered = db.Column(db.Integer)
+    questions_correct = db.Column(db.Integer)
+    
+    # Rewards
+    xp_earned = db.Column(db.Integer, default=0)
+    tokens_earned = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime)
+    
+    # Relationships
+    student = db.relationship("Student", backref="game_sessions")
+
+
+class GameLeaderboard(db.Model):
+    """High scores and leaderboard tracking"""
+    __tablename__ = "game_leaderboards"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    game_key = db.Column(db.String(50))
+    grade_level = db.Column(db.String(10))
+    
+    # Best scores
+    high_score = db.Column(db.Integer)
+    best_time = db.Column(db.Integer)  # Fastest completion in seconds
+    best_accuracy = db.Column(db.Float)
+    total_plays = db.Column(db.Integer, default=0)
+    
+    # Last updated
+    last_played = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    student = db.relationship("Student", backref="leaderboard_entries")
+
+
 
 

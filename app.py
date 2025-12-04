@@ -388,6 +388,15 @@ try:
 except Exception as e:
     print(f"⚠️ Achievement initialization failed: {e}")
 
+# Initialize arcade games
+try:
+    from modules.arcade_helper import initialize_arcade_games
+    with app.app_context():
+        initialize_arcade_games()
+    print("✅ Arcade games initialized")
+except Exception as e:
+    print(f"⚠️ Arcade initialization failed: {e}")
+
 # ============================================================
 # PASSWORD RESET TOKEN STORE (In-memory for now)
 # ============================================================
@@ -945,6 +954,177 @@ def subjects():
         planets=planets,
         character=session["character"],
     )
+
+
+# ============================================================
+# ARCADE MODE - LEARNING GAMES
+# ============================================================
+
+@app.route("/arcade")
+def arcade_hub():
+    """Main arcade hub showing all available games"""
+    init_user()
+    
+    from modules.arcade_helper import ARCADE_GAMES, get_student_stats
+    
+    student_id = session.get("student_id")
+    grade = session.get("grade", "5")
+    
+    # Get student's arcade stats
+    stats = None
+    if student_id:
+        stats = get_student_stats(student_id)
+    
+    # Group games by subject
+    games_by_subject = {}
+    for game in ARCADE_GAMES:
+        subject = game["subject"]
+        if subject not in games_by_subject:
+            games_by_subject[subject] = []
+        games_by_subject[subject].append(game)
+    
+    return render_template(
+        "arcade_hub.html",
+        games_by_subject=games_by_subject,
+        all_games=ARCADE_GAMES,
+        stats=stats,
+        grade=grade,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/game/<game_key>")
+def arcade_game(game_key):
+    """Load a specific game"""
+    init_user()
+    
+    from modules.arcade_helper import ARCADE_GAMES, get_student_stats, get_leaderboard
+    
+    # Find game info
+    game_info = next((g for g in ARCADE_GAMES if g["game_key"] == game_key), None)
+    if not game_info:
+        flash("Game not found!", "error")
+        return redirect("/arcade")
+    
+    student_id = session.get("student_id")
+    grade = session.get("grade", "5")
+    
+    # Get student's stats for this game
+    stats = None
+    if student_id:
+        stats = get_student_stats(student_id, game_key)
+    
+    # Get leaderboard
+    leaderboard = get_leaderboard(game_key, grade, limit=10)
+    
+    return render_template(
+        "arcade_game.html",
+        game=game_info,
+        stats=stats,
+        leaderboard=leaderboard,
+        grade=grade,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/play/<game_key>", methods=["GET", "POST"])
+def arcade_play(game_key):
+    """Generate and play a game"""
+    init_user()
+    
+    from modules.arcade_helper import (
+        generate_speed_math,
+        generate_vocab_builder,
+        generate_science_quiz,
+        ARCADE_GAMES
+    )
+    
+    game_info = next((g for g in ARCADE_GAMES if g["game_key"] == game_key), None)
+    if not game_info:
+        flash("Game not found!", "error")
+        return redirect("/arcade")
+    
+    grade = session.get("grade", "5")
+    
+    # Generate questions based on game type
+    if game_key == "speed_math":
+        questions = generate_speed_math(grade)
+    elif game_key == "vocab_builder":
+        questions = generate_vocab_builder(grade)
+    elif game_key in ["lab_quiz_rush", "planet_explorer"]:
+        questions = generate_science_quiz(grade)
+    else:
+        # Default to speed math for now
+        questions = generate_speed_math(grade)
+    
+    # Store questions in session
+    session["current_game"] = {
+        "game_key": game_key,
+        "questions": questions,
+        "current_index": 0,
+        "correct": 0,
+        "start_time": datetime.utcnow().isoformat()
+    }
+    session.modified = True
+    
+    return render_template(
+        "arcade_play.html",
+        game=game_info,
+        questions=questions,
+        grade=grade,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/submit", methods=["POST"])
+@csrf.exempt
+def arcade_submit():
+    """Submit game results"""
+    init_user()
+    
+    from modules.arcade_helper import save_game_session
+    from modules.achievement_helper import log_activity
+    
+    data = request.get_json()
+    game_key = data.get("game_key")
+    score = data.get("score", 0)
+    correct = data.get("correct", 0)
+    total = data.get("total", 0)
+    time_seconds = data.get("time_seconds", 0)
+    
+    student_id = session.get("student_id")
+    grade = session.get("grade", "5")
+    
+    if not student_id:
+        return jsonify({"error": "Not logged in"}), 401
+    
+    # Save game session and get results
+    results = save_game_session(student_id, game_key, grade, score, time_seconds, correct, total)
+    
+    # Add XP and tokens to session
+    session["xp"] = session.get("xp", 0) + results["xp_earned"]
+    session["tokens"] = session.get("tokens", 0) + results["tokens_earned"]
+    
+    # Check for level up
+    xp_needed = session["level"] * 100
+    if session["xp"] >= xp_needed:
+        session["xp"] -= xp_needed
+        session["level"] += 1
+        results["level_up"] = True
+        results["new_level"] = session["level"]
+    
+    session.modified = True
+    
+    # Log activity
+    log_activity(
+        student_id=student_id,
+        activity_type="arcade_game_completed",
+        subject=game_key,
+        description=f"Completed arcade game with {correct}/{total} correct",
+        xp_earned=results["xp_earned"]
+    )
+    
+    return jsonify(results)
 
 
 # ------------------------------------------------------------
