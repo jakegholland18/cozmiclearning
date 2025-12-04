@@ -159,6 +159,9 @@ class AssignedPractice(db.Model):
     instructions = db.Column(db.Text)
     due_date = db.Column(db.DateTime)
 
+    # Assignment type for gradebook categorization
+    assignment_type = db.Column(db.String(50), default="practice")  # practice / quiz / test / homework
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Differentiation level
@@ -173,6 +176,9 @@ class AssignedPractice(db.Model):
 
     # Manual questions (optional)
     questions = db.relationship("AssignedQuestion", backref="practice", lazy=True)
+    
+    # Student submissions for grading
+    submissions = db.relationship("StudentSubmission", backref="assignment", lazy=True)
 
 
 # ============================================================
@@ -265,6 +271,43 @@ class Message(db.Model):
     
     # Relationships
     student = db.relationship("Student", backref="messages", lazy=True)
+
+
+# ============================================================
+# STUDENT SUBMISSIONS & GRADES
+# ============================================================
+
+class StudentSubmission(db.Model):
+    __tablename__ = "student_submissions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+    assignment_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
+    
+    # Submission status
+    status = db.Column(db.String(20), default="not_started")  # not_started / in_progress / submitted / graded
+    
+    # Grading
+    score = db.Column(db.Float, nullable=True)  # Percentage score (0-100)
+    points_earned = db.Column(db.Float, nullable=True)
+    points_possible = db.Column(db.Float, nullable=True)
+    
+    # Answers submitted (JSON of question_id: answer pairs)
+    answers_json = db.Column(db.Text, nullable=True)
+    
+    # Teacher feedback
+    feedback = db.Column(db.Text, nullable=True)
+    
+    # Timestamps
+    started_at = db.Column(db.DateTime, nullable=True)
+    submitted_at = db.Column(db.DateTime, nullable=True)
+    graded_at = db.Column(db.DateTime, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    student_rel = db.relationship("Student", backref="submissions", lazy=True)
 
 
 

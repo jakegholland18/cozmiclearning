@@ -133,6 +133,7 @@ from models import (
     AssignedQuestion,
     LessonPlan,
     Message,
+    StudentSubmission,
 )
 from sqlalchemy import func
 import json
@@ -278,6 +279,10 @@ def rebuild_database_if_needed():
         cur.execute("PRAGMA table_info(assigned_practice);")
         practice_cols = [col[1] for col in cur.fetchall()]
 
+        # Check if student_submissions table exists
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='student_submissions';")
+        submissions_exists = cur.fetchone() is not None
+
         # Attempt light, non-destructive ALTERs for new subscription columns
         def ensure_column(table, cols, name, type_sql):
             if name not in cols:
@@ -307,6 +312,17 @@ def rebuild_database_if_needed():
         ensure_column("teachers", teacher_cols, "trial_end", "DATETIME")
         ensure_column("teachers", teacher_cols, "subscription_active", "BOOLEAN")
 
+        ensure_column("assigned_practice", practice_cols, "assignment_type", "VARCHAR(20) DEFAULT 'practice'")
+
+        # Create student_submissions table if it doesn't exist
+        if not submissions_exists:
+            try:
+                with app.app_context():
+                    db.create_all()
+                print("✅ Created student_submissions table")
+            except Exception as e:
+                print(f"⚠️ Could not create student_submissions table: {e}")
+
         conn.close()
 
         warnings = []
@@ -316,6 +332,12 @@ def rebuild_database_if_needed():
 
         if "differentiation_mode" not in practice_cols:
             warnings.append("differentiation_mode missing from assigned_practice")
+
+        if "assignment_type" not in practice_cols:
+            warnings.append("assignment_type missing from assigned_practice")
+
+        if not submissions_exists:
+            warnings.append("student_submissions table missing")
 
         if warnings:
             print("⚠️ Database schema warning:")
@@ -2787,6 +2809,218 @@ def print_lesson_plan(lesson_id):
         "lesson_plan_print.html",
         lesson=lesson,
         sections=sections,
+    )
+
+
+# ============================================================
+# GRADEBOOK - TEACHER & HOMESCHOOL
+# ============================================================
+
+@app.route("/teacher/gradebook")
+def teacher_gradebook():
+    """Teacher gradebook - view all classes and their assignments."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    # Get all classes for this teacher
+    if is_owner(teacher):
+        classes = Class.query.all()
+    else:
+        classes = Class.query.filter_by(teacher_id=teacher.id).all()
+
+    # For each class, get assignment summary with average scores
+    class_data = []
+    for cls in classes:
+        assignments = AssignedPractice.query.filter_by(class_id=cls.id, is_published=True).all()
+        
+        assignment_summary = []
+        for assignment in assignments:
+            # Get all submissions for this assignment
+            submissions = StudentSubmission.query.filter_by(assignment_id=assignment.id, status='graded').all()
+            
+            if submissions:
+                avg_score = sum(s.score for s in submissions if s.score) / len(submissions)
+                graded_count = len(submissions)
+            else:
+                avg_score = None
+                graded_count = 0
+            
+            assignment_summary.append({
+                'assignment': assignment,
+                'avg_score': avg_score,
+                'graded_count': graded_count,
+                'total_students': len(cls.students)
+            })
+        
+        class_data.append({
+            'class': cls,
+            'assignments': assignment_summary,
+            'student_count': len(cls.students)
+        })
+
+    return render_template(
+        "gradebook.html",
+        teacher=teacher,
+        class_data=class_data,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/teacher/gradebook/class/<int:class_id>")
+def teacher_gradebook_class(class_id):
+    """Gradebook for a specific class - detailed view with all students and assignments."""
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    cls = Class.query.get_or_404(class_id)
+    
+    # Check authorization
+    if not is_owner(teacher) and cls.teacher_id != teacher.id:
+        flash("Not authorized to view this class.", "error")
+        return redirect("/teacher/gradebook")
+
+    # Get all published assignments for this class
+    assignments = AssignedPractice.query.filter_by(class_id=class_id, is_published=True).order_by(AssignedPractice.due_date).all()
+    
+    # Get all students in this class
+    students = cls.students
+    
+    # Build gradebook matrix: students x assignments
+    gradebook_data = []
+    for student in students:
+        student_row = {
+            'student': student,
+            'grades': {},
+            'average': None
+        }
+        
+        total_score = 0
+        graded_count = 0
+        
+        for assignment in assignments:
+            submission = StudentSubmission.query.filter_by(
+                student_id=student.id,
+                assignment_id=assignment.id
+            ).first()
+            
+            if submission and submission.status == 'graded' and submission.score is not None:
+                student_row['grades'][assignment.id] = {
+                    'score': submission.score,
+                    'status': 'graded',
+                    'submission': submission
+                }
+                total_score += submission.score
+                graded_count += 1
+            elif submission and submission.status == 'submitted':
+                student_row['grades'][assignment.id] = {
+                    'score': None,
+                    'status': 'submitted',
+                    'submission': submission
+                }
+            else:
+                student_row['grades'][assignment.id] = {
+                    'score': None,
+                    'status': 'not_submitted',
+                    'submission': None
+                }
+        
+        if graded_count > 0:
+            student_row['average'] = total_score / graded_count
+        
+        gradebook_data.append(student_row)
+    
+    # Calculate class averages per assignment
+    assignment_averages = {}
+    for assignment in assignments:
+        submissions = StudentSubmission.query.filter_by(
+            assignment_id=assignment.id,
+            status='graded'
+        ).all()
+        
+        if submissions:
+            scores = [s.score for s in submissions if s.score is not None]
+            if scores:
+                assignment_averages[assignment.id] = sum(scores) / len(scores)
+            else:
+                assignment_averages[assignment.id] = None
+        else:
+            assignment_averages[assignment.id] = None
+
+    return render_template(
+        "gradebook_class.html",
+        teacher=teacher,
+        cls=cls,
+        assignments=assignments,
+        gradebook_data=gradebook_data,
+        assignment_averages=assignment_averages,
+        is_owner=is_owner(teacher),
+    )
+
+
+@app.route("/homeschool/gradebook")
+def homeschool_gradebook():
+    """Homeschool gradebook - view student progress grouped by subject."""
+    init_user()
+    
+    if not session.get("bypass_auth"):
+        access_check = check_subscription_access("parent")
+        if access_check != True:
+            return access_check
+
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+    
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/parent/login")
+    
+    # Check if parent has teacher features (homeschool plan)
+    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    
+    if not has_teacher_features:
+        flash("Gradebook is only available with Homeschool plans.", "warning")
+        return redirect("/homeschool/dashboard")
+    
+    # Get all students linked to this parent
+    students = parent.students
+    
+    # Group assessment results and submissions by student
+    student_data = []
+    for student in students:
+        # Get submissions for any assignments (if we create homeschool assignments)
+        submissions = StudentSubmission.query.filter_by(student_id=student.id, status='graded').all()
+        
+        # Get assessment results (from practice missions)
+        results = AssessmentResult.query.filter_by(student_id=student.id).order_by(AssessmentResult.created_at.desc()).limit(20).all()
+        
+        # Calculate subject averages
+        subject_scores = {}
+        for result in results:
+            if result.subject not in subject_scores:
+                subject_scores[result.subject] = []
+            if result.score_percent is not None:
+                subject_scores[result.subject].append(result.score_percent)
+        
+        subject_averages = {
+            subject: sum(scores) / len(scores) if scores else None
+            for subject, scores in subject_scores.items()
+        }
+        
+        student_data.append({
+            'student': student,
+            'submissions': submissions,
+            'subject_averages': subject_averages,
+            'overall_average': student.average_score
+        })
+    
+    return render_template(
+        "homeschool_gradebook.html",
+        parent=parent,
+        student_data=student_data,
     )
 
 

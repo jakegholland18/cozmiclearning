@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .gradebook-container {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+
+    .class-card {
+        background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08));
+        border: 1px solid rgba(118,131,255,0.35);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .class-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(92,107,255,0.3);
+        border-color: var(--accent);
+    }
+
+    .class-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .class-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .student-count {
+        background: rgba(0,242,255,0.2);
+        padding: 6px 14px;
+        border-radius: 10px;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    .assignment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .assignment-item {
+        background: rgba(0,0,0,0.3);
+        padding: 16px;
+        border-radius: 12px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .assignment-type {
+        font-size: 0.8rem;
+        color: var(--muted-3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .assignment-title {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text);
+    }
+
+    .assignment-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: var(--muted-2);
+    }
+
+    .score-badge {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .score-high {
+        background: rgba(132,255,0,0.2);
+        color: var(--success);
+    }
+
+    .score-mid {
+        background: rgba(0,242,255,0.2);
+        color: var(--accent);
+    }
+
+    .score-low {
+        background: rgba(255,159,28,0.2);
+        color: var(--warning);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted-3);
+    }
+</style>
+
+<div class="gradebook-container">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">
+            📊 Gradebook
+        </h1>
+        <p style="color: var(--muted); font-size: 1.1rem;">Track student performance across all classes</p>
+    </div>
+
+    {% if class_data %}
+        {% for data in class_data %}
+        <div class="class-card" onclick="window.location.href='/teacher/gradebook/class/{{ data.class.id }}'">
+            <div class="class-header">
+                <div>
+                    <div class="class-name">{{ data.class.class_name }}</div>
+                    <div style="color: var(--muted-2); margin-top: 4px;">Grade {{ data.class.grade_level }}</div>
+                </div>
+                <div class="student-count">{{ data.student_count }} Student{{ 's' if data.student_count != 1 else '' }}</div>
+            </div>
+
+            {% if data.assignments %}
+            <div class="assignment-grid">
+                {% for item in data.assignments %}
+                <div class="assignment-item">
+                    <div class="assignment-type">{{ item.assignment.assignment_type|default('practice') }}</div>
+                    <div class="assignment-title">{{ item.assignment.title }}</div>
+                    <div class="assignment-stats">
+                        <span>{{ item.graded_count }}/{{ item.total_students }} graded</span>
+                        {% if item.avg_score is not none %}
+                            {% if item.avg_score >= 85 %}
+                            <span class="score-badge score-high">{{ "%.1f"|format(item.avg_score) }}%</span>
+                            {% elif item.avg_score >= 70 %}
+                            <span class="score-badge score-mid">{{ "%.1f"|format(item.avg_score) }}%</span>
+                            {% else %}
+                            <span class="score-badge score-low">{{ "%.1f"|format(item.avg_score) }}%</span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: var(--muted-3);">--</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="padding: 20px; text-align: center; color: var(--muted-3);">
+                No assignments yet for this class
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">📚</div>
+            <h3>No Classes Yet</h3>
+            <p style="margin-top: 8px;">Create classes and assignments to start tracking grades</p>
+            <a href="/teacher/dashboard" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--text); text-decoration: none; border-radius: 10px; font-weight: 600;">
+                Go to Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

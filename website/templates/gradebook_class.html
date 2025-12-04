@@ -1,0 +1,262 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .gradebook-container {
+        max-width: 1600px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+
+    .gradebook-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .gradebook-table-container {
+        overflow-x: auto;
+        background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08));
+        border: 1px solid rgba(118,131,255,0.35);
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .gradebook-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+
+    .gradebook-table th,
+    .gradebook-table td {
+        padding: 12px 16px;
+        text-align: center;
+        border-bottom: 1px solid rgba(118,131,255,0.2);
+    }
+
+    .gradebook-table th {
+        background: rgba(92,107,255,0.2);
+        color: var(--text);
+        font-weight: 700;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .gradebook-table th:first-child,
+    .gradebook-table td:first-child {
+        text-align: left;
+        position: sticky;
+        left: 0;
+        background: rgba(2,2,10,0.95);
+        z-index: 5;
+    }
+
+    .gradebook-table th:first-child {
+        z-index: 15;
+    }
+
+    .student-name {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .grade-cell {
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+        display: inline-block;
+        min-width: 50px;
+    }
+
+    .grade-high {
+        background: rgba(132,255,0,0.2);
+        color: var(--success);
+    }
+
+    .grade-mid {
+        background: rgba(0,242,255,0.2);
+        color: var(--accent);
+    }
+
+    .grade-low {
+        background: rgba(255,159,28,0.2);
+        color: var(--warning);
+    }
+
+    .grade-missing {
+        color: var(--muted-3);
+        font-style: italic;
+    }
+
+    .grade-submitted {
+        background: rgba(255,215,0,0.2);
+        color: var(--gold);
+    }
+
+    .assignment-header {
+        writing-mode: horizontal-tb;
+        min-width: 120px;
+    }
+
+    .assignment-type-badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(92,107,255,0.3);
+        color: var(--primary-2);
+        margin-left: 6px;
+        text-transform: uppercase;
+    }
+
+    .class-average-row {
+        background: rgba(0,242,255,0.1);
+        font-weight: 700;
+    }
+
+    .class-average-row td {
+        border-top: 2px solid var(--accent);
+        padding-top: 16px;
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: rgba(100,100,120,0.6);
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border: 1px solid rgba(140,140,160,0.4);
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: rgba(100,100,120,0.8);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="gradebook-container">
+    <a href="/teacher/gradebook" class="back-btn">← Back to All Classes</a>
+
+    <div class="gradebook-header">
+        <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">
+            {{ cls.class_name }} Gradebook
+        </h1>
+        <p style="color: var(--muted); font-size: 1.1rem;">Grade {{ cls.grade_level }} · {{ gradebook_data|length }} Students</p>
+    </div>
+
+    {% if assignments %}
+    <div class="gradebook-table-container">
+        <table class="gradebook-table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    {% for assignment in assignments %}
+                    <th class="assignment-header">
+                        {{ assignment.title }}
+                        <span class="assignment-type-badge">{{ assignment.assignment_type|default('practice') }}</span>
+                        {% if assignment.due_date %}
+                        <div style="font-size: 0.75rem; font-weight: 400; color: var(--muted-3); margin-top: 4px;">
+                            Due: {{ assignment.due_date.strftime('%m/%d') }}
+                        </div>
+                        {% endif %}
+                    </th>
+                    {% endfor %}
+                    <th>Average</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in gradebook_data %}
+                <tr>
+                    <td>
+                        <div class="student-name">{{ row.student.student_name }}</div>
+                        <div style="font-size: 0.85rem; color: var(--muted-3);">{{ row.student.student_email }}</div>
+                    </td>
+                    {% for assignment in assignments %}
+                    <td>
+                        {% set grade_info = row.grades.get(assignment.id) %}
+                        {% if grade_info.status == 'graded' and grade_info.score is not none %}
+                            {% if grade_info.score >= 85 %}
+                            <span class="grade-cell grade-high">{{ "%.0f"|format(grade_info.score) }}%</span>
+                            {% elif grade_info.score >= 70 %}
+                            <span class="grade-cell grade-mid">{{ "%.0f"|format(grade_info.score) }}%</span>
+                            {% else %}
+                            <span class="grade-cell grade-low">{{ "%.0f"|format(grade_info.score) }}%</span>
+                            {% endif %}
+                        {% elif grade_info.status == 'submitted' %}
+                            <span class="grade-cell grade-submitted">Submitted</span>
+                        {% else %}
+                            <span class="grade-missing">--</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        {% if row.average is not none %}
+                            {% if row.average >= 85 %}
+                            <span class="grade-cell grade-high">{{ "%.1f"|format(row.average) }}%</span>
+                            {% elif row.average >= 70 %}
+                            <span class="grade-cell grade-mid">{{ "%.1f"|format(row.average) }}%</span>
+                            {% else %}
+                            <span class="grade-cell grade-low">{{ "%.1f"|format(row.average) }}%</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="grade-missing">--</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+
+                <!-- Class Average Row -->
+                <tr class="class-average-row">
+                    <td><strong>Class Average</strong></td>
+                    {% for assignment in assignments %}
+                    <td>
+                        {% set avg = assignment_averages.get(assignment.id) %}
+                        {% if avg is not none %}
+                            {% if avg >= 85 %}
+                            <span class="grade-cell grade-high">{{ "%.1f"|format(avg) }}%</span>
+                            {% elif avg >= 70 %}
+                            <span class="grade-cell grade-mid">{{ "%.1f"|format(avg) }}%</span>
+                            {% else %}
+                            <span class="grade-cell grade-low">{{ "%.1f"|format(avg) }}%</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="grade-missing">--</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        {% set class_avg = gradebook_data|map(attribute='average')|select('number')|list %}
+                        {% if class_avg %}
+                            {% set overall_avg = (class_avg|sum) / (class_avg|length) %}
+                            {% if overall_avg >= 85 %}
+                            <span class="grade-cell grade-high">{{ "%.1f"|format(overall_avg) }}%</span>
+                            {% elif overall_avg >= 70 %}
+                            <span class="grade-cell grade-mid">{{ "%.1f"|format(overall_avg) }}%</span>
+                            {% else %}
+                            <span class="grade-cell grade-low">{{ "%.1f"|format(overall_avg) }}%</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="grade-missing">--</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; color: var(--muted-3);">
+        <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">📝</div>
+        <h3>No Assignments Yet</h3>
+        <p style="margin-top: 8px;">Create and publish assignments to start tracking grades</p>
+        <a href="/teacher/dashboard" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--text); text-decoration: none; border-radius: 10px; font-weight: 600;">
+            Create Assignment
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

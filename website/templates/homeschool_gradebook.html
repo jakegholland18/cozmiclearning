@@ -1,0 +1,211 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .gradebook-container {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+
+    .student-card {
+        background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08));
+        border: 1px solid rgba(118,131,255,0.35);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .student-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .student-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .overall-score {
+        background: rgba(132,255,0,0.2);
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--success);
+    }
+
+    .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .subject-card {
+        background: rgba(0,0,0,0.3);
+        padding: 18px;
+        border-radius: 12px;
+        border-left: 3px solid var(--accent);
+    }
+
+    .subject-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        color: var(--text);
+        text-transform: capitalize;
+    }
+
+    .subject-score {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .score-high { color: var(--success); }
+    .score-mid { color: var(--accent); }
+    .score-low { color: var(--warning); }
+
+    .recent-work {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(118,131,255,0.2);
+    }
+
+    .work-item {
+        background: rgba(0,242,255,0.05);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .work-title {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .work-score {
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted-3);
+    }
+
+    .back-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: rgba(100,100,120,0.6);
+        color: var(--text);
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        border: 1px solid rgba(140,140,160,0.4);
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: rgba(100,100,120,0.8);
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="gradebook-container">
+    <a href="/homeschool/dashboard" class="back-btn">← Back to Dashboard</a>
+
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;">
+            🏡 Homeschool Gradebook
+        </h1>
+        <p style="color: var(--muted); font-size: 1.1rem;">Track progress across all subjects</p>
+    </div>
+
+    {% if student_data %}
+        {% for data in student_data %}
+        <div class="student-card">
+            <div class="student-header">
+                <div>
+                    <div class="student-name">{{ data.student.student_name }}</div>
+                    <div style="color: var(--muted-2); margin-top: 4px;">{{ data.student.student_email }}</div>
+                </div>
+                <div class="overall-score">
+                    {{ "%.1f"|format(data.overall_average) }}% Overall
+                </div>
+            </div>
+
+            {% if data.subject_averages %}
+            <h3 style="color: var(--text); margin-bottom: 12px;">Subject Performance</h3>
+            <div class="subject-grid">
+                {% for subject, avg in data.subject_averages.items() %}
+                <div class="subject-card">
+                    <div class="subject-name">{{ subject.replace('_', ' ') }}</div>
+                    {% if avg is not none %}
+                        {% if avg >= 85 %}
+                        <div class="subject-score score-high">{{ "%.1f"|format(avg) }}%</div>
+                        {% elif avg >= 70 %}
+                        <div class="subject-score score-mid">{{ "%.1f"|format(avg) }}%</div>
+                        {% else %}
+                        <div class="subject-score score-low">{{ "%.1f"|format(avg) }}%</div>
+                        {% endif %}
+                    {% else %}
+                        <div style="color: var(--muted-3); font-style: italic;">No data</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if data.submissions %}
+            <div class="recent-work">
+                <h3 style="color: var(--text); margin-bottom: 12px;">Recent Assignments</h3>
+                {% for submission in data.submissions[:5] %}
+                <div class="work-item">
+                    <div>
+                        <div class="work-title">{{ submission.assignment.title }}</div>
+                        <div style="font-size: 0.85rem; color: var(--muted-3);">
+                            {{ submission.submitted_at.strftime('%b %d, %Y') if submission.submitted_at else 'N/A' }}
+                        </div>
+                    </div>
+                    {% if submission.score is not none %}
+                        {% if submission.score >= 85 %}
+                        <div class="work-score score-high" style="background: rgba(132,255,0,0.2);">{{ "%.0f"|format(submission.score) }}%</div>
+                        {% elif submission.score >= 70 %}
+                        <div class="work-score score-mid" style="background: rgba(0,242,255,0.2);">{{ "%.0f"|format(submission.score) }}%</div>
+                        {% else %}
+                        <div class="work-score score-low" style="background: rgba(255,159,28,0.2);">{{ "%.0f"|format(submission.score) }}%</div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 30px 20px; color: var(--muted-3);">
+                <p>No graded assignments yet</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">👥</div>
+            <h3>No Students Yet</h3>
+            <p style="margin-top: 8px;">Add students to start tracking their progress</p>
+            <a href="/parent/students" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: var(--text); text-decoration: none; border-radius: 10px; font-weight: 600;">
+                Add Students
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
