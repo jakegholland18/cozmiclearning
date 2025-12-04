@@ -4637,23 +4637,24 @@ def subject_answer():
     # CONTENT MODERATION - Check question safety
     student_id = session.get("user_id")
     moderation_result = moderate_content(question, student_id=student_id, context="question")
-    
-    # Log the question (flagged or not)
-    log_entry = QuestionLog(
-        student_id=student_id,
-        question_text=question,
-        sanitized_text=moderation_result.get("sanitized_text"),
-        subject=subject,
-        context="question",
-        grade_level=grade,
-        flagged=moderation_result.get("flagged", False),
-        allowed=moderation_result.get("allowed", True),
-        moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {})),
-        severity=moderation_result.get("severity", "low")
-    )
-    db.session.add(log_entry)
-    db.session.commit()
+
+    # Log the question (flagged or not) - only if we have a real student_id (not admin bypass mode)
+    if student_id:
+        log_entry = QuestionLog(
+            student_id=student_id,
+            question_text=question,
+            sanitized_text=moderation_result.get("sanitized_text"),
+            subject=subject,
+            context="question",
+            grade_level=grade,
+            flagged=moderation_result.get("flagged", False),
+            allowed=moderation_result.get("allowed", True),
+            moderation_reason=moderation_result.get("reason"),
+            moderation_data_json=str(moderation_result.get("moderation_data", {})),
+            severity=moderation_result.get("severity", "low")
+        )
+        db.session.add(log_entry)
+        db.session.commit()
     
     # If content was blocked, show error and don't process
     if not moderation_result["allowed"]:
