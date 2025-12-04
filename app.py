@@ -1517,6 +1517,44 @@ def admin_switch_to_teacher(teacher_id):
     return redirect("/teacher/dashboard")
 
 
+@app.route("/admin/switch_to_homeschool")
+def admin_switch_to_homeschool():
+    """Admin: switch to homeschool view using a demo homeschool parent account"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    # Find any homeschool parent (one with homeschool plan)
+    homeschool_parent = Parent.query.filter(
+        (Parent.plan == "homeschool_essential") | (Parent.plan == "homeschool_complete")
+    ).first()
+
+    if not homeschool_parent:
+        flash("No homeschool parent accounts found. Create one first.", "error")
+        return redirect("/admin")
+
+    # Save admin flags before clearing
+    admin_authenticated = session.get("admin_authenticated")
+    is_owner_flag = session.get("is_owner")
+
+    # Clear session and log in as this homeschool parent
+    session.clear()
+    session["parent_id"] = homeschool_parent.id
+    session["user_role"] = "homeschool"
+    session["parent_name"] = homeschool_parent.name
+
+    # Restore admin flags
+    if admin_authenticated:
+        session["admin_authenticated"] = True
+    if is_owner_flag:
+        session["is_owner"] = True
+
+    init_user()
+
+    flash(f"🔧 Admin mode: Viewing as homeschool parent {homeschool_parent.name}", "success")
+    return redirect("/homeschool/dashboard")
+
+
 # ============================================================
 # ADMIN: CONTENT MODERATION DASHBOARD
 # ============================================================
@@ -6234,8 +6272,103 @@ def parent_dashboard():
 
 
 # ============================================================
-# HOMESCHOOL DASHBOARD (COMBINED PARENT + TEACHER FEATURES)
+# HOMESCHOOL AUTH + DASHBOARD (COMBINED PARENT + TEACHER FEATURES)
 # ============================================================
+
+@app.route("/homeschool/login", methods=["GET", "POST"])
+def homeschool_login():
+    """Dedicated login portal for homeschool users."""
+    init_user()
+    if request.method == "POST":
+        email = safe_email(request.form.get("email", ""))
+        password = request.form.get("password", "")
+
+        parent = Parent.query.filter_by(email=email).first()
+        if not parent:
+            flash("No homeschool account found with that email.", "error")
+            return redirect("/homeschool/login")
+
+        if not check_password_hash(parent.password_hash, password):
+            flash("Incorrect password.", "error")
+            return redirect("/homeschool/login")
+
+        # Check if this parent has a homeschool plan
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
+        if not has_teacher_features:
+            flash("This account does not have a homeschool plan. Please upgrade or login at /parent/login", "error")
+            return redirect("/homeschool/login")
+
+        session["parent_id"] = parent.id
+        session["user_role"] = "homeschool"
+        session["parent_name"] = parent.name
+
+        # Generate access code if parent doesn't have one
+        if not parent.access_code:
+            parent.access_code = generate_parent_access_code()
+            db.session.commit()
+
+        flash("Welcome to your Homeschool Dashboard!", "success")
+        return redirect("/homeschool/dashboard")
+
+    return render_template("homeschool_login.html")
+
+
+@app.route("/homeschool/signup", methods=["GET", "POST"])
+def homeschool_signup():
+    """Dedicated signup portal for homeschool users."""
+    init_user()
+
+    # Default to homeschool_essential plan
+    selected_plan = request.args.get("plan", "homeschool_essential")
+
+    if request.method == "POST":
+        name = safe_text(request.form.get("name", ""), 100)
+        email = safe_email(request.form.get("email", ""))
+        password = request.form.get("password", "")
+        plan = safe_text(request.form.get("plan", ""), 50) or "homeschool_essential"
+        billing = safe_text(request.form.get("billing", ""), 20) or "monthly"
+
+        if not name or not email or not password:
+            flash("All fields are required.", "error")
+            return redirect("/homeschool/signup")
+
+        existing_parent = Parent.query.filter_by(email=email).first()
+        if existing_parent:
+            flash("An account with that email already exists. Please log in.", "error")
+            return redirect("/homeschool/login")
+
+        # Set trial period (7 days for all new accounts)
+        trial_start = datetime.utcnow()
+        trial_end = trial_start + timedelta(days=7)
+
+        # Generate unique access code for children to link
+        access_code = generate_parent_access_code()
+
+        parent = Parent(
+            name=name,
+            email=email,
+            password_hash=generate_password_hash(password),
+            access_code=access_code,
+            plan=plan,
+            billing=billing,
+            trial_start=trial_start,
+            trial_end=trial_end,
+            subscription_active=True,
+        )
+        db.session.add(parent)
+        db.session.commit()
+
+        session["parent_id"] = parent.id
+        session["user_role"] = "homeschool"
+        session["parent_name"] = parent.name
+        session["access_code"] = access_code
+
+        flash(f"Welcome to CozmicLearning Homeschool! Your Child Access Code is: {access_code} - Share this with your children to create their accounts.", "success")
+        return redirect("/homeschool/dashboard")
+
+    return render_template("homeschool_signup.html", selected_plan=selected_plan)
+
 
 @app.route("/homeschool/dashboard")
 def homeschool_dashboard():

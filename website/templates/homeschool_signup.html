@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homeschool Sign Up - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251203">
+    <link rel="stylesheet" href="/static/css/auth.css?v=20251203">
+
+    <script>
+        function togglePassword() {
+            const field = document.getElementById("password");
+            field.type = field.type === "password" ? "text" : "password";
+        }
+    </script>
+    <style>
+        .plan-selector {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 107, 157, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 107, 157, 0.3);
+        }
+        .plan-selector-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .billing-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            justify-content: center;
+        }
+        .billing-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            background: rgba(255, 107, 157, 0.05);
+            color: #ffc4d8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .billing-btn.active {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: #fff;
+            border-color: #ff6b9d;
+        }
+        .billing-btn .savings {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 6px;
+            background: rgba(132, 255, 0, 0.2);
+            color: #84ff00;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+        .plan-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .plan-option {
+            padding: 16px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            background: rgba(255, 107, 157, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .plan-option:hover {
+            background: rgba(255, 107, 157, 0.1);
+            border-color: rgba(255, 107, 157, 0.6);
+        }
+        .plan-option.selected {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.15);
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+        }
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .plan-badge.essential {
+            background: rgba(79, 172, 254, 0.2);
+            color: #7beaff;
+        }
+        .plan-badge.complete {
+            background: rgba(132, 255, 0, 0.2);
+            color: #aafc7b;
+        }
+        .plan-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .plan-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .plan-period {
+            font-size: 0.9rem;
+            color: #8a92b3;
+        }
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+            font-size: 0.85rem;
+            color: #b3c0ff;
+        }
+        .plan-features li {
+            padding: 4px 0;
+        }
+        .plan-features li::before {
+            content: "✓";
+            color: #84ff00;
+            margin-right: 6px;
+            font-weight: 700;
+        }
+        @media (max-width: 600px) {
+            .plan-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<div class="auth-box">
+
+    <h2 class="auth-title">🏠 Create Homeschool Account</h2>
+    <p class="auth-subtitle">All-in-one platform to teach and track your children's learning journey.</p>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="{{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <form method="POST" class="auth-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="plan" id="plan-field" value="{{ selected_plan or 'homeschool_essential' }}">
+        <input type="hidden" name="billing" id="billing-field" value="monthly">
+
+        <!-- Plan Selector -->
+        <div class="plan-selector">
+            <div class="plan-selector-title">Choose Your Homeschool Plan</div>
+
+            <!-- Billing Toggle -->
+            <div class="billing-toggle">
+                <button type="button" class="billing-btn active" id="monthly-btn">
+                    Monthly
+                </button>
+                <button type="button" class="billing-btn" id="yearly-btn">
+                    Yearly <span class="savings">Save 20%</span>
+                </button>
+            </div>
+
+            <!-- Plan Options -->
+            <div class="plan-options">
+                <div class="plan-option" data-plan="homeschool_essential" onclick="selectPlan('homeschool_essential')">
+                    <div class="plan-badge essential">Essential</div>
+                    <div class="plan-name">Homeschool Essential</div>
+                    <div class="plan-price">
+                        <span class="monthly-price">$19.99</span>
+                        <span class="yearly-price" style="display:none;">$191</span>
+                        <span class="plan-period monthly-period">/mo</span>
+                        <span class="plan-period yearly-period" style="display:none;">/yr</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>All 11 subjects</li>
+                        <li>Unlimited Q&A</li>
+                        <li>Up to 5 students</li>
+                        <li>Parent monitoring</li>
+                        <li>Create assignments</li>
+                        <li>Track progress</li>
+                        <li>7-day free trial</li>
+                    </ul>
+                </div>
+
+                <div class="plan-option" data-plan="homeschool_complete" onclick="selectPlan('homeschool_complete')">
+                    <div class="plan-badge complete">Complete</div>
+                    <div class="plan-name">Homeschool Complete</div>
+                    <div class="plan-price">
+                        <span class="monthly-price">$29.99</span>
+                        <span class="yearly-price" style="display:none;">$287</span>
+                        <span class="plan-period monthly-period">/mo</span>
+                        <span class="plan-period yearly-period" style="display:none;">/yr</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>Everything in Essential</li>
+                        <li>Unlimited students</li>
+                        <li>Lesson plan generator</li>
+                        <li>Advanced analytics</li>
+                        <li>Custom assignments</li>
+                        <li>Gradebook</li>
+                        <li>Priority support</li>
+                        <li>7-day free trial</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label>Your Name</label>
+            <input type="text" name="name" placeholder="Your full name" required>
+        </div>
+
+        <div>
+            <label>Email</label>
+            <input type="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <div>
+            <label>Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" placeholder="••••••••" required>
+                <span class="password-toggle" onclick="togglePassword()">👁</span>
+            </div>
+        </div>
+
+        <button class="auth-submit" type="submit">Create Account & Start Trial</button>
+
+        <div class="auth-actions">
+            <a class="btn-secondary" href="/choose_login_role">Switch Role</a>
+        </div>
+
+    </form>
+
+    <p class="auth-footer">
+        Already have a homeschool account? <a href="/homeschool/login">Log in</a><br>
+        <span class="hint">• 7-day free trial on all plans • Cancel anytime</span><br>
+        <span class="hint">• Regular parent account? <a href="/parent/signup">Sign up here</a></span>
+        <br>
+        <a href="/" class="back-to-launch">🚀 Back to Launch Pad</a>
+    </p>
+
+</div>
+
+<script>
+    // Billing toggle
+    const monthlyBtn = document.getElementById('monthly-btn');
+    const yearlyBtn = document.getElementById('yearly-btn');
+    const billingField = document.getElementById('billing-field');
+    const monthlyPrices = document.querySelectorAll('.monthly-price');
+    const yearlyPrices = document.querySelectorAll('.yearly-price');
+    const monthlyPeriods = document.querySelectorAll('.monthly-period');
+    const yearlyPeriods = document.querySelectorAll('.yearly-period');
+
+    function setBilling(mode) {
+        billingField.value = mode;
+
+        if (mode === 'monthly') {
+            monthlyBtn.classList.add('active');
+            yearlyBtn.classList.remove('active');
+            monthlyPrices.forEach(el => el.style.display = 'inline');
+            yearlyPrices.forEach(el => el.style.display = 'none');
+            monthlyPeriods.forEach(el => el.style.display = 'inline');
+            yearlyPeriods.forEach(el => el.style.display = 'none');
+        } else {
+            monthlyBtn.classList.remove('active');
+            yearlyBtn.classList.add('active');
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            yearlyPrices.forEach(el => el.style.display = 'inline');
+            monthlyPeriods.forEach(el => el.style.display = 'none');
+            yearlyPeriods.forEach(el => el.style.display = 'inline');
+        }
+    }
+
+    monthlyBtn.addEventListener('click', () => setBilling('monthly'));
+    yearlyBtn.addEventListener('click', () => setBilling('yearly'));
+
+    // Plan selection
+    function selectPlan(planName) {
+        document.getElementById('plan-field').value = planName;
+        document.querySelectorAll('.plan-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        document.querySelector(`.plan-option[data-plan="${planName}"]`).classList.add('selected');
+    }
+
+    // Initialize from URL params or default
+    (function init() {
+        const params = new URLSearchParams(window.location.search);
+        const plan = params.get('plan') || '{{ selected_plan }}' || 'homeschool_essential';
+        const billing = params.get('billing') || 'monthly';
+
+        selectPlan(plan);
+        setBilling(billing);
+    })();
+</script>
+
+</body>
+</html>
