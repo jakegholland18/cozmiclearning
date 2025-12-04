@@ -197,7 +197,7 @@
 
     .results-stats {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 20px;
         margin: 30px 0;
     }
@@ -273,11 +273,16 @@
                 <div class="result-stat-label">XP Earned</div>
                 <div class="result-stat-value" id="xp-earned">+0</div>
             </div>
+            <div class="result-stat">
+                <div class="result-stat-label">Tokens</div>
+                <div class="result-stat-value" id="tokens-earned" style="background: linear-gradient(135deg, #ffdd55, #ff9900); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">+0</div>
+            </div>
         </div>
 
-        <div style="margin-top: 30px;">
-            <a href="/arcade/game/{{ game.game_key }}" class="submit-btn">Play Again</a>
-            <a href="/arcade" class="submit-btn" style="background: linear-gradient(135deg, #ff6fd8, #ffdd55); margin-left: 15px;">Arcade Hub</a>
+        <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="/arcade/game/{{ game.game_key }}" class="submit-btn">🔄 Play Again</a>
+            <a href="/arcade" class="submit-btn" style="background: linear-gradient(135deg, #ff6fd8, #ffdd55);">🎮 Arcade Hub</a>
+            <a href="/dashboard" class="submit-btn" style="background: linear-gradient(135deg, #5c6bff, #00f2ff);">🏠 Dashboard</a>
         </div>
     </div>
 </div>
@@ -285,12 +290,14 @@
 <script>
     const questions = {{ questions | tojson }};
     const gameKey = "{{ game.game_key }}";
+    const characterName = "{{ character }}";
     let currentIndex = 0;
     let score = 0;
     let correct = 0;
     let timeLeft = 60;
     let timerInterval = null;
     let gameStartTime = null;
+    let isAnswering = false; // Prevent multiple clicks
 
     function startGame() {
         document.getElementById('start-btn').style.display = 'none';
@@ -309,6 +316,7 @@
             }
             
             if (timeLeft <= 0) {
+                clearInterval(timerInterval);
                 endGame();
             }
         }, 1000);
@@ -320,6 +328,7 @@
             return;
         }
 
+        isAnswering = false; // Reset for new question
         const question = questions[currentIndex];
         const container = document.getElementById('question-container');
         
@@ -336,9 +345,9 @@
             
             container.innerHTML = `
                 <div class="question-text">${questionText}</div>
-                <div class="options-grid">
+                <div class="options-grid" id="options-grid">
                     ${question.options.map((opt, i) => `
-                        <button class="option-btn" onclick="checkAnswer('${opt.replace(/'/g, "&apos;")}')">${opt}</button>
+                        <button class="option-btn" data-answer="${opt.replace(/"/g, '&quot;')}" onclick="checkAnswer(this.dataset.answer)">${opt}</button>
                     `).join('')}
                 </div>
             `;
@@ -355,6 +364,9 @@
     }
 
     function checkAnswer(userAnswer) {
+        if (isAnswering) return; // Prevent double-clicking
+        isAnswering = true;
+
         const question = questions[currentIndex];
         // Get correct answer - handle vocab questions with 'definition' field
         let correctAnswer;
@@ -368,6 +380,19 @@
         
         const isCorrect = userAnswer.toLowerCase().trim() === correctAnswer;
 
+        // Visual feedback
+        if (question.options) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.dataset.answer.toLowerCase().trim() === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.dataset.answer === userAnswer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+        }
+
         if (isCorrect) {
             correct++;
             score += 100;
@@ -377,13 +402,22 @@
         }
 
         currentIndex++;
-        setTimeout(showQuestion, 500);
+        
+        // Move to next question after brief delay
+        setTimeout(() => {
+            showQuestion();
+        }, 800);
     }
 
     function endGame() {
+        if (!gameStartTime) return; // Game hasn't started yet
+        
         clearInterval(timerInterval);
         const totalTime = Math.floor((Date.now() - gameStartTime) / 1000);
-        const accuracy = Math.round((correct / questions.length) * 100);
+        const accuracy = questions.length > 0 ? Math.round((correct / questions.length) * 100) : 0;
+
+        // Hide question card
+        document.getElementById('question-container').style.display = 'none';
 
         // Submit results to server
         fetch('/arcade/submit', {
@@ -401,24 +435,59 @@
         })
         .then(response => response.json())
         .then(data => {
-            showResults(score, accuracy, totalTime, data.xp_earned, data.new_high_score);
+            showResults(score, accuracy, totalTime, data.xp_earned || 0, data.new_high_score, data.tokens_earned || 0);
+        })
+        .catch(error => {
+            console.error('Error submitting results:', error);
+            // Show results anyway even if submit fails
+            showResults(score, accuracy, totalTime, 50, false, 1);
         });
     }
 
-    function showResults(finalScore, accuracy, time, xp, isHighScore) {
+    function showResults(finalScore, accuracy, time, xp, isHighScore, tokens) {
         document.getElementById('final-score').textContent = finalScore;
         document.getElementById('final-accuracy').textContent = accuracy + '%';
         document.getElementById('final-time').textContent = time + 's';
         document.getElementById('xp-earned').textContent = '+' + xp;
 
+        // Performance-based message
+        let performanceMsg = '';
+        let performanceColor = '';
+        
+        if (accuracy >= 90) {
+            performanceMsg = '🌟 Outstanding! You\'re a genius!';
+            performanceColor = '#00ff88';
+        } else if (accuracy >= 75) {
+            performanceMsg = '🎉 Great job! Keep it up!';
+            performanceColor = '#00f2ff';
+        } else if (accuracy >= 50) {
+            performanceMsg = '👍 Good effort! Practice makes perfect!';
+            performanceColor = '#ffdd55';
+        } else {
+            performanceMsg = '💪 Keep practicing! You\'ll get better!';
+            performanceColor = '#ff6fd8';
+        }
+
+        // Add performance message to results
+        const resultsTitle = document.getElementById('results-title');
         if (isHighScore) {
-            document.getElementById('results-title').textContent = '🏆 NEW HIGH SCORE! 🏆';
+            resultsTitle.innerHTML = '🏆 NEW HIGH SCORE! 🏆';
             CozmicEnhancements.celebrationBurst();
         } else {
+            resultsTitle.textContent = performanceMsg;
+            resultsTitle.style.color = performanceColor;
             CozmicEnhancements.launchConfetti(50);
         }
 
+        // Add tokens display
+        document.getElementById('tokens-earned').textContent = '+' + tokens;
+
         document.getElementById('results-modal').classList.add('show');
+        
+        // Show character encouragement
+        setTimeout(() => {
+            CozmicEnhancements.showCharacterComment('encouragement', characterName);
+        }, 500);
     }
 </script>
 
