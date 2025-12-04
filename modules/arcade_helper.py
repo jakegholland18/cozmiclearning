@@ -699,21 +699,39 @@ def generate_spelling_sprint(grade_level):
 
 def generate_grammar_quest(grade_level):
     """Fix grammatical errors in record time"""
-    questions = [
-        {"question": "Their going to the store", "answer": "They're going to the store", "error": "their/they're"},
-        {"question": "The cat is sleeping in it's bed", "answer": "The cat is sleeping in its bed", "error": "its/it's"},
-        {"question": "Me and him went to school", "answer": "He and I went to school", "error": "pronoun case"},
-        {"question": "She don't like apples", "answer": "She doesn't like apples", "error": "subject-verb agreement"},
-        {"question": "I seen that movie before", "answer": "I have seen that movie before", "error": "past participle"},
-        {"question": "Your the best!", "answer": "You're the best!", "error": "your/you're"},
-        {"question": "Between you and I", "answer": "Between you and me", "error": "pronoun case"},
-        {"question": "I could of done better", "answer": "I could have done better", "error": "could of/could have"},
-        {"question": "There house is big", "answer": "Their house is big", "error": "there/their"},
-        {"question": "Its a beautiful day", "answer": "It's a beautiful day", "error": "its/it's"},
+    base_questions = [
+        {"wrong": "Their going to the store", "correct": "They're going to the store"},
+        {"wrong": "The cat is sleeping in it's bed", "correct": "The cat is sleeping in its bed"},
+        {"wrong": "Me and him went to school", "correct": "He and I went to school"},
+        {"wrong": "She don't like apples", "correct": "She doesn't like apples"},
+        {"wrong": "I seen that movie before", "correct": "I have seen that movie before"},
+        {"wrong": "Your the best!", "correct": "You're the best!"},
+        {"wrong": "Between you and I", "correct": "Between you and me"},
+        {"wrong": "I could of done better", "correct": "I could have done better"},
+        {"wrong": "There house is big", "correct": "Their house is big"},
+        {"wrong": "Its a beautiful day", "correct": "It's a beautiful day"},
+        {"wrong": "He don't care", "correct": "He doesn't care"},
+        {"wrong": "Me and my friend", "correct": "My friend and I"},
+        {"wrong": "I should of known", "correct": "I should have known"},
+        {"wrong": "Your awesome", "correct": "You're awesome"},
     ]
     
-    # Expand to 20 questions
-    questions = questions * 2
+    questions = []
+    for item in base_questions * 2:  # Repeat to get enough questions
+        # Create wrong options
+        other_wrongs = [q["wrong"] for q in base_questions if q["wrong"] != item["wrong"]]
+        random.shuffle(other_wrongs)
+        
+        options = [item["correct"], item["wrong"]] + other_wrongs[:2]
+        random.shuffle(options)
+        
+        questions.append({
+            "question": f"Fix the error: '{item['wrong']}'",
+            "answer": item["correct"],
+            "options": options,
+            "type": "grammar"
+        })
+    
     random.shuffle(questions)
     return questions[:20]
 
@@ -735,20 +753,22 @@ def generate_history_timeline(grade_level):
         {"event": "Internet Created", "year": 1989},
         {"event": "American Revolution", "year": 1775},
         {"event": "Constitution Signed", "year": 1787},
+        {"event": "Printing Press Invented", "year": 1440},
+        {"event": "Columbus Discovers America", "year": 1492},
+        {"event": "Shakespeare's First Play", "year": 1590},
+        {"event": "Civil Rights Act", "year": 1964},
     ]
     
     questions = []
     for _ in range(20):
-        # Pick 4 random events
-        selected = random.sample(events, 4)
-        correct_order = sorted(selected, key=lambda x: x['year'])
-        shuffled = selected.copy()
-        random.shuffle(shuffled)
+        # Pick 2 events and ask which came first
+        selected = random.sample(events, 2)
+        correct_first = min(selected, key=lambda x: x['year'])
         
         questions.append({
-            "question": "Put these events in chronological order (earliest first):",
-            "events": [e["event"] for e in shuffled],
-            "answer": ", ".join([e["event"] for e in correct_order]),
+            "question": f"Which event happened FIRST?",
+            "answer": correct_first["event"],
+            "options": [selected[0]["event"], selected[1]["event"]],
             "type": "timeline"
         })
     

@@ -326,12 +326,19 @@
         document.getElementById('current-question').textContent = currentIndex + 1;
 
         if (question.options) {
-            // Multiple choice
+            // Multiple choice - check if it's a vocab question (has 'word' field)
+            let questionText;
+            if (question.word) {
+                questionText = `What does "${question.word}" mean?`;
+            } else {
+                questionText = question.question;
+            }
+            
             container.innerHTML = `
-                <div class="question-text">${question.question || question.word}</div>
+                <div class="question-text">${questionText}</div>
                 <div class="options-grid">
                     ${question.options.map((opt, i) => `
-                        <button class="option-btn" onclick="checkAnswer('${opt}')">${opt}</button>
+                        <button class="option-btn" onclick="checkAnswer('${opt.replace(/'/g, "&apos;")}')">${opt}</button>
                     `).join('')}
                 </div>
             `;
@@ -349,7 +356,16 @@
 
     function checkAnswer(userAnswer) {
         const question = questions[currentIndex];
-        const correctAnswer = (question.answer || question.definition).toString().toLowerCase().trim();
+        // Get correct answer - handle vocab questions with 'definition' field
+        let correctAnswer;
+        if (question.definition) {
+            correctAnswer = question.definition.toString().toLowerCase().trim();
+        } else if (question.answer) {
+            correctAnswer = question.answer.toString().toLowerCase().trim();
+        } else {
+            correctAnswer = '';
+        }
+        
         const isCorrect = userAnswer.toLowerCase().trim() === correctAnswer;
 
         if (isCorrect) {
