@@ -759,42 +759,99 @@ def generate_spelling_sprint(grade_level):
     """Spell words correctly as fast as you can - NO REPEATS"""
     grade = int(grade_level) if grade_level.isdigit() else 5
 
-    word_lists = {
-        "elementary": ["apple", "beach", "friend", "school", "happy", "pizza", "yellow", "elephant", "birthday", "library",
-                      "garden", "rainbow", "treasure", "balloon", "mountain", "ocean", "dragon", "castle", "rocket", "adventure"],
-        "middle": ["beautiful", "necessary", "receive", "separate", "definitely", "tomorrow", "although", "government", "experience", "restaurant",
-                  "extraordinary", "consciousness", "opportunity", "temperature", "abbreviate", "acknowledgment", "acquaintance", "achievement", "desperate", "category"],
-        "high": ["accommodate", "necessary", "occurrence", "occasionally", "recommend", "embarrass", "conscience", "rhythm", "privilege", "maintenance",
-                "bureaucracy", "entrepreneurship", "pharmaceutical", "psychological", "sophisticated", "conscientious", "dilemma", "fluorescent", "guarantee", "harassment"]
+    # Predefined word/misspelling pairs for better quality
+    word_data = {
+        "elementary": [
+            {"word": "apple", "wrong": ["aple", "appel", "appal"]},
+            {"word": "beach", "wrong": ["beech", "beatch", "bech"]},
+            {"word": "friend", "wrong": ["freind", "frend", "friand"]},
+            {"word": "school", "wrong": ["skool", "shcool", "scool"]},
+            {"word": "happy", "wrong": ["hapy", "happie", "hapi"]},
+            {"word": "pizza", "wrong": ["piza", "pitsa", "peezza"]},
+            {"word": "yellow", "wrong": ["yelow", "yello", "yellaw"]},
+            {"word": "elephant", "wrong": ["elefant", "elephent", "elaphant"]},
+            {"word": "birthday", "wrong": ["brithday", "birthdy", "berthday"]},
+            {"word": "library", "wrong": ["libary", "liberry", "librery"]},
+            {"word": "garden", "wrong": ["gardan", "gardun", "garding"]},
+            {"word": "rainbow", "wrong": ["rainbo", "rainebow", "ranbow"]},
+            {"word": "treasure", "wrong": ["tresure", "treasur", "treazure"]},
+            {"word": "balloon", "wrong": ["baloon", "ballon", "beloon"]},
+            {"word": "mountain", "wrong": ["mountin", "mountian", "moutain"]},
+            {"word": "ocean", "wrong": ["ocian", "osean", "occean"]},
+            {"word": "dragon", "wrong": ["dragan", "dragun", "dragan"]},
+            {"word": "castle", "wrong": ["casel", "castel", "cassle"]},
+            {"word": "rocket", "wrong": ["roket", "rockit", "rokket"]},
+            {"word": "adventure", "wrong": ["adventur", "adventchur", "advenchure"]},
+        ],
+        "middle": [
+            {"word": "beautiful", "wrong": ["beautifull", "beutiful", "beautyful"]},
+            {"word": "necessary", "wrong": ["neccessary", "necessery", "neccesary"]},
+            {"word": "receive", "wrong": ["recieve", "recive", "receeve"]},
+            {"word": "separate", "wrong": ["seperate", "separete", "seprate"]},
+            {"word": "definitely", "wrong": ["definately", "definitly", "definetly"]},
+            {"word": "tomorrow", "wrong": ["tommorow", "tommorrow", "tomorow"]},
+            {"word": "although", "wrong": ["altough", "althought", "althow"]},
+            {"word": "government", "wrong": ["goverment", "governmant", "govenment"]},
+            {"word": "experience", "wrong": ["experiance", "experiance", "exprience"]},
+            {"word": "restaurant", "wrong": ["restarant", "resturant", "resteraunt"]},
+            {"word": "extraordinary", "wrong": ["extrordinary", "extraordinery", "extraodinary"]},
+            {"word": "consciousness", "wrong": ["consciousnes", "conciousness", "consciosness"]},
+            {"word": "opportunity", "wrong": ["oportunity", "oppurtunity", "opportunety"]},
+            {"word": "temperature", "wrong": ["temperture", "temprature", "temperatue"]},
+            {"word": "abbreviate", "wrong": ["abreviate", "abbrevate", "abbrieviate"]},
+            {"word": "acknowledgment", "wrong": ["acknowledgement", "acknowlegment", "acknoledgment"]},
+            {"word": "acquaintance", "wrong": ["aquaintance", "acquantance", "acquaintence"]},
+            {"word": "achievement", "wrong": ["acheivment", "achievment", "achievemant"]},
+            {"word": "desperate", "wrong": ["desparate", "desprate", "desperet"]},
+            {"word": "category", "wrong": ["catagory", "categery", "catergory"]},
+        ],
+        "high": [
+            {"word": "accommodate", "wrong": ["accomodate", "acommodate", "acomodate"]},
+            {"word": "occurrence", "wrong": ["occurence", "occurance", "occurrance"]},
+            {"word": "occasionally", "wrong": ["ocasionally", "occassionally", "occasionaly"]},
+            {"word": "recommend", "wrong": ["recomend", "reccommend", "recommand"]},
+            {"word": "embarrass", "wrong": ["embarass", "embarras", "embaress"]},
+            {"word": "conscience", "wrong": ["concience", "conscence", "conciense"]},
+            {"word": "rhythm", "wrong": ["rythm", "rhythem", "rithm"]},
+            {"word": "privilege", "wrong": ["priviledge", "privilage", "privlege"]},
+            {"word": "maintenance", "wrong": ["maintainance", "maintenence", "maintanance"]},
+            {"word": "bureaucracy", "wrong": ["buracracy", "bureaucrasy", "beaucracy"]},
+            {"word": "entrepreneurship", "wrong": ["entrepeneurship", "entreprenurship", "enterpreneurship"]},
+            {"word": "pharmaceutical", "wrong": ["pharmeceutical", "pharmacutical", "pharmaseutical"]},
+            {"word": "psychological", "wrong": ["psycological", "phychological", "psycholigical"]},
+            {"word": "sophisticated", "wrong": ["sophisicated", "sofisticated", "sophistacated"]},
+            {"word": "conscientious", "wrong": ["conciencious", "conscienscious", "conscientous"]},
+            {"word": "dilemma", "wrong": ["dilemna", "dilema", "dillemma"]},
+            {"word": "fluorescent", "wrong": ["florescent", "flourescent", "florescent"]},
+            {"word": "guarantee", "wrong": ["garantee", "guarentee", "garentee"]},
+            {"word": "harassment", "wrong": ["harrasment", "harasment", "harrassment"]},
+            {"word": "liaison", "wrong": ["liason", "liaision", "liasion"]},
+        ]
     }
 
     if grade <= 4:
-        words = word_lists["elementary"].copy()
+        word_set = word_data["elementary"]
     elif grade <= 8:
-        words = word_lists["middle"].copy()
+        word_set = word_data["middle"]
     else:
-        words = word_lists["high"].copy()
+        word_set = word_data["high"]
 
-    random.shuffle(words)
+    random.shuffle(word_set)
     questions = []
-    for word in words[:20]:
-        # Create misspelled versions
-        misspelled = [
-            word[:2] + word[2:].replace('e', 'a', 1),  # Vowel swap
-            word[:-1] + ('s' if word[-1] != 's' else 'z'),  # Wrong ending
-            word[:3] + word[4:] if len(word) > 4 else word + 'e'  # Missing/extra letter
-        ]
-        
-        options = [word] + misspelled[:3]
+    for item in word_set[:20]:
+        word = item["word"]
+        wrong_options = item["wrong"]
+
+        options = [word] + wrong_options
         random.shuffle(options)
-        
+
         questions.append({
             "question": f"Spell correctly: {word.upper()}",
             "answer": word,
             "options": options,
             "type": "spelling"
         })
-    
+
     return questions
 
 
