@@ -275,6 +275,21 @@ VOCAB_SETS = {
         {"word": "enormous", "definition": "very large", "options": ["tiny", "very large", "red", "fast"]},
         {"word": "gleeful", "definition": "full of joy", "options": ["sad", "angry", "full of joy", "sick"]},
         {"word": "swift", "definition": "very fast", "options": ["slow", "very fast", "heavy", "light"]},
+        {"word": "gentle", "definition": "soft and kind", "options": ["rough", "soft and kind", "loud", "mean"]},
+        {"word": "honest", "definition": "truthful", "options": ["lying", "truthful", "funny", "quiet"]},
+        {"word": "proud", "definition": "feeling satisfied", "options": ["ashamed", "feeling satisfied", "scared", "tired"]},
+        {"word": "angry", "definition": "feeling mad", "options": ["happy", "feeling mad", "sleepy", "hungry"]},
+        {"word": "funny", "definition": "causing laughter", "options": ["sad", "causing laughter", "scary", "boring"]},
+        {"word": "clever", "definition": "smart and quick", "options": ["dull", "smart and quick", "slow", "lazy"]},
+        {"word": "simple", "definition": "easy to understand", "options": ["difficult", "easy to understand", "expensive", "colorful"]},
+        {"word": "quiet", "definition": "making little noise", "options": ["loud", "making little noise", "bright", "heavy"]},
+        {"word": "polite", "definition": "having good manners", "options": ["rude", "having good manners", "tired", "hungry"]},
+        {"word": "bright", "definition": "giving much light", "options": ["dark", "giving much light", "quiet", "slow"]},
+        {"word": "gentle", "definition": "soft and calm", "options": ["harsh", "soft and calm", "loud", "fast"]},
+        {"word": "fresh", "definition": "newly made", "options": ["stale", "newly made", "hot", "cold"]},
+        {"word": "warm", "definition": "pleasantly hot", "options": ["cold", "pleasantly hot", "wet", "dry"]},
+        {"word": "strong", "definition": "having power", "options": ["weak", "having power", "small", "thin"]},
+        {"word": "tiny", "definition": "very small", "options": ["huge", "very small", "loud", "fast"]},
     ],
     "middle": [
         {"word": "abundant", "definition": "existing in large quantities", "options": ["scarce", "existing in large quantities", "expensive", "colorful"]},
@@ -282,6 +297,21 @@ VOCAB_SETS = {
         {"word": "reluctant", "definition": "unwilling or hesitant", "options": ["eager", "unwilling or hesitant", "happy", "tired"]},
         {"word": "tranquil", "definition": "calm and peaceful", "options": ["chaotic", "calm and peaceful", "bright", "dark"]},
         {"word": "vibrant", "definition": "full of energy and life", "options": ["dull", "full of energy and life", "quiet", "broken"]},
+        {"word": "diligent", "definition": "hard-working and careful", "options": ["lazy", "hard-working and careful", "funny", "mean"]},
+        {"word": "eloquent", "definition": "fluent and persuasive in speech", "options": ["inarticulate", "fluent and persuasive in speech", "quiet", "rude"]},
+        {"word": "resilient", "definition": "able to recover quickly", "options": ["fragile", "able to recover quickly", "weak", "slow"]},
+        {"word": "innovative", "definition": "featuring new methods", "options": ["traditional", "featuring new methods", "boring", "expensive"]},
+        {"word": "compassionate", "definition": "showing sympathy and concern", "options": ["cruel", "showing sympathy and concern", "angry", "tired"]},
+        {"word": "ambitious", "definition": "having strong desire for success", "options": ["complacent", "having strong desire for success", "lazy", "sleepy"]},
+        {"word": "versatile", "definition": "able to adapt or be adapted", "options": ["rigid", "able to adapt or be adapted", "boring", "expensive"]},
+        {"word": "persistent", "definition": "continuing firmly", "options": ["giving up", "continuing firmly", "lazy", "weak"]},
+        {"word": "skeptical", "definition": "not easily convinced", "options": ["gullible", "not easily convinced", "happy", "sad"]},
+        {"word": "optimistic", "definition": "hopeful and confident", "options": ["pessimistic", "hopeful and confident", "angry", "sleepy"]},
+        {"word": "genuine", "definition": "truly what it is said to be", "options": ["fake", "truly what it is said to be", "broken", "expensive"]},
+        {"word": "magnificent", "definition": "extremely beautiful", "options": ["ugly", "extremely beautiful", "small", "boring"]},
+        {"word": "triumphant", "definition": "having won a victory", "options": ["defeated", "having won a victory", "sleepy", "hungry"]},
+        {"word": "peculiar", "definition": "strange or unusual", "options": ["normal", "strange or unusual", "bright", "dark"]},
+        {"word": "inevitable", "definition": "certain to happen", "options": ["avoidable", "certain to happen", "funny", "sad"]},
     ],
     "high": [
         {"word": "articulate", "definition": "expressing oneself clearly", "options": ["mumbling", "expressing oneself clearly", "singing", "whispering"]},
@@ -289,22 +319,37 @@ VOCAB_SETS = {
         {"word": "enigmatic", "definition": "mysterious and difficult to understand", "options": ["obvious", "mysterious and difficult to understand", "simple", "boring"]},
         {"word": "pragmatic", "definition": "dealing with things realistically", "options": ["idealistic", "dealing with things realistically", "emotional", "artistic"]},
         {"word": "tenacious", "definition": "persistent and determined", "options": ["giving up easily", "persistent and determined", "lazy", "confused"]},
+        {"word": "eloquent", "definition": "fluent and persuasive speaking", "options": ["inarticulate", "fluent and persuasive speaking", "quiet", "rude"]},
+        {"word": "meticulous", "definition": "showing great attention to detail", "options": ["careless", "showing great attention to detail", "lazy", "quick"]},
+        {"word": "astute", "definition": "having sharp judgment", "options": ["foolish", "having sharp judgment", "slow", "tired"]},
+        {"word": "circumspect", "definition": "wary and unwilling to take risks", "options": ["reckless", "wary and unwilling to take risks", "brave", "happy"]},
+        {"word": "erudite", "definition": "having great knowledge", "options": ["ignorant", "having great knowledge", "simple", "boring"]},
+        {"word": "fortuitous", "definition": "happening by chance", "options": ["planned", "happening by chance", "boring", "sad"]},
+        {"word": "garrulous", "definition": "excessively talkative", "options": ["quiet", "excessively talkative", "sleepy", "angry"]},
+        {"word": "impetuous", "definition": "acting without thought", "options": ["cautious", "acting without thought", "slow", "lazy"]},
+        {"word": "judicious", "definition": "having good judgment", "options": ["reckless", "having good judgment", "simple", "quick"]},
+        {"word": "lucid", "definition": "expressed clearly", "options": ["confusing", "expressed clearly", "dark", "loud"]},
+        {"word": "magnanimous", "definition": "generous or forgiving", "options": ["petty", "generous or forgiving", "mean", "selfish"]},
+        {"word": "nefarious", "definition": "wicked or criminal", "options": ["virtuous", "wicked or criminal", "happy", "kind"]},
+        {"word": "ostentatious", "definition": "designed to impress", "options": ["modest", "designed to impress", "simple", "quiet"]},
+        {"word": "pernicious", "definition": "having harmful effect", "options": ["beneficial", "having harmful effect", "helpful", "kind"]},
+        {"word": "ubiquitous", "definition": "present everywhere", "options": ["rare", "present everywhere", "absent", "missing"]},
     ]
 }
 
 def generate_vocab_builder(grade_level):
-    """Generate vocabulary matching game"""
+    """Generate vocabulary matching game - NO REPEATS"""
     grade = int(grade_level) if grade_level.isdigit() else 5
-    
+
     if grade <= 4:
-        vocab_set = VOCAB_SETS["elementary"] * 4  # Repeat to get 20 questions
+        vocab_set = VOCAB_SETS["elementary"].copy()
     elif grade <= 8:
-        vocab_set = VOCAB_SETS["middle"] * 4
+        vocab_set = VOCAB_SETS["middle"].copy()
     else:
-        vocab_set = VOCAB_SETS["high"] * 4
-    
+        vocab_set = VOCAB_SETS["high"].copy()
+
     random.shuffle(vocab_set)
-    return vocab_set[:20]
+    return vocab_set[:20]  # Now returns unique questions only
 
 
 # ============================================================
@@ -318,6 +363,21 @@ SCIENCE_QUESTIONS = {
         {"question": "What gas do plants absorb from the air?", "answer": "carbon dioxide", "options": ["carbon dioxide", "oxygen", "nitrogen", "helium"]},
         {"question": "What is the center of an atom called?", "answer": "nucleus", "options": ["nucleus", "proton", "electron", "neutron"]},
         {"question": "What force pulls objects toward Earth?", "answer": "gravity", "options": ["gravity", "magnetism", "friction", "pressure"]},
+        {"question": "What do plants produce during photosynthesis?", "answer": "oxygen", "options": ["oxygen", "carbon dioxide", "nitrogen", "water"]},
+        {"question": "What is the largest planet in our solar system?", "answer": "jupiter", "options": ["jupiter", "saturn", "earth", "mars"]},
+        {"question": "What animal lives both on land and in water?", "answer": "frog", "options": ["frog", "dog", "bird", "fish"]},
+        {"question": "What is the hottest planet?", "answer": "venus", "options": ["venus", "mercury", "mars", "jupiter"]},
+        {"question": "What makes plants green?", "answer": "chlorophyll", "options": ["chlorophyll", "water", "soil", "sunlight"]},
+        {"question": "How many legs does a spider have?", "answer": "8", "options": ["8", "6", "10", "4"]},
+        {"question": "What is the closest star to Earth?", "answer": "the sun", "options": ["the sun", "north star", "sirius", "alpha centauri"]},
+        {"question": "What is frozen water called?", "answer": "ice", "options": ["ice", "snow", "vapor", "steam"]},
+        {"question": "What do we call animals that eat only plants?", "answer": "herbivores", "options": ["herbivores", "carnivores", "omnivores", "predators"]},
+        {"question": "What gas do humans breathe in?", "answer": "oxygen", "options": ["oxygen", "carbon dioxide", "nitrogen", "helium"]},
+        {"question": "What is the hardest natural substance?", "answer": "diamond", "options": ["diamond", "gold", "iron", "stone"]},
+        {"question": "What do tadpoles turn into?", "answer": "frogs", "options": ["frogs", "fish", "turtles", "snakes"]},
+        {"question": "What is the Earth's natural satellite?", "answer": "the moon", "options": ["the moon", "the sun", "mars", "venus"]},
+        {"question": "What do bees make?", "answer": "honey", "options": ["honey", "milk", "silk", "wax"]},
+        {"question": "What is the center of the Earth called?", "answer": "core", "options": ["core", "crust", "mantle", "shell"]},
     ],
     "middle": [
         {"question": "What is the powerhouse of the cell?", "answer": "mitochondria", "options": ["mitochondria", "nucleus", "ribosome", "chloroplast"]},
@@ -325,6 +385,21 @@ SCIENCE_QUESTIONS = {
         {"question": "What type of rock is formed by cooling lava?", "answer": "igneous", "options": ["igneous", "sedimentary", "metamorphic", "granite"]},
         {"question": "What is the speed of light?", "answer": "299,792 km/s", "options": ["299,792 km/s", "150,000 km/s", "500,000 km/s", "1,000,000 km/s"]},
         {"question": "What is photosynthesis?", "answer": "plants making food from sunlight", "options": ["plants making food from sunlight", "breathing", "cell division", "decomposition"]},
+        {"question": "What is the chemical formula for table salt?", "answer": "nacl", "options": ["nacl", "h2o", "co2", "o2"]},
+        {"question": "What organelle contains DNA?", "answer": "nucleus", "options": ["nucleus", "ribosome", "vacuole", "cell wall"]},
+        {"question": "What is the largest organ in the human body?", "answer": "skin", "options": ["skin", "liver", "heart", "brain"]},
+        {"question": "What gas makes up most of Earth's atmosphere?", "answer": "nitrogen", "options": ["nitrogen", "oxygen", "carbon dioxide", "helium"]},
+        {"question": "What is the process of water changing to vapor?", "answer": "evaporation", "options": ["evaporation", "condensation", "precipitation", "sublimation"]},
+        {"question": "What are organisms that make their own food?", "answer": "producers", "options": ["producers", "consumers", "decomposers", "predators"]},
+        {"question": "What is the smallest unit of life?", "answer": "cell", "options": ["cell", "atom", "molecule", "tissue"]},
+        {"question": "What type of energy does the sun provide?", "answer": "light and heat", "options": ["light and heat", "electrical", "chemical", "nuclear"]},
+        {"question": "What is the boiling point of water in Celsius?", "answer": "100°c", "options": ["100°c", "0°c", "50°c", "212°c"]},
+        {"question": "What are the three states of matter?", "answer": "solid, liquid, gas", "options": ["solid, liquid, gas", "hot, cold, warm", "big, small, medium", "hard, soft, rough"]},
+        {"question": "What is the chemical symbol for silver?", "answer": "ag", "options": ["ag", "au", "si", "s"]},
+        {"question": "What is the study of weather called?", "answer": "meteorology", "options": ["meteorology", "geology", "biology", "astronomy"]},
+        {"question": "What organ pumps blood through the body?", "answer": "heart", "options": ["heart", "lungs", "liver", "kidneys"]},
+        {"question": "What is the freezing point of water in Celsius?", "answer": "0°c", "options": ["0°c", "100°c", "32°c", "-10°c"]},
+        {"question": "What part of the plant conducts photosynthesis?", "answer": "leaves", "options": ["leaves", "roots", "stem", "flowers"]},
     ],
     "high": [
         {"question": "What is Avogadro's number?", "answer": "6.022 × 10²³", "options": ["6.022 × 10²³", "3.14 × 10⁸", "9.81 × 10¹⁰", "1.602 × 10⁻¹⁹"]},
@@ -332,22 +407,37 @@ SCIENCE_QUESTIONS = {
         {"question": "What law states energy cannot be created or destroyed?", "answer": "conservation of energy", "options": ["conservation of energy", "newton's first law", "thermodynamics", "relativity"]},
         {"question": "What is DNA's shape called?", "answer": "double helix", "options": ["double helix", "single strand", "triple bond", "circular"]},
         {"question": "What particle has no electric charge?", "answer": "neutron", "options": ["neutron", "proton", "electron", "photon"]},
+        {"question": "What is the SI unit of force?", "answer": "newton", "options": ["newton", "joule", "watt", "pascal"]},
+        {"question": "What is the process of cell division called?", "answer": "mitosis", "options": ["mitosis", "meiosis", "osmosis", "photosynthesis"]},
+        {"question": "What is the charge of an electron?", "answer": "negative", "options": ["negative", "positive", "neutral", "variable"]},
+        {"question": "What is the universal solvent?", "answer": "water", "options": ["water", "alcohol", "acetone", "benzene"]},
+        {"question": "What is the study of heredity?", "answer": "genetics", "options": ["genetics", "ecology", "anatomy", "physiology"]},
+        {"question": "What are the basic building blocks of proteins?", "answer": "amino acids", "options": ["amino acids", "nucleotides", "lipids", "carbohydrates"]},
+        {"question": "What is the atomic number of carbon?", "answer": "6", "options": ["6", "12", "8", "14"]},
+        {"question": "What is Newton's first law called?", "answer": "law of inertia", "options": ["law of inertia", "law of acceleration", "law of action-reaction", "law of gravity"]},
+        {"question": "What is the powerhouse of metabolism?", "answer": "atp", "options": ["atp", "glucose", "oxygen", "enzyme"]},
+        {"question": "What is the pH of pure water?", "answer": "7", "options": ["7", "0", "14", "1"]},
+        {"question": "What particle orbits the nucleus?", "answer": "electron", "options": ["electron", "proton", "neutron", "photon"]},
+        {"question": "What is the process of liquid turning to gas?", "answer": "vaporization", "options": ["vaporization", "condensation", "sublimation", "deposition"]},
+        {"question": "What is the study of fungi called?", "answer": "mycology", "options": ["mycology", "bacteriology", "virology", "parasitology"]},
+        {"question": "What is the strongest type of chemical bond?", "answer": "covalent", "options": ["covalent", "ionic", "hydrogen", "metallic"]},
+        {"question": "What is the unit of electrical resistance?", "answer": "ohm", "options": ["ohm", "ampere", "volt", "watt"]},
     ]
 }
 
 def generate_science_quiz(grade_level):
-    """Generate science trivia questions"""
+    """Generate science trivia questions - NO REPEATS"""
     grade = int(grade_level) if grade_level.isdigit() else 5
-    
+
     if grade <= 4:
-        questions = SCIENCE_QUESTIONS["elementary"] * 4
+        questions = SCIENCE_QUESTIONS["elementary"].copy()
     elif grade <= 8:
-        questions = SCIENCE_QUESTIONS["middle"] * 4
+        questions = SCIENCE_QUESTIONS["middle"].copy()
     else:
-        questions = SCIENCE_QUESTIONS["high"] * 4
-    
+        questions = SCIENCE_QUESTIONS["high"].copy()
+
     random.shuffle(questions)
-    return questions[:20]
+    return questions[:20]  # Now returns unique questions only
 
 
 # ============================================================
@@ -621,7 +711,7 @@ def generate_equation_race(grade_level):
 # ============================================================
 
 def generate_element_match(grade_level):
-    """Match chemical symbols to element names"""
+    """Match chemical symbols to element names - NO REPEATS"""
     elements = [
         {"symbol": "H", "name": "Hydrogen", "options": ["Hydrogen", "Helium", "Hafnium", "Holmium"]},
         {"symbol": "O", "name": "Oxygen", "options": ["Oxygen", "Osmium", "Oganesson", "Oxide"]},
@@ -638,19 +728,26 @@ def generate_element_match(grade_level):
         {"symbol": "Mg", "name": "Magnesium", "options": ["Magnesium", "Manganese", "Mercury", "Molybdenum"]},
         {"symbol": "Zn", "name": "Zinc", "options": ["Zinc", "Zirconium", "Xenon", "Yttrium"]},
         {"symbol": "Cu", "name": "Copper", "options": ["Copper", "Carbon", "Curium", "Cesium"]},
+        {"symbol": "P", "name": "Phosphorus", "options": ["Phosphorus", "Potassium", "Platinum", "Palladium"]},
+        {"symbol": "S", "name": "Sulfur", "options": ["Sulfur", "Sodium", "Silicon", "Silver"]},
+        {"symbol": "Al", "name": "Aluminum", "options": ["Aluminum", "Argon", "Arsenic", "Silver"]},
+        {"symbol": "Ne", "name": "Neon", "options": ["Neon", "Nitrogen", "Nickel", "Nobelium"]},
+        {"symbol": "Li", "name": "Lithium", "options": ["Lithium", "Lead", "Lanthanum", "Lutetium"]},
     ]
-    
+
+    # Shuffle and take 20 unique elements - NO REPEATS
+    random.shuffle(elements)
     questions = []
-    for _ in range(20):
-        elem = random.choice(elements)
-        random.shuffle(elem["options"])
+    for elem in elements[:20]:
+        options_copy = elem["options"][:]
+        random.shuffle(options_copy)
         questions.append({
             "question": f"What element is '{elem['symbol']}'?",
             "answer": elem["name"],
-            "options": elem["options"][:],
+            "options": options_copy,
             "type": "element"
         })
-    
+
     return questions
 
 
@@ -659,22 +756,26 @@ def generate_element_match(grade_level):
 # ============================================================
 
 def generate_spelling_sprint(grade_level):
-    """Spell words correctly as fast as you can"""
+    """Spell words correctly as fast as you can - NO REPEATS"""
     grade = int(grade_level) if grade_level.isdigit() else 5
-    
+
     word_lists = {
-        "elementary": ["apple", "beach", "friend", "school", "happy", "pizza", "yellow", "elephant", "birthday", "library"],
-        "middle": ["beautiful", "necessary", "receive", "separate", "definitely", "tomorrow", "although", "government", "experience", "restaurant"],
-        "high": ["accommodate", "necessary", "occurrence", "occasionally", "recommend", "embarrass", "conscience", "rhythm", "privilege", "maintenance"]
+        "elementary": ["apple", "beach", "friend", "school", "happy", "pizza", "yellow", "elephant", "birthday", "library",
+                      "garden", "rainbow", "treasure", "balloon", "mountain", "ocean", "dragon", "castle", "rocket", "adventure"],
+        "middle": ["beautiful", "necessary", "receive", "separate", "definitely", "tomorrow", "although", "government", "experience", "restaurant",
+                  "extraordinary", "consciousness", "opportunity", "temperature", "abbreviate", "acknowledgment", "acquaintance", "achievement", "desperate", "category"],
+        "high": ["accommodate", "necessary", "occurrence", "occasionally", "recommend", "embarrass", "conscience", "rhythm", "privilege", "maintenance",
+                "bureaucracy", "entrepreneurship", "pharmaceutical", "psychological", "sophisticated", "conscientious", "dilemma", "fluorescent", "guarantee", "harassment"]
     }
-    
+
     if grade <= 4:
-        words = word_lists["elementary"] * 2
+        words = word_lists["elementary"].copy()
     elif grade <= 8:
-        words = word_lists["middle"] * 2
+        words = word_lists["middle"].copy()
     else:
-        words = word_lists["high"] * 2
-    
+        words = word_lists["high"].copy()
+
+    random.shuffle(words)
     questions = []
     for word in words[:20]:
         # Create misspelled versions
@@ -698,7 +799,7 @@ def generate_spelling_sprint(grade_level):
 
 
 def generate_grammar_quest(grade_level):
-    """Fix grammatical errors in record time"""
+    """Fix grammatical errors in record time - NO REPEATS"""
     base_questions = [
         {"wrong": "Their going to the store", "correct": "They're going to the store"},
         {"wrong": "The cat is sleeping in it's bed", "correct": "The cat is sleeping in its bed"},
@@ -714,10 +815,17 @@ def generate_grammar_quest(grade_level):
         {"wrong": "Me and my friend", "correct": "My friend and I"},
         {"wrong": "I should of known", "correct": "I should have known"},
         {"wrong": "Your awesome", "correct": "You're awesome"},
+        {"wrong": "We was going home", "correct": "We were going home"},
+        {"wrong": "The dog wagged it's tail", "correct": "The dog wagged its tail"},
+        {"wrong": "Let's keep this between you and I", "correct": "Let's keep this between you and me"},
+        {"wrong": "Me and her are friends", "correct": "She and I are friends"},
+        {"wrong": "I could care less", "correct": "I couldn't care less"},
+        {"wrong": "Who's book is this?", "correct": "Whose book is this?"},
     ]
-    
+
     questions = []
-    for item in base_questions * 2:  # Repeat to get enough questions
+    random.shuffle(base_questions)
+    for item in base_questions[:20]:  # Take unique 20 questions only - NO REPEATS
         # Create wrong options
         other_wrongs = [q["wrong"] for q in base_questions if q["wrong"] != item["wrong"]]
         random.shuffle(other_wrongs)
@@ -776,7 +884,7 @@ def generate_history_timeline(grade_level):
 
 
 def generate_geography_dash(grade_level):
-    """Identify countries, capitals, and landmarks"""
+    """Identify countries, capitals, and landmarks - NO REPEATS"""
     questions = [
         {"question": "What is the capital of France?", "answer": "Paris", "options": ["Paris", "London", "Berlin", "Rome"]},
         {"question": "Which country has the Great Wall?", "answer": "China", "options": ["China", "Japan", "Korea", "Mongolia"]},
@@ -788,8 +896,17 @@ def generate_geography_dash(grade_level):
         {"question": "Where is the Eiffel Tower?", "answer": "Paris", "options": ["Paris", "London", "Rome", "Madrid"]},
         {"question": "What is the capital of Italy?", "answer": "Rome", "options": ["Rome", "Milan", "Venice", "Florence"]},
         {"question": "Which ocean is between US and Europe?", "answer": "Atlantic", "options": ["Atlantic", "Pacific", "Indian", "Arctic"]},
+        {"question": "What is the capital of Spain?", "answer": "Madrid", "options": ["Madrid", "Barcelona", "Seville", "Valencia"]},
+        {"question": "Where is Mount Everest?", "answer": "Nepal", "options": ["Nepal", "India", "China", "Tibet"]},
+        {"question": "What is the capital of Canada?", "answer": "Ottawa", "options": ["Ottawa", "Toronto", "Montreal", "Vancouver"]},
+        {"question": "Which country is shaped like a boot?", "answer": "Italy", "options": ["Italy", "Greece", "Spain", "Portugal"]},
+        {"question": "What is the smallest continent?", "answer": "Australia", "options": ["Australia", "Europe", "Antarctica", "South America"]},
+        {"question": "Where is the Statue of Liberty?", "answer": "New York", "options": ["New York", "Washington DC", "Boston", "Philadelphia"]},
+        {"question": "What is the capital of Germany?", "answer": "Berlin", "options": ["Berlin", "Munich", "Frankfurt", "Hamburg"]},
+        {"question": "Which desert is the largest?", "answer": "Sahara", "options": ["Sahara", "Gobi", "Arabian", "Kalahari"]},
+        {"question": "What is the capital of Brazil?", "answer": "Brasilia", "options": ["Brasilia", "Rio de Janeiro", "Sao Paulo", "Salvador"]},
+        {"question": "Where is the Taj Mahal?", "answer": "India", "options": ["India", "Pakistan", "Bangladesh", "Nepal"]},
     ]
-    
-    questions = questions * 2
+
     random.shuffle(questions)
     return questions[:20]
