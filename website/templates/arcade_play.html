@@ -442,7 +442,10 @@
             score += 100;
             document.getElementById('correct').textContent = correct;
             document.getElementById('score').textContent = score;
-            CozmicEnhancements.launchConfetti(10);
+            // Launch confetti if available
+            if (typeof CozmicEnhancements !== 'undefined' && CozmicEnhancements.launchConfetti) {
+                CozmicEnhancements.launchConfetti(10);
+            }
         }
 
         // Show loading spinner while waiting for next question
@@ -521,21 +524,27 @@
         const resultsTitle = document.getElementById('results-title');
         if (isHighScore) {
             resultsTitle.innerHTML = '🏆 NEW HIGH SCORE! 🏆';
-            CozmicEnhancements.celebrationBurst();
+            if (typeof CozmicEnhancements !== 'undefined' && CozmicEnhancements.celebrationBurst) {
+                CozmicEnhancements.celebrationBurst();
+            }
         } else {
             resultsTitle.textContent = performanceMsg;
             resultsTitle.style.color = performanceColor;
-            CozmicEnhancements.launchConfetti(50);
+            if (typeof CozmicEnhancements !== 'undefined' && CozmicEnhancements.launchConfetti) {
+                CozmicEnhancements.launchConfetti(50);
+            }
         }
 
         // Add tokens display
         document.getElementById('tokens-earned').textContent = '+' + tokens;
 
         document.getElementById('results-modal').classList.add('show');
-        
+
         // Show character encouragement
         setTimeout(() => {
-            CozmicEnhancements.showCharacterComment('encouragement', characterName);
+            if (typeof CozmicEnhancements !== 'undefined' && CozmicEnhancements.showCharacterComment) {
+                CozmicEnhancements.showCharacterComment('encouragement', characterName);
+            }
         }, 500);
     }
 </script>
