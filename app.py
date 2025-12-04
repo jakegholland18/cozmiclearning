@@ -593,6 +593,18 @@ SUBJECT_LABELS = {
 
 
 def get_current_teacher():
+    # Admin bypass mode - return mock teacher with owner privileges
+    if session.get("bypass_auth") and session.get("admin_mode") == "teacher":
+        # Create a mock teacher object for admin viewing
+        class MockTeacher:
+            def __init__(self):
+                self.id = 1
+                self.name = "Admin (Teacher View)"
+                self.email = OWNER_EMAIL
+                self.classes = Class.query.all()  # Admin can see all classes
+
+        return MockTeacher()
+
     tid = session.get("teacher_id")
     if not tid:
         return None
