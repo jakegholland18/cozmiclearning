@@ -341,6 +341,7 @@ class QuestionLog(db.Model):
     allowed = db.Column(db.Boolean, default=True)  # Whether content was processed
     moderation_reason = db.Column(db.Text, nullable=True)  # Why flagged/blocked
     moderation_data_json = db.Column(db.Text, nullable=True)  # Full moderation details (JSON)
+    severity = db.Column(db.String(20), nullable=True)  # "low", "medium", "high"
     
     # Admin review
     reviewed = db.Column(db.Boolean, default=False)
@@ -351,6 +352,14 @@ class QuestionLog(db.Model):
     # Parent notification
     parent_notified = db.Column(db.Boolean, default=False)
     parent_notified_at = db.Column(db.DateTime, nullable=True)
+    
+    # Student appeal system
+    appeal_requested = db.Column(db.Boolean, default=False)
+    appeal_reason = db.Column(db.Text, nullable=True)
+    appeal_status = db.Column(db.String(20), nullable=True)  # "pending", "approved", "denied"
+    appeal_reviewed_by = db.Column(db.String(100), nullable=True)
+    appeal_reviewed_at = db.Column(db.DateTime, nullable=True)
+    appeal_notes = db.Column(db.Text, nullable=True)
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

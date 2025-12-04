@@ -236,6 +236,52 @@ def check_rate_limit(student_id: int, max_requests: int = 20, window_minutes: in
 
 
 # -------------------------------------------------------
+# Severity Assessment
+# -------------------------------------------------------
+def assess_severity(moderation_data: dict) -> str:
+    """
+    Determine severity level based on moderation results.
+    
+    Returns: "low", "medium", or "high"
+    """
+    openai_check = moderation_data.get("openai_moderation", {})
+    keyword_check = moderation_data.get("keyword_filter", {})
+    
+    if not openai_check.get("flagged") and not keyword_check.get("flagged"):
+        return "low"
+    
+    # High severity categories
+    high_severity_categories = [
+        "sexual/minors", "violence/graphic", "self-harm/intent", 
+        "self-harm/instructions", "hate/threatening"
+    ]
+    
+    if openai_check.get("flagged"):
+        categories = openai_check.get("categories", {})
+        for category in high_severity_categories:
+            if categories.get(category.replace("/", "_"), False):
+                return "high"
+        
+        # Check confidence scores
+        scores = openai_check.get("category_scores", {})
+        max_score = max(scores.values()) if scores else 0
+        if max_score > 0.8:
+            return "high"
+        elif max_score > 0.5:
+            return "medium"
+    
+    # Keyword-based severity
+    if keyword_check.get("flagged"):
+        pattern = keyword_check.get("matched_pattern", "")
+        # Profanity is medium, cheating/jailbreak is low
+        if any(p in pattern for p in ["f+u+c+k+", "b+i+t+c+h+", "a+s+s+h+o+l+e+"]):
+            return "medium"
+        return "low"
+    
+    return "low"
+
+
+# -------------------------------------------------------
 # Master Moderation Function
 # -------------------------------------------------------
 def moderate_content(text: str, student_id: int = None, context: str = "question") -> dict:
@@ -253,6 +299,8 @@ def moderate_content(text: str, student_id: int = None, context: str = "question
         "flagged": bool - Whether content was flagged (for logging),
         "sanitized_text": str - Cleaned input text,
         "reason": str - Why content was blocked/flagged,
+        "severity": str - Severity level ("low", "medium", "high"),
+        "warning": str - Warning message for student (if applicable),
         "moderation_data": dict - Full details for logging
     }
     """
@@ -261,6 +309,8 @@ def moderate_content(text: str, student_id: int = None, context: str = "question
         "flagged": False,
         "sanitized_text": text,
         "reason": None,
+        "severity": "low",
+        "warning": None,
         "moderation_data": {}
     }
     
@@ -306,7 +356,10 @@ def moderate_content(text: str, student_id: int = None, context: str = "question
         result["flagged"] = True
         categories = openai_check["reason"] or "policy violations"
         result["reason"] = f"Your question was flagged for: {categories}. Please ask appropriate educational questions."
-        return result
+        result["warning"] = "⚠️ This type of content violates our community guidelines. Please keep questions educational and respectful."
+        
+    # Assess severity level
+    result["severity"] = assess_severity(result["moderation_data"])
     
     # All checks passed
     return result

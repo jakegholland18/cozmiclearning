@@ -287,6 +287,18 @@ def rebuild_database_if_needed():
         # Check if question_logs table exists
         cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='question_logs';")
         question_logs_exists = cur.fetchone() is not None
+        
+        if question_logs_exists:
+            # Check for new columns in question_logs
+            cur.execute("PRAGMA table_info(question_logs);")
+            log_cols = [col[1] for col in cur.fetchall()]
+            ensure_column("question_logs", log_cols, "severity", "VARCHAR(20)")
+            ensure_column("question_logs", log_cols, "appeal_requested", "BOOLEAN DEFAULT 0")
+            ensure_column("question_logs", log_cols, "appeal_reason", "TEXT")
+            ensure_column("question_logs", log_cols, "appeal_status", "VARCHAR(20)")
+            ensure_column("question_logs", log_cols, "appeal_reviewed_by", "VARCHAR(100)")
+            ensure_column("question_logs", log_cols, "appeal_reviewed_at", "DATETIME")
+            ensure_column("question_logs", log_cols, "appeal_notes", "TEXT")
 
         # Attempt light, non-destructive ALTERs for new subscription columns
         def ensure_column(table, cols, name, type_sql):
@@ -1312,6 +1324,153 @@ The CozmicLearning Team
     except Exception as e:
         app.logger.error(f"Failed to send parent notification: {e}")
         return jsonify({"error": "Failed to send email"}), 500
+
+
+@app.route("/admin/moderation/stats")
+def admin_moderation_stats():
+    """Statistics and reporting dashboard for moderation"""
+    if not is_admin() and not is_owner():
+        flash("Access denied.", "error")
+        return redirect("/")
+    
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    # Get time period filter
+    period = request.args.get("period", "30")
+    
+    if period == "all":
+        start_date = datetime(2020, 1, 1)
+    else:
+        days = int(period)
+        start_date = datetime.utcnow() - timedelta(days=days)
+    
+    # Calculate stats
+    total_questions = QuestionLog.query.filter(QuestionLog.created_at >= start_date).count()
+    flagged_questions = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.flagged == True
+    ).count()
+    blocked_questions = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.allowed == False
+    ).count()
+    parent_notifications = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.parent_notified == True
+    ).count()
+    
+    # Severity breakdown
+    high_severity = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.severity == "high"
+    ).count()
+    medium_severity = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.severity == "medium"
+    ).count()
+    low_severity = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.severity == "low"
+    ).count()
+    
+    # Calculate percentages
+    flag_rate = round((flagged_questions / total_questions * 100), 2) if total_questions > 0 else 0
+    block_rate = round((blocked_questions / total_questions * 100), 2) if total_questions > 0 else 0
+    notification_rate = round((parent_notifications / flagged_questions * 100), 2) if flagged_questions > 0 else 0
+    
+    total_severity = high_severity + medium_severity + low_severity
+    high_severity_pct = round((high_severity / total_severity * 100), 1) if total_severity > 0 else 0
+    medium_severity_pct = round((medium_severity / total_severity * 100), 1) if total_severity > 0 else 0
+    low_severity_pct = round((low_severity / total_severity * 100), 1) if total_severity > 0 else 0
+    
+    # Top flagged reasons
+    flagged_logs = QuestionLog.query.filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.flagged == True
+    ).all()
+    
+    reason_counts = {}
+    for log in flagged_logs:
+        reason = log.moderation_reason or "Unknown"
+        # Simplify reason to first sentence or first 50 chars
+        reason = reason.split('.')[0][:50]
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+    
+    top_reasons = sorted(reason_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    
+    # Daily trend (last 14 days within period)
+    daily_trend = []
+    trend_days = min(14, int(period) if period != "all" else 14)
+    max_daily = 0
+    
+    for i in range(trend_days):
+        day = datetime.utcnow() - timedelta(days=trend_days - i - 1)
+        day_start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+        day_end = day_start + timedelta(days=1)
+        
+        count = QuestionLog.query.filter(
+            QuestionLog.created_at >= day_start,
+            QuestionLog.created_at < day_end,
+            QuestionLog.flagged == True
+        ).count()
+        
+        max_daily = max(max_daily, count)
+        daily_trend.append({
+            "date": day.strftime("%m/%d"),
+            "count": count
+        })
+    
+    # Students with most flagged content
+    student_flags = db.session.query(
+        QuestionLog.student_id,
+        func.count(QuestionLog.id).label('flagged_count'),
+        func.sum(func.case([(QuestionLog.severity == 'high', 1)], else_=0)).label('high_count'),
+        func.max(QuestionLog.created_at).label('last_flagged')
+    ).filter(
+        QuestionLog.created_at >= start_date,
+        QuestionLog.flagged == True
+    ).group_by(QuestionLog.student_id).order_by(func.count(QuestionLog.id).desc()).limit(10).all()
+    
+    top_students = []
+    for student_id, flagged_count, high_count, last_flagged in student_flags:
+        student = Student.query.get(student_id)
+        if student:
+            top_students.append({
+                "name": student.student_name,
+                "flagged_count": flagged_count,
+                "high_count": high_count or 0,
+                "last_flagged": last_flagged
+            })
+    
+    stats = {
+        "total_questions": total_questions,
+        "flagged_questions": flagged_questions,
+        "blocked_questions": blocked_questions,
+        "parent_notifications": parent_notifications,
+        "flag_rate": flag_rate,
+        "block_rate": block_rate,
+        "notification_rate": notification_rate,
+        "question_change": 0,  # TODO: Calculate vs previous period
+        "flag_rate_change": 0,
+        "block_rate_change": 0,
+        "high_severity": high_severity,
+        "medium_severity": medium_severity,
+        "low_severity": low_severity,
+        "high_severity_pct": high_severity_pct,
+        "medium_severity_pct": medium_severity_pct,
+        "low_severity_pct": low_severity_pct,
+        "top_reasons": top_reasons,
+        "daily_trend": daily_trend,
+        "max_daily": max_daily if max_daily > 0 else 1,
+        "top_students": top_students
+    }
+    
+    return render_template(
+        "admin_moderation_stats.html",
+        stats=stats,
+        period=period
+    )
 
 
 @app.route("/create-checkout-session", methods=["POST"])
@@ -3970,14 +4129,55 @@ def subject_answer():
         flagged=moderation_result.get("flagged", False),
         allowed=moderation_result.get("allowed", True),
         moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+        moderation_data_json=str(moderation_result.get("moderation_data", {})),
+        severity=moderation_result.get("severity", "low")
     )
     db.session.add(log_entry)
     db.session.commit()
     
     # If content was blocked, show error and don't process
     if not moderation_result["allowed"]:
+        warning = moderation_result.get("warning")
+        if warning:
+            flash(warning, "warning")
         flash(moderation_result.get("reason", "Your question could not be processed."), "error")
+        
+        # High severity = notify parent immediately
+        if moderation_result.get("severity") == "high":
+            try:
+                student = Student.query.get(student_id)
+                if student and student.parent_id:
+                    parent = Parent.query.get(student.parent_id)
+                    if parent:
+                        # Send immediate notification
+                        from flask_mail import Message as EmailMessage
+                        msg = EmailMessage(
+                            subject=f"⚠️ URGENT: High-Risk Content Alert for {student.student_name}",
+                            sender=app.config["MAIL_DEFAULT_SENDER"],
+                            recipients=[parent.email]
+                        )
+                        msg.body = f"""URGENT ALERT
+
+Your student {student.student_name} attempted to submit high-risk content:
+
+Question: "{question[:200]}"
+Date: {datetime.utcnow().strftime('%B %d, %Y at %I:%M %p')}
+Severity: HIGH
+Reason: {moderation_result.get('reason')}
+
+This content was automatically blocked and flagged for immediate review.
+
+Please discuss appropriate online behavior with your student.
+
+CozmicLearning Team
+"""
+                        mail.send(msg)
+                        log_entry.parent_notified = True
+                        log_entry.parent_notified_at = datetime.utcnow()
+                        db.session.commit()
+            except Exception as e:
+                app.logger.error(f"Failed to send high-risk notification: {e}")
+        
         return redirect("/subjects")
 
     session["grade"] = grade
@@ -4062,14 +4262,19 @@ def followup_message():
         flagged=moderation_result.get("flagged", False),
         allowed=moderation_result.get("allowed", True),
         moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+        moderation_data_json=str(moderation_result.get("moderation_data", {})),
+        severity=moderation_result.get("severity", "low")
     )
     db.session.add(log_entry)
     db.session.commit()
     
     # If blocked, return error
     if not moderation_result["allowed"]:
-        return jsonify({"error": moderation_result.get("reason", "Message could not be processed.")})
+        return jsonify({
+            "error": moderation_result.get("reason", "Message could not be processed."),
+            "warning": moderation_result.get("warning"),
+            "severity": moderation_result.get("severity")
+        })
 
     conversation = session.get("conversation", [])
     conversation.append({"role": "user", "content": message})
@@ -4128,14 +4333,19 @@ def deep_study_message():
         flagged=moderation_result.get("flagged", False),
         allowed=moderation_result.get("allowed", True),
         moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+        moderation_data_json=str(moderation_result.get("moderation_data", {})),
+        severity=moderation_result.get("severity", "low")
     )
     db.session.add(log_entry)
     db.session.commit()
     
     # If blocked, return error
     if not moderation_result["allowed"]:
-        return jsonify({"error": moderation_result.get("reason", "Message could not be processed.")})
+        return jsonify({
+            "error": moderation_result.get("reason", "Message could not be processed."),
+            "warning": moderation_result.get("warning"),
+            "severity": moderation_result.get("severity")
+        })
 
     conversation = session.get("deep_study_chat", [])
     conversation.append({"role": "user", "content": message})
@@ -4299,13 +4509,17 @@ def powergrid_submit():
             flagged=moderation_result.get("flagged", False),
             allowed=moderation_result.get("allowed", True),
             moderation_reason=moderation_result.get("reason"),
-            moderation_data_json=str(moderation_result.get("moderation_data", {}))
+            moderation_data_json=str(moderation_result.get("moderation_data", {})),
+            severity=moderation_result.get("severity", "low")
         )
         db.session.add(log_entry)
         db.session.commit()
         
         # If blocked, redirect with error
         if not moderation_result["allowed"]:
+            warning = moderation_result.get("warning")
+            if warning:
+                flash(warning, "warning")
             flash(moderation_result.get("reason", "Topic could not be processed."), "error")
             return redirect("/powergrid")
         
@@ -5225,6 +5439,51 @@ def parent_analytics():
         selected_student=selected_student,
         subject_stats=subject_stats,
         subject_count=subject_count,
+    )
+
+
+@app.route("/parent/safety")
+def parent_safety():
+    """Parent view of their children's flagged content and safety alerts"""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+    
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/parent/login")
+    
+    # Get selected student filter
+    student_filter = request.args.get("student_id", type=int)
+    
+    # Get all question logs for this parent's students
+    student_ids = [s.id for s in parent.students]
+    
+    query = QuestionLog.query.filter(QuestionLog.student_id.in_(student_ids))
+    
+    if student_filter:
+        query = query.filter_by(student_id=student_filter)
+    
+    # Get flagged questions only
+    flagged_logs = query.filter_by(flagged=True).order_by(QuestionLog.created_at.desc()).limit(100).all()
+    
+    # Calculate stats
+    total_flagged = query.filter_by(flagged=True).count()
+    high_severity_count = query.filter_by(flagged=True, severity="high").count()
+    recent_flags = query.filter(
+        QuestionLog.flagged == True,
+        QuestionLog.created_at >= datetime.utcnow() - timedelta(days=7)
+    ).count()
+    
+    return render_template(
+        "parent_safety.html",
+        parent=parent,
+        flagged_logs=flagged_logs,
+        total_flagged=total_flagged,
+        high_severity_count=high_severity_count,
+        recent_flags=recent_flags,
+        student_filter=student_filter
     )
 
 
