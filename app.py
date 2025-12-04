@@ -4911,7 +4911,10 @@ def subject_answer():
     student_id = session.get("user_id")
     moderation_result = moderate_content(question, student_id=student_id, context="question")
 
-    # Log the question (flagged or not) - only if we have a real student_id (not admin bypass mode)
+    # Initialize log_entry as None (will be created if student_id exists)
+    log_entry = None
+
+    # Log the question (flagged or not) - only if we have a real student_id (not admin)
     if student_id:
         log_entry = QuestionLog(
             student_id=student_id,
@@ -4966,9 +4969,10 @@ Please discuss appropriate online behavior with your student.
 CozmicLearning Team
 """
                         mail.send(msg)
-                        log_entry.parent_notified = True
-                        log_entry.parent_notified_at = datetime.utcnow()
-                        db.session.commit()
+                        if log_entry:
+                            log_entry.parent_notified = True
+                            log_entry.parent_notified_at = datetime.utcnow()
+                            db.session.commit()
             except Exception as e:
                 app.logger.error(f"Failed to send high-risk notification: {e}")
         
@@ -4989,10 +4993,11 @@ CozmicLearning Team
 
     result = func(question, grade, character)
     answer = result.get("raw_text") if isinstance(result, dict) else result
-    
-    # Update log with AI response
-    log_entry.ai_response = answer[:5000]  # Store first 5000 chars
-    db.session.commit()
+
+    # Update log with AI response (only if log_entry exists)
+    if log_entry:
+        log_entry.ai_response = answer[:5000]  # Store first 5000 chars
+        db.session.commit()
 
     session["conversation"] = []
     session.modified = True
