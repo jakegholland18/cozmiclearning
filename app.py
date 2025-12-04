@@ -134,6 +134,7 @@ from models import (
     LessonPlan,
     Message,
     StudentSubmission,
+    QuestionLog,
 )
 from sqlalchemy import func
 import json
@@ -282,6 +283,10 @@ def rebuild_database_if_needed():
         # Check if student_submissions table exists
         cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='student_submissions';")
         submissions_exists = cur.fetchone() is not None
+        
+        # Check if question_logs table exists
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='question_logs';")
+        question_logs_exists = cur.fetchone() is not None
 
         # Attempt light, non-destructive ALTERs for new subscription columns
         def ensure_column(table, cols, name, type_sql):
@@ -322,6 +327,15 @@ def rebuild_database_if_needed():
                 print("✅ Created student_submissions table")
             except Exception as e:
                 print(f"⚠️ Could not create student_submissions table: {e}")
+        
+        # Create question_logs table if it doesn't exist
+        if not question_logs_exists:
+            try:
+                with app.app_context():
+                    db.create_all()
+                print("✅ Created question_logs table for content moderation")
+            except Exception as e:
+                print(f"⚠️ Could not create question_logs table: {e}")
 
         conn.close()
 
@@ -431,6 +445,7 @@ sys.path.append(os.path.join(BASE_DIR, "modules"))
 
 from modules.shared_ai import study_buddy_ai  # AI wrapper
 from modules.personality_helper import get_all_characters
+from modules.content_moderation import moderate_content, get_moderation_summary
 from modules import (
     math_helper,
     text_helper,
@@ -1137,7 +1152,170 @@ def admin_switch_to_teacher(teacher_id):
     return redirect("/teacher/dashboard")
 
 
+# ============================================================
+# ADMIN: CONTENT MODERATION DASHBOARD
+# ============================================================
+
+@app.route("/admin/moderation")
+def admin_moderation():
+    """Admin dashboard for reviewing flagged content and student questions"""
+    if not is_admin() and not is_owner():
+        flash("Access denied.", "error")
+        return redirect("/")
+    
+    # Get filter parameters
+    filter_type = request.args.get("filter", "all")
+    student_filter = request.args.get("student_id", "")
+    
+    # Build query
+    query = QuestionLog.query
+    
+    if filter_type == "flagged":
+        query = query.filter_by(flagged=True)
+    elif filter_type == "blocked":
+        query = query.filter_by(allowed=False)
+    elif filter_type == "pending":
+        query = query.filter_by(flagged=True, reviewed=False)
+    
+    if student_filter:
+        try:
+            query = query.filter_by(student_id=int(student_filter))
+        except ValueError:
+            pass
+    
+    # Get logs ordered by most recent
+    logs = query.order_by(QuestionLog.created_at.desc()).limit(500).all()
+    
+    # Calculate stats
+    total_logs = QuestionLog.query.count()
+    flagged_count = QuestionLog.query.filter_by(flagged=True).count()
+    pending_review = QuestionLog.query.filter_by(flagged=True, reviewed=False).count()
+    reviewed_count = QuestionLog.query.filter_by(reviewed=True).count()
+    
+    return render_template(
+        "admin_moderation.html",
+        logs=logs,
+        total_logs=total_logs,
+        flagged_count=flagged_count,
+        pending_review=pending_review,
+        reviewed_count=reviewed_count,
+        filter_type=filter_type,
+        student_filter=student_filter
+    )
+
+
+@app.route("/admin/moderation/<int:log_id>")
+def admin_moderation_detail(log_id):
+    """Get detailed information about a specific question log"""
+    if not is_admin() and not is_owner():
+        return jsonify({"error": "Access denied"}), 403
+    
+    log = QuestionLog.query.get_or_404(log_id)
+    
+    return jsonify({
+        "id": log.id,
+        "student_id": log.student_id,
+        "student_name": log.student.student_name if log.student else "Unknown",
+        "question_text": log.question_text,
+        "sanitized_text": log.sanitized_text,
+        "subject": log.subject,
+        "context": log.context,
+        "grade_level": log.grade_level,
+        "ai_response": log.ai_response,
+        "flagged": log.flagged,
+        "allowed": log.allowed,
+        "moderation_reason": log.moderation_reason,
+        "reviewed": log.reviewed,
+        "reviewed_by": log.reviewed_by,
+        "admin_notes": log.admin_notes,
+        "parent_notified": log.parent_notified,
+        "created_at": log.created_at.isoformat()
+    })
+
+
+@app.route("/admin/moderation/<int:log_id>/review", methods=["POST"])
+def admin_moderation_review(log_id):
+    """Mark a question log as reviewed with admin notes"""
+    if not is_admin() and not is_owner():
+        flash("Access denied.", "error")
+        return redirect("/")
+    
+    log = QuestionLog.query.get_or_404(log_id)
+    
+    log.reviewed = True
+    log.reviewed_by = session.get("admin_email", "admin")
+    log.reviewed_at = datetime.utcnow()
+    log.admin_notes = request.form.get("notes", "")
+    
+    db.session.commit()
+    
+    flash("Question log marked as reviewed.", "success")
+    return redirect("/admin/moderation")
+
+
+@app.route("/admin/moderation/<int:log_id>/notify", methods=["POST"])
+def admin_moderation_notify(log_id):
+    """Send notification email to parent about flagged content"""
+    if not is_admin() and not is_owner():
+        return jsonify({"error": "Access denied"}), 403
+    
+    log = QuestionLog.query.get_or_404(log_id)
+    student = log.student
+    
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+    
+    # Find parent
+    parent = Parent.query.get(student.parent_id) if student.parent_id else None
+    
+    if not parent:
+        return jsonify({"error": "No parent associated with this student"}), 404
+    
+    # Send email notification
+    try:
+        msg = EmailMessage(
+            subject=f"CozmicLearning: Content Alert for {student.student_name}",
+            sender=app.config["MAIL_DEFAULT_SENDER"],
+            recipients=[parent.email]
+        )
+        
+        msg.body = f"""
+Dear {parent.email},
+
+This is an automated notification from CozmicLearning's content moderation system.
+
+A question submitted by your student {student.student_name} was flagged for review:
+
+Question: "{log.question_text[:200]}"
+Date: {log.created_at.strftime('%B %d, %Y at %I:%M %p')}
+Reason: {log.moderation_reason or 'Policy violation'}
+
+Our AI system automatically monitors all student interactions to ensure appropriate educational content. This question was flagged and blocked from being processed.
+
+If you have any concerns or questions, please don't hesitate to contact us.
+
+Thank you for helping us maintain a safe learning environment!
+
+Best regards,
+The CozmicLearning Team
+"""
+        
+        mail.send(msg)
+        
+        # Mark as notified
+        log.parent_notified = True
+        log.parent_notified_at = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({"message": "Parent notification sent successfully!"})
+        
+    except Exception as e:
+        app.logger.error(f"Failed to send parent notification: {e}")
+        return jsonify({"error": "Failed to send email"}), 500
+
+
 @app.route("/create-checkout-session", methods=["POST"])
+
 @csrf.exempt  # Stripe checkout doesn't support CSRF - exempt AFTER route decorator
 def create_checkout_session():
     """Create Stripe checkout session for subscription."""
@@ -3776,6 +3954,31 @@ def subject_answer():
     subject = request.form.get("subject")
     question = request.form.get("question")
     character = session["character"]
+    
+    # CONTENT MODERATION - Check question safety
+    student_id = session.get("user_id")
+    moderation_result = moderate_content(question, student_id=student_id, context="question")
+    
+    # Log the question (flagged or not)
+    log_entry = QuestionLog(
+        student_id=student_id,
+        question_text=question,
+        sanitized_text=moderation_result.get("sanitized_text"),
+        subject=subject,
+        context="question",
+        grade_level=grade,
+        flagged=moderation_result.get("flagged", False),
+        allowed=moderation_result.get("allowed", True),
+        moderation_reason=moderation_result.get("reason"),
+        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+    )
+    db.session.add(log_entry)
+    db.session.commit()
+    
+    # If content was blocked, show error and don't process
+    if not moderation_result["allowed"]:
+        flash(moderation_result.get("reason", "Your question could not be processed."), "error")
+        return redirect("/subjects")
 
     session["grade"] = grade
 
@@ -3792,6 +3995,10 @@ def subject_answer():
 
     result = func(question, grade, character)
     answer = result.get("raw_text") if isinstance(result, dict) else result
+    
+    # Update log with AI response
+    log_entry.ai_response = answer[:5000]  # Store first 5000 chars
+    db.session.commit()
 
     session["conversation"] = []
     session.modified = True
@@ -3840,12 +4047,39 @@ def followup_message():
     grade = data.get("grade")
     character = data.get("character") or session["character"]
     message = data.get("message", "")
+    
+    # CONTENT MODERATION
+    student_id = session.get("user_id")
+    moderation_result = moderate_content(message, student_id=student_id, context="chat")
+    
+    # Log the message
+    log_entry = QuestionLog(
+        student_id=student_id,
+        question_text=message,
+        sanitized_text=moderation_result.get("sanitized_text"),
+        context="deep_study_chat",
+        grade_level=grade,
+        flagged=moderation_result.get("flagged", False),
+        allowed=moderation_result.get("allowed", True),
+        moderation_reason=moderation_result.get("reason"),
+        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+    )
+    db.session.add(log_entry)
+    db.session.commit()
+    
+    # If blocked, return error
+    if not moderation_result["allowed"]:
+        return jsonify({"error": moderation_result.get("reason", "Message could not be processed.")})
 
     conversation = session.get("conversation", [])
     conversation.append({"role": "user", "content": message})
 
     reply = study_helper.deep_study_chat(conversation, grade, character)
     reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+    
+    # Update log with AI response
+    log_entry.ai_response = reply_text[:5000]
+    db.session.commit()
 
     conversation.append({"role": "assistant", "content": reply_text})
     session["conversation"] = conversation
@@ -3879,6 +4113,29 @@ def deep_study_message():
 
     grade = session.get("grade", "8")
     character = session.get("character", "everly")
+    
+    # CONTENT MODERATION
+    student_id = session.get("user_id")
+    moderation_result = moderate_content(message, student_id=student_id, context="deep_study_chat")
+    
+    # Log the message
+    log_entry = QuestionLog(
+        student_id=student_id,
+        question_text=message,
+        sanitized_text=moderation_result.get("sanitized_text"),
+        context="deep_study_message",
+        grade_level=grade,
+        flagged=moderation_result.get("flagged", False),
+        allowed=moderation_result.get("allowed", True),
+        moderation_reason=moderation_result.get("reason"),
+        moderation_data_json=str(moderation_result.get("moderation_data", {}))
+    )
+    db.session.add(log_entry)
+    db.session.commit()
+    
+    # If blocked, return error
+    if not moderation_result["allowed"]:
+        return jsonify({"error": moderation_result.get("reason", "Message could not be processed.")})
 
     conversation = session.get("deep_study_chat", [])
     conversation.append({"role": "user", "content": message})
@@ -3906,6 +4163,10 @@ Rules:
 
     reply = study_buddy_ai(prompt, grade, character)
     reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+    
+    # Update log with AI response
+    log_entry.ai_response = reply_text[:5000]
+    db.session.commit()
 
     conversation.append({"role": "assistant", "content": reply_text})
     session["deep_study_chat"] = conversation
@@ -4023,6 +4284,31 @@ def powergrid_submit():
     
     # Add manual topic if provided
     if topic:
+        # CONTENT MODERATION for topic
+        student_id = session.get("user_id")
+        moderation_result = moderate_content(topic, student_id=student_id, context="powergrid")
+        
+        # Log the topic request
+        log_entry = QuestionLog(
+            student_id=student_id,
+            question_text=topic,
+            sanitized_text=moderation_result.get("sanitized_text"),
+            subject="power_grid",
+            context="powergrid",
+            grade_level=grade,
+            flagged=moderation_result.get("flagged", False),
+            allowed=moderation_result.get("allowed", True),
+            moderation_reason=moderation_result.get("reason"),
+            moderation_data_json=str(moderation_result.get("moderation_data", {}))
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+        
+        # If blocked, redirect with error
+        if not moderation_result["allowed"]:
+            flash(moderation_result.get("reason", "Topic could not be processed."), "error")
+            return redirect("/powergrid")
+        
         text_parts.append(f"--- Topic Request ---\n{topic}")
     
     # Combine all text sources with length limits to prevent memory issues
@@ -4039,6 +4325,11 @@ def powergrid_submit():
         combined_text, grade, session["character"], 
         mode=study_mode, learning_style=learning_style
     )
+    
+    # Update log with AI response if topic was provided
+    if topic and 'log_entry' in locals():
+        log_entry.ai_response = study_guide[:5000]
+        db.session.commit()
 
     # Generate PDF
     import uuid

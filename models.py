@@ -310,6 +310,55 @@ class StudentSubmission(db.Model):
     student_rel = db.relationship("Student", backref="submissions", lazy=True)
 
 
+# ============================================================
+# QUESTION LOGGING & MODERATION
+# ============================================================
+
+class QuestionLog(db.Model):
+    """
+    Logs all student questions and AI interactions for safety review.
+    Tracks moderation flags, parent notifications, and admin reviews.
+    """
+    __tablename__ = "question_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Student info
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+    
+    # Question details
+    question_text = db.Column(db.Text, nullable=False)
+    sanitized_text = db.Column(db.Text, nullable=True)  # After sanitization
+    subject = db.Column(db.String(50), nullable=True)  # Which subject/planet
+    context = db.Column(db.String(50), nullable=True)  # "question", "chat", "practice", "powergrid"
+    grade_level = db.Column(db.String(10), nullable=True)
+    
+    # AI response
+    ai_response = db.Column(db.Text, nullable=True)
+    
+    # Moderation results
+    flagged = db.Column(db.Boolean, default=False)
+    allowed = db.Column(db.Boolean, default=True)  # Whether content was processed
+    moderation_reason = db.Column(db.Text, nullable=True)  # Why flagged/blocked
+    moderation_data_json = db.Column(db.Text, nullable=True)  # Full moderation details (JSON)
+    
+    # Admin review
+    reviewed = db.Column(db.Boolean, default=False)
+    reviewed_by = db.Column(db.String(100), nullable=True)  # Admin/teacher email
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+    admin_notes = db.Column(db.Text, nullable=True)
+    
+    # Parent notification
+    parent_notified = db.Column(db.Boolean, default=False)
+    parent_notified_at = db.Column(db.DateTime, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    student = db.relationship("Student", backref="question_logs", lazy=True)
+
+
 
 
 
