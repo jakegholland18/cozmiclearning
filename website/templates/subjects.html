@@ -2,18 +2,273 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<div style="max-width:1100px; margin: 16px auto 32px;">
-    <h2 style="text-align:center; margin-top:20px;">Choose Your Learning Planet</h2>
+<style>
+    .planets-hero {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
 
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:28px; margin-top:28px; align-items:start;">
+    .planets-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .planets-title {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #ff6b9d, #ffa07a, #f9ca24, #6dd5ed, #4facfe, #a29bfe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        background-size: 200% 200%;
+        animation: gradientShift 6s ease infinite;
+        letter-spacing: -0.5px;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .planets-subtitle {
+        font-size: 1.2rem;
+        color: var(--muted-2);
+        font-weight: 500;
+    }
+
+    .planets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 32px;
+        margin-top: 40px;
+    }
+
+    .planet-card {
+        position: relative;
+        text-decoration: none;
+        color: var(--text);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .planet-card-inner {
+        background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(0,242,255,0.08));
+        border: 2px solid rgba(118,131,255,0.25);
+        padding: 32px 24px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow:
+            0 12px 30px rgba(0,0,0,0.6),
+            inset 0 1px 0 rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .planet-card-inner::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(92, 107, 255, 0.15), transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .planet-card:hover .planet-card-inner::before {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    .planet-card:hover .planet-card-inner {
+        transform: translateY(-8px);
+        border-color: rgba(118,131,255,0.6);
+        box-shadow:
+            0 20px 50px rgba(92,107,255,0.4),
+            0 0 40px rgba(0,242,255,0.3),
+            inset 0 1px 0 rgba(255,255,255,0.15);
+        background: linear-gradient(135deg, rgba(92,107,255,0.18), rgba(0,242,255,0.12));
+    }
+
+    .planet-icon-wrapper {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(92,107,255,0.05));
+        border-radius: 50%;
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .planet-icon-wrapper::before {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(92,107,255,0.4), rgba(0,242,255,0.4));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: -1;
+    }
+
+    .planet-card:hover .planet-icon-wrapper::before {
+        opacity: 1;
+        animation: rotateBorder 3s linear infinite;
+    }
+
+    @keyframes rotateBorder {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .planet-card:hover .planet-icon-wrapper {
+        transform: translateY(-10px) scale(1.1);
+        box-shadow: 0 0 40px rgba(92,107,255,0.6);
+    }
+
+    .planet-icon {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 12px rgba(92,107,255,0.5));
+        transition: all 0.4s ease;
+    }
+
+    .planet-card:hover .planet-icon {
+        filter: drop-shadow(0 8px 24px rgba(0,242,255,0.8));
+        transform: rotate(5deg);
+    }
+
+    .planet-name {
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, #ffffff, #e0e7ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: all 0.3s ease;
+    }
+
+    .planet-card:hover .planet-name {
+        background: linear-gradient(135deg, #00f2ff, #ffffff, #5c6bff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 0.5px;
+    }
+
+    .planet-subtitle {
+        font-size: 0.95rem;
+        color: var(--muted-3);
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .planet-card:hover .planet-subtitle {
+        color: var(--accent);
+    }
+
+    /* Floating animation for planets */
+    @keyframes floatPlanet {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .planet-icon-wrapper {
+        animation: floatPlanet 3s ease-in-out infinite;
+    }
+
+    .planet-card:nth-child(2) .planet-icon-wrapper {
+        animation-delay: 0.3s;
+    }
+
+    .planet-card:nth-child(3) .planet-icon-wrapper {
+        animation-delay: 0.6s;
+    }
+
+    .planet-card:nth-child(4) .planet-icon-wrapper {
+        animation-delay: 0.9s;
+    }
+
+    .planet-card:nth-child(5) .planet-icon-wrapper {
+        animation-delay: 1.2s;
+    }
+
+    .planet-card:nth-child(6) .planet-icon-wrapper {
+        animation-delay: 1.5s;
+    }
+
+    /* Sparkle effect */
+    @keyframes sparkle {
+        0%, 100% { opacity: 0; transform: scale(0); }
+        50% { opacity: 1; transform: scale(1); }
+    }
+
+    .planet-card::after {
+        content: '✨';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .planet-card:hover::after {
+        animation: sparkle 1.5s ease-in-out infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .planets-title {
+            font-size: 2.2rem;
+        }
+
+        .planets-subtitle {
+            font-size: 1rem;
+        }
+
+        .planets-grid {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        .planet-icon-wrapper {
+            width: 90px;
+            height: 90px;
+        }
+
+        .planet-icon {
+            width: 60px;
+            height: 60px;
+        }
+    }
+</style>
+
+<div class="planets-hero">
+    <div class="planets-header">
+        <h1 class="planets-title">Choose Your Learning Planet</h1>
+        <p class="planets-subtitle">Embark on an epic learning adventure across the cosmos</p>
+    </div>
+
+    <div class="planets-grid">
         {% for subject, img, name, subtitle in planets %}
-        <a href="/choose-grade?subject={{ subject }}" style="text-decoration:none;">
-            <div style="background: linear-gradient(135deg, rgba(92,107,255,0.08), rgba(0,242,255,0.04)); border:1px solid rgba(118,131,255,0.14); padding:20px; border-radius:14px; text-align:center; color:var(--text); box-shadow: 0 12px 30px rgba(0,0,0,0.5);">
-                <div style="width:84px; height:84px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border-radius:12px;">
-                    <img src="/static/planets/{{ img }}" alt="{{ name }}" style="width:56px; height:56px; object-fit:contain;">
+        <a href="/choose-grade?subject={{ subject }}" class="planet-card">
+            <div class="planet-card-inner">
+                <div class="planet-icon-wrapper">
+                    <img src="/static/planets/{{ img }}" alt="{{ name }}" class="planet-icon">
                 </div>
-                <div style="font-weight:800; font-size:1.05rem;">{{ name }}</div>
-                <div style="font-size:0.9rem; color:var(--muted); margin-top:6px;">{{ subtitle }}</div>
+                <div class="planet-name">{{ name }}</div>
+                <div class="planet-subtitle">{{ subtitle }}</div>
             </div>
         </a>
         {% endfor %}
