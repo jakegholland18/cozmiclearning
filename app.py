@@ -1354,15 +1354,45 @@ def secret_admin_login():
     return render_template("secret_admin_login.html")
 
 
+@app.route("/admin")
 @app.route("/admin_portal")
 def admin_portal():
-    """Main admin portal - select Student, Parent, Teacher, or Homeschool mode"""
+    """Main admin dashboard with overview stats"""
     if not session.get("admin_authenticated"):
         flash("Admin authentication required.", "error")
         return redirect("/secret_admin_login")
-    
-    # Show portal with 4 mode options
-    return render_template("admin_portal.html")
+
+    # Gather overview statistics
+    total_students = Student.query.count()
+    total_teachers = Teacher.query.count()
+    total_parents = Parent.query.count()
+    total_classes = Class.query.count()
+    total_assignments = AssignedPractice.query.count()
+
+    # Recent activity (last 7 days)
+    from datetime import timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    recent_students = Student.query.filter(Student.created_at >= week_ago).count()
+    recent_questions = QuestionLog.query.filter(QuestionLog.created_at >= week_ago).count()
+
+    # Subscription stats
+    active_subscriptions = Student.query.filter_by(subscription_active=True).count() + \
+                          Teacher.query.filter_by(subscription_active=True).count() + \
+                          Parent.query.filter_by(subscription_active=True).count()
+
+    # Flagged content count
+    flagged_content = QuestionLog.query.filter_by(flagged=True).count()
+
+    return render_template("admin_dashboard.html",
+                         total_students=total_students,
+                         total_teachers=total_teachers,
+                         total_parents=total_parents,
+                         total_classes=total_classes,
+                         total_assignments=total_assignments,
+                         recent_students=recent_students,
+                         recent_questions=recent_questions,
+                         active_subscriptions=active_subscriptions,
+                         flagged_content=flagged_content)
 
 
 @app.route("/admin_mode/<mode>")
@@ -1829,6 +1859,270 @@ def admin_moderation_stats():
         period=period
     )
 
+
+# ============================================================
+# ADMIN - STUDENTS MANAGEMENT
+# ============================================================
+
+@app.route("/admin/students")
+def admin_students():
+    """View all students with search and filter"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    # Get filter parameters
+    search = request.args.get("search", "").strip()
+    plan_filter = request.args.get("plan", "")
+    page = request.args.get("page", 1, type=int)
+    per_page = 50
+
+    # Build query
+    query = Student.query
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Student.student_name.ilike(f"%{search}%"),
+                Student.student_email.ilike(f"%{search}%")
+            )
+        )
+
+    if plan_filter:
+        query = query.filter_by(plan=plan_filter)
+
+    # Paginate results
+    pagination = query.order_by(Student.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    students = pagination.items
+
+    return render_template("admin_students.html",
+                         students=students,
+                         pagination=pagination,
+                         search=search,
+                         plan_filter=plan_filter)
+
+
+@app.route("/admin/student/<int:student_id>")
+def admin_student_detail(student_id):
+    """View detailed information about a specific student"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    student = Student.query.get_or_404(student_id)
+
+    # Get recent questions (last 50)
+    recent_questions = QuestionLog.query.filter_by(student_id=student_id).order_by(
+        QuestionLog.created_at.desc()
+    ).limit(50).all()
+
+    # Get assignments and completions
+    completions = PracticeCompletion.query.filter_by(student_id=student_id).order_by(
+        PracticeCompletion.started_at.desc()
+    ).limit(20).all()
+
+    # Get parent info
+    parent = Parent.query.get(student.parent_id) if student.parent_id else None
+
+    # Get class info
+    student_class = Class.query.get(student.class_id) if student.class_id else None
+
+    return render_template("admin_student_detail.html",
+                         student=student,
+                         parent=parent,
+                         student_class=student_class,
+                         recent_questions=recent_questions,
+                         completions=completions)
+
+
+# ============================================================
+# ADMIN - TEACHERS MANAGEMENT
+# ============================================================
+
+@app.route("/admin/teachers")
+def admin_teachers():
+    """View all teachers"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    search = request.args.get("search", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = 50
+
+    query = Teacher.query
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Teacher.name.ilike(f"%{search}%"),
+                Teacher.email.ilike(f"%{search}%")
+            )
+        )
+
+    pagination = query.order_by(Teacher.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    teachers = pagination.items
+
+    return render_template("admin_teachers.html",
+                         teachers=teachers,
+                         pagination=pagination,
+                         search=search)
+
+
+@app.route("/admin/teacher/<int:teacher_id>")
+def admin_teacher_detail(teacher_id):
+    """View detailed information about a specific teacher"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    teacher = Teacher.query.get_or_404(teacher_id)
+
+    # Get classes
+    classes = Class.query.filter_by(teacher_id=teacher_id).all()
+
+    # Get assignments
+    assignments = AssignedPractice.query.filter_by(teacher_id=teacher_id).order_by(
+        AssignedPractice.created_at.desc()
+    ).limit(20).all()
+
+    # Get lesson plans
+    lesson_plans = LessonPlan.query.filter_by(teacher_id=teacher_id).order_by(
+        LessonPlan.created_at.desc()
+    ).limit(10).all()
+
+    # Calculate total students across all classes
+    total_students = sum(len(cls.students or []) for cls in classes)
+
+    return render_template("admin_teacher_detail.html",
+                         teacher=teacher,
+                         classes=classes,
+                         assignments=assignments,
+                         lesson_plans=lesson_plans,
+                         total_students=total_students)
+
+
+# ============================================================
+# ADMIN - PARENTS MANAGEMENT
+# ============================================================
+
+@app.route("/admin/parents")
+def admin_parents():
+    """View all parents"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    search = request.args.get("search", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = 50
+
+    query = Parent.query
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Parent.name.ilike(f"%{search}%"),
+                Parent.email.ilike(f"%{search}%"),
+                Parent.access_code.ilike(f"%{search}%")
+            )
+        )
+
+    pagination = query.order_by(Parent.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    parents = pagination.items
+
+    return render_template("admin_parents.html",
+                         parents=parents,
+                         pagination=pagination,
+                         search=search)
+
+
+@app.route("/admin/parent/<int:parent_id>")
+def admin_parent_detail(parent_id):
+    """View detailed information about a specific parent"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    parent = Parent.query.get_or_404(parent_id)
+
+    # Get children
+    students = Student.query.filter_by(parent_id=parent_id).all()
+
+    # Get lesson plans created by parent
+    lesson_plans = CustomLessonPlan.query.filter_by(parent_id=parent_id).order_by(
+        CustomLessonPlan.created_at.desc()
+    ).limit(10).all()
+
+    return render_template("admin_parent_detail.html",
+                         parent=parent,
+                         students=students,
+                         lesson_plans=lesson_plans)
+
+
+# ============================================================
+# ADMIN - ASSIGNMENTS OVERVIEW
+# ============================================================
+
+@app.route("/admin/assignments")
+def admin_assignments():
+    """View all assignments across all classes"""
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    search = request.args.get("search", "").strip()
+    subject_filter = request.args.get("subject", "")
+    page = request.args.get("page", 1, type=int)
+    per_page = 50
+
+    query = AssignedPractice.query
+
+    if search:
+        query = query.filter(AssignedPractice.title.ilike(f"%{search}%"))
+
+    if subject_filter:
+        query = query.filter_by(subject=subject_filter)
+
+    pagination = query.order_by(AssignedPractice.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    assignments = pagination.items
+
+    # Get completion stats for each assignment
+    assignment_stats = []
+    for assignment in assignments:
+        completions = PracticeCompletion.query.filter_by(assignment_id=assignment.id).all()
+        completed_count = sum(1 for c in completions if c.completed)
+        total_assigned = len(completions)
+
+        assignment_stats.append({
+            'assignment': assignment,
+            'completed': completed_count,
+            'total': total_assigned,
+            'completion_rate': (completed_count / total_assigned * 100) if total_assigned > 0 else 0
+        })
+
+    return render_template("admin_assignments.html",
+                         assignment_stats=assignment_stats,
+                         pagination=pagination,
+                         search=search,
+                         subject_filter=subject_filter)
+
+
+# ============================================================
+# STRIPE CHECKOUT
+# ============================================================
 
 @app.route("/create-checkout-session", methods=["POST"])
 

@@ -156,14 +156,14 @@
 <div class="sidebar">
     <h2>Admin Panel</h2>
 
-    <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+    <a class="nav-link" href="/admin">📊 Dashboard</a>
+    <a class="nav-link" href="/admin/students">👥 Students</a>
+    <a class="nav-link" href="/admin/teachers">👨‍🏫 Teachers</a>
+    <a class="nav-link" href="/admin/parents">👪 Parents</a>
+    <a class="nav-link" href="/admin/assignments">📝 Assignments</a>
     <a class="nav-link" href="/admin/moderation">🛡️ Content Moderation</a>
-    <a class="nav-link" href="/admin/students">Manage Students</a>
-    <a class="nav-link" href="/admin/teachers">Manage Teachers</a>
-    <a class="nav-link" href="/admin/classes">Class Management</a>
-    <a class="nav-link" href="/admin/reports">Reports & Analytics</a>
 
-    <a class="nav-link logout" href="/logout">Log Out</a>
+    <a class="nav-link logout" href="/admin_logout">Log Out</a>
 </div>
 
 <!-- ===================== MAIN CONTENT ===================== -->
@@ -184,23 +184,52 @@
         </div>
 
         <div class="stat-card">
+            <div class="stat-label">Total Parents</div>
+            <div class="stat-value">{{ total_parents or 0 }}</div>
+        </div>
+
+        <div class="stat-card">
             <div class="stat-label">Active Classes</div>
             <div class="stat-value">{{ total_classes or 0 }}</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">System Health</div>
-            <div class="stat-value">OK</div>
+            <div class="stat-label">Total Assignments</div>
+            <div class="stat-value">{{ total_assignments or 0 }}</div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Active Subscriptions</div>
+            <div class="stat-value">{{ active_subscriptions or 0 }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">New Students (7d)</div>
+            <div class="stat-value">{{ recent_students or 0 }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Questions Asked (7d)</div>
+            <div class="stat-value">{{ recent_questions or 0 }}</div>
+        </div>
+
+        {% if flagged_content > 0 %}
+        <div class="stat-card" style="background: rgba(255,100,100,0.15); border: 2px solid rgba(255,100,100,0.4);">
+            <div class="stat-label">⚠️ Flagged Content</div>
+            <div class="stat-value" style="color: #ff6b6b;">{{ flagged_content }}</div>
+        </div>
+        {% endif %}
     </div>
 
-    <!-- ACTION BUTTONS -->
+    <!-- QUICK LINKS -->
     <div class="section-title">Quick Actions</div>
     <div class="action-grid">
-        <a class="action-btn" href="/admin/create/student">+ Add Student</a>
-        <a class="action-btn" href="/admin/create/teacher">+ Add Teacher</a>
-        <a class="action-btn" href="/admin/logs">View System Logs</a>
-        <a class="action-btn" href="/admin/settings">System Settings</a>
+        <a class="action-btn" href="/admin/students">👥 View All Students</a>
+        <a class="action-btn" href="/admin/teachers">👨‍🏫 View All Teachers</a>
+        <a class="action-btn" href="/admin/parents">👪 View All Parents</a>
+        <a class="action-btn" href="/admin/assignments">📝 View All Assignments</a>
+        <a class="action-btn" href="/admin/moderation">🛡️ Content Moderation</a>
+        <a class="action-btn" href="/admin/moderation/stats">📊 Moderation Stats</a>
     </div>
 </div>
 
