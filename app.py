@@ -68,17 +68,6 @@ app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 # CSRF protection - enabled globally. We'll exempt JSON POST endpoints below
 csrf = CSRFProtect(app)
 
-
-# ============================================================
-# BLOCK /admin ROUTES (REMOVE ADMIN SURFACE)
-# ============================================================
-@app.before_request
-def block_admin_routes():
-    # Block any admin-related endpoints from being accessible
-    path = (request.path or "").lower()
-    if path.startswith("/admin") or path.startswith("/secret_admin"):
-        return abort(404)
-
 # ============================================================
 # EMAIL CONFIGURATION (FLASK-MAIL)
 # ============================================================
