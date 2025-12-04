@@ -10,7 +10,7 @@ services:
       pip install --upgrade pip
       pip install -r requirements.txt
     startCommand: |
-      gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120 --max-requests 100 --max-requests-jitter 20
+      gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --threads 2 --worker-class gthread --timeout 120 --max-requests 1000 --max-requests-jitter 100 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info
     healthCheckPath: /
     healthCheckTimeout: 120
     rootDir: .

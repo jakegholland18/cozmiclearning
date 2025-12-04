@@ -223,6 +223,18 @@ def restore_classes_from_json_if_empty():
 # SQLAlchemy config
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# ============================================================
+# DATABASE CONNECTION POOLING (Performance Optimization)
+# ============================================================
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_size": 10,          # Maximum number of connections to keep open
+    "pool_recycle": 3600,     # Recycle connections after 1 hour to prevent stale connections
+    "pool_pre_ping": True,    # Test connection health before using (prevents stale connection errors)
+    "max_overflow": 5,        # Allow up to 5 extra connections when pool is full
+    "pool_timeout": 30,       # Wait up to 30 seconds for available connection before failing
+}
+
 db.init_app(app)
 
 # ============================================================
