@@ -197,11 +197,30 @@
 
     <!-- ADMIN MODE INDICATOR -->
     {% if session.get('admin_authenticated') %}
-    <div style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #ff6b6b, #ffd93d); color: #000; padding: 8px 20px; text-align: center; font-weight: 700; z-index: 9999; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 0.9rem;">
-        🔧 ADMIN MODE ACTIVE
-        | <a href="/admin" style="color: #000; text-decoration: underline;">Admin Dashboard</a> | <a href="/admin_logout" style="color: #000; text-decoration: underline;">Logout</a>
+    <div style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #ff3838, #ff9500); color: white; padding: 10px 20px; text-align: center; font-weight: 800; z-index: 10000; box-shadow: 0 4px 20px rgba(255, 56, 56, 0.6); font-size: 0.95rem; border-bottom: 3px solid rgba(255, 255, 255, 0.3); backdrop-filter: blur(10px);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.2rem; animation: adminPulse 2s ease-in-out infinite;">⚠️</span>
+                <strong>ADMIN MODE ACTIVE</strong>
+                <span style="font-size: 1.2rem; animation: adminPulse 2s ease-in-out infinite;">⚠️</span>
+            </span>
+            <span style="opacity: 0.9;">|</span>
+            <a href="/admin" style="color: white; text-decoration: none; padding: 4px 12px; background: rgba(0,0,0,0.3); border-radius: 6px; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.3);" onmouseover="this.style.background='rgba(0,0,0,0.5)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.transform='scale(1)'">
+                🔧 Admin Dashboard
+            </a>
+            <span style="opacity: 0.9;">|</span>
+            <a href="/admin_logout" style="color: white; text-decoration: none; padding: 4px 12px; background: rgba(0,0,0,0.3); border-radius: 6px; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.3);" onmouseover="this.style.background='rgba(0,0,0,0.5)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.transform='scale(1)'">
+                🚪 Exit Admin
+            </a>
+        </div>
     </div>
-    <div style="height: 36px;"></div> <!-- Spacer for admin banner -->
+    <style>
+        @keyframes adminPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+    </style>
+    <div style="height: 48px;"></div> <!-- Spacer for admin banner -->
     {% endif %}
 
     <!-- SIDEBAR -->
@@ -219,13 +238,30 @@
 
         {% if session.get('admin_authenticated') %}
             <hr>
-            <a href="/admin">🔧 Admin Dashboard</a>
+            <a href="/admin" style="background: rgba(255, 56, 56, 0.15); border: 1px solid rgba(255, 56, 56, 0.4);">🔧 Admin Dashboard</a>
             <hr>
+
+            <!-- Current View Indicator -->
+            {% if session.get('student_id') %}
+                <div style="padding: 8px 12px; background: rgba(92, 107, 255, 0.2); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; text-align: center; border: 1px solid rgba(92, 107, 255, 0.4);">
+                    👤 Student View
+                </div>
+            {% elif session.get('parent_id') %}
+                <div style="padding: 8px 12px; background: rgba(132, 255, 0, 0.2); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; text-align: center; border: 1px solid rgba(132, 255, 0, 0.4);">
+                    👨‍👩‍👧‍👦 Parent View
+                </div>
+            {% elif session.get('teacher_id') %}
+                <div style="padding: 8px 12px; background: rgba(255, 159, 0, 0.2); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; text-align: center; border: 1px solid rgba(255, 159, 0, 0.4);">
+                    👨‍🏫 Teacher View
+                </div>
+            {% endif %}
+
             <a href="/dashboard">📊 Student Dashboard</a>
             <a href="/subjects">🪐 Explore Subjects</a>
             <a href="/choose-character">🎨 Choose Mentor</a>
             <hr>
             <a href="/parent_dashboard">📘 Parent Dashboard</a>
+            <a href="/homeschool/dashboard">🏡 Homeschool Dashboard</a>
             <a href="/parent/messages">💬 Message Teacher</a>
             <a href="/parent/subjects">📚 Subjects</a>
             <a href="/parent/progress">📈 Progress Reports</a>
