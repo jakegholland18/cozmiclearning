@@ -1061,6 +1061,21 @@ async function generateLessonPlan() {
 }
 
 async function previewQuestions() {
+    console.log('📝 [PREVIEW] Starting preview questions flow');
+
+    // Validate required fields
+    const topic = document.getElementById('assignTopic').value.trim();
+    const classId = document.getElementById('assignClassId').value;
+
+    if (!topic) {
+        alert('Please enter a topic for the assignment');
+        return;
+    }
+    if (!classId) {
+        alert('Please select a class for the assignment');
+        return;
+    }
+
     // Show loading state
     const modal = document.getElementById('previewModal');
     const content = document.getElementById('previewContent');
@@ -1082,6 +1097,8 @@ async function previewQuestions() {
         due_date: document.getElementById('assignDueDate').value || null,
     };
 
+    console.log('📤 [PREVIEW] Payload:', payload);
+
     try {
         // Set a longer timeout for preview
         const controller = new AbortController();
@@ -1098,14 +1115,19 @@ async function previewQuestions() {
         clearTimeout(timeoutId);
         const data = await res.json();
 
+        console.log('📥 [PREVIEW] Response status:', res.status, 'Data:', data);
+
         if (res.ok && data.success && data.redirect) {
             // Close modal and redirect to preview/edit page
+            console.log('✅ [PREVIEW] Success! Redirecting to:', data.redirect);
             modal.style.display = 'none';
             window.location.href = data.redirect;
         } else {
+            console.error('❌ [PREVIEW] Error response:', data);
             content.innerHTML = `<p style="color: var(--warning);">Error: ${data.error || 'Failed to generate questions'}</p>`;
         }
     } catch (err) {
+        console.error('❌ [PREVIEW] Exception:', err);
         if (err.name === 'AbortError') {
             content.innerHTML = `<p style="color: var(--warning);">Request timed out. Try generating fewer questions (5-7) or use "Generate & Assign" to save directly without preview.</p>`;
         } else {
