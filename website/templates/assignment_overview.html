@@ -138,9 +138,14 @@
 
         <h2>AI Mission Options</h2>
 
-        <a class="btn-blue btn-wide" href="/teacher/assignments/{{ assignment.id }}/preview">
+        <button class="btn-blue btn-wide" onclick="generateAIMission({{ assignment.id }})" id="generateBtn">
             🚀 Generate & Preview AI Mission
-        </a>
+        </button>
+
+        <div id="loadingMessage" style="display: none; text-align: center; padding: 20px; color: #4facfe; font-size: 1.1rem;">
+            ⏳ Generating AI questions... (15-30 seconds)<br>
+            <small style="color: #8a92b3; font-size: 0.9rem;">Creating professional, grade-appropriate questions for your students</small>
+        </div>
 
         {% if assignment.preview_json %}
             <h3>📋 AI-Generated Mission Preview</h3>
@@ -246,6 +251,22 @@
 </div>
 
 </div>
+
+<script>
+function generateAIMission(assignmentId) {
+    console.log('🚀 [GENERATE_MISSION] Starting AI generation for assignment', assignmentId);
+
+    const btn = document.getElementById('generateBtn');
+    const loading = document.getElementById('loadingMessage');
+
+    // Show loading, hide button
+    btn.style.display = 'none';
+    loading.style.display = 'block';
+
+    // Navigate to preview route (which will now generate if needed)
+    window.location.href = `/teacher/assignments/${assignmentId}/preview`;
+}
+</script>
 
 </body>
 </html>

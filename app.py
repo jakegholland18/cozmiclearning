@@ -3540,10 +3540,50 @@ def assignment_preview(practice_id):
         flash("Access denied.", "error")
         return redirect("/teacher/dashboard")
 
-    # Validate that a preview exists
+    # If no preview exists yet, generate one
     if not assignment.preview_json:
-        flash("This assignment has no AI preview yet.", "error")
-        return redirect(f"/teacher/assignments/{practice_id}")
+        print(f"🔧 [ASSIGNMENT_PREVIEW] No preview_json found for assignment {practice_id}, generating...")
+
+        # Generate AI questions
+        try:
+            payload = assign_questions(
+                subject=assignment.subject or "terra_nova",
+                topic=assignment.topic or "General Study",
+                grade="8",  # Default grade
+                character="everly",
+                differentiation_mode=assignment.differentiation_mode or "none",
+                student_ability="on_level",
+                num_questions=10,
+            )
+
+            questions_data = payload.get("questions", [])
+            print(f"✅ [ASSIGNMENT_PREVIEW] Generated {len(questions_data)} questions")
+
+            # Build mission JSON
+            mission_json = {
+                "steps": [
+                    {
+                        "prompt": q.get("prompt", ""),
+                        "type": q.get("type", "free"),
+                        "choices": q.get("choices", []),
+                        "expected": q.get("expected", []),
+                        "hint": q.get("hint", ""),
+                        "explanation": q.get("explanation", "")
+                    }
+                    for q in questions_data
+                ],
+                "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
+            }
+
+            # Store in assignment
+            assignment.preview_json = json.dumps(mission_json)
+            db.session.commit()
+            print(f"💾 [ASSIGNMENT_PREVIEW] Stored preview_json for assignment {practice_id}")
+
+        except Exception as e:
+            print(f"❌ [ASSIGNMENT_PREVIEW] Error generating questions: {e}")
+            flash("Failed to generate AI questions. Please try again.", "error")
+            return redirect(f"/teacher/assignments/{practice_id}")
 
     # Load stored JSON safely
     try:
