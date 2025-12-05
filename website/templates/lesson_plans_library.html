@@ -1,132 +1,245 @@
-{% extends "layout.html" %}
-{% block content %}
-<style>
-    .library-container {
-        max-width: 1200px;
-        margin: 24px auto;
-        padding: 0 20px;
-    }
-    
-    .library-header {
-        margin-bottom: 32px;
-    }
-    
-    .library-header h1 {
-        margin: 0 0 8px 0;
-        font-size: 2rem;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    
-    .lesson-card {
-        margin-bottom: 20px;
-        padding: 20px;
-        background: rgba(92,107,255,0.08);
-        border: 1px solid rgba(118,131,255,0.3);
-        border-radius: 16px;
-        transition: all 0.3s ease;
-    }
-    
-    .lesson-card:hover {
-        background: rgba(92,107,255,0.12);
-        transform: translateX(4px);
-    }
-    
-    .lesson-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-    }
-    
-    .lesson-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--text);
-        margin: 0 0 4px 0;
-    }
-    
-    .lesson-meta {
-        color: var(--muted-3);
-        font-size: 0.85rem;
-    }
-    
-    .lesson-actions {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .btn {
-        padding: 8px 14px;
-        border-radius: 8px;
-        border: none;
-        background: linear-gradient(135deg, var(--primary), var(--primary-2));
-        color: var(--text);
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-    }
-    
-    .btn:hover {
-        transform: translateY(-2px);
-    }
-    
-    .btn-secondary {
-        background: transparent;
-        border: 1px solid rgba(118,131,255,0.4);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--muted-3);
-    }
-    
-    .empty-state a {
-        color: var(--accent);
-        text-decoration: underline;
-    }
-</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lesson Plans Library - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251204">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-<div class="library-container">
+        .page-title {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #c084fc, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .content-box {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .library-header {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.12), rgba(71, 200, 255, 0.08));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(12px);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(118,131,255,0.3);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .lesson-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.06));
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(92, 107, 255, 0.25);
+        }
+
+        .lesson-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        .lesson-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .lesson-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-subject {
+            background: rgba(92, 107, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .badge-grade {
+            background: rgba(132, 255, 0, 0.2);
+            color: var(--success);
+        }
+
+        .lesson-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #5c6bff, #00f2ff);
+            color: white;
+            border: none;
+        }
+
+        .btn-delete {
+            background: rgba(255, 107, 157, 0.2);
+            color: #ff6b9d;
+            border: 1px solid rgba(255, 107, 157, 0.4);
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,215,0,0.3);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .favorite-btn.is-favorite {
+            background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,165,0,0.3));
+        }
+    </style>
+</head>
+<body class="fade-in">
+
+<div style="max-width: 1200px; margin: 0 auto; padding-top: 20px;">
+    <a href="/homeschool/dashboard" class="btn-back">← Back to Dashboard</a>
+</div>
+
+<div class="page-title">📚 Lesson Plans Library</div>
+
+<div class="content-box">
     <div class="library-header">
-        <h1>📚 Lesson Plan Library</h1>
-        <small style="color: var(--muted);">View, edit, and export all your saved lesson plans.</small>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: var(--text); margin: 0;">Your Lesson Plans ({{ lesson_plans|length }})</h2>
+            <a href="/homeschool/dashboard#lessons" class="btn btn-view">+ Create New Lesson</a>
+        </div>
+        <input type="text" id="searchLessons" class="search-bar" placeholder="🔍 Search lesson plans...">
     </div>
 
     {% if lesson_plans %}
-        {% for lesson in lesson_plans %}
-        <div class="lesson-card">
-            <div class="lesson-card-header">
-                <div>
-                    <h3 class="lesson-title">{{ lesson.title }}</h3>
+        <div class="lesson-grid">
+            {% for plan in lesson_plans %}
+            <div class="lesson-card" data-title="{{ plan.title|lower }}">
+                <button class="favorite-btn {{ 'is-favorite' if plan.is_favorite }}" onclick="event.stopPropagation(); toggleFavorite({{ plan.id }}, this)">
+                    {{ '★' if plan.is_favorite else '☆' }}
+                </button>
+
+                <div onclick="window.location.href='/parent/lesson-plans/{{ plan.id }}'">
+                    <div class="lesson-title">{{ plan.title }}</div>
                     <div class="lesson-meta">
-                        {{ lesson.subject.replace('_', ' ').title() }} · 
-                        {{ lesson.topic }} · 
-                        Grade {{ lesson.grade }} ·
-                        Created {{ lesson.created_at.strftime('%B %d, %Y') }}
-                        {% if lesson.updated_at != lesson.created_at %}
-                        · Updated {{ lesson.updated_at.strftime('%B %d, %Y') }}
-                        {% endif %}
+                        <span class="lesson-badge badge-subject">{{ plan.subject|title }}</span>
+                        <span class="lesson-badge badge-grade">Grade {{ plan.grade_level }}</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--muted-3);">
+                        Created: {{ plan.created_at.strftime("%b %d, %Y") }}
                     </div>
                 </div>
+
                 <div class="lesson-actions">
-                    <a href="/teacher/lesson_plans/{{ lesson.id }}" class="btn">View</a>
-                    <a href="/teacher/lesson_plans/{{ lesson.id }}/edit" class="btn btn-secondary">Edit</a>
+                    <a href="/parent/lesson-plans/{{ plan.id }}" class="btn btn-view">View Details</a>
+                    <form method="POST" action="/parent/lesson-plans/{{ plan.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete this lesson plan?')">
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     {% else %}
-        <div class="empty-state">
-            <p style="font-size: 1.1rem; margin-bottom: 8px;">No lesson plans yet!</p>
-            <p>Head to the <a href="/teacher/dashboard">dashboard</a> to generate your first lesson plan.</p>
+        <div style="text-align: center; padding: 60px 20px; color: var(--muted-2);">
+            <div style="font-size: 4rem; margin-bottom: 20px;">📚</div>
+            <h3>No lesson plans yet</h3>
+            <p style="margin: 12px 0 24px;">Start creating engaging lesson plans with AI!</p>
+            <a href="/homeschool/dashboard#lessons" class="btn btn-view">Generate Your First Lesson Plan</a>
         </div>
     {% endif %}
 </div>
 
-{% endblock %}
+<script>
+const searchInput = document.getElementById('searchLessons');
+const lessonCards = document.querySelectorAll('.lesson-card');
+
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        lessonCards.forEach(card => {
+            const title = card.dataset.title;
+            card.style.display = title.includes(searchTerm) ? '' : 'none';
+        });
+    });
+}
+
+async function toggleFavorite(planId, button) {
+    try {
+        const res = await fetch(`/parent/lesson-plans/${planId}/favorite`, {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (data.success) {
+            button.classList.toggle('is-favorite');
+            button.textContent = data.is_favorite ? '★' : '☆';
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+</script>
+
+</body>
+</html>

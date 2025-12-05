@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ lesson_plan.title }} - Lesson Plan</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251204">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #c084fc, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .lesson-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.12), rgba(71, 200, 255, 0.08));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            border-radius: 18px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+        }
+
+        .lesson-section {
+            margin-bottom: 32px;
+        }
+
+        .lesson-section h2 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            border-bottom: 2px solid rgba(118, 131, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .lesson-section h3 {
+            color: var(--text);
+            font-size: 1.1rem;
+            margin: 20px 0 12px 0;
+        }
+
+        .lesson-section p,
+        .lesson-section li {
+            color: var(--muted-2);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .lesson-section ul {
+            list-style-position: inside;
+            padding-left: 20px;
+        }
+
+        .activity-card {
+            background: rgba(0,0,0,0.3);
+            border-left: 4px solid var(--accent);
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .metadata {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+
+        .metadata-item {
+            color: var(--muted-3);
+            font-size: 0.9rem;
+        }
+
+        .metadata-item strong {
+            color: var(--text);
+        }
+    </style>
+</head>
+<body class="fade-in">
+
+<div style="max-width: 900px; margin: 0 auto; padding-top: 20px;">
+    <a href="/parent/lesson-plans" class="btn-back">ê Back to Library</a>
+</div>
+
+<div class="page-title">{{ lesson_plan.title }}</div>
+
+<div class="lesson-container">
+    <div class="metadata">
+        <div class="metadata-item"><strong>Subject:</strong> {{ lesson_plan.subject|title }}</div>
+        <div class="metadata-item"><strong>Grade Level:</strong> {{ lesson_plan.grade_level }}</div>
+        <div class="metadata-item"><strong>Duration:</strong> {{ lesson_plan.duration }} minutes</div>
+        <div class="metadata-item"><strong>Created:</strong> {{ lesson_plan.created_at.strftime("%B %d, %Y") }}</div>
+    </div>
+
+    {% if lesson_plan.topic %}
+    <div class="lesson-section">
+        <h2>=› Topic</h2>
+        <p>{{ lesson_plan.topic }}</p>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.objectives %}
+    <div class="lesson-section">
+        <h2><Ø Learning Objectives</h2>
+        <ul>
+            {% for objective in lesson_plan.objectives %}
+            <li>{{ objective }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.materials %}
+    <div class="lesson-section">
+        <h2>=Ê Materials Needed</h2>
+        <ul>
+            {% for material in lesson_plan.materials %}
+            <li>{{ material }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.activities %}
+    <div class="lesson-section">
+        <h2>=⁄ Lesson Activities</h2>
+        {% for activity in lesson_plan.activities %}
+        <div class="activity-card">
+            <h3>{{ activity.section }} ({{ activity.duration }} min)</h3>
+            <p><strong>Activity:</strong> {{ activity.description }}</p>
+            <p><strong>Instructions:</strong> {{ activity.instructions }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.discussion_questions %}
+    <div class="lesson-section">
+        <h2>=≠ Discussion Questions</h2>
+        <ul>
+            {% for question in lesson_plan.discussion_questions %}
+            <li>{{ question }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.assessment %}
+    <div class="lesson-section">
+        <h2> Assessment</h2>
+        <p>{{ lesson_plan.assessment }}</p>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.homework %}
+    <div class="lesson-section">
+        <h2>=÷ Homework/Practice</h2>
+        <p>{{ lesson_plan.homework }}</p>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.extensions %}
+    <div class="lesson-section">
+        <h2>P Extension Activities</h2>
+        <p>{{ lesson_plan.extensions }}</p>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.biblical_integration %}
+    <div class="lesson-section">
+        <h2> Biblical Integration</h2>
+        <p>{{ lesson_plan.biblical_integration }}</p>
+    </div>
+    {% endif %}
+
+    {% if lesson_plan.notes %}
+    <div class="lesson-section">
+        <h2>=Ã Teaching Notes</h2>
+        <p>{{ lesson_plan.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

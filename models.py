@@ -480,18 +480,60 @@ class GameLeaderboard(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
     game_key = db.Column(db.String(50))
     grade_level = db.Column(db.String(10))
-    
+
     # Best scores
     high_score = db.Column(db.Integer)
     best_time = db.Column(db.Integer)  # Fastest completion in seconds
     best_accuracy = db.Column(db.Float)
     total_plays = db.Column(db.Integer, default=0)
-    
+
     # Last updated
     last_played = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     student = db.relationship("Student", backref="leaderboard_entries")
+
+
+class LessonPlan(db.Model):
+    """AI-generated and manual lesson plans for homeschool parents"""
+    __tablename__ = "lesson_plans"
+
+    id = db.Column(db.Integer, primary_key=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id"), nullable=False)
+
+    # Basic Info
+    title = db.Column(db.String(200), nullable=False)
+    subject = db.Column(db.String(50))  # math, science, history, etc.
+    grade_level = db.Column(db.String(20))
+    topic = db.Column(db.Text)
+    duration = db.Column(db.Integer)  # Duration in minutes
+
+    # Lesson Content (stored as JSON for flexibility)
+    objectives = db.Column(db.JSON)  # List of learning objectives
+    materials = db.Column(db.JSON)  # List of materials needed
+    activities = db.Column(db.JSON)  # Structured lesson activities
+    discussion_questions = db.Column(db.JSON)  # List of questions
+    assessment = db.Column(db.Text)  # Assessment ideas
+    homework = db.Column(db.Text)  # Homework/practice suggestions
+    extensions = db.Column(db.Text)  # Extension activities
+
+    # Teaching Notes
+    notes = db.Column(db.Text)  # Teacher's private notes
+    biblical_integration = db.Column(db.Text, nullable=True)  # Optional Bible verses/principles
+
+    # Metadata
+    status = db.Column(db.String(20), default='not_started')  # not_started, in_progress, completed
+    is_favorite = db.Column(db.Boolean, default=False)
+    tags = db.Column(db.JSON)  # Custom tags
+    source = db.Column(db.String(20), default='ai_generated')  # ai_generated, manual, imported
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_modified = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    taught_date = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    parent = db.relationship("Parent", backref="lesson_plans")
 
 
 # ============================================================
@@ -566,5 +608,10 @@ db.Index('idx_game_session_started_at', GameSession.started_at)
 db.Index('idx_game_leaderboard_student_id', GameLeaderboard.student_id)
 db.Index('idx_game_leaderboard_game_key', GameLeaderboard.game_key)
 db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For high score queries
+
+# Lesson Plan Indices
+db.Index('idx_lesson_plan_parent_id', LessonPlan.parent_id)
+db.Index('idx_lesson_plan_subject', LessonPlan.subject)
+db.Index('idx_lesson_plan_created_at', LessonPlan.created_at)
 
 

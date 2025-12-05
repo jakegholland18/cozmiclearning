@@ -6789,6 +6789,183 @@ def homeschool_assignment_overview(practice_id):
 
 
 # ============================================================
+# HOMESCHOOL - LESSON PLANS
+# ============================================================
+
+@csrf.exempt
+@app.route("/homeschool/generate-lesson", methods=["POST"])
+def homeschool_generate_lesson():
+    """Generate AI lesson plan for homeschool parent."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return jsonify({"error": "Parent not found"}), 404
+
+    # Check if parent has homeschool plan (teacher features)
+    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    if not has_teacher_features:
+        return jsonify({"error": "Homeschool plan required for this feature"}), 403
+
+    data = request.get_json() or {}
+    title = safe_text(data.get("title", ""), 200)
+    topic = safe_text(data.get("topic", ""), 500)
+    subject = safe_text(data.get("subject", "general"), 50)
+    grade = safe_text(data.get("grade", "8"), 10)
+    duration = data.get("duration", 60)
+    biblical_integration = data.get("biblical_integration", False)
+    hands_on = data.get("hands_on", True)
+
+    if not title or not topic:
+        return jsonify({"error": "Title and topic are required"}), 400
+
+    # Generate lesson plan using AI
+    from modules.lesson_plan_generator import generate_lesson_plan
+
+    result = generate_lesson_plan(
+        title=title,
+        topic=topic,
+        subject=subject,
+        grade=grade,
+        duration=duration,
+        biblical_integration=biblical_integration,
+        hands_on=hands_on
+    )
+
+    if not result.get("success"):
+        return jsonify({"error": result.get("error", "Failed to generate lesson plan")}), 500
+
+    lesson_data = result.get("lesson", {})
+
+    # Create LessonPlan record
+    lesson_plan = LessonPlan(
+        parent_id=parent.id,
+        title=title,
+        subject=subject,
+        grade_level=grade,
+        topic=topic,
+        duration=duration,
+        objectives=lesson_data.get("objectives", []),
+        materials=lesson_data.get("materials", []),
+        activities=lesson_data.get("activities", []),
+        discussion_questions=lesson_data.get("discussion_questions", []),
+        assessment=lesson_data.get("assessment", ""),
+        homework=lesson_data.get("homework", ""),
+        extensions=lesson_data.get("extensions", ""),
+        biblical_integration=lesson_data.get("biblical_integration") if biblical_integration else None,
+        source="ai_generated",
+        status="not_started"
+    )
+
+    db.session.add(lesson_plan)
+    db.session.commit()
+
+    return jsonify({"success": True, "lesson_plan_id": lesson_plan.id}), 200
+
+
+@app.route("/parent/lesson-plans")
+def parent_lesson_plans():
+    """View all lesson plans (homeschool library)."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/parent/login")
+
+    # Check if parent has homeschool plan
+    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    if not has_teacher_features:
+        flash("This feature requires a homeschool plan.", "error")
+        return redirect("/homeschool/dashboard")
+
+    # Get all lesson plans
+    lesson_plans = LessonPlan.query.filter_by(parent_id=parent.id)\
+        .order_by(LessonPlan.created_at.desc())\
+        .all()
+
+    return render_template(
+        "lesson_plans_library.html",
+        parent=parent,
+        lesson_plans=lesson_plans
+    )
+
+
+@app.route("/parent/lesson-plans/<int:plan_id>")
+def parent_lesson_plan_view(plan_id):
+    """View a specific lesson plan."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/parent/login")
+
+    lesson_plan = LessonPlan.query.get_or_404(plan_id)
+
+    # Verify parent owns this lesson plan
+    if lesson_plan.parent_id != parent.id:
+        flash("Not authorized.", "error")
+        return redirect("/parent/lesson-plans")
+
+    return render_template(
+        "lesson_plan_detail.html",
+        parent=parent,
+        lesson_plan=lesson_plan
+    )
+
+
+@app.route("/parent/lesson-plans/<int:plan_id>/favorite", methods=["POST"])
+def parent_lesson_plan_favorite(plan_id):
+    """Toggle favorite status on a lesson plan."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    parent = Parent.query.get(parent_id)
+    lesson_plan = LessonPlan.query.get_or_404(plan_id)
+
+    # Verify parent owns this lesson plan
+    if lesson_plan.parent_id != parent.id:
+        return jsonify({"error": "Not authorized"}), 403
+
+    # Toggle favorite
+    lesson_plan.is_favorite = not lesson_plan.is_favorite
+    db.session.commit()
+
+    return jsonify({"success": True, "is_favorite": lesson_plan.is_favorite}), 200
+
+
+@app.route("/parent/lesson-plans/<int:plan_id>/delete", methods=["POST"])
+def parent_lesson_plan_delete(plan_id):
+    """Delete a lesson plan."""
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+
+    parent = Parent.query.get(parent_id)
+    lesson_plan = LessonPlan.query.get_or_404(plan_id)
+
+    # Verify parent owns this lesson plan
+    if lesson_plan.parent_id != parent.id:
+        flash("Not authorized.", "error")
+        return redirect("/parent/lesson-plans")
+
+    db.session.delete(lesson_plan)
+    db.session.commit()
+
+    flash("Lesson plan deleted successfully.", "success")
+    return redirect("/parent/lesson-plans")
+
+
+# ============================================================
 # PARENT - MESSAGING SYSTEM
 # ============================================================
 
