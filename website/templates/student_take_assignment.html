@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ assignment.title }} – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .assignment-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg,
+                rgba(92, 107, 255, 0.15),
+                rgba(71, 200, 255, 0.1)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #ff6fd8, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .assignment-meta {
+            color: var(--muted-2);
+            font-size: 0.95rem;
+            margin: 5px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-in-progress {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.4);
+        }
+
+        .status-submitted {
+            background: rgba(74, 172, 254, 0.2);
+            color: #4facfe;
+            border: 1px solid rgba(74, 172, 254, 0.4);
+        }
+
+        .status-graded {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.4);
+        }
+
+        .question-card {
+            background: linear-gradient(135deg,
+                rgba(92, 107, 255, 0.1),
+                rgba(71, 200, 255, 0.06)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #4facfe;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .question-prompt {
+            font-size: 1.15rem;
+            color: #c4d1ff;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .choice-option {
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .choice-option:hover {
+            background: rgba(118, 131, 255, 0.15);
+            border-color: rgba(118, 131, 255, 0.5);
+        }
+
+        .choice-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .choice-option label {
+            color: var(--muted-2);
+            cursor: pointer;
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .choice-option.selected {
+            background: rgba(192, 132, 252, 0.2);
+            border-color: #c084fc;
+        }
+
+        .text-answer {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .text-answer:focus {
+            outline: none;
+            border-color: #c084fc;
+            background: rgba(192, 132, 252, 0.1);
+        }
+
+        .hint-box {
+            background: rgba(255, 184, 77, 0.1);
+            border: 1px solid rgba(255, 184, 77, 0.3);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--muted-2);
+        }
+
+        .hint-box strong {
+            color: #ffb84d;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c084fc, #ff6fd8);
+            color: white;
+            box-shadow: 0 8px 24px rgba(192, 132, 252, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(192, 132, 252, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+            border: 1px solid rgba(140, 140, 160, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(100, 100, 120, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4fff89, #47c8ff);
+            color: white;
+            box-shadow: 0 8px 24px rgba(79, 255, 137, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(79, 255, 137, 0.5);
+        }
+
+        .progress-indicator {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            color: var(--muted-2);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, rgba(79, 255, 137, 0.2), rgba(71, 200, 255, 0.15));
+            border: 2px solid rgba(79, 255, 137, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-display .score {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4fff89, #47c8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-display .label {
+            color: var(--muted-2);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<div class="assignment-container">
+    <div class="header-box">
+        <h1>{{ assignment.title }}</h1>
+        <p class="assignment-meta"><strong>Subject:</strong> {{ assignment.subject|title }}</p>
+        <p class="assignment-meta"><strong>Topic:</strong> {{ assignment.topic }}</p>
+        {% if assignment.instructions %}
+        <p class="assignment-meta"><strong>Instructions:</strong> {{ assignment.instructions }}</p>
+        {% endif %}
+        {% if assignment.due_date %}
+        <p class="assignment-meta"><strong>Due:</strong> {{ assignment.due_date.strftime("%B %d, %Y at %I:%M %p") }}</p>
+        {% endif %}
+
+        {% if submission.status == 'in_progress' %}
+        <span class="status-badge status-in-progress">In Progress</span>
+        {% elif submission.status == 'submitted' %}
+        <span class="status-badge status-submitted">Submitted - Awaiting Grading</span>
+        {% elif submission.status == 'graded' %}
+        <span class="status-badge status-graded">Graded</span>
+        {% endif %}
+    </div>
+
+    {% if submission.status == 'graded' and submission.score is not none %}
+    <div class="score-display">
+        <div class="score">{{ submission.score }}%</div>
+        <div class="label">{{ submission.points_earned }} out of {{ submission.points_possible }} correct</div>
+        {% if submission.feedback %}
+        <p style="margin-top: 15px; color: var(--muted-2); font-size: 0.95rem;"><strong>Teacher Feedback:</strong> {{ submission.feedback }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <form id="assignmentForm" method="POST" action="/student/assignments/{{ assignment.id }}/submit">
+
+        {% if submission.status in ['in_progress', 'not_started'] %}
+        <div class="progress-indicator">
+            Question progress: <span id="progressCount">0</span> / {{ questions|length }}
+        </div>
+        {% endif %}
+
+        {% for question in questions %}
+        <div class="question-card">
+            <div class="question-number">Question {{ loop.index }}</div>
+            <div class="question-prompt">{{ question.prompt }}</div>
+
+            {% if question.type == 'multiple_choice' or not question.type %}
+                {% for choice in question.choices %}
+                <div class="choice-option" onclick="selectChoice(this, {{ loop.index0 }}, '{{ loop.parent.index0 }}')">
+                    <input
+                        type="radio"
+                        name="answer_{{ loop.parent.index0 }}"
+                        value="{{ choice }}"
+                        id="q{{ loop.parent.index0 }}_c{{ loop.index0 }}"
+                        {% if saved_answers.get(loop.parent.index0|string) == choice %}checked{% endif %}
+                        {% if submission.status in ['submitted', 'graded'] %}disabled{% endif %}
+                    >
+                    <label for="q{{ loop.parent.index0 }}_c{{ loop.index0 }}">{{ choice }}</label>
+                </div>
+                {% endfor %}
+
+            {% elif question.type == 'short_answer' %}
+                <textarea
+                    name="answer_{{ loop.index0 }}"
+                    class="text-answer"
+                    placeholder="Type your answer here..."
+                    {% if submission.status in ['submitted', 'graded'] %}readonly{% endif %}
+                >{{ saved_answers.get(loop.index0|string, '') }}</textarea>
+            {% endif %}
+
+            {% if question.hint and submission.status in ['in_progress', 'not_started'] %}
+            <div class="hint-box">
+                <strong>Hint:</strong> {{ question.hint }}
+            </div>
+            {% endif %}
+
+            {% if submission.status == 'graded' and question.explanation %}
+            <div class="hint-box" style="background: rgba(79, 255, 137, 0.1); border-color: rgba(79, 255, 137, 0.3);">
+                <strong style="color: #4fff89;">Explanation:</strong> {{ question.explanation }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="action-buttons">
+            {% if submission.status in ['in_progress', 'not_started'] %}
+            <button type="button" class="btn btn-secondary" onclick="saveProgress()">💾 Save Progress</button>
+            <button type="button" class="btn btn-success" onclick="submitAssignment()">✅ Submit Assignment</button>
+            {% endif %}
+            <a href="/student/assignments" class="btn btn-secondary">← Back to Assignments</a>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    // Update progress count
+    function updateProgress() {
+        const total = {{ questions|length }};
+        const answered = document.querySelectorAll('input[type="radio"]:checked, textarea:not(:placeholder-shown)').length;
+        document.getElementById('progressCount').textContent = answered;
+    }
+
+    // Handle choice selection
+    function selectChoice(element, choiceIndex, questionIndex) {
+        // Remove 'selected' class from all choices in this question
+        const parentCard = element.closest('.question-card');
+        parentCard.querySelectorAll('.choice-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Add 'selected' class to clicked choice
+        element.classList.add('selected');
+
+        // Check the radio button
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio) {
+            radio.checked = true;
+        }
+
+        updateProgress();
+    }
+
+    // Initialize selected state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+            radio.closest('.choice-option')?.classList.add('selected');
+        });
+        updateProgress();
+
+        // Update progress when text answers change
+        document.querySelectorAll('.text-answer').forEach(textarea => {
+            textarea.addEventListener('input', updateProgress);
+        });
+    });
+
+    // Save progress
+    async function saveProgress() {
+        const form = document.getElementById('assignmentForm');
+        const formData = new FormData(form);
+        const answers = {};
+
+        formData.forEach((value, key) => {
+            if (key.startsWith('answer_')) {
+                const questionIndex = key.replace('answer_', '');
+                answers[questionIndex] = value;
+            }
+        });
+
+        try {
+            const response = await fetch('/student/assignments/{{ assignment.id }}/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ Progress saved!');
+            } else {
+                alert('❌ Failed to save progress: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Save error:', error);
+            alert('❌ Network error while saving');
+        }
+    }
+
+    // Submit assignment
+    async function submitAssignment() {
+        const unanswered = {{ questions|length }} - document.querySelectorAll('input[type="radio"]:checked, textarea:not(:placeholder-shown)').length;
+
+        if (unanswered > 0) {
+            if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                return;
+            }
+        } else {
+            if (!confirm('Submit your assignment? You won\'t be able to change your answers after submission.')) {
+                return;
+            }
+        }
+
+        const form = document.getElementById('assignmentForm');
+        const formData = new FormData(form);
+        const answers = {};
+
+        formData.forEach((value, key) => {
+            if (key.startsWith('answer_')) {
+                const questionIndex = key.replace('answer_', '');
+                answers[questionIndex] = value;
+            }
+        });
+
+        try {
+            const response = await fetch('/student/assignments/{{ assignment.id }}/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('✅ Assignment submitted successfully!');
+                window.location.href = data.redirect || '/student/assignments';
+            } else {
+                alert('❌ Failed to submit: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            alert('❌ Network error while submitting');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -83,6 +83,7 @@ class Class(db.Model):
 
     class_name = db.Column(db.String(120))
     grade_level = db.Column(db.String(20))
+    join_code = db.Column(db.String(8), unique=True)  # Unique code for students to join
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

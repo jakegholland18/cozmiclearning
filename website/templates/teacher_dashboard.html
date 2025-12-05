@@ -650,6 +650,9 @@
                         <span class="class-name">{{ c.class_name }}</span>
                         <span class="class-meta">
                             Grade {{ c.grade_level or "N/A" }} · {{ c.students|length }} students
+                            {% if c.join_code %}
+                            <br><strong style="color: #4facfe; font-size: 0.85rem;">Join Code: {{ c.join_code }}</strong>
+                            {% endif %}
                         </span>
                     </div>
 

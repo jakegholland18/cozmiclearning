@@ -224,7 +224,11 @@
 
         <p>This mission has been published and is available to students.</p>
 
-        <h3>Mission Questions</h3>
+        <a class="btn-blue btn-wide" href="/teacher/assignments/{{ assignment.id }}/submissions">
+            📊 View Student Submissions
+        </a>
+
+        <h3 style="margin-top: 25px;">Mission Questions</h3>
 
         {% for q in assignment.questions %}
         <div class="q-box">

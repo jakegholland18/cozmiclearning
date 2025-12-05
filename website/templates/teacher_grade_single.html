@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grade Submission – {{ student.student_name }}</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .grade-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(71, 200, 255, 0.1));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 10px 0;
+            color: #c4d1ff;
+            font-weight: 800;
+        }
+
+        .meta {
+            color: var(--muted-2);
+            margin: 5px 0;
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.06));
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #4facfe;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .question-prompt {
+            font-size: 1.1rem;
+            color: #c4d1ff;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .student-answer-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(192, 132, 252, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .student-answer-box .label {
+            font-size: 0.85rem;
+            color: var(--muted-3);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .student-answer-box .answer {
+            color: white;
+            font-size: 1rem;
+        }
+
+        .correct-answer-box {
+            background: rgba(79, 255, 137, 0.1);
+            border: 1px solid rgba(79, 255, 137, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .correct-answer-box .label {
+            font-size: 0.85rem;
+            color: #4fff89;
+            font-weight: 600;
+        }
+
+        .correct-answer-box .answer {
+            color: var(--muted-2);
+        }
+
+        .grade-form {
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.1), rgba(255, 111, 216, 0.08));
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            padding: 30px;
+            border-radius: 14px;
+            margin-top: 30px;
+        }
+
+        .grade-form h2 {
+            color: #c084fc;
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--muted-2);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #c084fc;
+            background: rgba(192, 132, 252, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c084fc, #ff6fd8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(192, 132, 252, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(100, 100, 120, 0.8);
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<div class="grade-container">
+    <div class="header-box">
+        <h1>Grading: {{ student.student_name }}</h1>
+        <p class="meta"><strong>Assignment:</strong> {{ assignment.title }}</p>
+        <p class="meta"><strong>Submitted:</strong> {{ submission.submitted_at.strftime("%B %d, %Y at %I:%M %p") if submission.submitted_at else "Not yet submitted" }}</p>
+        {% if submission.score is not none %}
+        <p class="meta"><strong>Current Score:</strong> <span style="color: #4fff89;">{{ submission.score }}%</span></p>
+        {% endif %}
+    </div>
+
+    <h2 style="color: #c4d1ff; margin-bottom: 20px;">Student Answers</h2>
+
+    {% for question in questions %}
+    <div class="question-card">
+        <div class="question-number">Question {{ loop.index }}</div>
+        <div class="question-prompt">{{ question.prompt }}</div>
+
+        <div class="student-answer-box">
+            <div class="label">Student's Answer:</div>
+            <div class="answer">
+                {% set answer_key = loop.index0|string %}
+                {% if answers.get(answer_key) %}
+                    {{ answers.get(answer_key) }}
+                {% else %}
+                    <span style="color: var(--muted-3);">No answer provided</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if question.expected and question.expected|length > 0 %}
+        <div class="correct-answer-box">
+            <div class="label">Correct Answer:</div>
+            <div class="answer">{{ question.expected[0] if question.expected is iterable and question.expected is not string else question.expected }}</div>
+        </div>
+        {% endif %}
+
+        {% if question.explanation %}
+        <div style="margin-top: 15px; padding: 12px; background: rgba(255, 184, 77, 0.1); border: 1px solid rgba(255, 184, 77, 0.3); border-radius: 8px;">
+            <div style="font-size: 0.85rem; color: #ffb84d; font-weight: 600;">Explanation:</div>
+            <div style="color: var(--muted-2); margin-top: 5px;">{{ question.explanation }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <form method="POST" class="grade-form">
+        <h2>Assign Grade</h2>
+
+        <div class="form-group">
+            <label for="score">Score (0-100%)</label>
+            <input
+                type="number"
+                id="score"
+                name="score"
+                min="0"
+                max="100"
+                step="0.01"
+                value="{{ submission.score if submission.score is not none else '' }}"
+                placeholder="Enter percentage score"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="points_earned">Points Earned (optional)</label>
+            <input
+                type="number"
+                id="points_earned"
+                name="points_earned"
+                min="0"
+                step="0.5"
+                value="{{ submission.points_earned if submission.points_earned is not none else '' }}"
+                placeholder="e.g., 8"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="points_possible">Points Possible (optional)</label>
+            <input
+                type="number"
+                id="points_possible"
+                name="points_possible"
+                min="1"
+                step="0.5"
+                value="{{ submission.points_possible if submission.points_possible is not none else questions|length }}"
+                placeholder="e.g., 10"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="feedback">Feedback for Student (optional)</label>
+            <textarea
+                id="feedback"
+                name="feedback"
+                placeholder="Provide constructive feedback..."
+            >{{ submission.feedback if submission.feedback else '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">✅ Save Grade</button>
+        <a href="/teacher/assignments/{{ assignment.id }}/submissions" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+</body>
+</html>

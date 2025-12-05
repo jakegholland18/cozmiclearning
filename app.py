@@ -7,6 +7,8 @@ import sys
 import logging
 import traceback
 import secrets
+import random
+import string
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -709,6 +711,15 @@ def is_admin() -> bool:
 # ============================================================
 # USER SESSION DEFAULTS (STUDENT SIDE)
 # ============================================================
+
+def generate_join_code():
+    """Generate a unique 8-character class join code"""
+    while True:
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        # Check if code already exists
+        existing = Class.query.filter_by(join_code=code).first()
+        if not existing:
+            return code
 
 
 def init_user():
@@ -3038,24 +3049,31 @@ def add_class():
         return redirect("/teacher/dashboard")
 
     try:
-        cls = Class(teacher_id=teacher.id, class_name=class_name, grade_level=grade)
+        # Generate unique join code
+        join_code = generate_join_code()
+        cls = Class(
+            teacher_id=teacher.id,
+            class_name=class_name,
+            grade_level=grade,
+            join_code=join_code
+        )
         db.session.add(cls)
         db.session.commit()
-        
+
         # Log success
-        print(f"✅ Class created: {class_name} (ID: {cls.id}, Teacher: {teacher.id})")
-        
+        print(f"✅ Class created: {class_name} (ID: {cls.id}, Join Code: {join_code}, Teacher: {teacher.id})")
+
         # Verify it was saved
         verify = Class.query.get(cls.id)
         if verify:
-            print(f"✅ Class verified in database: {verify.class_name}")
+            print(f"✅ Class verified in database: {verify.class_name} - Code: {verify.join_code}")
         else:
             print(f"⚠️ Class NOT found after commit!")
-        
+
         # Save backup after creating class
         backup_classes_to_json()
 
-        flash("Class created successfully.", "info")
+        flash(f"Class created successfully! Join code: {join_code}", "info")
     except Exception as e:
         db.session.rollback()
         print(f"❌ Error creating class: {e}")
@@ -3525,6 +3543,284 @@ def student_assignments():
         assignments=assignments
     )
 
+
+# ============================================================
+# STUDENT – JOIN CLASS
+# ============================================================
+
+@app.route("/student/join-class", methods=["GET", "POST"])
+def student_join_class():
+    """Student can join a class using a join code"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        flash("Please log in to join a class.", "error")
+        return redirect("/student/login")
+
+    if request.method == "POST":
+        join_code = request.form.get("join_code", "").strip().upper()
+
+        if not join_code:
+            flash("Please enter a join code.", "error")
+            return redirect("/student/join-class")
+
+        # Find class by join code
+        class_obj = Class.query.filter_by(join_code=join_code).first()
+
+        if not class_obj:
+            flash("Invalid join code. Please check and try again.", "error")
+            return redirect("/student/join-class")
+
+        # Check if student is already in a class
+        if student.class_id:
+            current_class = Class.query.get(student.class_id)
+            if current_class and current_class.id == class_obj.id:
+                flash(f"You're already enrolled in {class_obj.class_name}!", "info")
+                return redirect("/student/assignments")
+            else:
+                flash(f"You're already enrolled in {current_class.class_name}. Leave that class first to join a new one.", "error")
+                return redirect("/student/join-class")
+
+        # Join the class
+        student.class_id = class_obj.id
+        db.session.commit()
+
+        print(f"✅ Student {student.student_name} (ID:{student.id}) joined class {class_obj.class_name} (Code: {join_code})")
+        flash(f"Successfully joined {class_obj.class_name}!", "success")
+        return redirect("/student/assignments")
+
+    # GET request - show join form
+    return render_template("student_join_class.html", student=student)
+
+
+@app.route("/student/leave-class", methods=["POST"])
+def student_leave_class():
+    """Student can leave their current class"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student or not student.class_id:
+        flash("You're not enrolled in any class.", "error")
+        return redirect("/student/join-class")
+
+    class_name = student.class_ref.class_name if student.class_ref else "Unknown"
+
+    # Remove from class
+    student.class_id = None
+    db.session.commit()
+
+    print(f"✅ Student {student.student_name} (ID:{student.id}) left class {class_name}")
+    flash(f"You've left {class_name}.", "info")
+    return redirect("/student/join-class")
+
+
+# ============================================================
+# STUDENT – TAKE ASSIGNMENT
+# ============================================================
+
+@app.route("/student/assignments/<int:assignment_id>/start")
+def student_start_assignment(assignment_id):
+    """Student starts or continues an assignment"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        flash("Please log in to access assignments.", "error")
+        return redirect("/student/login")
+
+    # Get assignment
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Verify student is in the right class and assignment is published
+    if not assignment.is_published:
+        flash("This assignment is not yet available.", "error")
+        return redirect("/student/assignments")
+
+    if assignment.class_id != student.class_id:
+        flash("You don't have access to this assignment.", "error")
+        return redirect("/student/assignments")
+
+    # Check if assignment is within open/due dates
+    now = datetime.utcnow()
+    if assignment.open_date and now < assignment.open_date:
+        flash("This assignment is not yet open.", "error")
+        return redirect("/student/assignments")
+
+    if assignment.due_date and now > assignment.due_date:
+        flash("This assignment is past the due date.", "error")
+        return redirect("/student/assignments")
+
+    # Get or create submission record
+    submission = StudentSubmission.query.filter_by(
+        student_id=student.id,
+        assignment_id=assignment.id
+    ).first()
+
+    if not submission:
+        # Create new submission
+        submission = StudentSubmission(
+            student_id=student.id,
+            assignment_id=assignment.id,
+            status="in_progress",
+            started_at=datetime.utcnow(),
+            answers_json="{}"
+        )
+        db.session.add(submission)
+        db.session.commit()
+        print(f"✅ Created submission for student {student.id} on assignment {assignment.id}")
+    elif submission.status == "not_started":
+        # Update status to in_progress
+        submission.status = "in_progress"
+        submission.started_at = datetime.utcnow()
+        db.session.commit()
+
+    # Parse mission JSON to get questions
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+    except:
+        mission = {}
+
+    questions = mission.get("steps", [])
+
+    # Load saved answers if any
+    saved_answers = {}
+    try:
+        saved_answers = json.loads(submission.answers_json) if submission.answers_json else {}
+    except:
+        saved_answers = {}
+
+    return render_template(
+        "student_take_assignment.html",
+        assignment=assignment,
+        submission=submission,
+        questions=questions,
+        saved_answers=saved_answers
+    )
+
+
+@app.route("/student/assignments/<int:assignment_id>/save", methods=["POST"])
+def student_save_assignment(assignment_id):
+    """Student saves progress on an assignment"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    # Get submission
+    submission = StudentSubmission.query.filter_by(
+        student_id=student.id,
+        assignment_id=assignment_id
+    ).first()
+
+    if not submission:
+        return jsonify({"success": False, "error": "No submission found"}), 404
+
+    # Get answers from request
+    data = request.get_json()
+    answers = data.get("answers", {})
+
+    # Save answers
+    submission.answers_json = json.dumps(answers)
+    db.session.commit()
+
+    print(f"✅ Saved progress for student {student.id} on assignment {assignment_id}")
+    return jsonify({"success": True})
+
+
+@app.route("/student/assignments/<int:assignment_id>/submit", methods=["POST"])
+def student_submit_assignment(assignment_id):
+    """Student submits an assignment for grading"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        flash("Please log in to submit assignments.", "error")
+        return redirect("/student/login")
+
+    # Get assignment and submission
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+    submission = StudentSubmission.query.filter_by(
+        student_id=student.id,
+        assignment_id=assignment.id
+    ).first()
+
+    if not submission:
+        flash("No submission found.", "error")
+        return redirect("/student/assignments")
+
+    # Get answers from request
+    data = request.get_json() if request.is_json else request.form
+    answers = {}
+
+    if request.is_json:
+        answers = data.get("answers", {})
+    else:
+        # Parse form data
+        for key, value in request.form.items():
+            if key.startswith("answer_"):
+                question_idx = key.replace("answer_", "")
+                answers[question_idx] = value
+
+    # Save answers and mark as submitted
+    submission.answers_json = json.dumps(answers)
+    submission.status = "submitted"
+    submission.submitted_at = datetime.utcnow()
+
+    # Auto-grade multiple choice questions
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+        questions = mission.get("steps", [])
+
+        total_questions = len(questions)
+        correct_count = 0
+
+        for idx, question in enumerate(questions):
+            student_answer = answers.get(str(idx), "")
+            expected = question.get("expected", [])
+
+            if question.get("type") == "multiple_choice" and expected:
+                # For multiple choice, check if answer matches expected
+                if student_answer in expected or student_answer == expected[0]:
+                    correct_count += 1
+
+        # Calculate score
+        if total_questions > 0:
+            score = (correct_count / total_questions) * 100
+            submission.score = round(score, 2)
+            submission.points_earned = correct_count
+            submission.points_possible = total_questions
+            submission.graded_at = datetime.utcnow()
+            submission.status = "graded"
+
+            print(f"✅ Auto-graded assignment {assignment_id} for student {student.id}: {score}% ({correct_count}/{total_questions})")
+
+    except Exception as e:
+        print(f"⚠️ Auto-grading failed for assignment {assignment_id}: {e}")
+        # Still mark as submitted even if auto-grading fails
+        pass
+
+    db.session.commit()
+
+    flash("Assignment submitted successfully!", "success")
+
+    if request.is_json:
+        return jsonify({"success": True, "redirect": "/student/assignments"})
+    else:
+        return redirect("/student/assignments")
+
+
 # ============================================================
 # TEACHER - PREVIEW STORED AI MISSION
 # ============================================================
@@ -3699,6 +3995,139 @@ def assignment_publish(assignment_id):
 
     flash("Mission published successfully!", "success")
     return redirect(f"/teacher/assignments/{assignment.id}")
+
+
+# ============================================================
+# TEACHER - VIEW ASSIGNMENT SUBMISSIONS & GRADING
+# ============================================================
+
+@app.route("/teacher/assignments/<int:assignment_id>/submissions")
+def teacher_view_submissions(assignment_id):
+    """Teacher views all student submissions for an assignment"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    teacher = Teacher.query.get(teacher_id) if teacher_id else None
+
+    if not teacher:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Verify teacher owns this assignment
+    if assignment.teacher_id != teacher.id:
+        flash("You don't have access to this assignment.", "error")
+        return redirect("/teacher/assignments")
+
+    # Get all students in the class
+    students = Student.query.filter_by(class_id=assignment.class_id).all()
+
+    # Get all submissions for this assignment
+    submissions = StudentSubmission.query.filter_by(assignment_id=assignment.id).all()
+
+    # Create a map of student_id -> submission
+    submission_map = {sub.student_id: sub for sub in submissions}
+
+    # Build list of students with their submission status
+    student_submissions = []
+    for student in students:
+        submission = submission_map.get(student.id)
+        student_submissions.append({
+            "student": student,
+            "submission": submission
+        })
+
+    # Parse assignment questions
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+    except:
+        mission = {}
+
+    questions = mission.get("steps", [])
+
+    return render_template(
+        "teacher_grade_submissions.html",
+        assignment=assignment,
+        student_submissions=student_submissions,
+        questions=questions
+    )
+
+
+@app.route("/teacher/submissions/<int:submission_id>/grade", methods=["GET", "POST"])
+def teacher_grade_submission(submission_id):
+    """Teacher grades a single student submission"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    teacher = Teacher.query.get(teacher_id) if teacher_id else None
+
+    if not teacher:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    submission = StudentSubmission.query.get_or_404(submission_id)
+    assignment = AssignedPractice.query.get(submission.assignment_id)
+
+    # Verify teacher owns this assignment
+    if not assignment or assignment.teacher_id != teacher.id:
+        flash("You don't have access to this submission.", "error")
+        return redirect("/teacher/assignments")
+
+    if request.method == "POST":
+        # Update grade and feedback
+        try:
+            score = float(request.form.get("score", 0))
+            feedback = request.form.get("feedback", "").strip()
+
+            submission.score = min(100, max(0, score))  # Clamp between 0-100
+            submission.feedback = feedback if feedback else None
+            submission.status = "graded"
+            submission.graded_at = datetime.utcnow()
+
+            # Update points if provided
+            points_earned = request.form.get("points_earned")
+            points_possible = request.form.get("points_possible")
+
+            if points_earned and points_possible:
+                submission.points_earned = float(points_earned)
+                submission.points_possible = float(points_possible)
+
+            db.session.commit()
+
+            print(f"✅ Teacher {teacher.id} graded submission {submission.id}: {submission.score}%")
+            flash("Submission graded successfully!", "success")
+            return redirect(f"/teacher/assignments/{assignment.id}/submissions")
+
+        except ValueError as e:
+            flash(f"Invalid score value: {e}", "error")
+
+    # GET request - show grading form
+    student = Student.query.get(submission.student_id)
+
+    # Parse answers
+    try:
+        answers = json.loads(submission.answers_json) if submission.answers_json else {}
+    except:
+        answers = {}
+
+    # Parse questions
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+    except:
+        mission = {}
+
+    questions = mission.get("steps", [])
+
+    return render_template(
+        "teacher_grade_single.html",
+        submission=submission,
+        assignment=assignment,
+        student=student,
+        answers=answers,
+        questions=questions
+    )
+
 
 # ============================================================
 # TEACHER - AI QUESTION ASSIGNMENT GENERATOR
