@@ -6441,6 +6441,13 @@ def homeschool_dashboard():
     classes = []
     recent_assignments = []
 
+    # Enable teacher features in admin mode
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+        student_limit = float('inf')
+        lesson_plans_limit = float('inf')
+        assignments_limit = float('inf')
+
     if parent_id:
         parent = Parent.query.get(parent_id)
 
@@ -6454,8 +6461,9 @@ def homeschool_dashboard():
                 is_read=False,
             ).count()
 
-            # Get plan limits for homeschool features
-            student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
+            # Get plan limits for homeschool features (unless admin mode already set them)
+            if not session.get("admin_authenticated"):
+                student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
 
             # If parent has teacher features, get their "classes" (which are just student groups)
             # For homeschool, we treat the parent's students as a virtual class
