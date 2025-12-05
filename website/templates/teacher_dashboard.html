@@ -839,14 +839,14 @@
         <h2>Create Manual Assignment</h2>
         <small>Write your own questions from scratch with full control.</small>
 
-        <form class="inline-form" id="manualAssignmentForm" style="flex-direction: column; gap: 12px; margin-top: 16px;">
+        <form class="inline-form" id="manualAssignmentForm" style="flex-direction: column; gap: 8px; margin-top: 12px;">
             <div>
-                <label for="manualTitle" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Assignment Title</label>
+                <label for="manualTitle" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Assignment Title</label>
                 <input type="text" id="manualTitle" placeholder="e.g., Chapter 5 Review" required>
             </div>
 
             <div>
-                <label for="manualClassId" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Assign to Class</label>
+                <label for="manualClassId" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Assign to Class</label>
                 <select id="manualClassId" required>
                     <option value="">Select class...</option>
                     {% for c in classes %}
@@ -856,7 +856,7 @@
             </div>
 
             <div>
-                <label for="manualSubject" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Subject Area</label>
+                <label for="manualSubject" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Subject Area</label>
                 <select id="manualSubject">
                     <option value="terra_nova">Terra Nova (General)</option>
                     <option value="num_forge">NumForge (Math)</option>
@@ -870,19 +870,20 @@
             </div>
 
             <div>
-                <label for="manualNumQuestions" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Number of Blank Questions</label>
+                <label for="manualNumQuestions" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Number of Blank Questions</label>
                 <input type="number" id="manualNumQuestions" placeholder="How many questions?" value="5" min="1" max="20">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div>
-                    <label for="manualOpenDate" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Open Date (optional)</label>
-                    <input type="datetime-local" id="manualOpenDate">
-                </div>
-                <div>
-                    <label for="manualDueDate" style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Due Date (optional)</label>
-                    <input type="datetime-local" id="manualDueDate">
-                </div>
+            <div>
+                <label for="manualOpenDate" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Open Date</label>
+                <input type="datetime-local" id="manualOpenDate" style="margin-bottom: 6px;">
+                <small style="color: var(--muted-3); font-size: 0.65rem; display: block; margin-top: -4px; margin-bottom: 6px;">Leave blank to open immediately</small>
+            </div>
+
+            <div>
+                <label for="manualDueDate" style="display: block; font-size: 0.7rem; color: var(--muted-2); margin-bottom: 2px; font-weight: 500;">Close Date</label>
+                <input type="datetime-local" id="manualDueDate">
+                <small style="color: var(--muted-3); font-size: 0.65rem; display: block; margin-top: -4px;">Leave blank for no deadline</small>
             </div>
 
             <button class="btn" type="button" onclick="createManualAssignment()">✏️ Create Blank Assignment</button>
