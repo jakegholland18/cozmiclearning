@@ -260,9 +260,8 @@ IMPORTANT:
 - Create actual problems to solve (not "what do you remember" questions)
 - For math topics: include calculations, word problems, and concept questions
 - Use a mix of multiple-choice and free-response questions
-- Return ONLY the JSON object, no additional text
-
-Begin your response with {{{{ and end with }}}}"""
+- Return ONLY valid JSON, starting with a single opening brace and ending with a single closing brace
+- No extra text before or after the JSON"""
 
     # ------------------------------------------------------------
     # OPENAI CALL
@@ -304,6 +303,11 @@ Begin your response with {{{{ and end with }}}}"""
     # ------------------------------------------------------------
     # CLEAN AND PARSE JSON
     # ------------------------------------------------------------
+    # Fix double braces if AI followed our old instruction literally
+    if raw.startswith('{{') and raw.endswith('}}'):
+        print(f"⚠️ AI returned double braces - fixing for {topic}")
+        raw = raw[1:-1]  # Remove outer braces to get valid JSON
+
     # Try to extract JSON if AI added extra text
     json_str = raw
     if not raw.startswith('{'):
