@@ -924,9 +924,14 @@ def add_xp(amount: int):
 
 
 def _normalize_numeric_token(text: str) -> str:
+    """Remove common text/symbols from numeric answers for comparison."""
+    if not text:
+        return ""
     t = text.lower().strip()
-    for word in ["percent", "perc", "per cent", "dollars", "dollar", "usd"]:
+    # Remove common words
+    for word in ["percent", "perc", "per cent", "dollars", "dollar", "usd", "the answer is", "answer:", "="]:
         t = t.replace(word, "")
+    # Remove commas and currency symbols
     t = t.replace(",", "")
     for ch in ["%", "$"]:
         t = t.replace(ch, "")
@@ -934,6 +939,9 @@ def _normalize_numeric_token(text: str) -> str:
 
 
 def _try_float(val: str):
+    """Try to parse a string as a float, return None if it fails."""
+    if not val:
+        return None
     try:
         return float(val)
     except Exception:
@@ -941,25 +949,45 @@ def _try_float(val: str):
 
 
 def answers_match(user_raw: str, expected_raw: str) -> bool:
+    """
+    Compare user answer with expected answer.
+    Handles:
+    - Exact string matches (case-insensitive)
+    - Numeric matches (with tolerance for floating point)
+    - Different numeric formats (50, 50.0, 50%, $50, etc.)
+    """
     if user_raw is None or expected_raw is None:
         return False
 
+    # Normalize to lowercase and strip whitespace
     u_norm = user_raw.strip().lower()
     e_norm = expected_raw.strip().lower()
 
+    # Exact string match
     if u_norm == e_norm and u_norm != "":
         return True
 
+    # Normalize numeric tokens (remove %, $, commas, etc.)
     u_num_str = _normalize_numeric_token(user_raw)
     e_num_str = _normalize_numeric_token(expected_raw)
 
+    # String match after numeric normalization
     if u_num_str and e_num_str and u_num_str == e_num_str:
         return True
 
+    # Try numeric comparison
     u_num = _try_float(u_num_str)
     e_num = _try_float(e_num_str)
     if u_num is not None and e_num is not None:
+        # Use small tolerance for floating point comparison
         if abs(u_num - e_num) < 1e-6:
+            return True
+
+    # Try parsing original strings as numbers (in case normalization failed)
+    u_direct = _try_float(user_raw.strip())
+    e_direct = _try_float(expected_raw.strip())
+    if u_direct is not None and e_direct is not None:
+        if abs(u_direct - e_direct) < 1e-6:
             return True
 
     return False
@@ -4772,11 +4800,22 @@ def assignment_step(practice_id):
         # -----------------------------
         # Student submitted an answer
         # -----------------------------
-        student_answer = (request.form.get("student_answer") or "").strip().lower()
-        correct_answers = [a.lower() for a in step.get("expected", [])]
+        student_answer = (request.form.get("student_answer") or "").strip()
+        correct_answers = step.get("expected", [])
+
+        # Use robust answer matching (handles numeric formats, case-insensitive, etc.)
+        is_correct = False
+        for expected in correct_answers:
+            if answers_match(student_answer, str(expected)):
+                is_correct = True
+                break
 
         step["student_answer"] = student_answer
-        step["status"] = "correct" if student_answer in correct_answers else "incorrect"
+        step["status"] = "correct" if is_correct else "incorrect"
+
+        # Debug logging for answer matching issues
+        if not is_correct:
+            app.logger.info(f"Assignment answer mismatch - User: '{student_answer}' | Expected: {correct_answers}")
 
         session["student_answers"].append(student_answer)
         session["practice_step"] = step_index + 1
@@ -5888,6 +5927,10 @@ def practice_step():
         if answers_match(user_answer_raw, str(exp)):
             is_correct = True
             break
+
+    # Debug logging for answer matching issues
+    if not is_correct:
+        app.logger.info(f"Answer mismatch - User: '{user_answer_raw}' | Expected: {expected_list}")
 
     if is_correct:
         attempts += 1
