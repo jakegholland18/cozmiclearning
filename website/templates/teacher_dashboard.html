@@ -500,7 +500,11 @@
         <a href="/teacher/assignments">📝 Assignments</a>
         <a href="/teacher/gradebook">📊 Gradebook</a>
         <a href="/teacher/analytics">📈 Analytics</a>
+        {% if session.get('parent_id') %}
+        <a href="/parent/lesson-plans">📚 Lesson Plans</a>
+        {% else %}
         <a href="/teacher/lesson_plans">📚 Lesson Plans</a>
+        {% endif %}
         <a href="/teacher/messages">
             📬 Messages
             {% if unread_messages > 0 %}
