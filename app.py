@@ -6638,7 +6638,7 @@ def homeschool_assignments():
     _, _, _, has_teacher_features = get_parent_plan_limits(parent)
     if not has_teacher_features:
         flash("Homeschool plan required for assignment features.", "error")
-        return redirect("/homeschool_dashboard")
+        return redirect("/homeschool/dashboard")
 
     # Get all Practice records created for this parent's students
     # We'll find practices that are assigned to this parent's students
@@ -6678,7 +6678,7 @@ def homeschool_create_assignment():
     _, _, _, has_teacher_features = get_parent_plan_limits(parent)
     if not has_teacher_features:
         flash("Homeschool plan required for assignment features.", "error")
-        return redirect("/homeschool_dashboard")
+        return redirect("/homeschool/dashboard")
 
     if request.method == "POST":
         title = safe_text(request.form.get("title", ""), 120)
@@ -6757,7 +6757,7 @@ def homeschool_assignment_overview(practice_id):
     _, _, _, has_teacher_features = get_parent_plan_limits(parent)
     if not has_teacher_features:
         flash("Homeschool plan required for assignment features.", "error")
-        return redirect("/homeschool_dashboard")
+        return redirect("/homeschool/dashboard")
 
     practice = Practice.query.get_or_404(practice_id)
 
