@@ -439,6 +439,37 @@
 
         <!-- Students Tab -->
         <div class="tab-content active" id="tab-students">
+            <!-- Access Code Card -->
+            {% if parent and parent.access_code %}
+            <div class="card" style="background: linear-gradient(135deg, var(--glass-2), var(--glass-1)); border: 2px solid var(--accent-2); margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <h3 style="color: var(--accent); margin-bottom: 12px; font-size: 1.1rem;">📋 Student Access Code</h3>
+                        <p style="color: var(--muted); margin-bottom: 16px; line-height: 1.6;">
+                            Share this code with your children when they create their student accounts to link them to your parent dashboard.
+                        </p>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="background: rgba(0,0,0,0.4); padding: 16px 28px; border-radius: 12px; border: 1px solid var(--accent-2);">
+                                <span id="accessCodeDisplay" style="font-size: 2rem; font-weight: 800; letter-spacing: 4px; color: var(--accent); font-family: 'Courier New', monospace;">{{ parent.access_code }}</span>
+                            </div>
+                            <button onclick="copyAccessCode()" style="padding: 12px 20px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-family: 'Poppins', sans-serif;">
+                                📋 Copy Code
+                            </button>
+                        </div>
+                    </div>
+                    <div style="background: rgba(132,255,0,0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(132,255,0,0.3); max-width: 300px;">
+                        <h4 style="color: var(--success); margin-bottom: 8px; font-size: 0.95rem;">📝 How to Use:</h4>
+                        <ol style="color: var(--muted-2); font-size: 0.85rem; line-height: 1.8; padding-left: 20px;">
+                            <li>Have your child go to the student signup page</li>
+                            <li>Select "Sign up with Parent Code"</li>
+                            <li>Enter this code: <strong style="color: var(--accent);">{{ parent.access_code }}</strong></li>
+                            <li>They'll automatically inherit your plan and appear here!</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             {% if parent and parent.students %}
                 {% for student in parent.students %}
                 <div class="student-card">
@@ -556,20 +587,36 @@
     </div>
 
     <script>
+        function copyAccessCode() {
+            const code = document.getElementById('accessCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = 'linear-gradient(135deg, var(--success), #00c853)';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = 'linear-gradient(135deg, var(--accent), var(--accent-2))';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy code. Please copy manually: ' + code);
+            });
+        }
+
         function switchTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Remove active from all buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
+
             // Show selected tab
             document.getElementById('tab-' + tabName).classList.add('active');
-            
+
             // Activate button
             event.target.classList.add('active');
         }
