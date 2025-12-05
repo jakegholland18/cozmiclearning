@@ -6819,7 +6819,12 @@ def homeschool_generate_lesson():
         return jsonify({"error": "Parent not found"}), 404
 
     # Check if parent has homeschool plan (teacher features)
-    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    # Admin mode automatically has teacher features
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+    else:
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
     if not has_teacher_features:
         return jsonify({"error": "Homeschool plan required for this feature"}), 403
 
@@ -6892,7 +6897,12 @@ def parent_lesson_plans():
         return redirect("/parent/login")
 
     # Check if parent has homeschool plan
-    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    # Admin mode automatically has teacher features
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+    else:
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
     if not has_teacher_features:
         flash("This feature requires a homeschool plan.", "error")
         return redirect("/homeschool/dashboard")
