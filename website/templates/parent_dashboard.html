@@ -465,7 +465,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('students')">👥 My Students</button>
             <button class="tab-btn" onclick="switchTab('subjects')">🌌 Explore Subjects</button>
-            <button class="tab-btn" onclick="switchTab('messages')">💬 Communication</button>
+            <button class="tab-btn" onclick="switchTab('messages')">📊 Progress</button>
             <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
         </div>
 
@@ -567,20 +567,38 @@
             </div>
         </div>
 
-        <!-- Messages Tab -->
+        <!-- Activity Tab -->
         <div class="tab-content" id="tab-messages">
             <div class="card">
-                <h2 class="card-title">💬 Communication with Children</h2>
-                <p style="color: var(--muted-2); margin-bottom: 20px;">Monitor your children's progress, view their activity, and provide encouragement</p>
+                <h2 class="card-title">📊 Children's Progress</h2>
+                <p style="color: var(--muted-2); margin-bottom: 20px;">Monitor your children's learning activity, achievements, and recent study sessions</p>
 
                 <div class="action-grid">
                     {% for student in students %}
                     <a href="/parent/students/{{ student.id }}/activity" class="action-card">
                         <div class="action-icon">👤</div>
-                        <div class="action-title">{{ student.student_name }}'s Activity</div>
-                        <div style="font-size: 0.8rem; color: var(--muted-3); margin-top: 4px;">View progress & achievements</div>
+                        <div class="action-title">{{ student.student_name }}</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-3); margin-top: 4px;">
+                            {% if student.class_ref %}
+                            {{ student.class_ref.class_name }} • Grade {{ student.class_ref.grade_level or 'N/A' }}
+                            {% else %}
+                            View progress & activity
+                            {% endif %}
+                        </div>
                     </a>
                     {% endfor %}
+
+                    <a href="/parent/analytics" class="action-card">
+                        <div class="action-icon">📈</div>
+                        <div class="action-title">Analytics Dashboard</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-3); margin-top: 4px;">Detailed insights & trends</div>
+                    </a>
+
+                    <a href="/parent/achievements" class="action-card">
+                        <div class="action-icon">🏆</div>
+                        <div class="action-title">Achievements</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-3); margin-top: 4px;">View badges & milestones</div>
+                    </a>
                 </div>
 
                 {% if students|length == 0 %}
