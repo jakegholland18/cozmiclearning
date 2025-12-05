@@ -200,6 +200,7 @@ CRITICAL RULES:
 3. Return ONLY valid JSON - no other text before or after
 4. For multiple choice, use format "A. answer", "B. answer", etc.
 5. Expected answers for MC should be lowercase letters: ["a"], ["b"], etc.
+"""
     else:
         # Gamified mission style for student practice
         base_prompt = f"""
