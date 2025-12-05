@@ -609,9 +609,9 @@ db.Index('idx_game_leaderboard_student_id', GameLeaderboard.student_id)
 db.Index('idx_game_leaderboard_game_key', GameLeaderboard.game_key)
 db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For high score queries
 
-# Lesson Plan Indices
-db.Index('idx_lesson_plan_parent_id', LessonPlan.parent_id)
-db.Index('idx_lesson_plan_subject', LessonPlan.subject)
-db.Index('idx_lesson_plan_created_at', LessonPlan.created_at)
+# Homeschool Lesson Plan Indices
+db.Index('idx_homeschool_lesson_plan_parent_id', HomeschoolLessonPlan.parent_id)
+db.Index('idx_homeschool_lesson_plan_subject', HomeschoolLessonPlan.subject)
+db.Index('idx_homeschool_lesson_plan_created_at', HomeschoolLessonPlan.created_at)
 
 
