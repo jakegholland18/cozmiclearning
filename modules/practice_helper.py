@@ -261,7 +261,7 @@ IMPORTANT:
 - Use a mix of multiple-choice and free-response questions
 - Return ONLY the JSON object, no additional text
 
-Begin your response with {{ and end with }}"""
+Begin your response with {{{{ and end with }}}}"""
 
     # ------------------------------------------------------------
     # OPENAI CALL
