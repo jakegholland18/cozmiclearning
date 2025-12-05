@@ -9,10 +9,18 @@ import os
 def run_migration():
     """Add password reset token fields to all user tables"""
 
-    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'cozmiclearning.db')
+    # Try production path first, then development path
+    production_db = '/opt/render/project/src/persistent_db/cozmiclearning.db'
+    dev_db = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'cozmiclearning.db')
 
-    if not os.path.exists(db_path):
-        print(f"❌ Database not found at {db_path}")
+    if os.path.exists(production_db):
+        db_path = production_db
+        print(f"🔧 Using production database: {db_path}")
+    elif os.path.exists(dev_db):
+        db_path = dev_db
+        print(f"🔧 Using development database: {db_path}")
+    else:
+        print(f"❌ Database not found at {production_db} or {dev_db}")
         return False
 
     try:
