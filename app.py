@@ -6305,12 +6305,12 @@ def parent_dashboard():
                 student_limit = float('inf')
                 lesson_plans_limit = float('inf')
                 assignments_limit = float('inf')
+                # Admin mode: DON'T auto-redirect so we can view both dashboards separately
             else:
                 student_limit, lesson_plans_limit, assignments_limit, has_teacher_features = get_parent_plan_limits(parent)
-
-            # If this is a homeschool parent, redirect to homeschool dashboard
-            if has_teacher_features:
-                return redirect("/homeschool/dashboard")
+                # If this is a homeschool parent (non-admin), redirect to homeschool dashboard
+                if has_teacher_features:
+                    return redirect("/homeschool/dashboard")
 
     progress = {
         s: (
