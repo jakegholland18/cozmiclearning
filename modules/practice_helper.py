@@ -268,6 +268,20 @@ Begin your response with {{{{ and end with }}}}"""
     # OPENAI CALL
     # ------------------------------------------------------------
     client = get_client()
+
+    # DEBUG: Print prompts for teacher context
+    if context == "teacher":
+        print(f"\n{'='*60}")
+        print(f"🎯 TEACHER QUESTION GENERATION DEBUG")
+        print(f"{'='*60}")
+        print(f"Topic: {topic}")
+        print(f"Subject: {subject}")
+        print(f"Num Questions: {num_questions}")
+        print(f"Grade: {grade_level}")
+        print(f"\nSYSTEM PROMPT (first 300 chars):\n{system_prompt[:300]}...")
+        print(f"\nUSER PROMPT:\n{user_prompt}")
+        print(f"{'='*60}\n")
+
     response = client.responses.create(
         model="gpt-4.1-mini",
         max_output_tokens=4000,  # Increased from 1800 to accommodate more questions with full details
@@ -278,6 +292,14 @@ Begin your response with {{{{ and end with }}}}"""
     )
 
     raw = response.output_text.strip()
+
+    # DEBUG: Print AI response for teacher context
+    if context == "teacher":
+        print(f"\n{'='*60}")
+        print(f"🤖 AI RESPONSE (first 800 chars):")
+        print(f"{'='*60}")
+        print(raw[:800])
+        print(f"{'='*60}\n")
 
     # ------------------------------------------------------------
     # CLEAN AND PARSE JSON
