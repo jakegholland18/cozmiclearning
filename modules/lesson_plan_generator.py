@@ -3,8 +3,8 @@ AI-powered lesson plan generation for homeschool parents
 Generates comprehensive, structured lesson plans using Claude
 """
 
-import anthropic
 import os
+import json
 from typing import Dict, List, Optional
 
 
@@ -33,6 +33,8 @@ def generate_lesson_plan(
         Dictionary containing structured lesson plan data
     """
 
+    # Import Anthropic client
+    import anthropic
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     # Build the prompt
@@ -105,9 +107,10 @@ Generate a complete lesson plan in the following JSON format (respond with ONLY 
 Make it age-appropriate for grade {grade}, engaging, and practical for a homeschool setting."""
 
     try:
+        # Use correct Anthropic API (Messages API)
         message = client.messages.create(
             model="claude-3-5-sonnet-20241022",
-            max_tokens=4000,
+            max_tokens=4096,  # Increased slightly for safety
             temperature=0.7,
             messages=[
                 {"role": "user", "content": prompt}
@@ -120,10 +123,11 @@ Make it age-appropriate for grade {grade}, engaging, and practical for a homesch
         # Remove markdown code blocks if present
         if response_text.startswith("```"):
             lines = response_text.split("\n")
+            # Remove first line (```json or ```) and last line (```)
             response_text = "\n".join(lines[1:-1]) if len(lines) > 2 else response_text
+            response_text = response_text.strip()
 
         # Parse JSON
-        import json
         lesson_data = json.loads(response_text)
 
         return {
@@ -131,9 +135,25 @@ Make it age-appropriate for grade {grade}, engaging, and practical for a homesch
             "lesson": lesson_data
         }
 
-    except Exception as e:
-        print(f"Error generating lesson plan: {e}")
+    except anthropic.APIError as e:
+        error_msg = f"Anthropic API Error: {str(e)}"
+        print(error_msg)
         return {
             "success": False,
-            "error": str(e)
+            "error": error_msg
+        }
+    except json.JSONDecodeError as e:
+        error_msg = f"JSON parsing error: {str(e)}"
+        print(error_msg)
+        print(f"Response was: {response_text[:500]}...")  # Log first 500 chars
+        return {
+            "success": False,
+            "error": "Failed to parse AI response. Please try again."
+        }
+    except Exception as e:
+        error_msg = f"Error generating lesson plan: {str(e)}"
+        print(error_msg)
+        return {
+            "success": False,
+            "error": error_msg
         }
