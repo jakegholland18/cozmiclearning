@@ -7603,6 +7603,7 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
+        student=student,
         xp=xp,
         level=level,
         tokens=tokens,
