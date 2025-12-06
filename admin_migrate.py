@@ -116,11 +116,27 @@ def migrate_stripe():
         log("🔧 Starting Stripe Database Migration...")
         log("=" * 60)
 
-        # Import the migration function
-        from add_stripe_ids import add_stripe_columns
+        # Capture stdout from migration script
+        import sys
+        from io import StringIO
+        old_stdout = sys.stdout
+        sys.stdout = captured_output = StringIO()
 
-        # Run migration
-        migration_success = add_stripe_columns()
+        try:
+            # Import the migration function
+            from add_stripe_ids import add_stripe_columns
+
+            # Run migration
+            migration_success = add_stripe_columns()
+        finally:
+            # Restore stdout and get captured output
+            sys.stdout = old_stdout
+            migration_output = captured_output.getvalue()
+
+        # Log the migration output
+        for line in migration_output.split('\n'):
+            if line.strip():
+                log(line)
 
         if migration_success:
             log("\n✅ Stripe fields added successfully!")
@@ -134,7 +150,7 @@ def migrate_stripe():
             log("=" * 60)
         else:
             success = False
-            log("❌ Migration failed - check logs above")
+            log("❌ Migration failed - check output above")
 
     except Exception as e:
         success = False

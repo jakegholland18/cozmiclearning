@@ -10,10 +10,12 @@ import sys
 def get_db_path():
     """Find the database file"""
     possible_paths = [
-        'instance/cozmiclearning.db',
-        'persistent_db/cozmiclearning.db',
-        '/opt/render/project/src/instance/cozmiclearning.db',
+        # Check persistent DB first (production)
         '/opt/render/project/src/persistent_db/cozmiclearning.db',
+        'persistent_db/cozmiclearning.db',
+        # Then check instance DB (local/build)
+        '/opt/render/project/src/instance/cozmiclearning.db',
+        'instance/cozmiclearning.db',
     ]
 
     for path in possible_paths:
