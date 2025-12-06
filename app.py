@@ -343,6 +343,42 @@ with app.app_context():
                 conn.commit()
                 print("✅ Teachers table updated with password reset columns")
 
+        # ============================================================
+        # DATABASE MIGRATION: Add join_code to classes table
+        # ============================================================
+        if 'classes' in existing_tables:
+            cursor.execute("PRAGMA table_info(classes)")
+            class_columns = [col[1] for col in cursor.fetchall()]
+
+            if 'join_code' not in class_columns:
+                print("🔧 Adding join_code column to classes table...")
+                cursor.execute("ALTER TABLE classes ADD COLUMN join_code VARCHAR(8)")
+                conn.commit()
+
+                # Generate unique join codes for existing classes
+                import random
+                import string
+
+                cursor.execute("SELECT id FROM classes WHERE join_code IS NULL")
+                classes_without_codes = cursor.fetchall()
+
+                if classes_without_codes:
+                    print(f"🔄 Generating join codes for {len(classes_without_codes)} existing classes...")
+                    for (class_id,) in classes_without_codes:
+                        # Generate unique code
+                        while True:
+                            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                            cursor.execute("SELECT id FROM classes WHERE join_code = ?", (code,))
+                            if not cursor.fetchone():
+                                break
+
+                        cursor.execute("UPDATE classes SET join_code = ? WHERE id = ?", (code, class_id))
+
+                    conn.commit()
+                    print(f"✅ Generated {len(classes_without_codes)} join codes")
+
+                print("✅ Classes table updated with join_code column")
+
         conn.close()
     except Exception as e:
         print(f"⚠️ Migration warning: {e}")
