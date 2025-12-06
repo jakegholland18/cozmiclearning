@@ -1313,8 +1313,6 @@ def arcade_play(game_key):
         "grammar_quest": generate_grammar_quest,
         "history_timeline": generate_history_timeline,
         "geography_dash": generate_geography_dash,
-        "logic_puzzle": generate_logic_puzzle,
-        "word_builder": generate_word_builder,
     }
     
     # Get the appropriate generator for this game
