@@ -107,7 +107,7 @@
 <body class="fade-in">
 
 <div style="max-width: 900px; margin: 0 auto; padding-top: 20px;">
-    <a href="/parent/lesson-plans" class="btn-back">ê Back to Library</a>
+    <a href="/parent/lesson-plans" class="btn-back"> Back to Library</a>
 </div>
 
 <div class="page-title">{{ lesson_plan.title }}</div>
@@ -122,14 +122,14 @@
 
     {% if lesson_plan.topic %}
     <div class="lesson-section">
-        <h2>=› Topic</h2>
+        <h2>= Topic</h2>
         <p>{{ lesson_plan.topic }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.objectives %}
     <div class="lesson-section">
-        <h2><Ø Learning Objectives</h2>
+        <h2> Learning Objectives</h2>
         <ul>
             {% for objective in lesson_plan.objectives %}
             <li>{{ objective }}</li>
@@ -140,7 +140,7 @@
 
     {% if lesson_plan.materials %}
     <div class="lesson-section">
-        <h2>=Ê Materials Needed</h2>
+        <h2> Materials Needed</h2>
         <ul>
             {% for material in lesson_plan.materials %}
             <li>{{ material }}</li>
@@ -151,7 +151,7 @@
 
     {% if lesson_plan.activities %}
     <div class="lesson-section">
-        <h2>=⁄ Lesson Activities</h2>
+        <h2>= Lesson Activities</h2>
         {% for activity in lesson_plan.activities %}
         <div class="activity-card">
             <h3>{{ activity.section }} ({{ activity.duration }} min)</h3>
@@ -164,7 +164,7 @@
 
     {% if lesson_plan.discussion_questions %}
     <div class="lesson-section">
-        <h2>=≠ Discussion Questions</h2>
+        <h2> Discussion Questions</h2>
         <ul>
             {% for question in lesson_plan.discussion_questions %}
             <li>{{ question }}</li>
@@ -182,7 +182,7 @@
 
     {% if lesson_plan.homework %}
     <div class="lesson-section">
-        <h2>=÷ Homework/Practice</h2>
+        <h2> Homework/Practice</h2>
         <p>{{ lesson_plan.homework }}</p>
     </div>
     {% endif %}
@@ -203,7 +203,7 @@
 
     {% if lesson_plan.notes %}
     <div class="lesson-section">
-        <h2>=Ã Teaching Notes</h2>
+        <h2> Teaching Notes</h2>
         <p>{{ lesson_plan.notes }}</p>
     </div>
     {% endif %}
