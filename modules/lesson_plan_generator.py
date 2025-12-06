@@ -1,6 +1,6 @@
 """
 AI-powered lesson plan generation for homeschool parents
-Generates comprehensive, structured lesson plans using Claude
+Generates comprehensive, structured lesson plans using OpenAI
 """
 
 import os
@@ -18,7 +18,7 @@ def generate_lesson_plan(
     hands_on: bool = True
 ) -> Dict:
     """
-    Generate a comprehensive lesson plan using Claude AI.
+    Generate a comprehensive lesson plan using OpenAI.
 
     Args:
         title: Lesson title
@@ -33,9 +33,9 @@ def generate_lesson_plan(
         Dictionary containing structured lesson plan data
     """
 
-    # Import Anthropic client
-    import anthropic
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    # Import OpenAI client using shared module
+    from modules.shared_ai import get_client
+    client = get_client()
 
     # Build the prompt
     prompt = f"""You are an expert homeschool curriculum designer. Create a comprehensive, engaging lesson plan for:
@@ -107,18 +107,19 @@ Generate a complete lesson plan in the following JSON format (respond with ONLY 
 Make it age-appropriate for grade {grade}, engaging, and practical for a homeschool setting."""
 
     try:
-        # Use correct Anthropic API (Messages API)
-        message = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
-            max_tokens=4096,  # Increased slightly for safety
-            temperature=0.7,
+        # Use OpenAI Chat Completions API
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
+                {"role": "system", "content": "You are an expert homeschool curriculum designer. Generate comprehensive, engaging lesson plans in valid JSON format."},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.7,
+            max_tokens=4096
         )
 
         # Extract JSON from response
-        response_text = message.content[0].text.strip()
+        response_text = response.choices[0].message.content.strip()
 
         # Remove markdown code blocks if present
         if response_text.startswith("```"):
@@ -135,17 +136,13 @@ Make it age-appropriate for grade {grade}, engaging, and practical for a homesch
             "lesson": lesson_data
         }
 
-    except anthropic.APIError as e:
-        error_msg = f"Anthropic API Error: {str(e)}"
-        print(error_msg)
-        return {
-            "success": False,
-            "error": error_msg
-        }
     except json.JSONDecodeError as e:
         error_msg = f"JSON parsing error: {str(e)}"
         print(error_msg)
-        print(f"Response was: {response_text[:500]}...")  # Log first 500 chars
+        try:
+            print(f"Response was: {response_text[:500]}...")  # Log first 500 chars
+        except:
+            pass
         return {
             "success": False,
             "error": "Failed to parse AI response. Please try again."
@@ -155,5 +152,5 @@ Make it age-appropriate for grade {grade}, engaging, and practical for a homesch
         print(error_msg)
         return {
             "success": False,
-            "error": error_msg
+            "error": "AI service error. Please try again."
         }
