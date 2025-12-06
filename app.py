@@ -4606,6 +4606,19 @@ def teacher_generate_lesson_plan():
 @app.route("/teacher/lesson_plans")
 def teacher_lesson_plans():
     """View all saved lesson plans for the logged-in teacher."""
+    # Check if user is a parent/homeschool account - redirect to appropriate dashboard
+    if session.get("parent_id"):
+        parent_id = session.get("parent_id")
+        parent = Parent.query.get(parent_id)
+        if parent:
+            _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+            if has_teacher_features:
+                # Homeschool account - redirect to homeschool dashboard lesson plans
+                return redirect("/homeschool/dashboard")
+            else:
+                # Regular parent - redirect to parent lesson plans
+                return redirect("/parent/lesson-plans")
+
     teacher = get_current_teacher()
     if not teacher:
         return redirect("/teacher/login")
