@@ -177,15 +177,69 @@
         transform: scale(1.05);
         box-shadow: 0 8px 20px rgba(92, 107, 255, 0.4);
     }
+
+    .arcade-nav {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin: 30px 0;
+    }
+
+    .arcade-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        background: var(--glass-1);
+        border: 2px solid var(--border-soft);
+        border-radius: 12px;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .arcade-nav-btn:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 111, 216, 0.5);
+        box-shadow: 0 8px 25px rgba(255, 111, 216, 0.3);
+    }
+
+    .arcade-nav-btn.challenge {
+        border-color: rgba(245, 158, 11, 0.5);
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(220, 38, 38, 0.05));
+    }
+
+    .arcade-nav-btn.challenge:hover {
+        border-color: rgba(245, 158, 11, 0.8);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
 </style>
 
 <div class="arcade-container fade-in">
-    
+
     <div class="arcade-header">
         <h1 class="arcade-title">🎮 Learning Arcade 🎮</h1>
         <p class="arcade-subtitle">
             Challenge yourself with fun educational games! Earn XP, unlock achievements, and compete with your grade level.
         </p>
+
+        <div class="arcade-nav">
+            <a href="/arcade/challenges" class="arcade-nav-btn challenge">
+                🏆 Daily Challenge
+            </a>
+            <a href="/arcade/badges" class="arcade-nav-btn">
+                🏅 Badges
+            </a>
+            <a href="/arcade/powerups" class="arcade-nav-btn">
+                ⚡ Power-Ups
+            </a>
+            <a href="/arcade/stats" class="arcade-nav-btn">
+                📊 Stats
+            </a>
+        </div>
 
         {% if stats %}
         <div class="arcade-stats-bar">

@@ -1300,6 +1300,8 @@ def arcade_play(game_key):
         "grammar_quest": generate_grammar_quest,
         "history_timeline": generate_history_timeline,
         "geography_dash": generate_geography_dash,
+        "logic_puzzle": generate_logic_puzzle,
+        "word_builder": generate_word_builder,
     }
     
     # Get the appropriate generator for this game
@@ -1331,53 +1333,342 @@ def arcade_play(game_key):
 def arcade_submit():
     """Submit game results"""
     init_user()
-    
+
     from modules.arcade_helper import save_game_session
     from modules.achievement_helper import log_activity
-    
+    from modules.arcade_enhancements import (
+        check_and_award_badges,
+        update_game_streak,
+        check_daily_challenge_completion
+    )
+    from models import GameSession
+
     data = request.get_json()
     game_key = data.get("game_key")
     score = data.get("score", 0)
     correct = data.get("correct", 0)
     total = data.get("total", 0)
     time_seconds = data.get("time_seconds", 0)
-    
+    game_mode = data.get("mode", "timed")  # timed, practice, challenge
+
     student_id = session.get("student_id")
-    
+
     # Get selected grade from current game session, fallback to student's grade
     current_game = session.get("current_game", {})
     grade = current_game.get("selected_grade") or session.get("grade", "5")
-    
+
     if not student_id:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     # Save game session and get results
     results = save_game_session(student_id, game_key, grade, score, time_seconds, correct, total)
-    
-    # Add XP and tokens to session
-    session["xp"] = session.get("xp", 0) + results["xp_earned"]
-    session["tokens"] = session.get("tokens", 0) + results["tokens_earned"]
-    
-    # Check for level up
-    xp_needed = session["level"] * 100
-    if session["xp"] >= xp_needed:
-        session["xp"] -= xp_needed
-        session["level"] += 1
-        results["level_up"] = True
-        results["new_level"] = session["level"]
-    
+
+    # Get the saved game session for badge/challenge checking
+    game_session = GameSession.query.filter_by(student_id=student_id).order_by(GameSession.id.desc()).first()
+
+    # Update game mode in the session
+    if game_session:
+        game_session.game_mode = game_mode
+        db.session.commit()
+
+    # Only award XP/tokens/badges in timed/challenge mode (not practice)
+    if game_mode != "practice" and game_session:
+        # Add XP and tokens to session
+        session["xp"] = session.get("xp", 0) + results["xp_earned"]
+        session["tokens"] = session.get("tokens", 0) + results["tokens_earned"]
+
+        # Check for level up
+        xp_needed = session["level"] * 100
+        if session["xp"] >= xp_needed:
+            session["xp"] -= xp_needed
+            session["level"] += 1
+            results["level_up"] = True
+            results["new_level"] = session["level"]
+
+        # Update streak
+        streak = update_game_streak(student_id)
+        results["current_streak"] = streak.current_streak
+        results["longest_streak"] = streak.longest_streak
+
+        # Check and award badges
+        newly_earned_badges = check_and_award_badges(student_id, game_session)
+        if newly_earned_badges:
+            results["badges_earned"] = [
+                {"name": b.name, "icon": b.icon, "description": b.description}
+                for b in newly_earned_badges
+            ]
+
+        # Check daily challenge completion
+        challenge_completed = check_daily_challenge_completion(student_id, game_session)
+        if challenge_completed:
+            results["challenge_completed"] = True
+            results["challenge_bonus_xp"] = game_session.xp_earned - results["xp_earned"]
+            results["challenge_bonus_tokens"] = game_session.tokens_earned - results["tokens_earned"]
+
+            # Update session tokens/xp with bonus
+            session["xp"] += results.get("challenge_bonus_xp", 0)
+            session["tokens"] += results.get("challenge_bonus_tokens", 0)
+    else:
+        # Practice mode - no rewards
+        results["practice_mode"] = True
+        results["xp_earned"] = 0
+        results["tokens_earned"] = 0
+
     session.modified = True
-    
+
     # Log activity
     log_activity(
         student_id=student_id,
         activity_type="arcade_game_completed",
         subject=game_key,
-        description=f"Completed arcade game with {correct}/{total} correct",
+        description=f"Completed arcade game ({game_mode}) with {correct}/{total} correct",
         xp_earned=results["xp_earned"]
     )
-    
+
     return jsonify(results)
+
+
+# ============================================================
+# ARCADE MODE ENHANCEMENTS - BADGES, POWERUPS, CHALLENGES
+# ============================================================
+
+@app.route("/arcade/badges")
+def arcade_badges():
+    """View all badges and student's earned badges"""
+    init_user()
+
+    from models import ArcadeBadge, StudentBadge
+
+    student_id = session.get("student_id")
+
+    # Get all badges grouped by category
+    all_badges = ArcadeBadge.query.order_by(ArcadeBadge.category, ArcadeBadge.tier).all()
+
+    # Get student's earned badges
+    earned_badge_ids = set()
+    if student_id:
+        earned = StudentBadge.query.filter_by(student_id=student_id).all()
+        earned_badge_ids = {sb.badge_id for sb in earned}
+
+    # Group badges by category
+    badges_by_category = {}
+    for badge in all_badges:
+        if badge.category not in badges_by_category:
+            badges_by_category[badge.category] = []
+
+        badge_info = {
+            "id": badge.id,
+            "name": badge.name,
+            "description": badge.description,
+            "icon": badge.icon,
+            "tier": badge.tier,
+            "earned": badge.id in earned_badge_ids
+        }
+        badges_by_category[badge.category].append(badge_info)
+
+    # Calculate badge stats
+    total_badges = len(all_badges)
+    earned_count = len(earned_badge_ids)
+
+    return render_template(
+        "arcade_badges.html",
+        badges_by_category=badges_by_category,
+        total_badges=total_badges,
+        earned_count=earned_count,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/powerups")
+def arcade_powerups():
+    """Power-up shop where students can buy power-ups with tokens"""
+    init_user()
+
+    from models import PowerUp
+    from modules.arcade_enhancements import get_student_powerups
+
+    student_id = session.get("student_id")
+    tokens = session.get("tokens", 0)
+
+    # Get all available power-ups
+    all_powerups = PowerUp.query.all()
+
+    # Get student's owned power-ups
+    owned = {}
+    if student_id:
+        student_powerups = get_student_powerups(student_id)
+        owned = {sp["key"]: sp["quantity"] for sp in student_powerups}
+
+    powerups_data = []
+    for powerup in all_powerups:
+        powerups_data.append({
+            "key": powerup.powerup_key,
+            "name": powerup.name,
+            "description": powerup.description,
+            "icon": powerup.icon,
+            "cost": powerup.token_cost,
+            "owned": owned.get(powerup.powerup_key, 0),
+            "uses_per_game": powerup.uses_per_game
+        })
+
+    return render_template(
+        "arcade_powerups.html",
+        powerups=powerups_data,
+        tokens=tokens,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/powerups/purchase", methods=["POST"])
+def purchase_powerup():
+    """Purchase a power-up with tokens"""
+    init_user()
+
+    from modules.arcade_enhancements import purchase_powerup as buy_powerup
+
+    student_id = session.get("student_id")
+    if not student_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    data = request.get_json()
+    powerup_key = data.get("powerup_key")
+
+    current_tokens = session.get("tokens", 0)
+
+    success, message, remaining_tokens = buy_powerup(student_id, powerup_key, current_tokens)
+
+    if success:
+        session["tokens"] = remaining_tokens
+        session.modified = True
+
+    return jsonify({
+        "success": success,
+        "message": message,
+        "tokens": remaining_tokens
+    })
+
+
+@app.route("/arcade/challenges")
+def arcade_challenges():
+    """View today's daily challenge"""
+    init_user()
+
+    from modules.arcade_enhancements import get_todays_challenge
+    from modules.arcade_helper import ARCADE_GAMES
+    from models import StudentChallengeProgress
+
+    student_id = session.get("student_id")
+
+    # Get today's challenge
+    challenge = get_todays_challenge()
+
+    # Get game info
+    game_info = next((g for g in ARCADE_GAMES if g["game_key"] == challenge.game_key), None)
+
+    # Get student's progress on this challenge
+    progress = None
+    if student_id:
+        progress = StudentChallengeProgress.query.filter_by(
+            student_id=student_id,
+            challenge_id=challenge.id
+        ).first()
+
+    challenge_data = {
+        "game_key": challenge.game_key,
+        "game_name": game_info["name"] if game_info else challenge.game_key,
+        "game_icon": game_info["icon"] if game_info else "🎮",
+        "grade_level": challenge.grade_level,
+        "target_score": challenge.target_score,
+        "target_accuracy": challenge.target_accuracy,
+        "target_time": challenge.target_time,
+        "bonus_xp": challenge.bonus_xp,
+        "bonus_tokens": challenge.bonus_tokens,
+        "completed": progress.completed if progress else False,
+        "best_score": progress.best_score if progress else None,
+        "best_accuracy": progress.best_accuracy if progress else None,
+        "best_time": progress.best_time if progress else None
+    }
+
+    return render_template(
+        "arcade_challenges.html",
+        challenge=challenge_data,
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/stats")
+def arcade_stats():
+    """View detailed arcade statistics and progress"""
+    init_user()
+
+    from modules.arcade_enhancements import get_student_arcade_stats
+    from modules.arcade_helper import get_student_stats, ARCADE_GAMES
+    from models import GameSession
+    import json
+
+    student_id = session.get("student_id")
+
+    if not student_id:
+        flash("Please log in to view stats", "error")
+        return redirect("/arcade")
+
+    # Get comprehensive stats
+    stats = get_student_arcade_stats(student_id)
+
+    # Get per-game stats
+    game_stats = []
+    for game in ARCADE_GAMES:
+        game_key = game["game_key"]
+        sessions = GameSession.query.filter_by(
+            student_id=student_id,
+            game_key=game_key
+        ).all()
+
+        if sessions:
+            plays = len(sessions)
+            avg_score = sum(s.score for s in sessions) / plays
+            avg_accuracy = sum(s.accuracy for s in sessions if s.accuracy) / len([s for s in sessions if s.accuracy])
+            best_score = max(s.score for s in sessions)
+
+            game_stats.append({
+                "name": game["name"],
+                "icon": game["icon"],
+                "plays": plays,
+                "avg_score": round(avg_score, 1),
+                "avg_accuracy": round(avg_accuracy, 1),
+                "best_score": best_score
+            })
+
+    # Sort by most played
+    game_stats.sort(key=lambda x: x["plays"], reverse=True)
+
+    # Get recent sessions for activity chart
+    recent_sessions = GameSession.query.filter_by(
+        student_id=student_id
+    ).order_by(GameSession.started_at.desc()).limit(10).all()
+
+    chart_data = {
+        "dates": [s.started_at.strftime("%m/%d") for s in reversed(recent_sessions)],
+        "scores": [s.score for s in reversed(recent_sessions)],
+        "accuracy": [s.accuracy for s in reversed(recent_sessions)]
+    }
+
+    return render_template(
+        "arcade_stats.html",
+        stats=stats,
+        game_stats=game_stats,
+        chart_data=json.dumps(chart_data),
+        character=session["character"]
+    )
+
+
+@app.route("/arcade/play/<game_key>/practice")
+def arcade_play_practice(game_key):
+    """Start a practice mode game (no timer, no pressure)"""
+    init_user()
+
+    # Practice mode uses same template but with practice flag
+    return redirect(f"/arcade/play/{game_key}?mode=practice")
 
 
 # ------------------------------------------------------------

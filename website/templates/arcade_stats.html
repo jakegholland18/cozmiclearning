@@ -1,0 +1,340 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .stats-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .stats-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .stats-title {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .stat-box {
+        background: var(--glass-1);
+        border: 2px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--muted-2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 5px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text);
+        margin: 40px 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .game-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .game-stat-card {
+        background: var(--glass-1);
+        border: 2px solid var(--border-soft);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .game-stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .game-stat-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--border-soft);
+    }
+
+    .game-stat-icon {
+        font-size: 2rem;
+    }
+
+    .game-stat-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .game-stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        font-size: 0.95rem;
+    }
+
+    .game-stat-label {
+        color: var(--muted-2);
+    }
+
+    .game-stat-value {
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .chart-container {
+        background: var(--glass-1);
+        border: 2px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 50px;
+    }
+
+    .chart-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 20px;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #ff6fd8, #5c6bff);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 111, 216, 0.4);
+    }
+
+    #activityChart {
+        max-height: 300px;
+    }
+</style>
+
+<div class="stats-container">
+    <a href="/arcade" class="back-button">← Back to Arcade</a>
+
+    <div class="stats-header">
+        <h1 class="stats-title">📊 Arcade Statistics</h1>
+        <p style="color: var(--muted-2); font-size: 1.1rem;">Track your progress and performance</p>
+    </div>
+
+    <div class="stats-overview">
+        <div class="stat-box">
+            <div class="stat-icon">🎮</div>
+            <div class="stat-value">{{ stats.total_games }}</div>
+            <div class="stat-label">Games Played</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">{{ stats.total_xp }}</div>
+            <div class="stat-label">Total XP</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">🪙</div>
+            <div class="stat-value">{{ stats.total_tokens }}</div>
+            <div class="stat-label">Tokens Earned</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value">{{ stats.avg_accuracy }}%</div>
+            <div class="stat-label">Avg Accuracy</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">{{ stats.best_score }}</div>
+            <div class="stat-label">Best Score</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value">{{ stats.current_streak }}</div>
+            <div class="stat-label">Current Streak</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">💪</div>
+            <div class="stat-value">{{ stats.longest_streak }}</div>
+            <div class="stat-label">Longest Streak</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">🏅</div>
+            <div class="stat-value">{{ stats.badges_earned }}</div>
+            <div class="stat-label">Badges Earned</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ stats.challenges_completed }}</div>
+            <div class="stat-label">Challenges Done</div>
+        </div>
+    </div>
+
+    <h2 class="section-title">📈 Recent Activity</h2>
+    <div class="chart-container">
+        <div class="chart-title">Score & Accuracy Trends</div>
+        <canvas id="activityChart"></canvas>
+    </div>
+
+    <h2 class="section-title">🎯 Performance by Game</h2>
+    <div class="game-stats-grid">
+        {% for game in game_stats %}
+        <div class="game-stat-card">
+            <div class="game-stat-header">
+                <div class="game-stat-icon">{{ game.icon }}</div>
+                <div class="game-stat-name">{{ game.name }}</div>
+            </div>
+
+            <div class="game-stat-row">
+                <span class="game-stat-label">Times Played</span>
+                <span class="game-stat-value">{{ game.plays }}</span>
+            </div>
+
+            <div class="game-stat-row">
+                <span class="game-stat-label">Avg Score</span>
+                <span class="game-stat-value">{{ game.avg_score }}</span>
+            </div>
+
+            <div class="game-stat-row">
+                <span class="game-stat-label">Avg Accuracy</span>
+                <span class="game-stat-value">{{ game.avg_accuracy }}%</span>
+            </div>
+
+            <div class="game-stat-row">
+                <span class="game-stat-label">Best Score</span>
+                <span class="game-stat-value">{{ game.best_score }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const chartData = {{ chart_data | safe }};
+
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.dates,
+            datasets: [
+                {
+                    label: 'Score',
+                    data: chartData.scores,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Accuracy %',
+                    data: chartData.accuracy,
+                    borderColor: 'rgb(139, 92, 246)',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.6)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

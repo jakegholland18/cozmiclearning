@@ -1,0 +1,291 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .powerups-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .powerups-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .powerups-title {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #a78bfa, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+    }
+
+    .tokens-display {
+        display: inline-block;
+        padding: 15px 40px;
+        background: linear-gradient(135deg, rgba(168, 139, 250, 0.2), rgba(236, 72, 153, 0.15));
+        border: 2px solid rgba(168, 139, 250, 0.4);
+        border-radius: 50px;
+        margin: 20px 0;
+    }
+
+    .tokens-amount {
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .tokens-label {
+        font-size: 0.9rem;
+        color: var(--muted-2);
+        margin-left: 10px;
+    }
+
+    .powerups-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 40px;
+    }
+
+    .powerup-card {
+        background: var(--glass-1);
+        border: 2px solid var(--border-soft);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .powerup-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(168, 139, 250, 0.25);
+        border-color: rgba(168, 139, 250, 0.6);
+    }
+
+    .powerup-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+    }
+
+    .powerup-name {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 10px;
+    }
+
+    .powerup-description {
+        font-size: 1rem;
+        color: var(--muted-2);
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .powerup-cost {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 20px 0;
+    }
+
+    .cost-number {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .owned-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .buy-button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #a78bfa, #ec4899);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .buy-button:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(168, 139, 250, 0.4);
+    }
+
+    .buy-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .uses-info {
+        font-size: 0.85rem;
+        color: var(--muted-2);
+        margin-top: 10px;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #ff6fd8, #5c6bff);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+
+    .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 111, 216, 0.4);
+    }
+
+    .message {
+        position: fixed;
+        top: 100px;
+        right: 30px;
+        padding: 20px 30px;
+        border-radius: 12px;
+        font-weight: 700;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .message.success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .message.error {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="powerups-container">
+    <a href="/arcade" class="back-button">← Back to Arcade</a>
+
+    <div class="powerups-header">
+        <h1 class="powerups-title">⚡ Power-Up Shop</h1>
+        <p style="color: var(--muted-2); font-size: 1.1rem;">Use tokens to purchase power-ups for your games!</p>
+
+        <div class="tokens-display">
+            <span class="tokens-amount" id="tokens-display">{{ tokens }}</span>
+            <span class="tokens-label">🪙 Tokens</span>
+        </div>
+    </div>
+
+    <div class="powerups-grid">
+        {% for powerup in powerups %}
+        <div class="powerup-card">
+            {% if powerup.owned > 0 %}
+            <div class="owned-badge">Owned: {{ powerup.owned }}</div>
+            {% endif %}
+
+            <div class="powerup-icon">{{ powerup.icon }}</div>
+            <div class="powerup-name">{{ powerup.name }}</div>
+            <div class="powerup-description">{{ powerup.description }}</div>
+
+            <div class="powerup-cost">
+                <span class="cost-number">{{ powerup.cost }}</span>
+                <span>🪙</span>
+            </div>
+
+            <button
+                class="buy-button"
+                onclick="buyPowerup('{{ powerup.key }}', {{ powerup.cost }})"
+                {% if tokens < powerup.cost %}disabled{% endif %}
+            >
+                Purchase
+            </button>
+
+            <div class="uses-info">
+                Can use {{ powerup.uses_per_game }} time{% if powerup.uses_per_game > 1 %}s{% endif %} per game
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+async function buyPowerup(powerupKey, cost) {
+    try {
+        const response = await fetch('/arcade/powerups/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ powerup_key: powerupKey })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Update tokens display
+            document.getElementById('tokens-display').textContent = result.tokens;
+
+            // Show success message
+            showMessage(result.message, 'success');
+
+            // Reload after delay to update owned counts
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showMessage(result.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error purchasing power-up', 'error');
+    }
+}
+
+function showMessage(text, type) {
+    const message = document.createElement('div');
+    message.className = `message ${type}`;
+    message.textContent = text;
+    document.body.appendChild(message);
+
+    setTimeout(() => {
+        message.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => message.remove(), 300);
+    }, 3000);
+}
+</script>
+
+{% endblock %}

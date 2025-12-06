@@ -1,7 +1,8 @@
 {
     "claudeCode.useTerminal": true,
     "claudeCode.respectGitIgnore": true,
-    "claudeCode.preferredLocation": "sidebar",
+    "claudeCode.preferredLocation": "panel",
     "notebook.defaultFormatter": "Anthropic.claude-code",
-    "claudeCode.useCtrlEnterToSend": true
+    "claudeCode.useCtrlEnterToSend": true,
+    "github.copilot.chat.anthropic.tools.websearch.enabled": true
 }

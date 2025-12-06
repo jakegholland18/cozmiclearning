@@ -461,26 +461,30 @@ class GameSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
     game_key = db.Column(db.String(50))  # References ArcadeGame.game_key
-    
+
     # Game metadata
     grade_level = db.Column(db.String(10))
     difficulty = db.Column(db.String(20))  # easy, medium, hard
-    
+    game_mode = db.Column(db.String(20), default="timed")  # timed, practice, challenge
+
     # Performance metrics
     score = db.Column(db.Integer)
     time_seconds = db.Column(db.Integer)
     accuracy = db.Column(db.Float)  # Percentage
     questions_answered = db.Column(db.Integer)
     questions_correct = db.Column(db.Integer)
-    
+
+    # Power-ups used (JSON array of powerup_keys)
+    powerups_used = db.Column(db.Text, nullable=True)
+
     # Rewards
     xp_earned = db.Column(db.Integer, default=0)
     tokens_earned = db.Column(db.Integer, default=0)
-    
+
     # Timestamps
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime)
-    
+
     # Relationships
     student = db.relationship("Student", backref="game_sessions")
 
@@ -547,6 +551,138 @@ class HomeschoolLessonPlan(db.Model):
 
     # Relationships
     parent = db.relationship("Parent", backref="homeschool_lesson_plans")
+
+
+# ============================================================
+# ARCADE MODE ENHANCEMENTS - BADGES, POWERUPS, CHALLENGES
+# ============================================================
+
+class ArcadeBadge(db.Model):
+    """Achievement badges specific to arcade games"""
+    __tablename__ = "arcade_badges"
+
+    id = db.Column(db.Integer, primary_key=True)
+    badge_key = db.Column(db.String(50), unique=True)  # perfect_score, speed_demon, etc.
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(255))
+    icon = db.Column(db.String(50))  # emoji
+    category = db.Column(db.String(50))  # score, speed, accuracy, streak, mastery
+
+    # Requirements
+    requirement_type = db.Column(db.String(50))  # score, accuracy, time, streak, total_plays
+    requirement_value = db.Column(db.Integer)
+    game_key = db.Column(db.String(50), nullable=True)  # null = applies to all games
+
+    # Badge tier
+    tier = db.Column(db.String(20))  # bronze, silver, gold, platinum
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentBadge(db.Model):
+    """Tracks which badges students have earned"""
+    __tablename__ = "student_badges"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    badge_id = db.Column(db.Integer, db.ForeignKey("arcade_badges.id"))
+    game_key = db.Column(db.String(50), nullable=True)  # Which game it was earned in
+
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    student = db.relationship("Student", backref="arcade_badges")
+    badge = db.relationship("ArcadeBadge")
+
+
+class PowerUp(db.Model):
+    """Available power-ups that can be purchased with tokens"""
+    __tablename__ = "powerups"
+
+    id = db.Column(db.Integer, primary_key=True)
+    powerup_key = db.Column(db.String(50), unique=True)  # freeze_time, fifty_fifty, skip_question
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(255))
+    icon = db.Column(db.String(50))  # emoji
+
+    # Cost and effect
+    token_cost = db.Column(db.Integer)  # How many tokens to purchase
+    effect_duration = db.Column(db.Integer, nullable=True)  # Seconds (for time-based effects)
+    uses_per_game = db.Column(db.Integer, default=1)  # How many times can be used per game
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentPowerUp(db.Model):
+    """Tracks student's power-up inventory"""
+    __tablename__ = "student_powerups"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    powerup_id = db.Column(db.Integer, db.ForeignKey("powerups.id"))
+
+    quantity = db.Column(db.Integer, default=1)  # How many they own
+
+    # Relationships
+    student = db.relationship("Student", backref="powerups")
+    powerup = db.relationship("PowerUp")
+
+
+class DailyChallenge(db.Model):
+    """Special daily challenges with bonus rewards"""
+    __tablename__ = "daily_challenges"
+
+    id = db.Column(db.Integer, primary_key=True)
+    game_key = db.Column(db.String(50))
+    challenge_date = db.Column(db.Date, unique=True)  # One challenge per day
+
+    # Challenge requirements
+    target_score = db.Column(db.Integer, nullable=True)
+    target_accuracy = db.Column(db.Float, nullable=True)
+    target_time = db.Column(db.Integer, nullable=True)
+    grade_level = db.Column(db.String(10))
+
+    # Rewards
+    bonus_xp = db.Column(db.Integer, default=100)
+    bonus_tokens = db.Column(db.Integer, default=50)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentChallengeProgress(db.Model):
+    """Tracks student progress on daily challenges"""
+    __tablename__ = "student_challenge_progress"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
+    challenge_id = db.Column(db.Integer, db.ForeignKey("daily_challenges.id"))
+
+    completed = db.Column(db.Boolean, default=False)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Best attempt stats
+    best_score = db.Column(db.Integer)
+    best_accuracy = db.Column(db.Float)
+    best_time = db.Column(db.Integer)
+
+    # Relationships
+    student = db.relationship("Student", backref="daily_challenges")
+    challenge = db.relationship("DailyChallenge")
+
+
+class GameStreak(db.Model):
+    """Tracks consecutive days of gameplay"""
+    __tablename__ = "game_streaks"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), unique=True)
+
+    current_streak = db.Column(db.Integer, default=0)
+    longest_streak = db.Column(db.Integer, default=0)
+    last_played_date = db.Column(db.Date, nullable=True)
+
+    # Relationships
+    student = db.relationship("Student", backref="game_streak", uselist=False)
 
 
 # ============================================================
@@ -626,5 +762,14 @@ db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For h
 db.Index('idx_homeschool_lesson_plan_parent_id', HomeschoolLessonPlan.parent_id)
 db.Index('idx_homeschool_lesson_plan_subject', HomeschoolLessonPlan.subject)
 db.Index('idx_homeschool_lesson_plan_created_at', HomeschoolLessonPlan.created_at)
+
+# Arcade Enhancement Indices
+db.Index('idx_student_badge_student_id', StudentBadge.student_id)
+db.Index('idx_student_badge_badge_id', StudentBadge.badge_id)
+db.Index('idx_student_powerup_student_id', StudentPowerUp.student_id)
+db.Index('idx_daily_challenge_date', DailyChallenge.challenge_date)
+db.Index('idx_student_challenge_student_id', StudentChallengeProgress.student_id)
+db.Index('idx_student_challenge_challenge_id', StudentChallengeProgress.challenge_id)
+db.Index('idx_game_streak_student_id', GameStreak.student_id)
 
 
