@@ -45,6 +45,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary">Choose Basic Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -52,6 +53,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$99/year (save $20)</button>
                     </form>
                 </div>
@@ -76,6 +78,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary premium-btn">Choose Premium Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -83,6 +86,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$149/year (save $30)</button>
                     </form>
                 </div>
@@ -107,6 +111,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary">Choose Essentials Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -114,6 +119,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$199/year (save $40)</button>
                     </form>
                 </div>
@@ -137,6 +143,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary premium-btn">Choose Complete Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -144,6 +151,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$349/year (save $70)</button>
                     </form>
                 </div>
@@ -168,6 +176,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary">Choose Classroom Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -175,6 +184,7 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$249/year (save $50)</button>
                     </form>
                 </div>
@@ -199,6 +209,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary premium-btn">Choose School Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -206,6 +217,7 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$599/year (save $120)</button>
                     </form>
                 </div>
@@ -231,6 +243,7 @@
                         <input type="hidden" name="plan" value="essential">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary">Choose Essential Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -238,6 +251,7 @@
                         <input type="hidden" name="plan" value="essential">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$199/year (save $40)</button>
                     </form>
                 </div>
@@ -262,6 +276,7 @@
                         <input type="hidden" name="plan" value="complete">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-primary premium-btn">Choose Complete Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
@@ -269,6 +284,7 @@
                         <input type="hidden" name="plan" value="complete">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <input type="hidden" name="trial_days" value="7">
                         <button type="submit" class="btn-secondary">$349/year (save $70)</button>
                     </form>
                 </div>
