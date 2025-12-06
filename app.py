@@ -1193,7 +1193,12 @@ def arcade_hub():
     # Get student's arcade stats
     stats = None
     if student_id:
-        stats = get_student_stats(student_id)
+        try:
+            stats = get_student_stats(student_id)
+        except Exception as e:
+            # Database might not be migrated yet
+            app.logger.warning(f"Could not load arcade stats: {e}")
+            stats = None
     
     # Group games by subject
     games_by_subject = {}
@@ -1232,10 +1237,18 @@ def arcade_game(game_key):
     # Get student's stats for this game
     stats = None
     if student_id:
-        stats = get_student_stats(student_id, game_key)
-    
+        try:
+            stats = get_student_stats(student_id, game_key)
+        except Exception as e:
+            app.logger.warning(f"Could not load game stats: {e}")
+            stats = None
+
     # Get leaderboard
-    leaderboard = get_leaderboard(game_key, grade, limit=10)
+    try:
+        leaderboard = get_leaderboard(game_key, grade, limit=10)
+    except Exception as e:
+        app.logger.warning(f"Could not load leaderboard: {e}")
+        leaderboard = []
     
     return render_template(
         "arcade_game.html",
@@ -1437,12 +1450,17 @@ def arcade_badges():
     """View all badges and student's earned badges"""
     init_user()
 
-    from models import ArcadeBadge, StudentBadge
+    try:
+        from models import ArcadeBadge, StudentBadge
 
-    student_id = session.get("student_id")
+        student_id = session.get("student_id")
 
-    # Get all badges grouped by category
-    all_badges = ArcadeBadge.query.order_by(ArcadeBadge.category, ArcadeBadge.tier).all()
+        # Get all badges grouped by category
+        all_badges = ArcadeBadge.query.order_by(ArcadeBadge.category, ArcadeBadge.tier).all()
+    except Exception as e:
+        app.logger.error(f"Badges error: {e}")
+        flash("Badges are not available yet. Please check back later!", "info")
+        return redirect("/arcade")
 
     # Get student's earned badges
     earned_badge_ids = set()
@@ -1484,14 +1502,19 @@ def arcade_powerups():
     """Power-up shop where students can buy power-ups with tokens"""
     init_user()
 
-    from models import PowerUp
-    from modules.arcade_enhancements import get_student_powerups
+    try:
+        from models import PowerUp
+        from modules.arcade_enhancements import get_student_powerups
 
-    student_id = session.get("student_id")
-    tokens = session.get("tokens", 0)
+        student_id = session.get("student_id")
+        tokens = session.get("tokens", 0)
 
-    # Get all available power-ups
-    all_powerups = PowerUp.query.all()
+        # Get all available power-ups
+        all_powerups = PowerUp.query.all()
+    except Exception as e:
+        app.logger.error(f"Powerups error: {e}")
+        flash("Power-ups are not available yet. Please check back later!", "info")
+        return redirect("/arcade")
 
     # Get student's owned power-ups
     owned = {}
@@ -1553,14 +1576,19 @@ def arcade_challenges():
     """View today's daily challenge"""
     init_user()
 
-    from modules.arcade_enhancements import get_todays_challenge
-    from modules.arcade_helper import ARCADE_GAMES
-    from models import StudentChallengeProgress
+    try:
+        from modules.arcade_enhancements import get_todays_challenge
+        from modules.arcade_helper import ARCADE_GAMES
+        from models import StudentChallengeProgress
 
-    student_id = session.get("student_id")
+        student_id = session.get("student_id")
 
-    # Get today's challenge
-    challenge = get_todays_challenge()
+        # Get today's challenge
+        challenge = get_todays_challenge()
+    except Exception as e:
+        app.logger.error(f"Daily challenge error: {e}")
+        flash("Daily challenges are not available yet. Please check back later!", "info")
+        return redirect("/arcade")
 
     # Get game info
     game_info = next((g for g in ARCADE_GAMES if g["game_key"] == challenge.game_key), None)
@@ -1601,19 +1629,24 @@ def arcade_stats():
     """View detailed arcade statistics and progress"""
     init_user()
 
-    from modules.arcade_enhancements import get_student_arcade_stats
-    from modules.arcade_helper import get_student_stats, ARCADE_GAMES
-    from models import GameSession
-    import json
+    try:
+        from modules.arcade_enhancements import get_student_arcade_stats
+        from modules.arcade_helper import get_student_stats, ARCADE_GAMES
+        from models import GameSession
+        import json
 
-    student_id = session.get("student_id")
+        student_id = session.get("student_id")
 
-    if not student_id:
-        flash("Please log in to view stats", "error")
+        if not student_id:
+            flash("Please log in to view stats", "error")
+            return redirect("/arcade")
+
+        # Get comprehensive stats
+        stats = get_student_arcade_stats(student_id)
+    except Exception as e:
+        app.logger.error(f"Stats error: {e}")
+        flash("Statistics are not available yet. Please check back later!", "info")
         return redirect("/arcade")
-
-    # Get comprehensive stats
-    stats = get_student_arcade_stats(student_id)
 
     # Get per-game stats
     game_stats = []
