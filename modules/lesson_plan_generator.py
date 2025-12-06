@@ -109,7 +109,7 @@ Generate a complete lesson plan in the following JSON format (respond with ONLY 
 Make it age-appropriate for grade {grade}, engaging, and practical for a homeschool setting."""
 
     try:
-        # Use OpenAI Chat Completions API
+        # Use OpenAI Chat Completions API with timeout
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -117,7 +117,8 @@ Make it age-appropriate for grade {grade}, engaging, and practical for a homesch
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=4096
+            max_tokens=4096,
+            timeout=60.0  # 60 second timeout
         )
 
         # Extract JSON from response

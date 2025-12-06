@@ -57,7 +57,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "website", "static"),
 )
 
-app.secret_key = "b3c2e773eaa84cd6841a9ffa54c918881b9fab30bb02f7128"
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-change-in-production-' + secrets.token_hex(32))
 
 # ------------------------------------------------------------
 # Secure session cookie configuration (essentials)
@@ -103,7 +103,7 @@ limiter = Limiter(
 # ============================================================
 
 OWNER_EMAIL = "jakegholland18@gmail.com"
-ADMIN_PASSWORD = "Cash&Ollie123"
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Cash&Ollie123')
 
 # ============================================================
 # STRIPE CONFIGURATION
@@ -159,7 +159,29 @@ from models import (
     QuestionLog,
 )
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 import json
+
+# ------------------------------------------------------------
+# Database Helper Functions
+# ------------------------------------------------------------
+
+def safe_commit():
+    """
+    Safely commit database changes with error handling.
+    Returns (success: bool, error: str or None)
+    """
+    try:
+        db.session.commit()
+        return True, None
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        app.logger.error(f"Database commit failed: {str(e)}")
+        return False, str(e)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Unexpected error during commit: {str(e)}")
+        return False, str(e)
 
 # ------------------------------------------------------------
 # Simple backup/restore for teachers/classes/students

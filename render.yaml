@@ -12,7 +12,7 @@ services:
       python3 fix_production_db.py
       python3 init_arcade_enhancements.py
     startCommand: |
-      gunicorn app:app --bind 0.0.0.0:$PORT --workers 4 --threads 2 --worker-class gthread --timeout 120 --max-requests 1000 --max-requests-jitter 100 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info
+      gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread --timeout 120 --max-requests 1000 --max-requests-jitter 100 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info
     healthCheckPath: /
     healthCheckTimeout: 120
     rootDir: .
@@ -34,6 +34,10 @@ services:
         value: production
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: SECRET_KEY
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: MAIL_SERVER
