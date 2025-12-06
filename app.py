@@ -2848,7 +2848,11 @@ def handle_checkout_completed(session_obj):
         metadata = session_obj.get('metadata', {})
         role = metadata.get('role')
         user_id = metadata.get('user_id')
-        
+
+        # Get Stripe customer and subscription IDs
+        customer_id = session_obj.get('customer')
+        subscription_id = session_obj.get('subscription')
+
         if role == "student":
             user = Student.query.get(user_id)
         elif role == "parent":
@@ -2858,12 +2862,18 @@ def handle_checkout_completed(session_obj):
         else:
             logging.error(f"Unknown role in webhook: {role}")
             return
-        
+
         if user:
             user.subscription_active = True
             user.trial_end = None
-            db.session.commit()
-            logging.info(f"Activated subscription for {role} {user_id}")
+            user.stripe_customer_id = customer_id  # Save Stripe customer ID
+            user.stripe_subscription_id = subscription_id  # Save Stripe subscription ID
+
+            success, error = safe_commit()
+            if success:
+                logging.info(f"Activated subscription for {role} {user_id} (Stripe: {customer_id})")
+            else:
+                logging.error(f"Failed to save subscription: {error}")
     except Exception as e:
         logging.error(f"Error in handle_checkout_completed: {e}")
 
@@ -2873,10 +2883,27 @@ def handle_subscription_updated(subscription):
     try:
         customer_id = subscription.get('customer')
         status = subscription.get('status')
-        
-        # You would need to store customer_id in your database to look up users
-        # For now, we'll log the event
-        logging.info(f"Subscription updated for customer {customer_id}: {status}")
+
+        # Find user by Stripe customer ID
+        user = (Student.query.filter_by(stripe_customer_id=customer_id).first() or
+                Parent.query.filter_by(stripe_customer_id=customer_id).first() or
+                Teacher.query.filter_by(stripe_customer_id=customer_id).first())
+
+        if user:
+            # Update subscription status based on Stripe status
+            if status == 'active':
+                user.subscription_active = True
+            elif status in ['canceled', 'unpaid', 'incomplete_expired', 'past_due']:
+                user.subscription_active = False
+
+            success, error = safe_commit()
+            if success:
+                logging.info(f"Updated subscription for customer {customer_id}: {status}")
+            else:
+                logging.error(f"Failed to update subscription: {error}")
+        else:
+            logging.warning(f"No user found for customer {customer_id}")
+
     except Exception as e:
         logging.error(f"Error in handle_subscription_updated: {e}")
 
@@ -2885,13 +2912,25 @@ def handle_subscription_canceled(subscription):
     """Deactivate user account when subscription is canceled."""
     try:
         customer_id = subscription.get('customer')
-        
-        # Find user by Stripe customer ID (would need to add this field to models)
-        # For now, log the event
-        logging.warning(f"Subscription canceled for customer {customer_id}")
-        
-        # TODO: Add stripe_customer_id field to Student, Parent, Teacher models
-        # Then query and deactivate: user.subscription_active = False
+
+        # Find user by Stripe customer ID
+        user = (Student.query.filter_by(stripe_customer_id=customer_id).first() or
+                Parent.query.filter_by(stripe_customer_id=customer_id).first() or
+                Teacher.query.filter_by(stripe_customer_id=customer_id).first())
+
+        if user:
+            user.subscription_active = False
+            user.plan = "free"
+            user.stripe_subscription_id = None  # Clear subscription ID
+
+            success, error = safe_commit()
+            if success:
+                logging.info(f"Deactivated subscription for customer {customer_id}")
+            else:
+                logging.error(f"Failed to deactivate subscription: {error}")
+        else:
+            logging.warning(f"No user found for customer {customer_id}")
+
     except Exception as e:
         logging.error(f"Error in handle_subscription_canceled: {e}")
 
@@ -2901,11 +2940,19 @@ def handle_payment_failed(invoice):
     try:
         customer_id = invoice.get('customer')
         amount_due = invoice.get('amount_due') / 100  # Convert cents to dollars
-        
-        logging.warning(f"Payment failed for customer {customer_id}: ${amount_due}")
-        
-        # TODO: Send email notification to user about failed payment
-        # TODO: Set grace period before deactivating account
+
+        # Find user by Stripe customer ID
+        user = (Student.query.filter_by(stripe_customer_id=customer_id).first() or
+                Parent.query.filter_by(stripe_customer_id=customer_id).first() or
+                Teacher.query.filter_by(stripe_customer_id=customer_id).first())
+
+        if user:
+            logging.warning(f"Payment failed for {user.email}: ${amount_due}")
+            # TODO: Send email notification to user
+            # TODO: Set grace period before deactivating (e.g., 7 days)
+        else:
+            logging.warning(f"Payment failed for unknown customer {customer_id}: ${amount_due}")
+
     except Exception as e:
         logging.error(f"Error in handle_payment_failed: {e}")
 
@@ -2935,9 +2982,20 @@ def student_cancel_subscription():
         # Log cancellation
         app.logger.info(f"Student {student_id} canceled subscription. Reason: {reason}. Feedback: {feedback}")
 
-        # Deactivate subscription
+        # Cancel in Stripe if subscription ID exists
+        if student.stripe_subscription_id:
+            try:
+                stripe.Subscription.delete(student.stripe_subscription_id)
+                app.logger.info(f"Canceled Stripe subscription: {student.stripe_subscription_id}")
+            except Exception as e:
+                app.logger.error(f"Failed to cancel Stripe subscription: {e}")
+                flash("Error canceling subscription in Stripe. Please contact support.", "error")
+                return redirect("/student/cancel-subscription")
+
+        # Deactivate subscription locally
         student.subscription_active = False
         student.plan = "free"
+        student.stripe_subscription_id = None  # Clear subscription ID
 
         success, error = safe_commit()
 
@@ -2974,9 +3032,20 @@ def parent_cancel_subscription():
         # Log cancellation
         app.logger.info(f"Parent {parent_id} canceled subscription. Reason: {reason}. Feedback: {feedback}")
 
-        # Deactivate subscription
+        # Cancel in Stripe if subscription ID exists
+        if parent.stripe_subscription_id:
+            try:
+                stripe.Subscription.delete(parent.stripe_subscription_id)
+                app.logger.info(f"Canceled Stripe subscription: {parent.stripe_subscription_id}")
+            except Exception as e:
+                app.logger.error(f"Failed to cancel Stripe subscription: {e}")
+                flash("Error canceling subscription in Stripe. Please contact support.", "error")
+                return redirect("/parent/cancel-subscription")
+
+        # Deactivate subscription locally
         parent.subscription_active = False
         parent.plan = "free"
+        parent.stripe_subscription_id = None  # Clear subscription ID
 
         success, error = safe_commit()
 
@@ -3013,9 +3082,20 @@ def teacher_cancel_subscription():
         # Log cancellation
         app.logger.info(f"Teacher {teacher_id} canceled subscription. Reason: {reason}. Feedback: {feedback}")
 
-        # Deactivate subscription
+        # Cancel in Stripe if subscription ID exists
+        if teacher.stripe_subscription_id:
+            try:
+                stripe.Subscription.delete(teacher.stripe_subscription_id)
+                app.logger.info(f"Canceled Stripe subscription: {teacher.stripe_subscription_id}")
+            except Exception as e:
+                app.logger.error(f"Failed to cancel Stripe subscription: {e}")
+                flash("Error canceling subscription in Stripe. Please contact support.", "error")
+                return redirect("/teacher/cancel-subscription")
+
+        # Deactivate subscription locally
         teacher.subscription_active = False
         teacher.plan = "free"
+        teacher.stripe_subscription_id = None  # Clear subscription ID
 
         success, error = safe_commit()
 
@@ -3052,9 +3132,20 @@ def homeschool_cancel_subscription():
         # Log cancellation
         app.logger.info(f"Homeschool parent {parent_id} canceled subscription. Reason: {reason}. Feedback: {feedback}")
 
-        # Deactivate subscription
+        # Cancel in Stripe if subscription ID exists
+        if parent.stripe_subscription_id:
+            try:
+                stripe.Subscription.delete(parent.stripe_subscription_id)
+                app.logger.info(f"Canceled Stripe subscription for homeschool parent {parent.email}: {parent.stripe_subscription_id}")
+            except Exception as e:
+                app.logger.error(f"Failed to cancel Stripe subscription for homeschool parent {parent.email}: {e}")
+                flash("Error canceling subscription in Stripe. Please contact support.", "error")
+                return redirect("/homeschool/cancel-subscription")
+
+        # Deactivate subscription locally
         parent.subscription_active = False
         parent.plan = "free"
+        parent.stripe_subscription_id = None  # Clear subscription ID
 
         success, error = safe_commit()
 

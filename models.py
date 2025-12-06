@@ -25,6 +25,10 @@ class Parent(db.Model):
     trial_end = db.Column(db.DateTime)
     subscription_active = db.Column(db.Boolean, default=False)
 
+    # Stripe integration
+    stripe_customer_id = db.Column(db.String(255), nullable=True)
+    stripe_subscription_id = db.Column(db.String(255), nullable=True)
+
     # Time limits (Phase 3)
     daily_limit_minutes = db.Column(db.Integer, nullable=True)  # null = no limit
 
@@ -60,6 +64,10 @@ class Teacher(db.Model):
     trial_start = db.Column(db.DateTime)
     trial_end = db.Column(db.DateTime)
     subscription_active = db.Column(db.Boolean, default=False)
+
+    # Stripe integration
+    stripe_customer_id = db.Column(db.String(255), nullable=True)
+    stripe_subscription_id = db.Column(db.String(255), nullable=True)
 
     # Password reset tokens
     reset_token = db.Column(db.String(255), nullable=True)
@@ -114,6 +122,10 @@ class Student(db.Model):
     trial_start = db.Column(db.DateTime)
     trial_end = db.Column(db.DateTime)
     subscription_active = db.Column(db.Boolean, default=False)
+
+    # Stripe integration
+    stripe_customer_id = db.Column(db.String(255), nullable=True)
+    stripe_subscription_id = db.Column(db.String(255), nullable=True)
 
     # Differentiation engine ability tier
     ability_level = db.Column(db.String(20), default="on_level")  

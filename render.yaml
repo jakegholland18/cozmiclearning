@@ -11,6 +11,7 @@ services:
       pip install -r requirements.txt
       python3 fix_production_db.py
       python3 init_arcade_enhancements.py
+      python3 add_stripe_ids.py
     startCommand: |
       gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --worker-class gthread --timeout 120 --max-requests 1000 --max-requests-jitter 100 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info
     healthCheckPath: /
