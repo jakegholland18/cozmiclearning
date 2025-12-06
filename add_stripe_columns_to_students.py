@@ -1,13 +1,16 @@
 """
-Migration Script: Add Stripe Columns to Students Table
-Adds stripe_customer_id and stripe_subscription_id columns to the students table
+Migration Script: Add Stripe Columns to All User Tables
+Adds stripe_customer_id and stripe_subscription_id columns to:
+- students table
+- teachers table
+- parents table
 """
 
 import sqlite3
 from pathlib import Path
 
-def add_stripe_columns_to_students():
-    """Add Stripe customer and subscription ID columns to students table"""
+def add_stripe_columns_to_all_tables():
+    """Add Stripe customer and subscription ID columns to all user tables"""
 
     # Database path
     db_path = Path("instance/cozmic.db")
@@ -22,26 +25,39 @@ def add_stripe_columns_to_students():
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Check if columns already exist
-        cursor.execute("PRAGMA table_info(students)")
-        columns = [column[1] for column in cursor.fetchall()]
+        # Tables to update
+        tables = ['students', 'teachers', 'parents']
+        total_columns_added = 0
 
-        columns_to_add = []
-        if 'stripe_customer_id' not in columns:
-            columns_to_add.append(('stripe_customer_id', 'VARCHAR(255)'))
-        if 'stripe_subscription_id' not in columns:
-            columns_to_add.append(('stripe_subscription_id', 'VARCHAR(255)'))
+        for table in tables:
+            print(f"\n📋 Checking {table} table...")
 
-        if not columns_to_add:
-            print("✅ Stripe columns already exist in students table")
-            conn.close()
-            return True
+            # Check if table exists
+            cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
+            if not cursor.fetchone():
+                print(f"   ⚠️  Table {table} does not exist, skipping")
+                continue
 
-        # Add missing columns
-        for column_name, column_type in columns_to_add:
-            print(f"📝 Adding column: {column_name} ({column_type})")
-            cursor.execute(f"ALTER TABLE students ADD COLUMN {column_name} {column_type}")
-            print(f"✅ Added {column_name}")
+            # Check if columns already exist
+            cursor.execute(f"PRAGMA table_info({table})")
+            columns = [column[1] for column in cursor.fetchall()]
+
+            columns_to_add = []
+            if 'stripe_customer_id' not in columns:
+                columns_to_add.append(('stripe_customer_id', 'VARCHAR(255)'))
+            if 'stripe_subscription_id' not in columns:
+                columns_to_add.append(('stripe_subscription_id', 'VARCHAR(255)'))
+
+            if not columns_to_add:
+                print(f"   ✅ Stripe columns already exist in {table}")
+                continue
+
+            # Add missing columns
+            for column_name, column_type in columns_to_add:
+                print(f"   📝 Adding column: {column_name} ({column_type})")
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column_name} {column_type}")
+                print(f"   ✅ Added {column_name}")
+                total_columns_added += 1
 
         # Commit changes
         conn.commit()
@@ -50,9 +66,8 @@ def add_stripe_columns_to_students():
         print("\n" + "="*60)
         print("✅ Migration completed successfully!")
         print("="*60)
-        print(f"   Added {len(columns_to_add)} column(s) to students table:")
-        for column_name, _ in columns_to_add:
-            print(f"   - {column_name}")
+        print(f"   Added {total_columns_added} total column(s) across all tables")
+        print("   Tables updated: students, teachers, parents")
         print("="*60)
 
         return True
@@ -65,11 +80,11 @@ def add_stripe_columns_to_students():
 
 if __name__ == "__main__":
     print("="*60)
-    print("  Stripe Columns Migration for Students Table")
+    print("  Stripe Columns Migration for All User Tables")
     print("="*60)
     print()
 
-    success = add_stripe_columns_to_students()
+    success = add_stripe_columns_to_all_tables()
 
     if success:
         print("\n✅ You can now run your app without the database error!")
