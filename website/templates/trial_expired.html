@@ -30,88 +30,29 @@
                 <div class="plan-card basic">
                     <h3>Basic Plan</h3>
                     <div class="price">
-                        <span class="amount">$7.99</span>
-                        <span class="period">/month</span>
-                    </div>
-                    <ul class="features">
-                        <li>✓ 100 AI questions/month</li>
-                        <li>✓ All 11 subject planets</li>
-                        <li>✓ Practice missions</li>
-                        <li>✓ Progress tracking</li>
-                    </ul>
-                    <form action="/create-checkout-session" method="POST" class="plan-form">
-                        <input type="hidden" name="role" value="student">
-                        <input type="hidden" name="plan" value="basic">
-                        <input type="hidden" name="billing" value="monthly">
-                        <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-primary">Choose Basic Monthly</button>
-                    </form>
-                    <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
-                        <input type="hidden" name="role" value="student">
-                        <input type="hidden" name="plan" value="basic">
-                        <input type="hidden" name="billing" value="yearly">
-                        <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$85/year (save $11)</button>
-                    </form>
-                </div>
-
-                <div class="plan-card premium">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <h3>Premium Plan</h3>
-                    <div class="price">
-                        <span class="amount">$12.99</span>
-                        <span class="period">/month</span>
-                    </div>
-                    <ul class="features">
-                        <li>✓ <strong>Unlimited</strong> AI questions</li>
-                        <li>✓ All 11 subject planets</li>
-                        <li>✓ Advanced practice missions</li>
-                        <li>✓ Priority AI responses</li>
-                        <li>✓ Detailed analytics</li>
-                    </ul>
-                    <form action="/create-checkout-session" method="POST" class="plan-form">
-                        <input type="hidden" name="role" value="student">
-                        <input type="hidden" name="plan" value="premium">
-                        <input type="hidden" name="billing" value="monthly">
-                        <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-primary premium-btn">Choose Premium Monthly</button>
-                    </form>
-                    <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
-                        <input type="hidden" name="role" value="student">
-                        <input type="hidden" name="plan" value="premium">
-                        <input type="hidden" name="billing" value="yearly">
-                        <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$140/year (save $16)</button>
-                    </form>
-                </div>
-
-            {% elif role == 'parent' %}
-                <!-- Parent Plans -->
-                <div class="plan-card basic">
-                    <h3>Basic Plan</h3>
-                    <div class="price">
                         <span class="amount">$9.99</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ Up to 3 students</li>
+                        <li>✓ 50 questions/day</li>
+                        <li>✓ 20 practice sessions/day</li>
+                        <li>✓ 1 PowerGrid study guide/day</li>
+                        <li>✓ All 10 subjects</li>
                         <li>✓ Progress tracking</li>
-                        <li>✓ Weekly reports</li>
-                        <li>✓ Time limit controls</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
-                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="role" value="student">
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
                         <button type="submit" class="btn-primary">Choose Basic Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
-                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="role" value="student">
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$75/year (save $45)</button>
+                        <button type="submit" class="btn-secondary">$99/year (save $20)</button>
                     </form>
                 </div>
 
@@ -119,44 +60,107 @@
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Premium Plan</h3>
                     <div class="price">
-                        <span class="amount">$15.99</span>
+                        <span class="amount">$14.99</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ <strong>Unlimited</strong> students</li>
+                        <li>✓ 200 questions/day</li>
+                        <li>✓ 100 practice sessions/day</li>
+                        <li>✓ 5 PowerGrid guides/day</li>
+                        <li>✓ All 10 subjects</li>
                         <li>✓ Advanced analytics</li>
-                        <li>✓ Custom reports</li>
                         <li>✓ Priority support</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
-                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="role" value="student">
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
                         <button type="submit" class="btn-primary premium-btn">Choose Premium Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
+                        <input type="hidden" name="role" value="student">
+                        <input type="hidden" name="plan" value="premium">
+                        <input type="hidden" name="billing" value="yearly">
+                        <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <button type="submit" class="btn-secondary">$149/year (save $30)</button>
+                    </form>
+                </div>
+
+            {% elif role == 'parent' %}
+                <!-- Parent/Homeschool Plans -->
+                <div class="plan-card basic">
+                    <h3>Essentials Plan</h3>
+                    <div class="price">
+                        <span class="amount">$19.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="features">
+                        <li>✓ 2 students included</li>
+                        <li>✓ 15 lesson plans/month</li>
+                        <li>✓ 10 PowerGrid guides/day</li>
+                        <li>✓ Progress tracking</li>
+                        <li>✓ Weekly reports</li>
+                    </ul>
+                    <form action="/create-checkout-session" method="POST" class="plan-form">
+                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="plan" value="basic">
+                        <input type="hidden" name="billing" value="monthly">
+                        <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <button type="submit" class="btn-primary">Choose Essentials Monthly</button>
+                    </form>
+                    <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
+                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="plan" value="basic">
+                        <input type="hidden" name="billing" value="yearly">
+                        <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <button type="submit" class="btn-secondary">$199/year (save $40)</button>
+                    </form>
+                </div>
+
+                <div class="plan-card premium">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <h3>Complete Plan</h3>
+                    <div class="price">
+                        <span class="amount">$34.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="features">
+                        <li>✓ 5 students included</li>
+                        <li>✓ 50 lesson plans/month</li>
+                        <li>✓ 30 PowerGrid guides/day</li>
+                        <li>✓ Advanced analytics</li>
+                        <li>✓ Real-time tracking</li>
+                    </ul>
+                    <form action="/create-checkout-session" method="POST" class="plan-form">
+                        <input type="hidden" name="role" value="parent">
+                        <input type="hidden" name="plan" value="premium">
+                        <input type="hidden" name="billing" value="monthly">
+                        <input type="hidden" name="user_id" value="{{ user_id }}">
+                        <button type="submit" class="btn-primary premium-btn">Choose Complete Monthly</button>
+                    </form>
+                    <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
                         <input type="hidden" name="role" value="parent">
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$160/year (save $32)</button>
+                        <button type="submit" class="btn-secondary">$349/year (save $70)</button>
                     </form>
                 </div>
 
             {% elif role == 'teacher' %}
                 <!-- Teacher Plans -->
                 <div class="plan-card basic">
-                    <h3>Basic Plan</h3>
+                    <h3>Classroom Plan</h3>
                     <div class="price">
-                        <span class="amount">$15.99</span>
+                        <span class="amount">$24.99</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ Up to 3 classes</li>
-                        <li>✓ Up to 50 students</li>
-                        <li>✓ 50 lesson plans/month</li>
-                        <li>✓ 100 assignments/month</li>
+                        <li>✓ Up to 35 students</li>
+                        <li>✓ 25 lesson plans/month</li>
+                        <li>✓ 50 assignments/month</li>
+                        <li>✓ 15 PowerGrid guides/day</li>
                         <li>✓ Class analytics</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
@@ -164,30 +168,30 @@
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-primary">Choose Basic Monthly</button>
+                        <button type="submit" class="btn-primary">Choose Classroom Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
                         <input type="hidden" name="role" value="teacher">
                         <input type="hidden" name="plan" value="basic">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$170/year (save $22)</button>
+                        <button type="submit" class="btn-secondary">$249/year (save $50)</button>
                     </form>
                 </div>
 
                 <div class="plan-card premium">
                     <div class="popular-badge">MOST POPULAR</div>
-                    <h3>Premium Plan</h3>
+                    <h3>School Plan</h3>
                     <div class="price">
-                        <span class="amount">$25.99</span>
+                        <span class="amount">$59.99</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ <strong>Unlimited</strong> classes</li>
-                        <li>✓ <strong>Unlimited</strong> students</li>
-                        <li>✓ <strong>Unlimited</strong> lesson plans</li>
-                        <li>✓ <strong>Unlimited</strong> assignments</li>
-                        <li>✓ Advanced analytics</li>
+                        <li>✓ Up to 150 students</li>
+                        <li>✓ 5 teachers</li>
+                        <li>✓ 100 lesson plans/month</li>
+                        <li>✓ 200 assignments/month</li>
+                        <li>✓ School-wide analytics</li>
                         <li>✓ Priority support</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
@@ -195,14 +199,14 @@
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="monthly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-primary premium-btn">Choose Premium Monthly</button>
+                        <button type="submit" class="btn-primary premium-btn">Choose School Monthly</button>
                     </form>
                     <form action="/create-checkout-session" method="POST" class="plan-form-yearly">
                         <input type="hidden" name="role" value="teacher">
                         <input type="hidden" name="plan" value="premium">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$280/year (save $32)</button>
+                        <button type="submit" class="btn-secondary">$599/year (save $120)</button>
                     </form>
                 </div>
 
@@ -215,12 +219,12 @@
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ Up to 5 students</li>
-                        <li>✓ Parent dashboard</li>
+                        <li>✓ 2 students included</li>
+                        <li>✓ 15 lesson plans/month</li>
+                        <li>✓ 10 PowerGrid guides/day</li>
                         <li>✓ Progress tracking</li>
                         <li>✓ Weekly reports</li>
-                        <li>✓ 25 lesson plans/month</li>
-                        <li>✓ Time limit controls</li>
+                        <li>✓ Biblical integration</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
                         <input type="hidden" name="role" value="homeschool">
@@ -234,7 +238,7 @@
                         <input type="hidden" name="plan" value="essential">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$215/year (save $25)</button>
+                        <button type="submit" class="btn-secondary">$199/year (save $40)</button>
                     </form>
                 </div>
 
@@ -242,15 +246,15 @@
                     <div class="popular-badge">MOST POPULAR</div>
                     <h3>Complete Plan</h3>
                     <div class="price">
-                        <span class="amount">$29.99</span>
+                        <span class="amount">$34.99</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="features">
-                        <li>✓ <strong>Unlimited</strong> students</li>
-                        <li>✓ <strong>Unlimited</strong> lesson plans</li>
-                        <li>✓ Full teacher features</li>
+                        <li>✓ 5 students included</li>
+                        <li>✓ 50 lesson plans/month</li>
+                        <li>✓ 30 PowerGrid guides/day</li>
                         <li>✓ Advanced analytics</li>
-                        <li>✓ Custom assignments</li>
+                        <li>✓ Real-time tracking</li>
                         <li>✓ Priority support</li>
                     </ul>
                     <form action="/create-checkout-session" method="POST" class="plan-form">
@@ -265,7 +269,7 @@
                         <input type="hidden" name="plan" value="complete">
                         <input type="hidden" name="billing" value="yearly">
                         <input type="hidden" name="user_id" value="{{ user_id }}">
-                        <button type="submit" class="btn-secondary">$320/year (save $40)</button>
+                        <button type="submit" class="btn-secondary">$349/year (save $70)</button>
                     </form>
                 </div>
             {% endif %}
