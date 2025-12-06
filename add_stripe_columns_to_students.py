@@ -12,11 +12,24 @@ from pathlib import Path
 def add_stripe_columns_to_all_tables():
     """Add Stripe customer and subscription ID columns to all user tables"""
 
-    # Database path
-    db_path = Path("instance/cozmic.db")
+    # Try multiple possible database paths
+    possible_paths = [
+        Path("persist/cozmiclearning.db"),  # Render production path
+        Path("instance/cozmic.db"),  # Local development path
+        Path("/opt/render/project/src/persist/cozmiclearning.db"),  # Absolute Render path
+    ]
 
-    if not db_path.exists():
-        print(f"❌ Database not found at {db_path}")
+    db_path = None
+    for path in possible_paths:
+        if path.exists():
+            db_path = path
+            print(f"✅ Found database at: {db_path}")
+            break
+
+    if not db_path:
+        print(f"❌ Database not found at any of these locations:")
+        for path in possible_paths:
+            print(f"   - {path}")
         print("   Make sure you're running this from the project root directory")
         return False
 
