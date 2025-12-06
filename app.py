@@ -1881,12 +1881,13 @@ def trial_expired():
 
 
 @app.route("/secret_admin_login", methods=["GET", "POST"])
+@csrf.exempt
 def secret_admin_login():
     """Hidden admin login - accessed via secret button on landing page"""
     if request.method == "POST":
         admin_id = request.form.get("admin_id", "").strip()
         password = request.form.get("password", "").strip()
-        
+
         # Simple check: ID = "admin" and password matches
         if admin_id.lower() == "admin" and password == ADMIN_PASSWORD:
             session["admin_authenticated"] = True
@@ -1894,7 +1895,7 @@ def secret_admin_login():
             return redirect("/admin")
         else:
             flash("Invalid admin credentials.", "error")
-    
+
     return render_template("secret_admin_login.html")
 
 
