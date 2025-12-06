@@ -2723,9 +2723,11 @@ def create_checkout_session():
         
         # Get Stripe price ID
         price_id = get_stripe_price_id(role, plan, billing)
-        
+
         if not price_id:
-            flash(f"Invalid plan configuration: {role} {plan} {billing}", "error")
+            key = f"{role}_{plan}_{billing}"
+            logging.error(f"Missing Stripe price ID for key: {key}")
+            flash(f"Payment configuration error. Please contact support. (Missing price for: {role} {plan} {billing})", "error")
             return redirect(f"/trial_expired?role={role}")
         
         # Check if this is a new signup (with trial)
