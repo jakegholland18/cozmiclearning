@@ -122,14 +122,14 @@
 
     {% if lesson_plan.topic %}
     <div class="lesson-section">
-        <h2>= Topic</h2>
+        <h2>📚 Topic</h2>
         <p>{{ lesson_plan.topic }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.objectives %}
     <div class="lesson-section">
-        <h2> Learning Objectives</h2>
+        <h2>🎯 Learning Objectives</h2>
         <ul>
             {% for objective in lesson_plan.objectives %}
             <li>{{ objective }}</li>
@@ -140,7 +140,7 @@
 
     {% if lesson_plan.materials %}
     <div class="lesson-section">
-        <h2> Materials Needed</h2>
+        <h2>🧰 Materials Needed</h2>
         <ul>
             {% for material in lesson_plan.materials %}
             <li>{{ material }}</li>
@@ -151,7 +151,7 @@
 
     {% if lesson_plan.activities %}
     <div class="lesson-section">
-        <h2>= Lesson Activities</h2>
+        <h2>📖 Lesson Activities</h2>
         {% for activity in lesson_plan.activities %}
         <div class="activity-card">
             <h3>{{ activity.section }} ({{ activity.duration }} min)</h3>
@@ -164,7 +164,7 @@
 
     {% if lesson_plan.discussion_questions %}
     <div class="lesson-section">
-        <h2> Discussion Questions</h2>
+        <h2>💬 Discussion Questions</h2>
         <ul>
             {% for question in lesson_plan.discussion_questions %}
             <li>{{ question }}</li>
@@ -175,35 +175,35 @@
 
     {% if lesson_plan.assessment %}
     <div class="lesson-section">
-        <h2> Assessment</h2>
+        <h2>✅ Assessment</h2>
         <p>{{ lesson_plan.assessment }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.homework %}
     <div class="lesson-section">
-        <h2> Homework/Practice</h2>
+        <h2>📝 Homework/Practice</h2>
         <p>{{ lesson_plan.homework }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.extensions %}
     <div class="lesson-section">
-        <h2>P Extension Activities</h2>
+        <h2>🚀 Extension Activities</h2>
         <p>{{ lesson_plan.extensions }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.biblical_integration %}
     <div class="lesson-section">
-        <h2> Biblical Integration</h2>
+        <h2>✝️ Biblical Integration</h2>
         <p>{{ lesson_plan.biblical_integration }}</p>
     </div>
     {% endif %}
 
     {% if lesson_plan.notes %}
     <div class="lesson-section">
-        <h2> Teaching Notes</h2>
+        <h2>📋 Teaching Notes</h2>
         <p>{{ lesson_plan.notes }}</p>
     </div>
     {% endif %}
