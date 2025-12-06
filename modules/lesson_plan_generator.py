@@ -38,7 +38,9 @@ def generate_lesson_plan(
     client = get_client()
 
     # Build the prompt
-    prompt = f"""You are an expert homeschool curriculum designer. Create a comprehensive, engaging lesson plan for:
+    prompt = f"""You are an expert homeschool curriculum designer. Create a comprehensive, engaging lesson plan for a homeschool parent teaching their own child.
+
+IMPORTANT: This parent will be implementing the lesson themselves - they don't have access to worksheets, textbooks, or printed materials unless you specifically tell them what to create. Focus on practical, actionable activities that can be done with common household items or simple prep.
 
 **Title:** {title}
 **Topic:** {topic}
@@ -99,9 +101,9 @@ Generate a complete lesson plan in the following JSON format (respond with ONLY 
     "Thought-provoking question 4",
     "Thought-provoking question 5"
   ],
-  "assessment": "Description of how to assess student understanding (formative and summative ideas)",
-  "homework": "Suggested homework or practice activities to reinforce learning",
-  "extensions": "Ideas for extension activities for advanced students or deeper exploration"{"," + '"biblical_integration": "Relevant Bible verses and how they connect to this topic"' if biblical_integration else ""}
+  "assessment": "Practical ways for the parent to assess understanding during and after the lesson (verbal questions, observations, simple tasks - no worksheets)",
+  "homework": "Suggested practice activities to reinforce learning (be specific about what the student should do)",
+  "extensions": "Specific ideas for extension activities for advanced students or deeper exploration"{"," + '"biblical_integration": "Relevant Bible verses and how they connect to this topic"' if biblical_integration else ""}
 }}
 
 Make it age-appropriate for grade {grade}, engaging, and practical for a homeschool setting."""
