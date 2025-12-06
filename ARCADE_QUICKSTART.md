@@ -4,22 +4,27 @@
 
 Your arcade mode now has **6 major enhancements** to make learning more engaging!
 
-## Quick Setup (3 Steps)
+## Quick Setup (4 Steps)
 
-### Step 1: Initialize Database
+### Step 1: Create Database Tables
 ```bash
 cd /Users/tamara/Desktop/cozmiclearning
-python init_arcade_enhancements.py
+python3 setup_arcade_tables.py
 ```
 
-### Step 2: Restart Your Flask App
+### Step 2: Initialize Badges & Power-ups
+```bash
+python3 init_arcade_enhancements.py
+```
+
+### Step 3: Restart Your Flask App
 ```bash
 # Stop current app (Ctrl+C if running)
 python app.py
 # Or however you normally start it
 ```
 
-### Step 3: Visit the Arcade!
+### Step 4: Visit the Arcade!
 Navigate to `/arcade` and you'll see new buttons at the top:
 - 🏆 Daily Challenge
 - 🏅 Badges
@@ -172,11 +177,14 @@ Visit `/arcade/stats` - you should see your game performance
 
 ## Quick Troubleshooting
 
+**Issue**: "no such column: game_sessions.game_mode" error
+**Fix**: Run `python3 setup_arcade_tables.py` to create all tables
+
 **Issue**: "Table doesn't exist" error
-**Fix**: Run `python init_arcade_enhancements.py`
+**Fix**: Run `python3 setup_arcade_tables.py` then `python3 init_arcade_enhancements.py`
 
 **Issue**: No badges showing
-**Fix**: Check database: `sqlite3 instance/database.db` then `SELECT * FROM arcade_badges;`
+**Fix**: Run `python3 init_arcade_enhancements.py` to populate badges and powerups
 
 **Issue**: Can't buy power-ups
 **Fix**: Check if student has enough tokens (shown at top of power-up shop)
@@ -189,10 +197,11 @@ Visit `/arcade/stats` - you should see your game performance
 
 ## Next Steps
 
-1. **Run the initialization script** (Step 1 above)
-2. **Test all features** as a student user
-3. **Customize** badges/power-ups if desired (edit `arcade_enhancements.py`)
-4. **Monitor** student engagement (check stats in database)
+1. ✅ **Database tables created** (Step 1 done!)
+2. **Run initialization**: `python3 init_arcade_enhancements.py`
+3. **Test all features** as a student user
+4. **Customize** badges/power-ups if desired (edit `arcade_enhancements.py`)
+5. **Monitor** student engagement (check stats in database)
 
 ## Need More Details?
 
@@ -205,4 +214,7 @@ See **ARCADE_ENHANCEMENTS.md** for:
 
 ---
 
-**Ready to launch?** Just run the init script and restart your app! 🚀
+**Ready to launch?**
+1. Run `python3 init_arcade_enhancements.py`
+2. Restart your Flask app
+3. Visit `/arcade` and enjoy! 🚀
