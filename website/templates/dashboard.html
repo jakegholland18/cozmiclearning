@@ -87,6 +87,24 @@
         color: var(--accent);
     }
 
+    .student-cancel-btn {
+        padding: 8px 16px;
+        background: rgba(255,193,7,0.2);
+        border: 1px solid rgba(255,193,7,0.3);
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .student-cancel-btn:hover {
+        background: rgba(255,193,7,0.3);
+        border-color: rgba(255,193,7,0.5);
+        transform: translateY(-2px);
+    }
+
     .student-logout-btn {
         padding: 8px 16px;
         background: linear-gradient(135deg, rgba(255,77,77,0.2), rgba(255,107,157,0.2));
@@ -351,6 +369,9 @@
                 🔥 <span class="stat-mini-value">{{ streak }}</span> Day
             </div>
         </div>
+        {% if student.subscription_active %}
+        <a href="/student/cancel-subscription" class="student-cancel-btn">Cancel Sub</a>
+        {% endif %}
         <a href="/logout" class="student-logout-btn">Logout</a>
     </div>
 </div>

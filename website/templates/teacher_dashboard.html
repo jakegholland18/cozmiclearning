@@ -528,6 +528,9 @@
         {% if is_owner %}
             <span class="owner-pill">👑 Owner</span>
         {% endif %}
+        {% if teacher.subscription_active %}
+        <a href="/teacher/cancel-subscription" style="padding: 8px 16px; background: rgba(255,193,7,0.2); border: 1px solid rgba(255,193,7,0.3); border-radius: 8px; margin-left: 12px; color: var(--text); text-decoration: none; font-weight: 600;">Cancel Sub</a>
+        {% endif %}
         <a href="/logout" style="padding: 8px 16px; background: rgba(255,77,77,0.2); border: 1px solid rgba(255,107,157,0.3); border-radius: 8px; margin-left: 12px;">Logout</a>
     </div>
 </div>
