@@ -256,6 +256,7 @@
             </div>
 
             <form method="POST" onsubmit="return confirm('Are you sure you want to cancel your subscription? This action cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label for="reason">Why are you canceling? (Optional)</label>
                     <select id="reason" name="reason">

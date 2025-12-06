@@ -2784,26 +2784,28 @@ def subscription_success():
             # Activate subscription for user
             if role == "student":
                 user = Student.query.get(user_id)
-            elif role == "parent":
+            elif role == "parent" or role == "homeschool":
                 user = Parent.query.get(user_id)
             elif role == "teacher":
                 user = Teacher.query.get(user_id)
             else:
                 flash("Invalid role.", "error")
                 return redirect("/choose_login_role")
-            
+
             if user:
                 user.subscription_active = True
                 user.trial_end = None  # Clear trial end since they're now paid
                 db.session.commit()
-                
+
                 flash(f"🎉 Welcome to CozmicLearning {user.plan.replace('_', ' ').title()} plan! Your subscription is now active.", "success")
-                
+
                 # Redirect to appropriate dashboard
                 if role == "student":
                     return redirect("/dashboard")
                 elif role == "parent":
                     return redirect("/parent_dashboard")
+                elif role == "homeschool":
+                    return redirect("/homeschool/dashboard")
                 elif role == "teacher":
                     return redirect("/teacher/dashboard")
             else:
@@ -2872,7 +2874,7 @@ def handle_checkout_completed(session_obj):
 
         if role == "student":
             user = Student.query.get(user_id)
-        elif role == "parent":
+        elif role == "parent" or role == "homeschool":
             user = Parent.query.get(user_id)
         elif role == "teacher":
             user = Teacher.query.get(user_id)
@@ -3423,7 +3425,7 @@ def parent_signup():
             billing=billing,
             trial_start=trial_start,
             trial_end=trial_end,
-            subscription_active=True,  # All plans are paid
+            subscription_active=False,  # Will be activated after payment
         )
         db.session.add(parent)
         db.session.commit()
@@ -3433,8 +3435,15 @@ def parent_signup():
         session["parent_name"] = parent.name
         session["access_code"] = access_code  # Store to display on dashboard
 
-        flash(f"Welcome! Your Parent Access Code is: {access_code} - Share this with your children to link their accounts.", "success")
-        return redirect("/parent_dashboard")
+        # Redirect to payment page with 7-day trial
+        return render_template(
+            "stripe_checkout_redirect.html",
+            role="parent",
+            plan=plan,
+            billing=billing,
+            user_id=parent.id,
+            trial_days=7
+        )
 
     return render_template("parent_signup.html", selected_plan=selected_plan)
 
@@ -3523,8 +3532,15 @@ def teacher_signup():
         session["teacher_id"] = teacher.id
         session["user_role"] = "teacher"
 
-        flash("Welcome to CozmicLearning Teacher Portal!", "info")
-        return redirect("/teacher/dashboard")
+        # Redirect to payment page with 7-day trial
+        return render_template(
+            "stripe_checkout_redirect.html",
+            role="teacher",
+            plan=plan,
+            billing=billing,
+            user_id=teacher.id,
+            trial_days=7
+        )
 
     return render_template("teacher_signup.html")
 
@@ -7856,7 +7872,7 @@ def homeschool_signup():
             billing=billing,
             trial_start=trial_start,
             trial_end=trial_end,
-            subscription_active=True,
+            subscription_active=False,  # Will be activated after payment
         )
         db.session.add(parent)
         db.session.commit()
@@ -7866,8 +7882,15 @@ def homeschool_signup():
         session["parent_name"] = parent.name
         session["access_code"] = access_code
 
-        flash(f"Welcome to CozmicLearning Homeschool! Your Child Access Code is: {access_code} - Share this with your children to create their accounts.", "success")
-        return redirect("/homeschool/dashboard")
+        # Redirect to payment page with 7-day trial
+        return render_template(
+            "stripe_checkout_redirect.html",
+            role="homeschool",
+            plan=plan,
+            billing=billing,
+            user_id=parent.id,
+            trial_days=7
+        )
 
     return render_template("homeschool_signup.html", selected_plan=selected_plan)
 
