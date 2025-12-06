@@ -140,6 +140,96 @@ STRIPE_PRICES = {
 }
 
 # ============================================================
+# PLAN LIMITS CONFIGURATION
+# ============================================================
+
+PLAN_LIMITS = {
+    # STUDENT PLANS
+    'student': {
+        'basic': {
+            'questions_per_day': 10,
+            'practice_sessions_per_day': 5,
+            'powergrid_per_day': 1,
+            'ai_chat_messages_per_day': 15,
+        },
+        'premium': {
+            'questions_per_day': 100,
+            'practice_sessions_per_day': 50,
+            'powergrid_per_day': 5,
+            'ai_chat_messages_per_day': 75,
+        },
+        'free': {  # Trial/Free tier
+            'questions_per_day': 10,
+            'practice_sessions_per_day': 2,
+            'powergrid_per_day': 0,
+            'ai_chat_messages_per_day': 5,
+        }
+    },
+
+    # PARENT PLANS (includes student accounts)
+    'parent': {
+        'basic': {  # Essentials
+            'students_included': 2,
+            'questions_per_student_per_day': 12,
+            'practice_per_student_per_day': 6,
+            'lesson_plans_per_month': 3,
+            'assignments_per_month': 15,
+            'powergrid_per_day': 3,  # Shared across family
+            'teachers_pet_messages_per_day': 20,
+        },
+        'premium': {  # Complete
+            'students_included': 5,
+            'questions_per_student_per_day': 60,
+            'practice_per_student_per_day': 30,
+            'lesson_plans_per_month': 25,
+            'assignments_per_month': 100,
+            'powergrid_per_day': 15,  # Shared across family
+            'teachers_pet_messages_per_day': 100,
+        }
+    },
+
+    # TEACHER PLANS (teacher tools only, students have separate accounts)
+    'teacher': {
+        'basic': {  # Classroom
+            'students_can_track': 30,
+            'lesson_plans_per_month': 5,
+            'assignments_per_month': 10,
+            'powergrid_per_day': 3,
+            'teachers_pet_messages_per_day': 30,
+        },
+        'premium': {  # Complete
+            'students_can_track': 100,
+            'lesson_plans_per_month': 30,
+            'assignments_per_month': 60,
+            'powergrid_per_day': 15,
+            'teachers_pet_messages_per_day': 100,
+        }
+    },
+
+    # HOMESCHOOL PLANS (includes student accounts + biblical integration)
+    'homeschool': {
+        'essential': {  # Essentials
+            'students_included': 2,
+            'questions_per_student_per_day': 15,
+            'practice_per_student_per_day': 7,
+            'lesson_plans_per_month': 3,
+            'assignments_per_month': 15,
+            'powergrid_per_day': 3,  # Shared across family
+            'teachers_pet_messages_per_day': 25,
+        },
+        'complete': {  # Complete
+            'students_included': 5,
+            'questions_per_student_per_day': 75,
+            'practice_per_student_per_day': 35,
+            'lesson_plans_per_month': 25,
+            'assignments_per_month': 100,
+            'powergrid_per_day': 15,  # Shared across family
+            'teachers_pet_messages_per_day': 100,
+        }
+    }
+}
+
+# ============================================================
 # DATABASE + MODELS
 # ============================================================
 
@@ -900,64 +990,176 @@ def check_question_limit():
     """Check if student has exceeded their plan's question limit. Returns (allowed, remaining, limit)."""
     if session.get("user_role") != "student":
         return (True, float('inf'), float('inf'))
-    
+
     student = Student.query.filter_by(student_email=session.get("student_email")).first()
     if not student:
         return (True, float('inf'), float('inf'))
-    
-    # Premium or trial gets unlimited
-    if student.plan == "premium" or not student.subscription_active:
-        return (True, float('inf'), float('inf'))
-    
-    # Basic plan: 100 questions/month
-    limit = 100
-    used = session.get("questions_this_month", 0)
-    remaining = max(0, limit - used)
-    allowed = used < limit
-    
-    return (allowed, remaining, limit)
+
+    # Determine plan tier
+    plan_tier = 'free'
+    if student.subscription_active:
+        plan_tier = student.plan if student.plan in ['basic', 'premium'] else 'basic'
+
+    # Get daily limit from PLAN_LIMITS
+    daily_limit = PLAN_LIMITS['student'][plan_tier].get('questions_per_day', 10)
+
+    # Track daily usage (we'll use session for now, could move to database)
+    today = datetime.utcnow().date().isoformat()
+    session_key = f"questions_today_{today}"
+    used = session.get(session_key, 0)
+    remaining = max(0, daily_limit - used)
+    allowed = used < daily_limit
+
+    return (allowed, remaining, daily_limit)
 
 
 def increment_question_count():
-    """Increment question counter for the current month."""
+    """Increment question counter for the current day."""
     if session.get("user_role") == "student":
-        session["questions_this_month"] = session.get("questions_this_month", 0) + 1
+        today = datetime.utcnow().date().isoformat()
+        session_key = f"questions_today_{today}"
+        session[session_key] = session.get(session_key, 0) + 1
         session.modified = True
 
 
 def get_parent_plan_limits(parent):
     """Get plan limits for parent/homeschool accounts. Returns (student_limit, lesson_plans_limit, assignments_limit, has_teacher_features)."""
     if not parent or not parent.plan:
-        return (3, 0, 0, False)  # Default free limits
-    
+        return (2, 0, 0, False)  # Default free limits: 2 students, no teacher tools
+
     plan = parent.plan.lower()
-    
+
     # Homeschool plans (hybrid parent + teacher features)
     if plan == "homeschool_essential":
-        return (5, 50, 100, True)  # 5 students, 50 lesson plans/mo, 100 assignments/mo, teacher features enabled
+        limits = PLAN_LIMITS['homeschool']['essential']
+        return (
+            limits['students_included'],
+            limits['lesson_plans_per_month'],
+            limits['assignments_per_month'],
+            True  # Teacher features enabled
+        )
     elif plan == "homeschool_complete":
-        return (float('inf'), float('inf'), float('inf'), True)  # Unlimited everything, teacher features enabled
-    
+        limits = PLAN_LIMITS['homeschool']['complete']
+        return (
+            limits['students_included'],
+            limits['lesson_plans_per_month'],
+            limits['assignments_per_month'],
+            True  # Teacher features enabled
+        )
+
     # Regular parent plans (no teacher features)
     elif plan == "basic":
-        return (3, 0, 0, False)  # 3 students, no teacher tools
+        limits = PLAN_LIMITS['parent']['basic']
+        return (
+            limits['students_included'],
+            limits['lesson_plans_per_month'],
+            limits['assignments_per_month'],
+            False  # No teacher tools
+        )
     elif plan == "premium":
-        return (float('inf'), 0, 0, False)  # Unlimited students, no teacher tools
-    
+        limits = PLAN_LIMITS['parent']['premium']
+        return (
+            limits['students_included'],
+            limits['lesson_plans_per_month'],
+            limits['assignments_per_month'],
+            False  # No teacher tools
+        )
+
     # Default for unknown plans
-    return (3, 0, 0, False)
+    return (2, 0, 0, False)
 
 
 def check_parent_student_limit(parent):
     """Check if parent can add more students. Returns (allowed, current_count, limit)."""
     if not parent:
         return (False, 0, 0)
-    
+
     student_limit, _, _, _ = get_parent_plan_limits(parent)
     current_count = len(parent.students) if parent.students else 0
     allowed = current_count < student_limit
-    
+
     return (allowed, current_count, student_limit)
+
+
+def get_teacher_plan_limits(teacher):
+    """Get plan limits for teacher accounts. Returns dict with all limits."""
+    if not teacher or not teacher.plan:
+        return {
+            'students_can_track': 20,
+            'lesson_plans_per_month': 3,
+            'assignments_per_month': 5,
+            'powergrid_per_day': 1,
+            'teachers_pet_messages_per_day': 10
+        }
+
+    plan = teacher.plan.lower()
+
+    if plan == 'basic':
+        return PLAN_LIMITS['teacher']['basic']
+    elif plan == 'premium':
+        return PLAN_LIMITS['teacher']['premium']
+
+    # Default to basic limits for unknown plans
+    return PLAN_LIMITS['teacher']['basic']
+
+
+def check_teacher_student_limit(teacher):
+    """Check if teacher can track more students. Returns (allowed, current_count, limit)."""
+    if not teacher:
+        return (False, 0, 0)
+
+    limits = get_teacher_plan_limits(teacher)
+    student_limit = limits['students_can_track']
+
+    # Count total students across all classes
+    current_count = 0
+    if teacher.classes:
+        for cls in teacher.classes:
+            if cls.students:
+                current_count += len(cls.students)
+
+    allowed = current_count < student_limit
+    return (allowed, current_count, student_limit)
+
+
+def check_teacher_lesson_plan_limit(teacher):
+    """Check if teacher can create more lesson plans this month. Returns (allowed, current_count, limit)."""
+    if not teacher:
+        return (False, 0, 0)
+
+    limits = get_teacher_plan_limits(teacher)
+    limit = limits['lesson_plans_per_month']
+
+    # Count lesson plans created this month
+    from datetime import datetime
+    first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_count = LessonPlan.query.filter(
+        LessonPlan.teacher_id == teacher.id,
+        LessonPlan.created_at >= first_of_month
+    ).count()
+
+    allowed = current_count < limit
+    return (allowed, current_count, limit)
+
+
+def check_teacher_assignment_limit(teacher):
+    """Check if teacher can create more assignments this month. Returns (allowed, current_count, limit)."""
+    if not teacher:
+        return (False, 0, 0)
+
+    limits = get_teacher_plan_limits(teacher)
+    limit = limits['assignments_per_month']
+
+    # Count assignments created this month
+    from datetime import datetime
+    first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_count = AssignedPractice.query.filter(
+        AssignedPractice.teacher_id == teacher.id,
+        AssignedPractice.created_at >= first_of_month
+    ).count()
+
+    allowed = current_count < limit
+    return (allowed, current_count, limit)
 
 
 # ============================================================
@@ -1332,19 +1534,20 @@ def arcade_game(game_key):
             app.logger.warning(f"Could not load game stats: {e}")
             stats = None
 
-    # Get leaderboard
-    try:
-        leaderboard = get_leaderboard(game_key, grade, limit=10)
-    except Exception as e:
-        app.logger.warning(f"Could not load leaderboard: {e}")
-        leaderboard = []
-    
+    # Get leaderboards for all difficulties
+    leaderboards = {}
+    for diff in ['easy', 'medium', 'hard']:
+        try:
+            leaderboards[diff] = get_leaderboard(game_key, diff, limit=10)
+        except Exception as e:
+            app.logger.warning(f"Could not load {diff} leaderboard: {e}")
+            leaderboards[diff] = []
+
     return render_template(
         "arcade_game.html",
         game=game_info,
         stats=stats,
-        leaderboard=leaderboard,
-        grade=grade,
+        leaderboards=leaderboards,
         character=session["character"]
     )
 
@@ -1366,6 +1569,10 @@ def arcade_play(game_key):
         generate_science_quiz,
         generate_history_timeline,
         generate_geography_dash,
+        generate_multiplication_mayhem,
+        generate_reading_racer,
+        generate_map_master,
+        generate_bible_trivia,
         ARCADE_GAMES
     )
     
@@ -1374,19 +1581,19 @@ def arcade_play(game_key):
         flash("Game not found!", "error")
         return redirect("/arcade")
     
-    # Check if grade was provided in URL (from grade selection screen)
-    selected_grade = request.args.get("grade")
-    
-    # If no grade selected, show grade selection screen
-    if not selected_grade:
+    # Check if difficulty was provided in URL (from difficulty selection screen)
+    selected_difficulty = request.args.get("difficulty")
+
+    # If no difficulty selected, show difficulty selection screen
+    if not selected_difficulty:
         return render_template(
-            "arcade_grade_select.html",
+            "arcade_difficulty_select.html",
             game=game_info,
             character=session.get("character", "everly")
         )
-    
-    # Use selected grade instead of session grade
-    grade = selected_grade
+
+    # Use selected difficulty
+    difficulty = selected_difficulty
     
     # Map each game to its specific generator
     game_generators = {
@@ -1402,19 +1609,23 @@ def arcade_play(game_key):
         "grammar_quest": generate_grammar_quest,
         "history_timeline": generate_history_timeline,
         "geography_dash": generate_geography_dash,
+        "multiplication_mayhem": generate_multiplication_mayhem,
+        "reading_racer": generate_reading_racer,
+        "map_master": generate_map_master,
+        "bible_trivia": generate_bible_trivia,
     }
-    
+
     # Get the appropriate generator for this game
     generator = game_generators.get(game_key, generate_speed_math)
-    questions = generator(grade)
+    questions = generator(difficulty)
     
-    # Store questions in session along with selected grade
+    # Store questions in session along with selected difficulty
     session["current_game"] = {
         "game_key": game_key,
         "questions": questions,
         "current_index": 0,
         "correct": 0,
-        "selected_grade": grade,
+        "selected_difficulty": difficulty,
         "start_time": datetime.utcnow().isoformat()
     }
     session.modified = True
@@ -1423,7 +1634,7 @@ def arcade_play(game_key):
         "arcade_play.html",
         game=game_info,
         questions=questions,
-        grade=grade,
+        difficulty=difficulty,
         character=session.get("character", "everly")
     )
 
@@ -1453,15 +1664,15 @@ def arcade_submit():
 
     student_id = session.get("student_id")
 
-    # Get selected grade from current game session, fallback to student's grade
+    # Get selected difficulty from current game session, default to medium
     current_game = session.get("current_game", {})
-    grade = current_game.get("selected_grade") or session.get("grade", "5")
+    difficulty = current_game.get("selected_difficulty", "medium")
 
     if not student_id:
         return jsonify({"error": "Not logged in"}), 401
 
     # Save game session and get results
-    results = save_game_session(student_id, game_key, grade, score, time_seconds, correct, total)
+    results = save_game_session(student_id, game_key, difficulty, score, time_seconds, correct, total)
 
     # Get the saved game session for badge/challenge checking
     game_session = GameSession.query.filter_by(student_id=student_id).order_by(GameSession.id.desc()).first()

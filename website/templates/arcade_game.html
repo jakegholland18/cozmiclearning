@@ -101,6 +101,76 @@
         text-align: center;
     }
 
+    .difficulty-tabs {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .difficulty-tab {
+        padding: 12px 24px;
+        border: 3px solid;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .difficulty-tab.easy {
+        border-color: rgba(72, 187, 120, 0.5);
+        color: rgb(72, 187, 120);
+    }
+
+    .difficulty-tab.medium {
+        border-color: rgba(255, 193, 7, 0.5);
+        color: rgb(255, 193, 7);
+    }
+
+    .difficulty-tab.hard {
+        border-color: rgba(239, 68, 68, 0.5);
+        color: rgb(239, 68, 68);
+    }
+
+    .difficulty-tab.active {
+        background: rgba(0, 242, 255, 0.15);
+        transform: scale(1.05);
+    }
+
+    .difficulty-tab.easy.active {
+        background: rgba(72, 187, 120, 0.25);
+        border-color: rgb(72, 187, 120);
+        box-shadow: 0 0 20px rgba(72, 187, 120, 0.4);
+    }
+
+    .difficulty-tab.medium.active {
+        background: rgba(255, 193, 7, 0.25);
+        border-color: rgb(255, 193, 7);
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+    }
+
+    .difficulty-tab.hard.active {
+        background: rgba(239, 68, 68, 0.25);
+        border-color: rgb(239, 68, 68);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .difficulty-tab:hover:not(.active) {
+        transform: translateY(-2px);
+        opacity: 0.8;
+    }
+
+    .leaderboard-content {
+        display: none;
+    }
+
+    .leaderboard-content.active {
+        display: block;
+    }
+
     .leaderboard-entry {
         display: flex;
         justify-content: space-between;
@@ -141,7 +211,7 @@
         <h1 class="game-title-large">{{ game.name }}</h1>
         <p class="game-description-large">{{ game.description }}</p>
         <p style="color: var(--muted-2); margin-bottom: 20px; font-weight: 600;">
-            📚 Grades {{ game.grades }} • Adaptive Difficulty
+            🎯 Easy • Medium • Hard Difficulties Available
         </p>
         <a href="/arcade/play/{{ game.game_key }}" class="play-now-btn">Play Now! 🚀</a>
     </div>
@@ -167,25 +237,101 @@
     </div>
     {% endif %}
 
-    {% if leaderboard %}
+    {% if leaderboards %}
     <div class="leaderboard-section">
-        <h2 class="leaderboard-title">🏆 Grade {{ grade }} Leaderboard</h2>
-        {% for entry in leaderboard %}
-        <div class="leaderboard-entry">
-            <div class="leaderboard-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
-                #{{ loop.index }}
+        <h2 class="leaderboard-title">🏆 Leaderboards</h2>
+
+        <!-- Difficulty Tabs -->
+        <div class="difficulty-tabs">
+            <div class="difficulty-tab easy active" onclick="showLeaderboard('easy')">
+                🟢 Easy
             </div>
-            <div class="leaderboard-name">{{ entry.student_name }}</div>
-            <div class="leaderboard-score">{{ entry.high_score }} pts</div>
+            <div class="difficulty-tab medium" onclick="showLeaderboard('medium')">
+                🟡 Medium
+            </div>
+            <div class="difficulty-tab hard" onclick="showLeaderboard('hard')">
+                🔴 Hard
+            </div>
         </div>
-        {% endfor %}
-        
-        {% if leaderboard|length == 0 %}
-        <p style="text-align: center; color: var(--muted-2);">
-            Be the first to set a score for your grade level!
-        </p>
-        {% endif %}
+
+        <!-- Easy Leaderboard -->
+        <div id="leaderboard-easy" class="leaderboard-content active">
+            {% if leaderboards.easy and leaderboards.easy|length > 0 %}
+                {% for entry in leaderboards.easy %}
+                <div class="leaderboard-entry">
+                    <div class="leaderboard-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+                        #{{ loop.index }}
+                    </div>
+                    <div class="leaderboard-name">{{ entry.student_name }}</div>
+                    <div class="leaderboard-score">{{ entry.high_score }} pts</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: var(--muted-2); padding: 20px;">
+                    🌟 Be the first to set a score on Easy difficulty!
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Medium Leaderboard -->
+        <div id="leaderboard-medium" class="leaderboard-content">
+            {% if leaderboards.medium and leaderboards.medium|length > 0 %}
+                {% for entry in leaderboards.medium %}
+                <div class="leaderboard-entry">
+                    <div class="leaderboard-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+                        #{{ loop.index }}
+                    </div>
+                    <div class="leaderboard-name">{{ entry.student_name }}</div>
+                    <div class="leaderboard-score">{{ entry.high_score }} pts</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: var(--muted-2); padding: 20px;">
+                    🌟 Be the first to set a score on Medium difficulty!
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Hard Leaderboard -->
+        <div id="leaderboard-hard" class="leaderboard-content">
+            {% if leaderboards.hard and leaderboards.hard|length > 0 %}
+                {% for entry in leaderboards.hard %}
+                <div class="leaderboard-entry">
+                    <div class="leaderboard-rank {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% endif %}">
+                        #{{ loop.index }}
+                    </div>
+                    <div class="leaderboard-name">{{ entry.student_name }}</div>
+                    <div class="leaderboard-score">{{ entry.high_score }} pts</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: var(--muted-2); padding: 20px;">
+                    🌟 Be the first to set a score on Hard difficulty!
+                </p>
+            {% endif %}
+        </div>
+
     </div>
+
+    <script>
+        function showLeaderboard(difficulty) {
+            // Hide all leaderboards
+            document.querySelectorAll('.leaderboard-content').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Remove active from all tabs
+            document.querySelectorAll('.difficulty-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected leaderboard
+            document.getElementById('leaderboard-' + difficulty).classList.add('active');
+
+            // Activate selected tab
+            document.querySelector('.difficulty-tab.' + difficulty).classList.add('active');
+        }
+    </script>
     {% endif %}
 
 </div>

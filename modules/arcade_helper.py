@@ -1,6 +1,11 @@
 """
 Arcade Mode - Learning Games & Competitions
 Generates interactive games for students across all subjects
+
+UPDATED: December 2024
+- Added 4 new games (16 total including Bible Trivia)
+- Implemented 3-tier difficulty system (Easy/Medium/Hard)
+- Replaced grade-level system with difficulty tiers
 """
 
 import random
@@ -9,18 +14,18 @@ from models import db, GameSession, GameLeaderboard, ArcadeGame
 
 
 # ============================================================
-# GAME CATALOG
+# GAME CATALOG - 16 GAMES TOTAL (Phase 1+2 + Bible Trivia)
 # ============================================================
 
 ARCADE_GAMES = [
-    # Math Games
+    # ========== MATH GAMES (7 total) ==========
     {
         "game_key": "speed_math",
         "name": "Speed Math ⚡",
         "description": "Solve as many math problems as you can in 60 seconds!",
         "subject": "math",
         "icon": "🔢",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "number_detective",
@@ -28,7 +33,7 @@ ARCADE_GAMES = [
         "description": "Find patterns and solve number mysteries",
         "subject": "math",
         "icon": "🕵️",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "fraction_frenzy",
@@ -36,25 +41,35 @@ ARCADE_GAMES = [
         "description": "Match equivalent fractions under time pressure",
         "subject": "math",
         "icon": "🍕",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "equation_race",
         "name": "Equation Race 🏎️",
-        "description": "Solve equations faster than your grade level",
+        "description": "Solve equations faster than ever",
         "subject": "math",
         "icon": "🏎️",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
-    
-    # Science Games
+    # NEW MATH GAME
+    {
+        "game_key": "multiplication_mayhem",
+        "name": "Multiplication Mayhem 🎯",
+        "description": "Master multiplication tables through rapid-fire challenges",
+        "subject": "math",
+        "icon": "🎯",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== SCIENCE GAMES (4 total) ==========
     {
         "game_key": "element_match",
         "name": "Element Match 🧪",
         "description": "Match chemical symbols to element names",
         "subject": "science",
         "icon": "🧪",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "lab_quiz_rush",
@@ -62,25 +77,25 @@ ARCADE_GAMES = [
         "description": "Rapid-fire science trivia challenge",
         "subject": "science",
         "icon": "⚗️",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "planet_explorer",
-        "name": "Planet Explorer 🌍",
+        "name": "Planet Explorer 🪐",
         "description": "Test your astronomy and space knowledge",
         "subject": "science",
         "icon": "🪐",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
-    
-    # Reading & Vocabulary
+
+    # ========== READING & WRITING GAMES (3 total) ==========
     {
         "game_key": "vocab_builder",
         "name": "Vocab Builder 📚",
         "description": "Match words to definitions in a race against time",
         "subject": "reading",
         "icon": "📚",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "spelling_sprint",
@@ -88,7 +103,7 @@ ARCADE_GAMES = [
         "description": "Spell words correctly as fast as you can",
         "subject": "writing",
         "icon": "✍️",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "grammar_quest",
@@ -96,17 +111,27 @@ ARCADE_GAMES = [
         "description": "Fix grammatical errors in record time",
         "subject": "writing",
         "icon": "📝",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
-    
-    # History & Geography
+    # NEW READING GAME
+    {
+        "game_key": "reading_racer",
+        "name": "Reading Racer 📖",
+        "description": "Read passages and answer comprehension questions",
+        "subject": "reading",
+        "icon": "📖",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== HISTORY & GEOGRAPHY GAMES (3 total) ==========
     {
         "game_key": "history_timeline",
         "name": "Timeline Challenge ⏰",
         "description": "Put historical events in the correct order",
         "subject": "history",
         "icon": "⏰",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
     },
     {
         "game_key": "geography_dash",
@@ -114,7 +139,28 @@ ARCADE_GAMES = [
         "description": "Identify countries, capitals, and landmarks",
         "subject": "history",
         "icon": "🗺️",
-        "grades": "1-12"
+        "difficulties": ["easy", "medium", "hard"]
+    },
+    # NEW GEOGRAPHY GAME
+    {
+        "game_key": "map_master",
+        "name": "Map Master 🌍",
+        "description": "Identify countries, states, and cities on maps",
+        "subject": "history",
+        "icon": "🌍",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== BIBLE & FAITH GAME (1 total) ==========
+    {
+        "game_key": "bible_trivia",
+        "name": "Bible Trivia ✝️",
+        "description": "Test your knowledge of Bible stories and verses",
+        "subject": "bible",
+        "icon": "✝️",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
     },
 ]
 
@@ -130,46 +176,65 @@ def initialize_arcade_games():
                 description=game_data["description"],
                 subject=game_data["subject"],
                 icon=game_data["icon"],
-                difficulty_levels=game_data["grades"]
+                difficulty_levels="easy,medium,hard"
             )
             db.session.add(game)
-    
+
     db.session.commit()
+    print(f"✅ Initialized {len(ARCADE_GAMES)} arcade games in database")
 
 
 # ============================================================
-# GAME GENERATORS - SPEED MATH
+# HELPER FUNCTIONS
 # ============================================================
 
-def generate_speed_math(grade_level):
-    """Generate math problems based on grade level"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
+def generate_multiple_choice(correct_answer, wrong_range=20, count=3):
+    """Generate multiple choice options including the correct answer"""
+    options = [correct_answer]
+
+    while len(options) < 4:
+        if isinstance(correct_answer, int):
+            wrong = correct_answer + random.randint(-wrong_range, wrong_range)
+            if wrong != correct_answer and wrong > 0 and wrong not in options:
+                options.append(wrong)
+        elif isinstance(correct_answer, float):
+            wrong = round(correct_answer + random.uniform(-wrong_range, wrong_range), 2)
+            if wrong != correct_answer and wrong > 0 and wrong not in options:
+                options.append(wrong)
+
+    random.shuffle(options)
+    return options
+
+
+# ============================================================
+# GAME GENERATORS - UPDATED FOR DIFFICULTY
+# ============================================================
+
+def generate_speed_math(difficulty='medium'):
+    """Generate math problems based on difficulty level"""
     questions = []
-    
-    for _ in range(20):  # 20 questions per game
-        if grade <= 2:
-            # Addition/subtraction within 20
-            a = random.randint(1, 20)
-            b = random.randint(1, 20)
-            if random.choice([True, False]):
+
+    for _ in range(20):
+        if difficulty == 'easy':
+            # Elementary level (grades 1-4)
+            op = random.choice(["add", "subtract", "multiply"])
+            if op == "add":
+                a = random.randint(1, 50)
+                b = random.randint(1, 50)
                 questions.append({
                     "question": f"{a} + {b}",
                     "answer": a + b,
                     "type": "addition"
                 })
-            else:
-                if a < b:
-                    a, b = b, a
+            elif op == "subtract":
+                a = random.randint(10, 100)
+                b = random.randint(1, a)
                 questions.append({
                     "question": f"{a} - {b}",
                     "answer": a - b,
                     "type": "subtraction"
                 })
-        
-        elif grade <= 4:
-            # Multiplication tables, two-digit addition
-            op = random.choice(["add", "subtract", "multiply"])
-            if op == "multiply":
+            else:  # multiply
                 a = random.randint(2, 12)
                 b = random.randint(2, 12)
                 questions.append({
@@ -177,29 +242,13 @@ def generate_speed_math(grade_level):
                     "answer": a * b,
                     "type": "multiplication"
                 })
-            elif op == "add":
-                a = random.randint(10, 99)
-                b = random.randint(10, 99)
-                questions.append({
-                    "question": f"{a} + {b}",
-                    "answer": a + b,
-                    "type": "addition"
-                })
-            else:
-                a = random.randint(20, 99)
-                b = random.randint(10, a)
-                questions.append({
-                    "question": f"{a} - {b}",
-                    "answer": a - b,
-                    "type": "subtraction"
-                })
-        
-        elif grade <= 6:
-            # All operations including division
+
+        elif difficulty == 'medium':
+            # Middle school level (grades 5-8)
             op = random.choice(["add", "subtract", "multiply", "divide"])
             if op == "divide":
-                b = random.randint(2, 12)
-                answer = random.randint(2, 15)
+                b = random.randint(2, 15)
+                answer = random.randint(2, 20)
                 a = b * answer
                 questions.append({
                     "question": f"{a} ÷ {b}",
@@ -207,16 +256,16 @@ def generate_speed_math(grade_level):
                     "type": "division"
                 })
             elif op == "multiply":
-                a = random.randint(2, 25)
-                b = random.randint(2, 20)
+                a = random.randint(5, 25)
+                b = random.randint(5, 25)
                 questions.append({
                     "question": f"{a} × {b}",
                     "answer": a * b,
                     "type": "multiplication"
                 })
             else:
-                a = random.randint(10, 200)
-                b = random.randint(10, 150)
+                a = random.randint(10, 250)
+                b = random.randint(10, 200)
                 if op == "add":
                     questions.append({
                         "question": f"{a} + {b}",
@@ -231,45 +280,67 @@ def generate_speed_math(grade_level):
                         "answer": a - b,
                         "type": "subtraction"
                     })
-        
-        else:
-            # Advanced: fractions, decimals, percentages, algebra
-            op = random.choice(["multiply", "percent", "algebra"])
+
+        else:  # hard
+            # High school level (grades 9-12)
+            op = random.choice(["multiply", "percent", "algebra", "fraction"])
             if op == "percent":
-                whole = random.randint(20, 200)
-                pct = random.choice([10, 20, 25, 50, 75])
+                whole = random.randint(50, 500)
+                pct = random.choice([10, 15, 20, 25, 30, 40, 50, 75])
                 questions.append({
                     "question": f"{pct}% of {whole}",
                     "answer": int(whole * pct / 100),
                     "type": "percentage"
                 })
             elif op == "algebra":
-                # Simple: x + a = b, solve for x
-                a = random.randint(5, 30)
-                b = random.randint(a + 5, 100)
+                # Simple: x + a = b
+                a = random.randint(5, 50)
+                b = random.randint(a + 5, 150)
                 questions.append({
-                    "question": f"x + {a} = {b}",
+                    "question": f"x + {a} = {b}, solve for x",
                     "answer": b - a,
                     "type": "algebra"
                 })
+            elif op == "fraction":
+                # Add fractions with same denominator
+                denom = random.choice([2, 3, 4, 5, 6, 8, 10])
+                num1 = random.randint(1, denom-1)
+                num2 = random.randint(1, denom-1)
+                total = num1 + num2
+                if total < denom:
+                    questions.append({
+                        "question": f"{num1}/{denom} + {num2}/{denom}",
+                        "answer": f"{total}/{denom}",
+                        "type": "fraction"
+                    })
+                else:
+                    # Fallback to multiplication
+                    a = random.randint(15, 50)
+                    b = random.randint(15, 50)
+                    questions.append({
+                        "question": f"{a} × {b}",
+                        "answer": a * b,
+                        "type": "multiplication"
+                    })
             else:
-                a = random.randint(10, 50)
-                b = random.randint(10, 50)
+                a = random.randint(15, 50)
+                b = random.randint(15, 50)
                 questions.append({
                     "question": f"{a} × {b}",
                     "answer": a * b,
                     "type": "multiplication"
                 })
-    
+
+    random.shuffle(questions)
     return questions
 
 
 # ============================================================
-# VOCABULARY BUILDER
+# VOCABULARY BUILDER - UPDATED FOR DIFFICULTY
 # ============================================================
 
 VOCAB_SETS = {
-    "elementary": [
+    "easy": [
         {"word": "brave", "definition": "showing courage", "options": ["scared", "showing courage", "quiet", "loud"]},
         {"word": "curious", "definition": "eager to learn", "options": ["bored", "eager to learn", "tired", "hungry"]},
         {"word": "enormous", "definition": "very large", "options": ["tiny", "very large", "red", "fast"]},
@@ -278,20 +349,20 @@ VOCAB_SETS = {
         {"word": "gentle", "definition": "soft and kind", "options": ["rough", "soft and kind", "loud", "mean"]},
         {"word": "honest", "definition": "truthful", "options": ["lying", "truthful", "funny", "quiet"]},
         {"word": "proud", "definition": "feeling satisfied", "options": ["ashamed", "feeling satisfied", "scared", "tired"]},
-        {"word": "angry", "definition": "feeling mad", "options": ["happy", "feeling mad", "sleepy", "hungry"]},
-        {"word": "funny", "definition": "causing laughter", "options": ["sad", "causing laughter", "scary", "boring"]},
         {"word": "clever", "definition": "smart and quick", "options": ["dull", "smart and quick", "slow", "lazy"]},
         {"word": "simple", "definition": "easy to understand", "options": ["difficult", "easy to understand", "expensive", "colorful"]},
         {"word": "quiet", "definition": "making little noise", "options": ["loud", "making little noise", "bright", "heavy"]},
         {"word": "polite", "definition": "having good manners", "options": ["rude", "having good manners", "tired", "hungry"]},
         {"word": "bright", "definition": "giving much light", "options": ["dark", "giving much light", "quiet", "slow"]},
-        {"word": "gentle", "definition": "soft and calm", "options": ["harsh", "soft and calm", "loud", "fast"]},
         {"word": "fresh", "definition": "newly made", "options": ["stale", "newly made", "hot", "cold"]},
         {"word": "warm", "definition": "pleasantly hot", "options": ["cold", "pleasantly hot", "wet", "dry"]},
         {"word": "strong", "definition": "having power", "options": ["weak", "having power", "small", "thin"]},
         {"word": "tiny", "definition": "very small", "options": ["huge", "very small", "loud", "fast"]},
+        {"word": "funny", "definition": "causing laughter", "options": ["sad", "causing laughter", "scary", "boring"]},
+        {"word": "happy", "definition": "feeling joy", "options": ["sad", "feeling joy", "angry", "tired"]},
+        {"word": "kind", "definition": "caring and helpful", "options": ["mean", "caring and helpful", "loud", "fast"]},
     ],
-    "middle": [
+    "medium": [
         {"word": "abundant", "definition": "existing in large quantities", "options": ["scarce", "existing in large quantities", "expensive", "colorful"]},
         {"word": "meticulous", "definition": "very careful and precise", "options": ["careless", "very careful and precise", "loud", "mysterious"]},
         {"word": "reluctant", "definition": "unwilling or hesitant", "options": ["eager", "unwilling or hesitant", "happy", "tired"]},
@@ -313,14 +384,12 @@ VOCAB_SETS = {
         {"word": "peculiar", "definition": "strange or unusual", "options": ["normal", "strange or unusual", "bright", "dark"]},
         {"word": "inevitable", "definition": "certain to happen", "options": ["avoidable", "certain to happen", "funny", "sad"]},
     ],
-    "high": [
+    "hard": [
         {"word": "articulate", "definition": "expressing oneself clearly", "options": ["mumbling", "expressing oneself clearly", "singing", "whispering"]},
         {"word": "benevolent", "definition": "kind and generous", "options": ["cruel", "kind and generous", "indifferent", "wealthy"]},
         {"word": "enigmatic", "definition": "mysterious and difficult to understand", "options": ["obvious", "mysterious and difficult to understand", "simple", "boring"]},
         {"word": "pragmatic", "definition": "dealing with things realistically", "options": ["idealistic", "dealing with things realistically", "emotional", "artistic"]},
         {"word": "tenacious", "definition": "persistent and determined", "options": ["giving up easily", "persistent and determined", "lazy", "confused"]},
-        {"word": "eloquent", "definition": "fluent and persuasive speaking", "options": ["inarticulate", "fluent and persuasive speaking", "quiet", "rude"]},
-        {"word": "meticulous", "definition": "showing great attention to detail", "options": ["careless", "showing great attention to detail", "lazy", "quick"]},
         {"word": "astute", "definition": "having sharp judgment", "options": ["foolish", "having sharp judgment", "slow", "tired"]},
         {"word": "circumspect", "definition": "wary and unwilling to take risks", "options": ["reckless", "wary and unwilling to take risks", "brave", "happy"]},
         {"word": "erudite", "definition": "having great knowledge", "options": ["ignorant", "having great knowledge", "simple", "boring"]},
@@ -334,30 +403,24 @@ VOCAB_SETS = {
         {"word": "ostentatious", "definition": "designed to impress", "options": ["modest", "designed to impress", "simple", "quiet"]},
         {"word": "pernicious", "definition": "having harmful effect", "options": ["beneficial", "having harmful effect", "helpful", "kind"]},
         {"word": "ubiquitous", "definition": "present everywhere", "options": ["rare", "present everywhere", "absent", "missing"]},
+        {"word": "vicarious", "definition": "experienced through another", "options": ["direct", "experienced through another", "personal", "immediate"]},
+        {"word": "zealous", "definition": "filled with enthusiasm", "options": ["apathetic", "filled with enthusiasm", "bored", "tired"]},
     ]
 }
 
-def generate_vocab_builder(grade_level):
-    """Generate vocabulary matching game - NO REPEATS"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
-
-    if grade <= 4:
-        vocab_set = VOCAB_SETS["elementary"].copy()
-    elif grade <= 8:
-        vocab_set = VOCAB_SETS["middle"].copy()
-    else:
-        vocab_set = VOCAB_SETS["high"].copy()
-
+def generate_vocab_builder(difficulty='medium'):
+    """Generate vocabulary matching game based on difficulty"""
+    vocab_set = VOCAB_SETS.get(difficulty, VOCAB_SETS["medium"]).copy()
     random.shuffle(vocab_set)
-    return vocab_set[:20]  # Now returns unique questions only
+    return vocab_set[:20]
 
 
 # ============================================================
-# SCIENCE TRIVIA
+# SCIENCE GAMES - UPDATED FOR DIFFICULTY
 # ============================================================
 
 SCIENCE_QUESTIONS = {
-    "elementary": [
+    "easy": [
         {"question": "What is H2O commonly known as?", "answer": "water", "options": ["water", "oxygen", "hydrogen", "salt"]},
         {"question": "What planet is known as the Red Planet?", "answer": "mars", "options": ["mars", "venus", "jupiter", "saturn"]},
         {"question": "What gas do plants absorb from the air?", "answer": "carbon dioxide", "options": ["carbon dioxide", "oxygen", "nitrogen", "helium"]},
@@ -365,7 +428,6 @@ SCIENCE_QUESTIONS = {
         {"question": "What force pulls objects toward Earth?", "answer": "gravity", "options": ["gravity", "magnetism", "friction", "pressure"]},
         {"question": "What do plants produce during photosynthesis?", "answer": "oxygen", "options": ["oxygen", "carbon dioxide", "nitrogen", "water"]},
         {"question": "What is the largest planet in our solar system?", "answer": "jupiter", "options": ["jupiter", "saturn", "earth", "mars"]},
-        {"question": "What animal lives both on land and in water?", "answer": "frog", "options": ["frog", "dog", "bird", "fish"]},
         {"question": "What is the hottest planet?", "answer": "venus", "options": ["venus", "mercury", "mars", "jupiter"]},
         {"question": "What makes plants green?", "answer": "chlorophyll", "options": ["chlorophyll", "water", "soil", "sunlight"]},
         {"question": "How many legs does a spider have?", "answer": "8", "options": ["8", "6", "10", "4"]},
@@ -374,17 +436,16 @@ SCIENCE_QUESTIONS = {
         {"question": "What do we call animals that eat only plants?", "answer": "herbivores", "options": ["herbivores", "carnivores", "omnivores", "predators"]},
         {"question": "What gas do humans breathe in?", "answer": "oxygen", "options": ["oxygen", "carbon dioxide", "nitrogen", "helium"]},
         {"question": "What is the hardest natural substance?", "answer": "diamond", "options": ["diamond", "gold", "iron", "stone"]},
-        {"question": "What do tadpoles turn into?", "answer": "frogs", "options": ["frogs", "fish", "turtles", "snakes"]},
         {"question": "What is the Earth's natural satellite?", "answer": "the moon", "options": ["the moon", "the sun", "mars", "venus"]},
         {"question": "What do bees make?", "answer": "honey", "options": ["honey", "milk", "silk", "wax"]},
         {"question": "What is the center of the Earth called?", "answer": "core", "options": ["core", "crust", "mantle", "shell"]},
+        {"question": "How many bones do adult humans have?", "answer": "206", "options": ["206", "300", "150", "100"]},
+        {"question": "What do caterpillars turn into?", "answer": "butterflies", "options": ["butterflies", "moths", "bees", "dragonflies"]},
     ],
-    "middle": [
+    "medium": [
         {"question": "What is the powerhouse of the cell?", "answer": "mitochondria", "options": ["mitochondria", "nucleus", "ribosome", "chloroplast"]},
         {"question": "What is the chemical symbol for gold?", "answer": "au", "options": ["au", "ag", "fe", "cu"]},
         {"question": "What type of rock is formed by cooling lava?", "answer": "igneous", "options": ["igneous", "sedimentary", "metamorphic", "granite"]},
-        {"question": "What is the speed of light?", "answer": "299,792 km/s", "options": ["299,792 km/s", "150,000 km/s", "500,000 km/s", "1,000,000 km/s"]},
-        {"question": "What is photosynthesis?", "answer": "plants making food from sunlight", "options": ["plants making food from sunlight", "breathing", "cell division", "decomposition"]},
         {"question": "What is the chemical formula for table salt?", "answer": "nacl", "options": ["nacl", "h2o", "co2", "o2"]},
         {"question": "What organelle contains DNA?", "answer": "nucleus", "options": ["nucleus", "ribosome", "vacuole", "cell wall"]},
         {"question": "What is the largest organ in the human body?", "answer": "skin", "options": ["skin", "liver", "heart", "brain"]},
@@ -392,16 +453,18 @@ SCIENCE_QUESTIONS = {
         {"question": "What is the process of water changing to vapor?", "answer": "evaporation", "options": ["evaporation", "condensation", "precipitation", "sublimation"]},
         {"question": "What are organisms that make their own food?", "answer": "producers", "options": ["producers", "consumers", "decomposers", "predators"]},
         {"question": "What is the smallest unit of life?", "answer": "cell", "options": ["cell", "atom", "molecule", "tissue"]},
-        {"question": "What type of energy does the sun provide?", "answer": "light and heat", "options": ["light and heat", "electrical", "chemical", "nuclear"]},
         {"question": "What is the boiling point of water in Celsius?", "answer": "100°c", "options": ["100°c", "0°c", "50°c", "212°c"]},
         {"question": "What are the three states of matter?", "answer": "solid, liquid, gas", "options": ["solid, liquid, gas", "hot, cold, warm", "big, small, medium", "hard, soft, rough"]},
         {"question": "What is the chemical symbol for silver?", "answer": "ag", "options": ["ag", "au", "si", "s"]},
-        {"question": "What is the study of weather called?", "answer": "meteorology", "options": ["meteorology", "geology", "biology", "astronomy"]},
         {"question": "What organ pumps blood through the body?", "answer": "heart", "options": ["heart", "lungs", "liver", "kidneys"]},
         {"question": "What is the freezing point of water in Celsius?", "answer": "0°c", "options": ["0°c", "100°c", "32°c", "-10°c"]},
         {"question": "What part of the plant conducts photosynthesis?", "answer": "leaves", "options": ["leaves", "roots", "stem", "flowers"]},
+        {"question": "What is photosynthesis?", "answer": "plants making food from sunlight", "options": ["plants making food from sunlight", "breathing", "cell division", "decomposition"]},
+        {"question": "What type of energy does the sun provide?", "answer": "light and heat", "options": ["light and heat", "electrical", "chemical", "nuclear"]},
+        {"question": "What is the study of weather called?", "answer": "meteorology", "options": ["meteorology", "geology", "biology", "astronomy"]},
+        {"question": "What is speed of light approximately?", "answer": "300,000 km/s", "options": ["300,000 km/s", "150,000 km/s", "500,000 km/s", "1,000,000 km/s"]},
     ],
-    "high": [
+    "hard": [
         {"question": "What is Avogadro's number?", "answer": "6.022 × 10²³", "options": ["6.022 × 10²³", "3.14 × 10⁸", "9.81 × 10¹⁰", "1.602 × 10⁻¹⁹"]},
         {"question": "What is the most abundant element in the universe?", "answer": "hydrogen", "options": ["hydrogen", "helium", "oxygen", "carbon"]},
         {"question": "What law states energy cannot be created or destroyed?", "answer": "conservation of energy", "options": ["conservation of energy", "newton's first law", "thermodynamics", "relativity"]},
@@ -419,166 +482,256 @@ SCIENCE_QUESTIONS = {
         {"question": "What is the pH of pure water?", "answer": "7", "options": ["7", "0", "14", "1"]},
         {"question": "What particle orbits the nucleus?", "answer": "electron", "options": ["electron", "proton", "neutron", "photon"]},
         {"question": "What is the process of liquid turning to gas?", "answer": "vaporization", "options": ["vaporization", "condensation", "sublimation", "deposition"]},
-        {"question": "What is the study of fungi called?", "answer": "mycology", "options": ["mycology", "bacteriology", "virology", "parasitology"]},
         {"question": "What is the strongest type of chemical bond?", "answer": "covalent", "options": ["covalent", "ionic", "hydrogen", "metallic"]},
         {"question": "What is the unit of electrical resistance?", "answer": "ohm", "options": ["ohm", "ampere", "volt", "watt"]},
+        {"question": "What is Planck's constant used for?", "answer": "quantum mechanics", "options": ["quantum mechanics", "relativity", "thermodynamics", "electromagnetism"]},
     ]
 }
 
-def generate_science_quiz(grade_level):
-    """Generate science trivia questions - NO REPEATS"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
+def generate_science_quiz(difficulty='medium'):
+    """Generate science trivia questions based on difficulty"""
+    questions = SCIENCE_QUESTIONS.get(difficulty, SCIENCE_QUESTIONS["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
 
-    if grade <= 4:
-        questions = SCIENCE_QUESTIONS["elementary"].copy()
-    elif grade <= 8:
-        questions = SCIENCE_QUESTIONS["middle"].copy()
-    else:
-        questions = SCIENCE_QUESTIONS["high"].copy()
+
+# ============================================================
+# NEW GAME 1: MULTIPLICATION MAYHEM
+# ============================================================
+
+def generate_multiplication_mayhem(difficulty='medium'):
+    """Master multiplication tables through rapid-fire challenges"""
+    questions = []
+
+    for _ in range(20):
+        if difficulty == 'easy':
+            # 1-5 times tables
+            a = random.randint(1, 5)
+            b = random.randint(1, 10)
+        elif difficulty == 'medium':
+            # 1-12 times tables
+            a = random.randint(1, 12)
+            b = random.randint(1, 12)
+        else:  # hard
+            # Larger numbers and mixed difficulty
+            if random.random() < 0.5:
+                # Double-digit multiplication
+                a = random.randint(10, 25)
+                b = random.randint(10, 25)
+            else:
+                # Three-digit by one-digit
+                a = random.randint(100, 999)
+                b = random.randint(2, 9)
+
+        answer = a * b
+        questions.append({
+            "question": f"{a} × {b}",
+            "answer": answer,
+            "type": "multiplication",
+            "options": generate_multiple_choice(answer, wrong_range=max(20, answer // 5))
+        })
+
+    return questions
+
+
+# ============================================================
+# NEW GAME 2: READING RACER
+# ============================================================
+
+READING_PASSAGES = {
+    "easy": [
+        {
+            "passage": "The cat sat on the mat. It was a big, fluffy cat with orange fur. The cat liked to sleep in the sun. It purred when it was happy.",
+            "questions": [
+                {"q": "What color was the cat?", "a": "orange", "opts": ["orange", "black", "white", "brown"]},
+                {"q": "Where did the cat sit?", "a": "on the mat", "opts": ["on the mat", "on the chair", "in a box", "on the bed"]},
+                {"q": "What did the cat like to do?", "a": "sleep in the sun", "opts": ["sleep in the sun", "play with toys", "chase mice", "climb trees"]},
+            ]
+        },
+        {
+            "passage": "Dogs are loyal pets. They can learn tricks and help people. Some dogs work as helpers for people who cannot see. Dogs wag their tails when they are happy.",
+            "questions": [
+                {"q": "What makes dogs good pets?", "a": "they are loyal", "opts": ["they are loyal", "they are big", "they are small", "they sleep a lot"]},
+                {"q": "What do dogs do when happy?", "a": "wag their tails", "opts": ["wag their tails", "bark loudly", "sleep", "run away"]},
+                {"q": "What can some dogs help with?", "a": "helping people who cannot see", "opts": ["helping people who cannot see", "cooking food", "building houses", "driving cars"]},
+            ]
+        },
+    ],
+    "medium": [
+        {
+            "passage": "Photosynthesis is the process plants use to make food. Plants take in carbon dioxide from the air and water from the soil. Using energy from sunlight, they convert these into glucose and oxygen. The oxygen is released into the air, which animals need to breathe.",
+            "questions": [
+                {"q": "What do plants make during photosynthesis?", "a": "glucose and oxygen", "opts": ["glucose and oxygen", "water and carbon dioxide", "soil and air", "sunlight and energy"]},
+                {"q": "Where do plants get carbon dioxide?", "a": "from the air", "opts": ["from the air", "from the soil", "from water", "from sunlight"]},
+                {"q": "What energy source do plants use?", "a": "sunlight", "opts": ["sunlight", "electricity", "wind", "heat"]},
+            ]
+        },
+        {
+            "passage": "The water cycle is the continuous movement of water on Earth. Water evaporates from oceans and lakes into the atmosphere. It forms clouds through condensation. When clouds become heavy, precipitation falls as rain or snow. This water returns to bodies of water, completing the cycle.",
+            "questions": [
+                {"q": "What happens when water evaporates?", "a": "it goes into the atmosphere", "opts": ["it goes into the atmosphere", "it freezes", "it disappears", "it turns into soil"]},
+                {"q": "How do clouds form?", "a": "through condensation", "opts": ["through condensation", "through evaporation", "through precipitation", "through freezing"]},
+                {"q": "What is precipitation?", "a": "rain or snow", "opts": ["rain or snow", "evaporation", "clouds", "oceans"]},
+            ]
+        },
+    ],
+    "hard": [
+        {
+            "passage": "Quantum mechanics revolutionized physics in the early 20th century. Unlike classical physics, which describes the macroscopic world, quantum mechanics governs the behavior of subatomic particles. The uncertainty principle states that we cannot simultaneously know both the exact position and momentum of a particle. This fundamental limitation challenges our intuitive understanding of reality.",
+            "questions": [
+                {"q": "What does quantum mechanics govern?", "a": "subatomic particles", "opts": ["subatomic particles", "large objects", "planets", "galaxies"]},
+                {"q": "What can't be known simultaneously?", "a": "position and momentum", "opts": ["position and momentum", "mass and energy", "time and space", "speed and direction"]},
+                {"q": "When did quantum mechanics develop?", "a": "early 20th century", "opts": ["early 20th century", "19th century", "18th century", "21st century"]},
+            ]
+        },
+        {
+            "passage": "DNA replication is a fundamental process in all living organisms. The double helix structure unwinds, and each strand serves as a template for creating a new complementary strand. DNA polymerase enzymes facilitate this process, reading the template strand and adding nucleotides. This semi-conservative replication ensures genetic information is accurately passed to daughter cells.",
+            "questions": [
+                {"q": "What enzyme facilitates DNA replication?", "a": "DNA polymerase", "opts": ["DNA polymerase", "RNA polymerase", "helicase", "ligase"]},
+                {"q": "What does each DNA strand become?", "a": "a template", "opts": ["a template", "a protein", "an enzyme", "a cell"]},
+                {"q": "What type of replication is this?", "a": "semi-conservative", "opts": ["semi-conservative", "conservative", "dispersive", "random"]},
+            ]
+        },
+    ]
+}
+
+def generate_reading_racer(difficulty='medium'):
+    """Read passages and answer comprehension questions"""
+    passages = READING_PASSAGES.get(difficulty, READING_PASSAGES["medium"])
+
+    # Select 5-7 passages and extract questions to get ~20 questions total
+    num_passages = min(7, len(passages))
+    selected_passages = random.sample(passages, num_passages)
+
+    questions = []
+    for passage_data in selected_passages:
+        for q_data in passage_data["questions"]:
+            questions.append({
+                "passage": passage_data["passage"],
+                "question": q_data["q"],
+                "answer": q_data["a"],
+                "options": q_data["opts"],
+                "type": "comprehension"
+            })
+
+    # Fill to 20 questions if needed
+    while len(questions) < 20:
+        passage_data = random.choice(passages)
+        q_data = random.choice(passage_data["questions"])
+        questions.append({
+            "passage": passage_data["passage"],
+            "question": q_data["q"],
+            "answer": q_data["a"],
+            "options": q_data["opts"],
+            "type": "comprehension"
+        })
 
     random.shuffle(questions)
-    return questions[:20]  # Now returns unique questions only
+    return questions[:20]
 
 
 # ============================================================
-# GAME SESSION MANAGEMENT
+# NEW GAME 3: MAP MASTER
 # ============================================================
 
-def save_game_session(student_id, game_key, grade_level, score, time_seconds, correct, total):
-    """Save completed game session and update leaderboard"""
-    accuracy = (correct / total * 100) if total > 0 else 0
-    
-    # Calculate XP and tokens based on performance
-    base_xp = 50
-    accuracy_bonus = int(accuracy / 10) * 5
-    speed_bonus = max(0, (60 - time_seconds) // 10 * 10) if time_seconds < 60 else 0
-    xp_earned = base_xp + accuracy_bonus + speed_bonus
-    tokens_earned = max(1, score // 100)
-    
-    # Save session
-    session = GameSession(
-        student_id=student_id,
-        game_key=game_key,
-        grade_level=str(grade_level),
-        score=score,
-        time_seconds=time_seconds,
-        accuracy=accuracy,
-        questions_answered=total,
-        questions_correct=correct,
-        xp_earned=xp_earned,
-        tokens_earned=tokens_earned,
-        completed_at=datetime.utcnow()
-    )
-    db.session.add(session)
-    
-    # Update or create leaderboard entry
-    leaderboard = GameLeaderboard.query.filter_by(
-        student_id=student_id,
-        game_key=game_key,
-        grade_level=str(grade_level)
-    ).first()
-    
-    if not leaderboard:
-        leaderboard = GameLeaderboard(
-            student_id=student_id,
-            game_key=game_key,
-            grade_level=str(grade_level),
-            high_score=score,
-            best_time=time_seconds,
-            best_accuracy=accuracy,
-            total_plays=1
-        )
-        db.session.add(leaderboard)
-    else:
-        leaderboard.total_plays += 1
-        if score > leaderboard.high_score:
-            leaderboard.high_score = score
-        if time_seconds < leaderboard.best_time or leaderboard.best_time == 0:
-            leaderboard.best_time = time_seconds
-        if accuracy > leaderboard.best_accuracy:
-            leaderboard.best_accuracy = accuracy
-        leaderboard.last_played = datetime.utcnow()
-    
-    db.session.commit()
-    
-    return {
-        "xp_earned": xp_earned,
-        "tokens_earned": tokens_earned,
-        "new_high_score": not leaderboard or score > leaderboard.high_score,
-        "accuracy": accuracy
-    }
-
-
-def get_leaderboard(game_key, grade_level, limit=10):
-    """Get top scores for a game at a specific grade level"""
-    from models import Student
-    
-    leaderboards = db.session.query(
-        GameLeaderboard, Student
-    ).join(
-        Student, GameLeaderboard.student_id == Student.id
-    ).filter(
-        GameLeaderboard.game_key == game_key,
-        GameLeaderboard.grade_level == str(grade_level)
-    ).order_by(
-        GameLeaderboard.high_score.desc()
-    ).limit(limit).all()
-    
-    return [
-        {
-            "student_name": student.student_name,
-            "high_score": lb.high_score,
-            "best_time": lb.best_time,
-            "best_accuracy": lb.best_accuracy,
-            "total_plays": lb.total_plays
-        }
-        for lb, student in leaderboards
+MAP_QUESTIONS = {
+    "easy": [
+        {"question": "What continent is the United States in?", "answer": "North America", "options": ["North America", "South America", "Europe", "Asia"]},
+        {"question": "What ocean is west of the United States?", "answer": "Pacific", "options": ["Pacific", "Atlantic", "Indian", "Arctic"]},
+        {"question": "What country is north of the United States?", "answer": "Canada", "options": ["Canada", "Mexico", "Cuba", "Brazil"]},
+        {"question": "What country is south of the United States?", "answer": "Mexico", "options": ["Mexico", "Canada", "Brazil", "Cuba"]},
+        {"question": "What ocean is east of the United States?", "answer": "Atlantic", "options": ["Atlantic", "Pacific", "Indian", "Arctic"]},
+        {"question": "What is the capital of the United States?", "answer": "Washington DC", "options": ["Washington DC", "New York", "Los Angeles", "Chicago"]},
+        {"question": "What state is known as the Sunshine State?", "answer": "Florida", "options": ["Florida", "California", "Texas", "Hawaii"]},
+        {"question": "What state is the largest by area?", "answer": "Alaska", "options": ["Alaska", "Texas", "California", "Montana"]},
+        {"question": "What ocean touches California?", "answer": "Pacific", "options": ["Pacific", "Atlantic", "Indian", "Arctic"]},
+        {"question": "What continent has the most countries?", "answer": "Africa", "options": ["Africa", "Asia", "Europe", "South America"]},
+        {"question": "Which state is an island?", "answer": "Hawaii", "options": ["Hawaii", "Florida", "California", "Alaska"]},
+        {"question": "What is the longest river in the US?", "answer": "Missouri", "options": ["Missouri", "Mississippi", "Colorado", "Rio Grande"]},
+        {"question": "What mountain range is in the western US?", "answer": "Rocky Mountains", "options": ["Rocky Mountains", "Appalachian", "Cascades", "Sierra Nevada"]},
+        {"question": "What are the Great Lakes near?", "answer": "Canada border", "options": ["Canada border", "Mexico border", "Pacific Ocean", "Atlantic Ocean"]},
+        {"question": "What desert is in the southwestern US?", "answer": "Mojave", "options": ["Mojave", "Sahara", "Gobi", "Arabian"]},
+        {"question": "What state has the Grand Canyon?", "answer": "Arizona", "options": ["Arizona", "Utah", "Nevada", "New Mexico"]},
+        {"question": "What is the smallest state?", "answer": "Rhode Island", "options": ["Rhode Island", "Delaware", "Connecticut", "Hawaii"]},
+        {"question": "What city is known as the Big Apple?", "answer": "New York City", "options": ["New York City", "Los Angeles", "Chicago", "Boston"]},
+        {"question": "What state is Hollywood in?", "answer": "California", "options": ["California", "Nevada", "Florida", "New York"]},
+        {"question": "What is the hottest state on average?", "answer": "Florida", "options": ["Florida", "Arizona", "Texas", "California"]},
+    ],
+    "medium": [
+        {"question": "What is the capital of France?", "answer": "Paris", "options": ["Paris", "London", "Berlin", "Rome"]},
+        {"question": "What country has the Eiffel Tower?", "answer": "France", "options": ["France", "Italy", "Spain", "England"]},
+        {"question": "What is the capital of Japan?", "answer": "Tokyo", "options": ["Tokyo", "Beijing", "Seoul", "Bangkok"]},
+        {"question": "What is the capital of Germany?", "answer": "Berlin", "options": ["Berlin", "Munich", "Frankfurt", "Hamburg"]},
+        {"question": "What country has the Great Wall?", "answer": "China", "options": ["China", "Japan", "Korea", "Mongolia"]},
+        {"question": "What is the capital of Italy?", "answer": "Rome", "options": ["Rome", "Milan", "Venice", "Florence"]},
+        {"question": "Where is the Taj Mahal?", "answer": "India", "options": ["India", "Pakistan", "Bangladesh", "Nepal"]},
+        {"question": "What is the capital of Spain?", "answer": "Madrid", "options": ["Madrid", "Barcelona", "Seville", "Valencia"]},
+        {"question": "What country is shaped like a boot?", "answer": "Italy", "options": ["Italy", "Greece", "Spain", "Portugal"]},
+        {"question": "What is the capital of Canada?", "answer": "Ottawa", "options": ["Ottawa", "Toronto", "Montreal", "Vancouver"]},
+        {"question": "Where is Machu Picchu?", "answer": "Peru", "options": ["Peru", "Bolivia", "Ecuador", "Colombia"]},
+        {"question": "What is the capital of Australia?", "answer": "Canberra", "options": ["Canberra", "Sydney", "Melbourne", "Brisbane"]},
+        {"question": "What strait separates Africa and Europe?", "answer": "Gibraltar", "options": ["Gibraltar", "Bering", "Hormuz", "Bosphorus"]},
+        {"question": "What is the driest desert?", "answer": "Atacama", "options": ["Atacama", "Sahara", "Gobi", "Mojave"]},
+        {"question": "What country has the most pyramids?", "answer": "Sudan", "options": ["Sudan", "Egypt", "Mexico", "Peru"]},
+        {"question": "What is the highest mountain in Africa?", "answer": "Kilimanjaro", "options": ["Kilimanjaro", "Kenya", "Atlas", "Drakensberg"]},
+        {"question": "What sea is between Europe and Africa?", "answer": "Mediterranean", "options": ["Mediterranean", "Red Sea", "Black Sea", "Caspian"]},
+        {"question": "What is the southernmost continent?", "answer": "Antarctica", "options": ["Antarctica", "Australia", "South America", "Africa"]},
+        {"question": "What country has the most islands?", "answer": "Sweden", "options": ["Sweden", "Indonesia", "Philippines", "Japan"]},
+        {"question": "What canal connects two oceans?", "answer": "Panama Canal", "options": ["Panama Canal", "Suez Canal", "Erie Canal", "Kiel Canal"]},
+    ],
+    "hard": [
+        {"question": "What is the only country in both Europe and Asia?", "answer": "Russia", "options": ["Russia", "Turkey", "Kazakhstan", "Azerbaijan"]},
+        {"question": "What is the deepest ocean trench?", "answer": "Mariana Trench", "options": ["Mariana Trench", "Puerto Rico Trench", "Java Trench", "Philippine Trench"]},
+        {"question": "What African country was never colonized?", "answer": "Ethiopia", "options": ["Ethiopia", "Liberia", "Egypt", "Morocco"]},
+        {"question": "What is the world's smallest country?", "answer": "Vatican City", "options": ["Vatican City", "Monaco", "San Marino", "Liechtenstein"]},
+        {"question": "What strait separates Asia and North America?", "answer": "Bering Strait", "options": ["Bering Strait", "Gibraltar", "Hormuz", "Malacca"]},
+        {"question": "What is the driest place on Earth?", "answer": "Atacama Desert", "options": ["Atacama Desert", "Death Valley", "Sahara", "Antarctica"]},
+        {"question": "What ocean current warms Western Europe?", "answer": "Gulf Stream", "options": ["Gulf Stream", "Kuroshio", "Humboldt", "California"]},
+        {"question": "What mountain range separates Europe and Asia?", "answer": "Ural Mountains", "options": ["Ural Mountains", "Caucasus", "Himalayas", "Alps"]},
+        {"question": "What is the largest landlocked country?", "answer": "Kazakhstan", "options": ["Kazakhstan", "Mongolia", "Chad", "Bolivia"]},
+        {"question": "What sea has the highest salinity?", "answer": "Dead Sea", "options": ["Dead Sea", "Red Sea", "Black Sea", "Caspian Sea"]},
+        {"question": "What river flows through the most countries?", "answer": "Danube", "options": ["Danube", "Nile", "Amazon", "Rhine"]},
+        {"question": "What is the Ring of Fire?", "answer": "volcanic belt around Pacific", "options": ["volcanic belt around Pacific", "desert region", "trade route", "ocean current"]},
+        {"question": "What country has the most time zones?", "answer": "France", "options": ["France", "Russia", "USA", "China"]},
+        {"question": "What is the lowest point on Earth's land?", "answer": "Dead Sea shore", "options": ["Dead Sea shore", "Death Valley", "Caspian Sea", "Lake Assal"]},
+        {"question": "What African lake is the deepest?", "answer": "Lake Tanganyika", "options": ["Lake Tanganyika", "Lake Victoria", "Lake Malawi", "Lake Chad"]},
+        {"question": "What is the world's longest mountain range?", "answer": "Andes", "options": ["Andes", "Rockies", "Himalayas", "Alps"]},
+        {"question": "What line divides North and South Korea?", "answer": "38th parallel", "options": ["38th parallel", "DMZ", "Yalu River", "17th parallel"]},
+        {"question": "What is the largest island?", "answer": "Greenland", "options": ["Greenland", "New Guinea", "Borneo", "Madagascar"]},
+        {"question": "What ocean is the smallest?", "answer": "Arctic", "options": ["Arctic", "Indian", "Southern", "Atlantic"]},
+        {"question": "What country spans 11 time zones?", "answer": "Russia", "options": ["Russia", "USA", "China", "Canada"]},
     ]
+}
 
-
-def get_student_stats(student_id, game_key=None):
-    """Get student's arcade statistics"""
-    if game_key:
-        sessions = GameSession.query.filter_by(
-            student_id=student_id,
-            game_key=game_key
-        ).all()
-    else:
-        sessions = GameSession.query.filter_by(student_id=student_id).all()
-    
-    if not sessions:
-        return None
-    
-    total_xp = sum(s.xp_earned for s in sessions)
-    total_tokens = sum(s.tokens_earned for s in sessions)
-    avg_accuracy = sum(s.accuracy for s in sessions) / len(sessions)
-    
-    return {
-        "total_plays": len(sessions),
-        "total_xp_earned": total_xp,
-        "total_tokens_earned": total_tokens,
-        "average_accuracy": round(avg_accuracy, 1),
-        "best_score": max(s.score for s in sessions),
-        "recent_sessions": sessions[-5:]  # Last 5 sessions
-    }
+def generate_map_master(difficulty='medium'):
+    """Identify countries, states, and cities on maps"""
+    questions = MAP_QUESTIONS.get(difficulty, MAP_QUESTIONS["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
 
 
 # ============================================================
-# ADDITIONAL MATH GAMES
+# KEEP ALL EXISTING GAMES FROM ORIGINAL FILE
 # ============================================================
 
-def generate_number_detective(grade_level):
+def generate_number_detective(difficulty='medium'):
     """Find patterns and solve number mysteries"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
     questions = []
-    
+
     for _ in range(20):
         pattern_type = random.choice(["sequence", "missing", "odd_one_out"])
-        
-        if pattern_type == "sequence":
-            # Number sequences
+
+        if difficulty == 'easy':
+            start = random.randint(2, 10)
+            step = random.choice([2, 5])
+        elif difficulty == 'medium':
             start = random.randint(2, 20)
             step = random.choice([2, 3, 5, 10])
+        else:  # hard
+            start = random.randint(5, 50)
+            step = random.choice([3, 4, 7, 11, 13])
+
+        if pattern_type == "sequence":
             seq = [start + i * step for i in range(5)]
             answer = seq[-1] + step
             questions.append({
@@ -587,11 +740,7 @@ def generate_number_detective(grade_level):
                 "type": "sequence",
                 "options": [answer, answer + 1, answer - 1, answer + step]
             })
-        
         elif pattern_type == "missing":
-            # Find missing number in pattern
-            start = random.randint(5, 30)
-            step = random.choice([3, 4, 5, 7])
             seq = [start + i * step for i in range(4)]
             missing_idx = random.randint(1, 2)
             answer = seq[missing_idx]
@@ -602,10 +751,8 @@ def generate_number_detective(grade_level):
                 "type": "missing",
                 "options": [answer, answer + 1, answer - 1, answer + step]
             })
-        
         else:
-            # Odd one out
-            base = random.randint(2, 10) * 2  # Even number
+            base = random.randint(2, 10) * 2
             evens = [base + i * 2 for i in range(3)]
             odd = random.randint(1, 20) * 2 + 1
             nums = evens + [odd]
@@ -616,25 +763,31 @@ def generate_number_detective(grade_level):
                 "type": "odd_one_out",
                 "options": nums
             })
-    
+
     return questions
 
 
-def generate_fraction_frenzy(grade_level):
+def generate_fraction_frenzy(difficulty='medium'):
     """Match equivalent fractions"""
     questions = []
-    
+
     for _ in range(20):
-        # Generate simple fractions and their equivalents
-        num = random.randint(1, 8)
-        den = random.randint(num + 1, 12)
+        if difficulty == 'easy':
+            num = random.randint(1, 4)
+            den = random.randint(num + 1, 8)
+        elif difficulty == 'medium':
+            num = random.randint(1, 8)
+            den = random.randint(num + 1, 12)
+        else:  # hard
+            num = random.randint(1, 12)
+            den = random.randint(num + 1, 20)
+
         mult = random.choice([2, 3, 4])
-        
         equiv_num = num * mult
         equiv_den = den * mult
-        
+
         question_type = random.choice(["match", "simplify"])
-        
+
         if question_type == "match":
             questions.append({
                 "question": f"Which fraction equals {num}/{den}?",
@@ -648,7 +801,6 @@ def generate_fraction_frenzy(grade_level):
                 ]
             })
         else:
-            # Simplify fraction
             questions.append({
                 "question": f"Simplify: {equiv_num}/{equiv_den}",
                 "answer": f"{num}/{den}",
@@ -660,22 +812,20 @@ def generate_fraction_frenzy(grade_level):
                     f"{equiv_num}/{den}"
                 ]
             })
-    
+
     return questions
 
 
-def generate_equation_race(grade_level):
+def generate_equation_race(difficulty='medium'):
     """Solve equations faster than your grade level"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
     questions = []
-    
+
     for _ in range(20):
-        if grade <= 6:
-            # Simple one-step equations: x + a = b or x - a = b
-            a = random.randint(5, 30)
-            x = random.randint(10, 50)
+        if difficulty == 'easy':
+            a = random.randint(5, 20)
+            x = random.randint(10, 30)
             op = random.choice(["+", "-"])
-            
+
             if op == "+":
                 b = x + a
                 questions.append({
@@ -690,29 +840,44 @@ def generate_equation_race(grade_level):
                     "answer": x,
                     "type": "one_step"
                 })
-        else:
-            # Two-step equations: ax + b = c
+        elif difficulty == 'medium':
+            a = random.randint(5, 30)
+            x = random.randint(10, 50)
+            op = random.choice(["+", "-"])
+
+            if op == "+":
+                b = x + a
+                questions.append({
+                    "question": f"Solve: x + {a} = {b}",
+                    "answer": x,
+                    "type": "one_step"
+                })
+            else:
+                b = x - a
+                questions.append({
+                    "question": f"Solve: x - {a} = {b}",
+                    "answer": x,
+                    "type": "one_step"
+                })
+        else:  # hard
             a = random.randint(2, 10)
             x = random.randint(5, 20)
             b = random.randint(5, 30)
             c = a * x + b
-            
+
             questions.append({
                 "question": f"Solve: {a}x + {b} = {c}",
                 "answer": x,
                 "type": "two_step"
             })
-    
+
     return questions
 
 
-# ============================================================
-# SCIENCE GAMES
-# ============================================================
+def generate_element_match(difficulty='medium'):
+    """Match chemical symbols to element names"""
 
-def generate_element_match(grade_level):
-    """Match chemical symbols to element names - NO REPEATS"""
-    elements = [
+    elements_easy = [
         {"symbol": "H", "name": "Hydrogen", "options": ["Hydrogen", "Helium", "Hafnium", "Holmium"]},
         {"symbol": "O", "name": "Oxygen", "options": ["Oxygen", "Osmium", "Oganesson", "Oxide"]},
         {"symbol": "C", "name": "Carbon", "options": ["Carbon", "Calcium", "Copper", "Chromium"]},
@@ -721,13 +886,19 @@ def generate_element_match(grade_level):
         {"symbol": "Au", "name": "Gold", "options": ["Gold", "Silver", "Aluminum", "Argon"]},
         {"symbol": "Ag", "name": "Silver", "options": ["Silver", "Gold", "Argon", "Arsenic"]},
         {"symbol": "Na", "name": "Sodium", "options": ["Sodium", "Nitrogen", "Neon", "Nickel"]},
-        {"symbol": "Cl", "name": "Chlorine", "options": ["Chlorine", "Calcium", "Carbon", "Copper"]},
         {"symbol": "He", "name": "Helium", "options": ["Helium", "Hydrogen", "Hafnium", "Holmium"]},
         {"symbol": "Ca", "name": "Calcium", "options": ["Calcium", "Carbon", "Cadmium", "Californium"]},
+    ]
+
+    elements_medium = elements_easy + [
+        {"symbol": "Cl", "name": "Chlorine", "options": ["Chlorine", "Calcium", "Carbon", "Copper"]},
         {"symbol": "K", "name": "Potassium", "options": ["Potassium", "Krypton", "Phosphorus", "Platinum"]},
         {"symbol": "Mg", "name": "Magnesium", "options": ["Magnesium", "Manganese", "Mercury", "Molybdenum"]},
         {"symbol": "Zn", "name": "Zinc", "options": ["Zinc", "Zirconium", "Xenon", "Yttrium"]},
         {"symbol": "Cu", "name": "Copper", "options": ["Copper", "Carbon", "Curium", "Cesium"]},
+    ]
+
+    elements_hard = elements_medium + [
         {"symbol": "P", "name": "Phosphorus", "options": ["Phosphorus", "Potassium", "Platinum", "Palladium"]},
         {"symbol": "S", "name": "Sulfur", "options": ["Sulfur", "Sodium", "Silicon", "Silver"]},
         {"symbol": "Al", "name": "Aluminum", "options": ["Aluminum", "Argon", "Arsenic", "Silver"]},
@@ -735,7 +906,13 @@ def generate_element_match(grade_level):
         {"symbol": "Li", "name": "Lithium", "options": ["Lithium", "Lead", "Lanthanum", "Lutetium"]},
     ]
 
-    # Shuffle and take 20 unique elements - NO REPEATS
+    if difficulty == 'easy':
+        elements = elements_easy
+    elif difficulty == 'medium':
+        elements = elements_medium
+    else:
+        elements = elements_hard
+
     random.shuffle(elements)
     questions = []
     for elem in elements[:20]:
@@ -751,17 +928,11 @@ def generate_element_match(grade_level):
     return questions
 
 
-# ============================================================
-# WRITING & LANGUAGE GAMES
-# ============================================================
+def generate_spelling_sprint(difficulty='medium'):
+    """Spell words correctly as fast as you can"""
 
-def generate_spelling_sprint(grade_level):
-    """Spell words correctly as fast as you can - NO REPEATS"""
-    grade = int(grade_level) if grade_level.isdigit() else 5
-
-    # Predefined word/misspelling pairs for better quality
     word_data = {
-        "elementary": [
+        "easy": [
             {"word": "apple", "wrong": ["aple", "appel", "appal"]},
             {"word": "beach", "wrong": ["beech", "beatch", "bech"]},
             {"word": "friend", "wrong": ["freind", "frend", "friand"]},
@@ -783,7 +954,7 @@ def generate_spelling_sprint(grade_level):
             {"word": "rocket", "wrong": ["roket", "rockit", "rokket"]},
             {"word": "adventure", "wrong": ["adventur", "adventchur", "advenchure"]},
         ],
-        "middle": [
+        "medium": [
             {"word": "beautiful", "wrong": ["beautifull", "beutiful", "beautyful"]},
             {"word": "necessary", "wrong": ["neccessary", "necessery", "neccesary"]},
             {"word": "receive", "wrong": ["recieve", "recive", "receeve"]},
@@ -805,7 +976,7 @@ def generate_spelling_sprint(grade_level):
             {"word": "desperate", "wrong": ["desparate", "desprate", "desperet"]},
             {"word": "category", "wrong": ["catagory", "categery", "catergory"]},
         ],
-        "high": [
+        "hard": [
             {"word": "accommodate", "wrong": ["accomodate", "acommodate", "acomodate"]},
             {"word": "occurrence", "wrong": ["occurence", "occurance", "occurrance"]},
             {"word": "occasionally", "wrong": ["ocasionally", "occassionally", "occasionaly"]},
@@ -829,19 +1000,13 @@ def generate_spelling_sprint(grade_level):
         ]
     }
 
-    if grade <= 4:
-        word_set = word_data["elementary"]
-    elif grade <= 8:
-        word_set = word_data["middle"]
-    else:
-        word_set = word_data["high"]
-
+    word_set = word_data.get(difficulty, word_data["medium"])
     random.shuffle(word_set)
+
     questions = []
     for item in word_set[:20]:
         word = item["word"]
         wrong_options = item["wrong"]
-
         options = [word] + wrong_options
         random.shuffle(options)
 
@@ -855,8 +1020,9 @@ def generate_spelling_sprint(grade_level):
     return questions
 
 
-def generate_grammar_quest(grade_level):
-    """Fix grammatical errors in record time - NO REPEATS"""
+def generate_grammar_quest(difficulty='medium'):
+    """Fix grammatical errors in record time"""
+
     base_questions = [
         {"wrong": "Their going to the store", "correct": "They're going to the store"},
         {"wrong": "The cat is sleeping in it's bed", "correct": "The cat is sleeping in its bed"},
@@ -882,31 +1048,28 @@ def generate_grammar_quest(grade_level):
 
     questions = []
     random.shuffle(base_questions)
-    for item in base_questions[:20]:  # Take unique 20 questions only - NO REPEATS
-        # Create wrong options
+
+    for item in base_questions[:20]:
         other_wrongs = [q["wrong"] for q in base_questions if q["wrong"] != item["wrong"]]
         random.shuffle(other_wrongs)
-        
+
         options = [item["correct"], item["wrong"]] + other_wrongs[:2]
         random.shuffle(options)
-        
+
         questions.append({
             "question": f"Fix the error: '{item['wrong']}'",
             "answer": item["correct"],
             "options": options,
             "type": "grammar"
         })
-    
+
     random.shuffle(questions)
     return questions[:20]
 
 
-# ============================================================
-# HISTORY & GEOGRAPHY GAMES
-# ============================================================
-
-def generate_history_timeline(grade_level):
+def generate_history_timeline(difficulty='medium'):
     """Put historical events in the correct order"""
+
     events = [
         {"event": "Declaration of Independence", "year": 1776},
         {"event": "Civil War Begins", "year": 1861},
@@ -915,33 +1078,31 @@ def generate_history_timeline(grade_level):
         {"event": "World War II Ends", "year": 1945},
         {"event": "Moon Landing", "year": 1969},
         {"event": "Fall of Berlin Wall", "year": 1989},
-        {"event": "Internet Created", "year": 1989},
         {"event": "American Revolution", "year": 1775},
         {"event": "Constitution Signed", "year": 1787},
         {"event": "Printing Press Invented", "year": 1440},
         {"event": "Columbus Discovers America", "year": 1492},
-        {"event": "Shakespeare's First Play", "year": 1590},
         {"event": "Civil Rights Act", "year": 1964},
     ]
-    
+
     questions = []
     for _ in range(20):
-        # Pick 2 events and ask which came first
         selected = random.sample(events, 2)
         correct_first = min(selected, key=lambda x: x['year'])
-        
+
         questions.append({
             "question": f"Which event happened FIRST?",
             "answer": correct_first["event"],
             "options": [selected[0]["event"], selected[1]["event"]],
             "type": "timeline"
         })
-    
+
     return questions
 
 
-def generate_geography_dash(grade_level):
-    """Identify countries, capitals, and landmarks - NO REPEATS"""
+def generate_geography_dash(difficulty='medium'):
+    """Identify countries, capitals, and landmarks"""
+
     questions = [
         {"question": "What is the capital of France?", "answer": "Paris", "options": ["Paris", "London", "Berlin", "Rome"]},
         {"question": "Which country has the Great Wall?", "answer": "China", "options": ["China", "Japan", "Korea", "Mongolia"]},
@@ -967,3 +1128,214 @@ def generate_geography_dash(grade_level):
 
     random.shuffle(questions)
     return questions[:20]
+
+
+# ============================================================
+# NEW GAME 4: BIBLE TRIVIA
+# ============================================================
+
+BIBLE_QUESTIONS = {
+    "easy": [
+        {"question": "Who built the ark?", "answer": "Noah", "options": ["Noah", "Moses", "Abraham", "David"]},
+        {"question": "Who was swallowed by a big fish?", "answer": "Jonah", "options": ["Jonah", "Peter", "Paul", "John"]},
+        {"question": "Who defeated Goliath?", "answer": "David", "options": ["David", "Saul", "Samuel", "Solomon"]},
+        {"question": "Who led the Israelites out of Egypt?", "answer": "Moses", "options": ["Moses", "Aaron", "Joshua", "Abraham"]},
+        {"question": "Who was Jesus' mother?", "answer": "Mary", "options": ["Mary", "Martha", "Ruth", "Sarah"]},
+        {"question": "How many disciples did Jesus have?", "answer": "12", "options": ["12", "10", "7", "40"]},
+        {"question": "Who betrayed Jesus?", "answer": "Judas", "options": ["Judas", "Peter", "John", "Thomas"]},
+        {"question": "What is the first book of the Bible?", "answer": "Genesis", "options": ["Genesis", "Exodus", "Matthew", "Psalms"]},
+        {"question": "Who was the first man?", "answer": "Adam", "options": ["Adam", "Noah", "Abraham", "Moses"]},
+        {"question": "Who was the first woman?", "answer": "Eve", "options": ["Eve", "Sarah", "Mary", "Ruth"]},
+        {"question": "How many days did God create the world?", "answer": "6", "options": ["6", "7", "5", "8"]},
+        {"question": "What did God create on the first day?", "answer": "Light", "options": ["Light", "Land", "Animals", "Humans"]},
+        {"question": "Where was Jesus born?", "answer": "Bethlehem", "options": ["Bethlehem", "Jerusalem", "Nazareth", "Egypt"]},
+        {"question": "What is the last book of the Bible?", "answer": "Revelation", "options": ["Revelation", "Acts", "Romans", "Jude"]},
+        {"question": "Who walked on water with Jesus?", "answer": "Peter", "options": ["Peter", "John", "James", "Andrew"]},
+        {"question": "How many days was Jesus in the tomb?", "answer": "3", "options": ["3", "7", "40", "1"]},
+        {"question": "What did Jesus turn water into?", "answer": "Wine", "options": ["Wine", "Milk", "Oil", "Honey"]},
+        {"question": "Who denied Jesus three times?", "answer": "Peter", "options": ["Peter", "Judas", "John", "Thomas"]},
+        {"question": "What animal spoke to Balaam?", "answer": "Donkey", "options": ["Donkey", "Snake", "Camel", "Horse"]},
+        {"question": "Who was the strongest man in the Bible?", "answer": "Samson", "options": ["Samson", "David", "Goliath", "Moses"]},
+    ],
+    "medium": [
+        {"question": "Who wrote most of the Psalms?", "answer": "David", "options": ["David", "Solomon", "Moses", "Asaph"]},
+        {"question": "What was Paul's name before conversion?", "answer": "Saul", "options": ["Saul", "Samuel", "Simon", "Stephen"]},
+        {"question": "Who interpreted dreams for Pharaoh?", "answer": "Joseph", "options": ["Joseph", "Daniel", "Jacob", "Moses"]},
+        {"question": "How many plagues did God send on Egypt?", "answer": "10", "options": ["10", "7", "12", "40"]},
+        {"question": "What was Jesus' first miracle?", "answer": "Water to wine", "options": ["Water to wine", "Healing blind", "Feeding 5000", "Walking on water"]},
+        {"question": "Who was the wisest king?", "answer": "Solomon", "options": ["Solomon", "David", "Saul", "Hezekiah"]},
+        {"question": "What was the forbidden fruit likely?", "answer": "Unknown", "options": ["Unknown", "Apple", "Fig", "Grape"]},
+        {"question": "Who replaced Judas as a disciple?", "answer": "Matthias", "options": ["Matthias", "Paul", "Mark", "Barnabas"]},
+        {"question": "How many books are in the New Testament?", "answer": "27", "options": ["27", "39", "66", "12"]},
+        {"question": "Who was thrown into a lion's den?", "answer": "Daniel", "options": ["Daniel", "David", "Jonah", "Joseph"]},
+        {"question": "What is the shortest verse in the Bible?", "answer": "Jesus wept", "options": ["Jesus wept", "God is love", "Pray always", "Rejoice"]},
+        {"question": "Who was the oldest man in the Bible?", "answer": "Methuselah", "options": ["Methuselah", "Noah", "Abraham", "Adam"]},
+        {"question": "How many years did the Israelites wander?", "answer": "40", "options": ["40", "7", "12", "70"]},
+        {"question": "Who was the first king of Israel?", "answer": "Saul", "options": ["Saul", "David", "Solomon", "Samuel"]},
+        {"question": "What did Jacob give Joseph?", "answer": "Coat of many colors", "options": ["Coat of many colors", "Silver", "Sheep", "Land"]},
+        {"question": "Who baptized Jesus?", "answer": "John the Baptist", "options": ["John the Baptist", "Peter", "James", "Paul"]},
+        {"question": "Where did Jesus grow up?", "answer": "Nazareth", "options": ["Nazareth", "Bethlehem", "Jerusalem", "Capernaum"]},
+        {"question": "Who was the brother of Moses?", "answer": "Aaron", "options": ["Aaron", "Joshua", "Caleb", "Hur"]},
+        {"question": "What are the first four books of NT called?", "answer": "Gospels", "options": ["Gospels", "Epistles", "Acts", "Pauline Letters"]},
+        {"question": "Who was swallowed by the earth?", "answer": "Korah", "options": ["Korah", "Achan", "Ananias", "Judas"]},
+    ],
+    "hard": [
+        {"question": "Who was the high priest when Jesus was tried?", "answer": "Caiaphas", "options": ["Caiaphas", "Annas", "Eli", "Zadok"]},
+        {"question": "What was Paul's occupation?", "answer": "Tentmaker", "options": ["Tentmaker", "Fisherman", "Carpenter", "Tax collector"]},
+        {"question": "How many chapters are in the book of Psalms?", "answer": "150", "options": ["150", "100", "119", "180"]},
+        {"question": "Who was the father of John the Baptist?", "answer": "Zechariah", "options": ["Zechariah", "Zacharias", "Zacchaeus", "Zebedee"]},
+        {"question": "What is the longest chapter in the Bible?", "answer": "Psalm 119", "options": ["Psalm 119", "Isaiah 53", "John 3", "Romans 8"]},
+        {"question": "Who succeeded Moses as leader?", "answer": "Joshua", "options": ["Joshua", "Caleb", "Aaron", "Eleazar"]},
+        {"question": "What language was most of OT written in?", "answer": "Hebrew", "options": ["Hebrew", "Aramaic", "Greek", "Latin"]},
+        {"question": "Who wrote the book of Revelation?", "answer": "John", "options": ["John", "Paul", "Peter", "Luke"]},
+        {"question": "How many books did Paul write?", "answer": "13", "options": ["13", "14", "12", "10"]},
+        {"question": "Who was the mother of Samuel?", "answer": "Hannah", "options": ["Hannah", "Sarah", "Rachel", "Leah"]},
+        {"question": "What does 'Immanuel' mean?", "answer": "God with us", "options": ["God with us", "Savior", "Prince of Peace", "Messiah"]},
+        {"question": "Who was the Roman governor at Jesus' trial?", "answer": "Pontius Pilate", "options": ["Pontius Pilate", "Herod", "Caesar", "Felix"]},
+        {"question": "What is the 'love chapter'?", "answer": "1 Corinthians 13", "options": ["1 Corinthians 13", "John 3", "Romans 8", "Ephesians 5"]},
+        {"question": "Who was David's best friend?", "answer": "Jonathan", "options": ["Jonathan", "Joab", "Nathan", "Solomon"]},
+        {"question": "How many pieces of silver for Jesus?", "answer": "30", "options": ["30", "40", "20", "100"]},
+        {"question": "Who was the first martyr?", "answer": "Stephen", "options": ["Stephen", "James", "Peter", "Paul"]},
+        {"question": "What is the longest book in the Bible?", "answer": "Psalms", "options": ["Psalms", "Isaiah", "Jeremiah", "Genesis"]},
+        {"question": "Who was king when Jesus was born?", "answer": "Herod the Great", "options": ["Herod the Great", "Caesar Augustus", "Herod Antipas", "Pilate"]},
+        {"question": "What does 'Gospel' mean?", "answer": "Good News", "options": ["Good News", "God's Word", "Holy Book", "Sacred Text"]},
+        {"question": "Who was the Queen who visited Solomon?", "answer": "Queen of Sheba", "options": ["Queen of Sheba", "Esther", "Jezebel", "Vashti"]},
+    ]
+}
+
+def generate_bible_trivia(difficulty='medium'):
+    """Test your knowledge of Bible stories and verses"""
+    questions = BIBLE_QUESTIONS.get(difficulty, BIBLE_QUESTIONS["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
+
+
+# ============================================================
+# GAME SESSION MANAGEMENT - UPDATED FOR DIFFICULTY
+# ============================================================
+
+def save_game_session(student_id, game_key, difficulty, score, time_seconds, correct, total):
+    """Save completed game session and update leaderboard with difficulty"""
+    accuracy = (correct / total * 100) if total > 0 else 0
+
+    # Calculate XP with difficulty multipliers
+    difficulty_multipliers = {
+        'easy': 1.0,
+        'medium': 1.5,
+        'hard': 2.0
+    }
+    multiplier = difficulty_multipliers.get(difficulty, 1.0)
+
+    base_xp = 50
+    accuracy_bonus = int(accuracy / 10) * 5
+    speed_bonus = max(0, (60 - time_seconds) // 10 * 10) if time_seconds < 60 else 0
+    xp_earned = int((base_xp + accuracy_bonus + speed_bonus) * multiplier)
+    tokens_earned = max(1, int((score // 100) * multiplier))
+
+    # Save session
+    session = GameSession(
+        student_id=student_id,
+        game_key=game_key,
+        difficulty=difficulty,
+        score=score,
+        time_seconds=time_seconds,
+        accuracy=accuracy,
+        questions_answered=total,
+        questions_correct=correct,
+        xp_earned=xp_earned,
+        tokens_earned=tokens_earned,
+        completed_at=datetime.utcnow()
+    )
+    db.session.add(session)
+
+    # Update or create leaderboard entry
+    leaderboard = GameLeaderboard.query.filter_by(
+        student_id=student_id,
+        game_key=game_key,
+        difficulty=difficulty
+    ).first()
+
+    if not leaderboard:
+        leaderboard = GameLeaderboard(
+            student_id=student_id,
+            game_key=game_key,
+            difficulty=difficulty,
+            high_score=score,
+            best_time=time_seconds,
+            best_accuracy=accuracy,
+            total_plays=1
+        )
+        db.session.add(leaderboard)
+    else:
+        leaderboard.total_plays += 1
+        if score > leaderboard.high_score:
+            leaderboard.high_score = score
+        if time_seconds < leaderboard.best_time or leaderboard.best_time == 0:
+            leaderboard.best_time = time_seconds
+        if accuracy > leaderboard.best_accuracy:
+            leaderboard.best_accuracy = accuracy
+        leaderboard.last_played = datetime.utcnow()
+
+    db.session.commit()
+
+    return {
+        "xp_earned": xp_earned,
+        "tokens_earned": tokens_earned,
+        "new_high_score": not leaderboard or score > leaderboard.high_score,
+        "accuracy": accuracy,
+        "difficulty_multiplier": multiplier
+    }
+
+
+def get_leaderboard(game_key, difficulty, limit=10):
+    """Get top scores for a game at a specific difficulty level"""
+    from models import Student
+
+    leaderboards = db.session.query(
+        GameLeaderboard, Student
+    ).join(
+        Student, GameLeaderboard.student_id == Student.id
+    ).filter(
+        GameLeaderboard.game_key == game_key,
+        GameLeaderboard.difficulty == difficulty
+    ).order_by(
+        GameLeaderboard.high_score.desc()
+    ).limit(limit).all()
+
+    return [
+        {
+            "student_name": student.student_name,
+            "high_score": lb.high_score,
+            "best_time": lb.best_time,
+            "best_accuracy": lb.best_accuracy,
+            "total_plays": lb.total_plays
+        }
+        for lb, student in leaderboards
+    ]
+
+
+def get_student_stats(student_id, game_key=None):
+    """Get student's arcade statistics"""
+    if game_key:
+        sessions = GameSession.query.filter_by(
+            student_id=student_id,
+            game_key=game_key
+        ).all()
+    else:
+        sessions = GameSession.query.filter_by(student_id=student_id).all()
+
+    if not sessions:
+        return None
+
+    total_xp = sum(s.xp_earned for s in sessions)
+    total_tokens = sum(s.tokens_earned for s in sessions)
+    avg_accuracy = sum(s.accuracy for s in sessions) / len(sessions)
+
+    return {
+        "total_plays": len(sessions),
+        "total_xp_earned": total_xp,
+        "total_tokens_earned": total_tokens,
+        "average_accuracy": round(avg_accuracy, 1),
+        "best_score": max(s.score for s in sessions),
+        "recent_sessions": sessions[-5:]
+    }

@@ -161,6 +161,28 @@
         letter-spacing: 0.5px;
     }
 
+    .new-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #ff6fd8, #ff4757);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 15px rgba(255, 111, 216, 0.5);
+        animation: pulse 2s ease-in-out infinite;
+        z-index: 10;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+
     .start-btn {
         margin-top: 15px;
         display: inline-block;
@@ -223,7 +245,7 @@
     <div class="arcade-header">
         <h1 class="arcade-title">🎮 Learning Arcade 🎮</h1>
         <p class="arcade-subtitle">
-            Challenge yourself with fun educational games! Earn XP, unlock achievements, and compete with your grade level.
+            Challenge yourself with 16 fun educational games! Choose Easy, Medium, or Hard difficulty. Earn more XP on harder levels!
         </p>
 
         <div class="arcade-nav">
@@ -280,10 +302,13 @@
         <div class="games-grid">
             {% for game in games %}
             <a href="/arcade/game/{{ game.game_key }}" class="game-card">
+                {% if game.get('is_new') %}
+                <div class="new-badge">NEW!</div>
+                {% endif %}
                 <span class="game-icon">{{ game.icon }}</span>
                 <div class="game-name">{{ game.name }}</div>
                 <div class="game-description">{{ game.description }}</div>
-                <span class="game-badge">Grades {{ game.grades }}</span>
+                <span class="game-badge">Easy • Medium • Hard</span>
             </a>
             {% endfor %}
         </div>

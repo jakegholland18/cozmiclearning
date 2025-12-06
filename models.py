@@ -509,6 +509,7 @@ class GameLeaderboard(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey("students.id"))
     game_key = db.Column(db.String(50))
     grade_level = db.Column(db.String(10))
+    difficulty = db.Column(db.String(20))  # easy, medium, hard
 
     # Best scores
     high_score = db.Column(db.Integer)
@@ -653,6 +654,7 @@ class DailyChallenge(db.Model):
     target_accuracy = db.Column(db.Float, nullable=True)
     target_time = db.Column(db.Integer, nullable=True)
     grade_level = db.Column(db.String(10))
+    difficulty = db.Column(db.String(20))  # easy, medium, hard
 
     # Rewards
     bonus_xp = db.Column(db.Integer, default=100)
