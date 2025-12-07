@@ -7562,24 +7562,25 @@ def quick_quiz():
 @app.route("/start_practice", methods=["POST"])
 @csrf.exempt
 def start_practice():
-    init_user()
+    try:
+        init_user()
 
-    data = request.get_json() or {}
-    topic = data.get("topic", "").strip()
-    subject = data.get("subject", "")
-    mode = data.get("mode", "full")
-    grade = session.get("grade", "8")
-    character = session.get("character", "everly")
+        data = request.get_json() or {}
+        topic = data.get("topic", "").strip()
+        subject = data.get("subject", "")
+        mode = data.get("mode", "full")
+        grade = session.get("grade", "8")
+        character = session.get("character", "everly")
 
-    # If topic is empty or looks like a full question (more than 10 words), use subject name as topic
-    if not topic or len(topic.split()) > 10:
-        # Use the subject label as the topic
-        topic = SUBJECT_LABELS.get(subject, subject).replace(" Explorer", "").replace(" Sphere", "").replace(" Realm", "").replace(" Core", "").replace(" Haven", "").replace(" Forge", "").replace(" Star", "").replace(" Quest", "").replace(" Nova", "").replace(" Verse", "").replace(" Grid", "")
-        if not topic:
-            topic = "this subject"
+        # If topic is empty or looks like a full question (more than 10 words), use subject name as topic
+        if not topic or len(topic.split()) > 10:
+            # Use the subject label as the topic
+            topic = SUBJECT_LABELS.get(subject, subject).replace(" Explorer", "").replace(" Sphere", "").replace(" Realm", "").replace(" Core", "").replace(" Haven", "").replace(" Forge", "").replace(" Star", "").replace(" Quest", "").replace(" Nova", "").replace(" Verse", "").replace(" Grid", "")
+            if not topic:
+                topic = "this subject"
 
-    # Mode-specific question generation
-    mode_settings = {
+        # Mode-specific question generation
+        mode_settings = {
         'interactive': {
             'num_questions': 10,
             'differentiation_mode': 'none',
@@ -7663,22 +7664,41 @@ def start_practice():
             }
         )
 
-    # For interactive mode, return just the first question (old behavior)
-    first = steps[0]
+        # For interactive mode, return just the first question (old behavior)
+        first = steps[0]
 
-    return jsonify(
-        {
-            "status": "ok",
-            "index": 0,
-            "total": len(steps),
-            "prompt": first.get("prompt", "Let's start practicing!"),
-            "type": first.get("type", "free"),
-            "choices": first.get("choices", []),
-            "character": character,
-            "last_answer": "",
-            "chat": [],
-        }
-    )
+        return jsonify(
+            {
+                "status": "ok",
+                "index": 0,
+                "total": len(steps),
+                "prompt": first.get("prompt", "Let's start practicing!"),
+                "type": first.get("type", "free"),
+                "choices": first.get("choices", []),
+                "character": character,
+                "last_answer": "",
+                "chat": [],
+            }
+        )
+
+    except Exception as e:
+        # Log the error to health monitor
+        health_monitor.record_error(
+            error_type="practice_generation_error",
+            details=f"Mode: {mode}, Topic: {topic}, Subject: {subject}, Error: {str(e)}"
+        )
+
+        # Log to application logger
+        app.logger.error(f"Error in start_practice: {str(e)}", exc_info=True)
+
+        # Return error response
+        return jsonify(
+            {
+                "status": "error",
+                "message": f"Failed to generate practice questions. Please try again. ({str(e)})",
+                "error_details": str(e) if app.debug else None
+            }
+        ), 500
 
 
 @app.route("/navigate_question", methods=["POST"])
