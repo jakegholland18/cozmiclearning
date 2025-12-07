@@ -1522,10 +1522,16 @@ function setupTextSelection() {
 
 // FEATURE #13: Practice Mode Selection
 function startPractice(mode) {
+    console.log('startPractice called with mode:', mode);
+
     // Return to subject page to see the answer again
     const returnUrl = encodeURIComponent(`/subject`);
     const topic = encodeURIComponent({{ question|tojson }});
     const subject = {{ subject|tojson }};
+
+    console.log('Topic:', topic);
+    console.log('Subject:', subject);
+    console.log('Return URL:', returnUrl);
 
     const modes = {
         'interactive': `/practice?topic=${topic}&subject=${subject}&mode=interactive&return_url=${returnUrl}`,
@@ -1536,7 +1542,10 @@ function startPractice(mode) {
         'related': `/related_topics?topic=${topic}&subject=${subject}&return_url=${returnUrl}`
     };
 
-    window.location.href = modes[mode] || modes['interactive'];
+    const targetUrl = modes[mode] || modes['interactive'];
+    console.log('Navigating to:', targetUrl);
+
+    window.location.href = targetUrl;
 }
 
 // FEATURE #4: Inline Practice Questions

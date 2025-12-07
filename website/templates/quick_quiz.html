@@ -198,13 +198,23 @@
         const subject = "{{ subject }}";
         const grade = "{{ grade }}";
 
-        console.log("Loading quiz with:", { topic, subject, grade });
+        console.log("=== QUICK QUIZ DEBUG ===");
+        console.log("Topic:", topic);
+        console.log("Topic length:", topic ? topic.length : 0);
+        console.log("Subject:", subject);
+        console.log("Grade:", grade);
+        console.log("========================");
 
         if (!topic || !subject) {
-            document.getElementById('quiz-content').innerHTML =
-                '<p>Error: Missing topic or subject. Please go back and try again.</p>';
+            const errorMsg = `<p>Error: Missing topic or subject.</p>
+                <p>Topic: "${topic}" (${topic ? 'present' : 'missing'})</p>
+                <p>Subject: "${subject}" (${subject ? 'present' : 'missing'})</p>
+                <p><button onclick="window.history.back()">Go Back</button></p>`;
+            document.getElementById('quiz-content').innerHTML = errorMsg;
             return;
         }
+
+        console.log("Sending request to /start_practice...");
 
         fetch('/start_practice', {
             method: 'POST',
@@ -218,22 +228,34 @@
         })
         .then(res => {
             console.log("Response status:", res.status);
+            console.log("Response ok:", res.ok);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             return res.json();
         })
         .then(data => {
             console.log("Received data:", data);
+            console.log("Steps array:", data.steps);
+            console.log("Steps length:", data.steps ? data.steps.length : 0);
+
             if (data.steps && data.steps.length > 0) {
                 questions = data.steps;
+                console.log("Questions loaded:", questions.length);
                 showQuestion();
             } else {
+                console.error("No steps in response data");
                 document.getElementById('quiz-content').innerHTML =
-                    '<p>No questions were generated. Please try again.</p>';
+                    `<p>No questions were generated. Response: ${JSON.stringify(data)}</p>`;
             }
         })
         .catch(err => {
             console.error("Error loading quiz:", err);
+            console.error("Error stack:", err.stack);
             document.getElementById('quiz-content').innerHTML =
-                `<p>Error loading quiz: ${err.message}. Please try again.</p>`;
+                `<p>Error loading quiz: ${err.message}</p>
+                 <p>Check the console for details.</p>
+                 <p><button onclick="window.history.back()">Go Back</button></p>`;
         });
 
         function showQuestion() {
