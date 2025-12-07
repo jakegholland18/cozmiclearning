@@ -1322,13 +1322,13 @@ def get_stripe_price_id(role, plan, billing):
 
 
 def add_xp(amount: int):
-    session.get("xp", 0) += amount
-    xp_needed = session.get("level", 1) * 100
+    session["xp"] += amount
+    xp_needed = session["level"] * 100
     
     # Log level up activity
-    if session.get("xp", 0) >= xp_needed:
-        session.get("xp", 0) -= xp_needed
-        session.get("level", 1) += 1
+    if session["xp"] >= xp_needed:
+        session["xp"] -= xp_needed
+        session["level"] += 1
         flash(f"LEVEL UP! You are now Level {session['level']}!", "info")
         
         # Log level up event
@@ -1570,7 +1570,7 @@ def arcade_hub():
         all_games=ARCADE_GAMES,
         stats=stats,
         grade=grade,
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -1613,7 +1613,7 @@ def arcade_game(game_key):
         game=game_info,
         stats=stats,
         leaderboards=leaderboards,
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -1750,16 +1750,16 @@ def arcade_submit():
     # Only award XP/tokens/badges in timed/challenge mode (not practice)
     if game_mode != "practice" and game_session:
         # Add XP and tokens to session
-        session.get("xp", 0) = session.get("xp", 0) + results["xp_earned"]
-        session.get("tokens", 100) = session.get("tokens", 0) + results["tokens_earned"]
+        session["xp"] = session.get("xp", 0) + results["xp_earned"]
+        session["tokens"] = session.get("tokens", 0) + results["tokens_earned"]
 
         # Check for level up
-        xp_needed = session.get("level", 1) * 100
-        if session.get("xp", 0) >= xp_needed:
-            session.get("xp", 0) -= xp_needed
-            session.get("level", 1) += 1
+        xp_needed = session["level"] * 100
+        if session["xp"] >= xp_needed:
+            session["xp"] -= xp_needed
+            session["level"] += 1
             results["level_up"] = True
-            results["new_level"] = session.get("level", 1)
+            results["new_level"] = session["level"]
 
         # Update streak
         streak = update_game_streak(student_id)
@@ -1782,8 +1782,8 @@ def arcade_submit():
             results["challenge_bonus_tokens"] = game_session.tokens_earned - results["tokens_earned"]
 
             # Update session tokens/xp with bonus
-            session.get("xp", 0) += results.get("challenge_bonus_xp", 0)
-            session.get("tokens", 100) += results.get("challenge_bonus_tokens", 0)
+            session["xp"] += results.get("challenge_bonus_xp", 0)
+            session["tokens"] += results.get("challenge_bonus_tokens", 0)
     else:
         # Practice mode - no rewards
         results["practice_mode"] = True
@@ -1856,7 +1856,7 @@ def arcade_badges():
         badges_by_category=badges_by_category,
         total_badges=total_badges,
         earned_count=earned_count,
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -1901,7 +1901,7 @@ def arcade_powerups():
         "arcade_powerups.html",
         powerups=powerups_data,
         tokens=tokens,
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -1924,7 +1924,7 @@ def purchase_powerup():
     success, message, remaining_tokens = buy_powerup(student_id, powerup_key, current_tokens)
 
     if success:
-        session.get("tokens", 100) = remaining_tokens
+        session["tokens"] = remaining_tokens
         session.modified = True
 
     return jsonify({
@@ -1983,7 +1983,7 @@ def arcade_challenges():
     return render_template(
         "arcade_challenges.html",
         challenge=challenge_data,
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -2054,7 +2054,7 @@ def arcade_stats():
         stats=stats,
         game_stats=game_stats,
         chart_data=json.dumps(chart_data),
-        character=session.get("character", "everly")
+        character=session["character"]
     )
 
 
@@ -6411,7 +6411,7 @@ def assignment_take(practice_id):
         )
 
     session["practice"] = practice
-    session.get("practice_step", 0) = 0
+    session["practice_step"] = 0
     session["student_answers"] = []
     session.modified = True
 
@@ -6482,7 +6482,7 @@ def assignment_step(practice_id):
             app.logger.info(f"Assignment answer mismatch - User: '{student_answer}' | Expected: {correct_answers}")
 
         session["student_answers"].append(student_answer)
-        session.get("practice_step", 0) = step_index + 1
+        session["practice_step"] = step_index + 1
 
         # -----------------------------
         # If final step → summary page
@@ -6752,7 +6752,7 @@ def choose_character():
 @app.route("/select-character", methods=["POST"])
 def select_character():
     init_user()
-    session.get("character", "everly") = request.form.get("character") or "everly"
+    session["character"] = request.form.get("character") or "everly"
     return redirect("/dashboard")
 
 
@@ -6802,13 +6802,13 @@ def ask_question():
         return redirect(f"/choose-grade?subject={subject}")
 
     # Store validated grade in session
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     return render_template(
         "ask_question.html",
         subject=subject,
         grade=grade,
-        character=session.get("character", "everly"),
+        character=session["character"],
         characters=get_all_characters(),
         subjects=SUBJECT_LABELS,
     )
@@ -6835,7 +6835,7 @@ def subject_answer():
     subject = request.form.get("subject")
     grade = request.form.get("grade")
     question = request.form.get("question")
-    character = session.get("character", "everly")
+    character = session["character"]
 
     # Validate subject
     if not validate_subject(subject):
@@ -6851,7 +6851,7 @@ def subject_answer():
         return redirect(f"/choose-grade?subject={subject}")
 
     # Store validated grade in session
-    session.get("grade", "8") = grade
+    session["grade"] = grade
     
     # CONTENT MODERATION - Check question safety
     student_id = session.get("user_id")
@@ -6924,7 +6924,7 @@ CozmicLearning Team
         
         return redirect("/subjects")
 
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     session["progress"].setdefault(subject, {"questions": 0, "correct": 0})
     session["progress"][subject]["questions"] += 1
@@ -6953,7 +6953,7 @@ CozmicLearning Team
     session.modified = True
 
     add_xp(20)
-    session.get("tokens", 100) += 2
+    session["tokens"] += 2
 
     # Log question activity
     student_id = session.get("student_id")
@@ -7010,7 +7010,7 @@ def followup_message():
 
     data = request.get_json() or {}
     grade = data.get("grade")
-    character = data.get("character") or session.get("character", "everly")
+    character = data.get("character") or session["character"]
     message = data.get("message", "")
     
     # CONTENT MODERATION
@@ -7172,7 +7172,7 @@ def powergrid_submit():
     
     uploaded_files = request.files.getlist("file")  # Multiple files support
 
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     text_parts = []
     
@@ -7302,7 +7302,7 @@ def powergrid_submit():
 
     # Generate study guide with mode and style
     study_guide = study_helper.generate_powergrid_master_guide(
-        combined_text, grade, session.get("character", "everly"), 
+        combined_text, grade, session["character"], 
         mode=study_mode, learning_style=learning_style
     )
     
@@ -7362,7 +7362,7 @@ def powergrid_submit():
         grade=grade,
         question=topic or "Multi-source study guide",
         answer=study_guide,
-        character=session.get("character", "everly"),
+        character=session["character"],
         conversation=session["conversation"],
         pdf_url=pdf_url,
     )
@@ -7436,7 +7436,7 @@ def start_practice():
 
     session["practice"] = practice_data
     session["practice_progress"] = progress
-    session.get("practice_step", 0) = 0
+    session["practice_step"] = 0
     session["practice_attempts"] = 0
     session.modified = True
 
@@ -7502,7 +7502,7 @@ def navigate_question():
 
     state = progress[index]
 
-    session.get("practice_step", 0) = index
+    session["practice_step"] = index
     session["practice_progress"] = progress
     session.modified = True
 
@@ -7843,9 +7843,9 @@ def dashboard():
                 
                 minutes_remaining = daily_limit - student.today_minutes
 
-    xp = session.get("xp", 0)
-    level = session.get("level", 1)
-    tokens = session.get("tokens", 100)
+    xp = session["xp"]
+    level = session["level"]
+    tokens = session["tokens"]
     streak = session["streak"]
 
     xp_to_next = level * 100
@@ -7936,7 +7936,7 @@ def dashboard():
         level=level,
         tokens=tokens,
         streak=streak,
-        character=session.get("character", "everly"),
+        character=session["character"],
         xp_percent=xp_percent,
         xp_to_next=xp_to_next,
         missions=missions,
@@ -8052,11 +8052,11 @@ def parent_dashboard():
         parent=parent,
         progress=progress,
         utilization=session["usage_minutes"],
-        xp=session.get("xp", 0),
-        level=session.get("level", 1),
-        tokens=session.get("tokens", 100),
+        xp=session["xp"],
+        level=session["level"],
+        tokens=session["tokens"],
         unread_messages=unread_messages,
-        character=session.get("character", "everly"),
+        character=session["character"],
         has_teacher_features=has_teacher_features,
         student_limit=student_limit if student_limit != float('inf') else None,
         lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
@@ -8265,11 +8265,11 @@ def homeschool_dashboard():
         parent=parent,
         progress=progress,
         utilization=session["usage_minutes"],
-        xp=session.get("xp", 0),
-        level=session.get("level", 1),
-        tokens=session.get("tokens", 100),
+        xp=session["xp"],
+        level=session["level"],
+        tokens=session["tokens"],
         unread_messages=unread_messages,
-        character=session.get("character", "everly"),
+        character=session["character"],
         has_teacher_features=has_teacher_features,
         student_limit=student_limit if student_limit != float('inf') else None,
         lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
