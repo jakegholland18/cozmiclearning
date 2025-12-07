@@ -8748,6 +8748,9 @@ def homeschool_assign_questions():
             db.session.add(question)
 
         # Assign to all parent's students
+        student_count = len(parent.students) if parent.students else 0
+        print(f"📝 Assigning to {student_count} student(s)")
+
         for student in parent.students:
             assigned = AssignedPractice(
                 student_id=student.id,
@@ -8755,13 +8758,21 @@ def homeschool_assign_questions():
                 assigned_date=datetime.utcnow(),
             )
             db.session.add(assigned)
+            print(f"  ✓ Assigned to student ID {student.id}")
 
         db.session.commit()
+
+        print(f"💾 Assignment saved with ID: {assignment.id}")
+        print(f"📊 Total students assigned: {student_count}")
+
+        if student_count == 0:
+            print(f"⚠️  WARNING: No students linked to parent {parent.id} - assignment created but not visible in student list")
 
         return jsonify({
             "success": True,
             "assignment_id": assignment.id,
-            "message": f"Assignment created and assigned to {len(parent.students)} student(s)"
+            "message": f"Assignment created and assigned to {student_count} student(s)",
+            "warning": "No students linked to this parent account" if student_count == 0 else None
         }), 200
 
     except Exception as e:
@@ -8971,78 +8982,110 @@ def homeschool_assignment_overview(practice_id):
 @limiter.limit("10 per hour")  # Lesson generation is very expensive - strict limit
 def homeschool_generate_lesson():
     """Generate AI lesson plan for homeschool parent."""
-    parent_id = session.get("parent_id")
-    if not parent_id:
-        return jsonify({"error": "Not authenticated"}), 401
+    try:
+        parent_id = session.get("parent_id")
+        if not parent_id:
+            return jsonify({"error": "Not authenticated"}), 401
 
-    parent = Parent.query.get(parent_id)
-    if not parent:
-        return jsonify({"error": "Parent not found"}), 404
+        parent = Parent.query.get(parent_id)
+        if not parent:
+            return jsonify({"error": "Parent not found"}), 404
 
-    # Check if parent has homeschool plan (teacher features)
-    # Admin mode automatically has teacher features
-    if session.get("admin_authenticated"):
-        has_teacher_features = True
-    else:
-        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+        # Check if parent has homeschool plan (teacher features)
+        # Admin mode automatically has teacher features
+        if session.get("admin_authenticated"):
+            has_teacher_features = True
+            print(f"✅ Admin mode detected - teacher features enabled for parent {parent.id}")
+        else:
+            _, _, _, has_teacher_features = get_parent_plan_limits(parent)
 
-    if not has_teacher_features:
-        return jsonify({"error": "Homeschool plan required for this feature"}), 403
+        if not has_teacher_features:
+            return jsonify({"error": "Homeschool plan required for this feature"}), 403
 
-    data = request.get_json() or {}
-    title = safe_text(data.get("title", ""), 200)
-    topic = safe_text(data.get("topic", ""), 500)
-    subject = safe_text(data.get("subject", "general"), 50)
-    grade = safe_text(data.get("grade", "8"), 10)
-    duration = data.get("duration", 60)
-    biblical_integration = data.get("biblical_integration", False)
-    hands_on = data.get("hands_on", True)
+        data = request.get_json() or {}
+        title = safe_text(data.get("title", ""), 200)
+        topic = safe_text(data.get("topic", ""), 500)
+        subject = safe_text(data.get("subject", "general"), 50)
+        grade = safe_text(data.get("grade", "8"), 10)
+        duration = data.get("duration", 60)
+        biblical_integration = data.get("biblical_integration", False)
+        hands_on = data.get("hands_on", True)
 
-    if not title or not topic:
-        return jsonify({"error": "Title and topic are required"}), 400
+        if not title or not topic:
+            return jsonify({"error": "Title and topic are required"}), 400
 
-    # Generate lesson plan using AI
-    from modules.lesson_plan_generator import generate_lesson_plan
+        print(f"🎓 Generating lesson plan: '{title}' for parent {parent.id} (grade {grade})")
 
-    result = generate_lesson_plan(
-        title=title,
-        topic=topic,
-        subject=subject,
-        grade=grade,
-        duration=duration,
-        biblical_integration=biblical_integration,
-        hands_on=hands_on
-    )
+        # Generate lesson plan using AI
+        from modules.lesson_plan_generator import generate_lesson_plan
 
-    if not result.get("success"):
-        return jsonify({"error": result.get("error", "Failed to generate lesson plan")}), 500
+        result = generate_lesson_plan(
+            title=title,
+            topic=topic,
+            subject=subject,
+            grade=grade,
+            duration=duration,
+            biblical_integration=biblical_integration,
+            hands_on=hands_on
+        )
 
-    lesson_data = result.get("lesson", {})
+        if not result.get("success"):
+            error_msg = result.get("error", "Failed to generate lesson plan")
+            print(f"❌ Lesson plan generation failed: {error_msg}")
+            return jsonify({"error": error_msg}), 500
 
-    # Create HomeschoolLessonPlan record
-    lesson_plan = HomeschoolLessonPlan(
-        parent_id=parent.id,
-        title=title,
-        subject=subject,
-        grade_level=grade,
-        topic=topic,
-        duration=duration,
-        objectives=lesson_data.get("objectives", []),
-        materials=lesson_data.get("materials", []),
-        activities=lesson_data.get("activities", []),
-        discussion_questions=lesson_data.get("discussion_questions", []),
-        assessment=lesson_data.get("assessment", ""),
-        homework=lesson_data.get("homework", ""),
-        extensions=lesson_data.get("extensions", ""),
-        biblical_integration=lesson_data.get("biblical_integration") if biblical_integration else None,
-        source="ai_generated",
-        status="not_started"
-    )
+        lesson_data = result.get("lesson", {})
+        print(f"✅ AI lesson plan generated successfully")
 
-    db.session.add(lesson_plan)
-    db.session.commit()
+        # Create HomeschoolLessonPlan record
+        lesson_plan = HomeschoolLessonPlan(
+            parent_id=parent.id,
+            title=title,
+            subject=subject,
+            grade_level=grade,
+            topic=topic,
+            duration=duration,
+            objectives=lesson_data.get("objectives", []),
+            materials=lesson_data.get("materials", []),
+            activities=lesson_data.get("activities", []),
+            discussion_questions=lesson_data.get("discussion_questions", []),
+            assessment=lesson_data.get("assessment", ""),
+            homework=lesson_data.get("homework", ""),
+            extensions=lesson_data.get("extensions", ""),
+            biblical_integration=lesson_data.get("biblical_integration") if biblical_integration else None,
+            source="ai_generated",
+            status="not_started"
+        )
 
-    return jsonify({"success": True, "lesson_plan_id": lesson_plan.id}), 200
+        db.session.add(lesson_plan)
+        db.session.commit()
+
+        print(f"💾 Lesson plan saved to database with ID: {lesson_plan.id}")
+        print(f"📍 View at: /parent/lesson-plans/{lesson_plan.id}")
+
+        return jsonify({
+            "success": True,
+            "lesson_plan_id": lesson_plan.id,
+            "message": f"Lesson plan '{title}' created successfully!",
+            "view_url": f"/parent/lesson-plans/{lesson_plan.id}"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+
+        # Log to health monitor
+        health_monitor.record_error(
+            error_type="homeschool_lesson_plan_error",
+            details=f"Parent: {parent_id if 'parent_id' in locals() else 'N/A'}, Title: {title if 'title' in locals() else 'N/A'}, Error: {str(e)}\n{traceback.format_exc()}"
+        )
+
+        app.logger.error(f"Error in homeschool_generate_lesson: {str(e)}", exc_info=True)
+        print(f"❌ ERROR saving lesson plan: {str(e)}")
+
+        return jsonify({
+            "error": "Failed to create lesson plan",
+            "details": str(e)
+        }), 500
 
 
 @app.route("/parent/lesson-plans")
