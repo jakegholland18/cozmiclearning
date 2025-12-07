@@ -1313,7 +1313,17 @@ def get_stripe_price_id(role, plan, billing):
     billing: 'monthly', 'yearly'
     """
     key = f"{role}_{plan}_{billing}"
-    return STRIPE_PRICES.get(key)
+    price_id = STRIPE_PRICES.get(key)
+
+    # Log for debugging
+    logging.info(f"Stripe lookup: role={role}, plan={plan}, billing={billing}")
+    logging.info(f"Generated key: {key}")
+    logging.info(f"Price ID found: {price_id}")
+
+    if not price_id:
+        logging.warning(f"Available keys in STRIPE_PRICES: {list(STRIPE_PRICES.keys())}")
+
+    return price_id
 
 
 # ============================================================
@@ -3003,7 +3013,17 @@ def create_checkout_session():
         if not price_id:
             key = f"{role}_{plan}_{billing}"
             logging.error(f"Missing Stripe price ID for key: {key}")
-            flash(f"Payment configuration error. Please contact support. (Missing price for: {role} {plan} {billing})", "error")
+
+            # Show detailed error page for admin
+            if is_admin():
+                return render_template("errors/stripe_not_configured.html",
+                                     missing_key=key.upper(),
+                                     role=role,
+                                     plan=plan,
+                                     billing=billing)
+
+            # Regular users see friendly error
+            flash(f"Payment system is being set up. Please check back soon or contact support.", "warning")
             return redirect(f"/trial_expired?role={role}")
         
         # Check if this is a new signup (with trial)
