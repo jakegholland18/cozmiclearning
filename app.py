@@ -8721,44 +8721,94 @@ def homeschool_assign_questions():
             "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
         }
 
-        # Create Practice record (not AssignedPractice since no class)
-        # For homeschool, we'll create individual practice records for each student
-        assignment = Practice(
-            teacher_id=None,  # No teacher, this is a homeschool parent
+        print(f"📝 Creating assignment with {len(questions_data)} questions for parent {parent.id}")
+        print(f"   Parent has {len(parent.students) if parent.students else 0} student(s)")
+
+        # HOMESCHOOL LIMITATION: Current database schema requires students to exist
+        # AssignedPractice requires class_id and teacher_id (both non-nullable)
+        # Students must be linked to a class, which requires a teacher
+        # For now, require at least one student before creating assignments
+        if not parent.students or len(parent.students) == 0:
+            print(f"⚠️  No students found for parent {parent.id} - assignment cannot be created")
+            return jsonify({
+                "error": "No students linked to your account",
+                "message": "Please add at least one student before creating assignments. The database requires students to be in a class to receive assignments.",
+                "action": "Add a student at the homeschool dashboard"
+            }), 400
+
+        # Get or create a virtual homeschool teacher account
+        homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
+        if not homeschool_teacher:
+            homeschool_teacher = Teacher(
+                name="Homeschool System",
+                email="homeschool@system.internal",
+                password="SYSTEM_ACCOUNT"  # Not a real account, just a database placeholder
+            )
+            db.session.add(homeschool_teacher)
+            db.session.flush()
+            print(f"✨ Created homeschool system teacher ID {homeschool_teacher.id}")
+
+        # Get or create virtual homeschool class for this parent
+        virtual_class = Class.query.filter_by(
+            teacher_id=homeschool_teacher.id,
+            class_name=f"Homeschool - Parent {parent.id}"
+        ).first()
+
+        if not virtual_class:
+            virtual_class = Class(
+                teacher_id=homeschool_teacher.id,
+                class_name=f"Homeschool - Parent {parent.id}",
+                grade_level="mixed",
+                join_code=f"HS{parent.id:04d}"
+            )
+            db.session.add(virtual_class)
+            db.session.flush()
+            print(f"✨ Created virtual homeschool class ID {virtual_class.id}")
+
+        # Link parent's students to virtual class if not already linked
+        for student in parent.students:
+            if not student.class_id:
+                student.class_id = virtual_class.id
+                print(f"   Linked student {student.id} to virtual class {virtual_class.id}")
+
+        # Create AssignedPractice record
+        assignment = AssignedPractice(
+            class_id=virtual_class.id,
+            teacher_id=homeschool_teacher.id,
             title=title,
             subject=subject,
+            topic=topic,
             open_date=open_date,
             due_date=due_date,
+            differentiation_mode="none",
             is_published=True,
+            preview_json=json.dumps(mission_json)
         )
         db.session.add(assignment)
         db.session.flush()
+        print(f"✅ Created AssignedPractice ID {assignment.id}")
 
-        # Add questions to the practice
+        # Add questions as AssignedQuestion records
         for idx, q in enumerate(questions_data):
-            question = PracticeQuestion(
+            choices = q.get("choices", [])
+            expected = q.get("expected", [])
+
+            question = AssignedQuestion(
                 practice_id=assignment.id,
-                question_order=idx + 1,
-                prompt=safe_text(q.get("prompt", ""), 1000),
-                question_type=q.get("type", "multiple_choice"),
-                choices=q.get("choices", []),
-                expected_answer=q.get("expected", ""),
+                question_text=safe_text(q.get("prompt", ""), 1000),
+                question_type=q.get("type", "free"),
+                choice_a=choices[0] if len(choices) > 0 else None,
+                choice_b=choices[1] if len(choices) > 1 else None,
+                choice_c=choices[2] if len(choices) > 2 else None,
+                choice_d=choices[3] if len(choices) > 3 else None,
+                correct_answer=",".join(expected) if isinstance(expected, list) else str(expected),
                 explanation=safe_text(q.get("explanation", ""), 2000),
+                difficulty_level="medium"
             )
             db.session.add(question)
+            print(f"   Added question {idx + 1}: {q.get('prompt', '')[:50]}...")
 
-        # Assign to all parent's students
-        student_count = len(parent.students) if parent.students else 0
-        print(f"📝 Assigning to {student_count} student(s)")
-
-        for student in parent.students:
-            assigned = AssignedPractice(
-                student_id=student.id,
-                practice_id=assignment.id,
-                assigned_date=datetime.utcnow(),
-            )
-            db.session.add(assigned)
-            print(f"  ✓ Assigned to student ID {student.id}")
+        student_count = len(parent.students)
 
         db.session.commit()
 
