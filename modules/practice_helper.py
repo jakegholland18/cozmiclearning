@@ -366,6 +366,12 @@ IMPORTANT:
             print(f"⚠️ No JSON object found in response for {topic}")
             json_str = raw
 
+    # Fix common JSON escape issues
+    # Replace invalid escape sequences that aren't part of valid JSON escapes
+    import re
+    # Fix backslashes that aren't followed by valid escape characters
+    json_str = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', json_str)
+
     try:
         data = json.loads(json_str)
     except Exception as e:
