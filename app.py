@@ -7648,6 +7648,19 @@ def start_practice():
     session["practice_attempts"] = 0
     session.modified = True
 
+    # For new practice mode templates (quick, full, timed, teach, related)
+    # Return all steps so they can handle their own UI
+    if mode in ['quick', 'full', 'timed', 'teach', 'related']:
+        return jsonify(
+            {
+                "status": "ok",
+                "steps": steps,
+                "total": len(steps),
+                "character": character,
+            }
+        )
+
+    # For interactive mode, return just the first question (old behavior)
     first = steps[0]
 
     return jsonify(
@@ -9143,13 +9156,23 @@ def adjust_difficulty():
 
     # Get original sections from session
     last_answer = session.get("last_answer", {})
-    original_sections = last_answer.get("sections", [])
+    original_sections = last_answer.get("sections", {})
 
-    if not original_sections or section_number > len(original_sections):
+    # Map section numbers to dict keys
+    section_keys = {
+        1: "overview",
+        2: "key_facts",
+        3: "christian_view",
+        4: "agreement",
+        5: "difference",
+        6: "practice"
+    }
+
+    section_key = section_keys.get(section_number)
+    if not section_key or section_key not in original_sections:
         return jsonify({"error": "Section not found"})
 
-    original_section = original_sections[section_number - 1]
-    original_content = original_section.get("content", "")
+    original_content = original_sections.get(section_key, "")
 
     # Generate adjusted version
     if difficulty == "simple":

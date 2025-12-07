@@ -1524,8 +1524,8 @@ function setupTextSelection() {
 function startPractice(mode) {
     // Return to subject page to see the answer again
     const returnUrl = encodeURIComponent(`/subject`);
-    const topic = encodeURIComponent('{{ question }}');
-    const subject = '{{ subject }}';
+    const topic = encodeURIComponent({{ question|tojson }});
+    const subject = {{ subject|tojson }};
 
     const modes = {
         'interactive': `/practice?topic=${topic}&subject=${subject}&mode=interactive&return_url=${returnUrl}`,
