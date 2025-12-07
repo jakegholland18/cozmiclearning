@@ -57,7 +57,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "website", "static"),
 )
 
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-change-in-production-' + secrets.token_hex(32))
+app.secret_key = os.environ.get('New_SECRET') or os.environ.get('SECRET_KEY', 'dev-key-change-in-production-' + secrets.token_hex(32))
 
 # ------------------------------------------------------------
 # Secure session cookie configuration (essentials)
