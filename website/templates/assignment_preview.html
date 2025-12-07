@@ -372,6 +372,98 @@
             font-size: 0.9rem;
             color: var(--muted-2);
         }
+
+        .diff-summary {
+            background: linear-gradient(135deg, rgba(92,107,255,0.15), rgba(71,200,255,0.1));
+            border: 1px solid rgba(118,131,255,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .diff-summary h3 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin: 0 0 15px 0;
+            font-weight: 700;
+        }
+
+        .diff-checks {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .diff-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .diff-check-icon {
+            font-size: 1.2rem;
+            min-width: 24px;
+        }
+
+        .diff-check-passed {
+            border-left: 3px solid var(--success);
+        }
+
+        .diff-check-failed {
+            border-left: 3px solid var(--warning);
+        }
+
+        .diff-trend {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0,242,255,0.2);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .diff-warning {
+            background: rgba(255,159,28,0.2);
+            border: 1px solid rgba(255,159,28,0.4);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            color: var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .difficulty-easy {
+            background: rgba(132,255,0,0.2);
+            color: var(--success);
+            border: 1px solid rgba(132,255,0,0.4);
+        }
+
+        .difficulty-medium {
+            background: rgba(0,242,255,0.2);
+            color: var(--accent);
+            border: 1px solid rgba(0,242,255,0.4);
+        }
+
+        .difficulty-hard {
+            background: rgba(255,159,28,0.2);
+            color: var(--warning);
+            border: 1px solid rgba(255,159,28,0.4);
+        }
     </style>
 </head>
 
@@ -384,6 +476,47 @@
         <p><strong>{{ assignment.title }}</strong></p>
         <p>{{ assignment.subject|replace('_', ' ')|title }} · {{ assignment.topic }}</p>
     </div>
+
+    {% if diff_analysis and assignment.differentiation_mode and assignment.differentiation_mode != 'none' %}
+    <div class="diff-summary">
+        <h3>🎯 Differentiation Analysis: {{ assignment.differentiation_mode|replace('_', ' ')|title }} Mode</h3>
+
+        <div class="diff-checks">
+            {% for check in diff_analysis.checks %}
+            <div class="diff-check {% if check.passed %}diff-check-passed{% else %}diff-check-failed{% endif %}">
+                <span class="diff-check-icon">{% if check.passed %}✅{% else %}⚠️{% endif %}</span>
+                <div style="flex: 1;">
+                    <strong>{{ check.label }}:</strong> {{ check.value }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 12px;">
+            <strong>Difficulty Trend:</strong>
+            <span class="diff-trend">
+                {% if diff_analysis.difficulty_trend == 'progressive' %}
+                    📈 Progressive (Easy → Hard)
+                {% elif diff_analysis.difficulty_trend == 'balanced' %}
+                    ⚖️ Balanced
+                {% else %}
+                    🔀 Mixed
+                {% endif %}
+            </span>
+        </div>
+
+        {% if diff_analysis.warnings %}
+        <div class="diff-warning">
+            <strong>⚠️ Recommendations:</strong>
+            <ul style="margin: 8px 0 0 20px; padding: 0;">
+            {% for warning in diff_analysis.warnings %}
+                <li>{{ warning }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div class="progress-indicator">
         <span id="questionCounter">Question 1 of {{ mission.steps|length }}</span>
@@ -407,7 +540,13 @@
         <div class="question-container {% if loop.first %}active{% endif %}" id="question-{{ loop.index0 }}" data-index="{{ loop.index0 }}">
             <div class="step-box" id="step-box-{{ loop.index0 }}">
                 <div class="step-title">
-                    <span>Question {{ loop.index }}</span>
+                    <span>
+                        Question {{ loop.index }}
+                        {% if diff_analysis and diff_analysis.metrics and diff_analysis.metrics.difficulty_levels %}
+                            {% set difficulty = diff_analysis.metrics.difficulty_levels[loop.index0] %}
+                            <span class="difficulty-badge difficulty-{{ difficulty }}">{{ difficulty }}</span>
+                        {% endif %}
+                    </span>
                     <button class="btn btn-edit" onclick="toggleEdit({{ loop.index0 }})">
                         ✏️ Edit
                     </button>

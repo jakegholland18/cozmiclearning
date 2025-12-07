@@ -4986,10 +4986,18 @@ def assignment_preview(practice_id):
     except Exception:
         mission = {"steps": [], "final_message": "Preview unavailable"}
 
+    # Analyze differentiation to provide feedback
+    from modules.practice_helper import analyze_differentiation
+    diff_analysis = analyze_differentiation(
+        mission.get("steps", []),
+        assignment.differentiation_mode or "none"
+    )
+
     return render_template(
         "assignment_preview.html",
         assignment=assignment,
-        mission=mission
+        mission=mission,
+        diff_analysis=diff_analysis
     )
 
 # ============================================================
@@ -9074,6 +9082,13 @@ def homeschool_assignment_overview(practice_id):
     except Exception:
         mission = {"steps": [], "final_message": "Preview unavailable"}
 
+    # Analyze differentiation to provide feedback
+    from modules.practice_helper import analyze_differentiation
+    diff_analysis = analyze_differentiation(
+        mission.get("steps", []),
+        practice.differentiation_mode or "none"
+    )
+
     # Get students assigned to this class
     assigned_students = Student.query.filter_by(class_id=virtual_class.id).all()
 
@@ -9081,6 +9096,7 @@ def homeschool_assignment_overview(practice_id):
         "assignment_preview.html",  # Use the same interactive preview as teachers
         assignment=practice,
         mission=mission,
+        diff_analysis=diff_analysis,
         is_homeschool=True,  # Flag to show homeschool-specific UI
         back_url="/homeschool/assignments"
     )

@@ -1,8 +1,236 @@
 # modules/practice_helper.py
 
 import json
-from typing import Dict, Any
+from typing import Dict, Any, List
 from modules.shared_ai import get_client, build_character_voice, grade_depth_instruction
+
+
+# ------------------------------------------------------------
+# Differentiation Analysis
+# ------------------------------------------------------------
+
+def analyze_differentiation(questions: List[Dict], differentiation_mode: str) -> Dict[str, Any]:
+    """
+    Analyze questions to verify differentiation is working.
+    Returns metrics and validation for the selected differentiation mode.
+    """
+    if not questions:
+        return {"valid": False, "metrics": {}, "warnings": ["No questions to analyze"]}
+
+    metrics = {
+        "total_questions": len(questions),
+        "has_hints": 0,
+        "has_explanations": 0,
+        "multiple_choice": 0,
+        "free_response": 0,
+        "difficulty_levels": [],
+        "avg_prompt_length": 0,
+        "avg_hint_length": 0,
+    }
+
+    total_prompt_length = 0
+    total_hint_length = 0
+
+    for q in questions:
+        prompt = q.get("prompt", "")
+        hint = q.get("hint", "")
+        explanation = q.get("explanation", "")
+        q_type = q.get("type", "free")
+
+        # Count features
+        if hint and len(hint) > 10:
+            metrics["has_hints"] += 1
+            total_hint_length += len(hint)
+
+        if explanation and len(explanation) > 10:
+            metrics["has_explanations"] += 1
+
+        if q_type == "multiple_choice":
+            metrics["multiple_choice"] += 1
+        else:
+            metrics["free_response"] += 1
+
+        total_prompt_length += len(prompt)
+
+        # Estimate difficulty based on question characteristics
+        difficulty = estimate_question_difficulty(q)
+        metrics["difficulty_levels"].append(difficulty)
+
+    # Calculate averages
+    metrics["avg_prompt_length"] = total_prompt_length // len(questions)
+    metrics["avg_hint_length"] = total_hint_length // metrics["has_hints"] if metrics["has_hints"] > 0 else 0
+
+    # Validate based on differentiation mode
+    validation = validate_differentiation_mode(metrics, differentiation_mode, len(questions))
+
+    return {
+        "valid": validation["valid"],
+        "metrics": metrics,
+        "warnings": validation["warnings"],
+        "checks": validation["checks"],
+        "difficulty_trend": analyze_difficulty_trend(metrics["difficulty_levels"])
+    }
+
+
+def estimate_question_difficulty(question: Dict) -> str:
+    """
+    Estimate difficulty of a single question based on characteristics.
+    Returns: "easy", "medium", or "hard"
+    """
+    prompt = question.get("prompt", "")
+    hint = question.get("hint", "")
+    q_type = question.get("type", "free")
+
+    difficulty_score = 0
+
+    # Length indicators
+    if len(prompt) > 200:
+        difficulty_score += 2  # Long questions are often harder
+    elif len(prompt) > 100:
+        difficulty_score += 1
+
+    # Type indicators
+    if q_type == "free":
+        difficulty_score += 1  # Free response is harder than multiple choice
+
+    # Multi-step indicators (keywords)
+    multi_step_keywords = ["calculate", "then", "next", "finally", "both", "compare", "analyze", "explain why"]
+    if any(keyword in prompt.lower() for keyword in multi_step_keywords):
+        difficulty_score += 2
+
+    # Hint quality (good hints suggest harder questions)
+    if len(hint) > 50:
+        difficulty_score += 1
+
+    # Vocabulary complexity (simple check for advanced words)
+    advanced_words = ["synthesize", "evaluate", "derive", "integrate", "differentiate", "critique"]
+    if any(word in prompt.lower() for word in advanced_words):
+        difficulty_score += 2
+
+    # Return difficulty rating
+    if difficulty_score >= 5:
+        return "hard"
+    elif difficulty_score >= 3:
+        return "medium"
+    else:
+        return "easy"
+
+
+def analyze_difficulty_trend(difficulty_levels: List[str]) -> str:
+    """
+    Analyze if difficulty is progressive (easy → hard), flat, or random.
+    """
+    if len(difficulty_levels) < 3:
+        return "insufficient_data"
+
+    # Map to numeric scores
+    score_map = {"easy": 1, "medium": 2, "hard": 3}
+    scores = [score_map.get(d, 2) for d in difficulty_levels]
+
+    # Check for progressive pattern (first half easier than second half)
+    mid = len(scores) // 2
+    first_half_avg = sum(scores[:mid]) / mid
+    second_half_avg = sum(scores[mid:]) / (len(scores) - mid)
+
+    if second_half_avg > first_half_avg + 0.3:
+        return "progressive"  # Gets harder
+    elif abs(second_half_avg - first_half_avg) < 0.3:
+        return "balanced"  # Consistent difficulty
+    else:
+        return "mixed"  # Random difficulty
+
+
+def validate_differentiation_mode(metrics: Dict, mode: str, total: int) -> Dict:
+    """
+    Validate that questions match the expected differentiation mode characteristics.
+    """
+    checks = []
+    warnings = []
+    valid = True
+
+    if mode == "scaffold":
+        # Scaffold should have hints on most/all questions
+        hint_percentage = (metrics["has_hints"] / total) * 100
+        checks.append({
+            "label": "Questions with hints",
+            "value": f"{metrics['has_hints']}/{total} ({hint_percentage:.0f}%)",
+            "passed": hint_percentage >= 80
+        })
+        if hint_percentage < 80:
+            warnings.append(f"Only {hint_percentage:.0f}% of questions have hints (expected 80%+ for scaffold mode)")
+            valid = False
+
+        # Should have good explanations
+        expl_percentage = (metrics["has_explanations"] / total) * 100
+        checks.append({
+            "label": "Questions with explanations",
+            "value": f"{metrics['has_explanations']}/{total} ({expl_percentage:.0f}%)",
+            "passed": expl_percentage >= 80
+        })
+        if expl_percentage < 80:
+            warnings.append(f"Only {expl_percentage:.0f}% have detailed explanations (expected 80%+)")
+
+    elif mode == "mastery":
+        # Mastery should have more hard questions
+        hard_count = metrics["difficulty_levels"].count("hard")
+        hard_percentage = (hard_count / total) * 100
+        checks.append({
+            "label": "Challenging questions",
+            "value": f"{hard_count}/{total} ({hard_percentage:.0f}%)",
+            "passed": hard_percentage >= 40
+        })
+        if hard_percentage < 40:
+            warnings.append(f"Only {hard_percentage:.0f}% are challenging (expected 40%+ for mastery mode)")
+            valid = False
+
+        # Should favor free response
+        free_percentage = (metrics["free_response"] / total) * 100
+        checks.append({
+            "label": "Free response questions",
+            "value": f"{metrics['free_response']}/{total} ({free_percentage:.0f}%)",
+            "passed": free_percentage >= 50
+        })
+
+    elif mode == "adaptive":
+        # Adaptive should have mixed difficulty
+        easy = metrics["difficulty_levels"].count("easy")
+        medium = metrics["difficulty_levels"].count("medium")
+        hard = metrics["difficulty_levels"].count("hard")
+
+        checks.append({
+            "label": "Difficulty distribution",
+            "value": f"Easy: {easy}, Medium: {medium}, Hard: {hard}",
+            "passed": easy > 0 and hard > 0  # Must have both ends
+        })
+        if not (easy > 0 and hard > 0):
+            warnings.append("Adaptive mode should include easy and hard questions")
+            valid = False
+
+    elif mode == "gap_fill":
+        # Gap fill should have explanations and hints
+        hint_percentage = (metrics["has_hints"] / total) * 100
+        expl_percentage = (metrics["has_explanations"] / total) * 100
+
+        checks.append({
+            "label": "Teaching support",
+            "value": f"Hints: {hint_percentage:.0f}%, Explanations: {expl_percentage:.0f}%",
+            "passed": hint_percentage >= 60 and expl_percentage >= 60
+        })
+        if hint_percentage < 60 or expl_percentage < 60:
+            warnings.append("Gap fill mode needs strong teaching support (hints + explanations)")
+
+    # General check for all modes
+    checks.append({
+        "label": "Question variety",
+        "value": f"MC: {metrics['multiple_choice']}, Free: {metrics['free_response']}",
+        "passed": metrics['multiple_choice'] > 0 and metrics['free_response'] > 0
+    })
+
+    return {
+        "valid": valid,
+        "checks": checks,
+        "warnings": warnings
+    }
 
 
 # ------------------------------------------------------------
