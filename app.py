@@ -7444,6 +7444,7 @@ def practice():
     subject = request.args.get("subject", "")
     topic = request.args.get("topic", "")
     mode = request.args.get("mode", "full")  # full, quick, timed, teach, related
+    return_url = request.args.get("return_url", "")  # Where to return when done
     character = session.get("character", "everly")
     grade = session.get("grade", "8")
 
@@ -7495,7 +7496,8 @@ def practice():
         character=character,
         grade=grade,
         subjects=SUBJECT_LABELS,
-        config=config
+        config=config,
+        return_url=return_url
     )
 
 

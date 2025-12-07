@@ -17,6 +17,13 @@
             min-height: 100vh;
         }
 
+        /* Mode-specific color themes */
+        body.mode-quick { --mode-color: #ffdd55; --mode-glow: rgba(255, 221, 85, 0.3); }
+        body.mode-full { --mode-color: #c084fc; --mode-glow: rgba(192, 132, 252, 0.3); }
+        body.mode-timed { --mode-color: #ff6b6b; --mode-glow: rgba(255, 107, 107, 0.3); }
+        body.mode-teach { --mode-color: #4ecdc4; --mode-glow: rgba(78, 205, 196, 0.3); }
+        body.mode-related { --mode-color: #95e1d3; --mode-glow: rgba(149, 225, 211, 0.3); }
+
         .practice-wrapper {
             width: 94%;
             max-width: 1200px;
@@ -644,7 +651,7 @@
     </style>
 </head>
 
-<body>
+<body class="mode-{{ mode }}">
 <div class="stars"></div>
 
 <div class="practice-wrapper">
@@ -687,7 +694,7 @@
 
             <h2 class="prompt-title">{{ mode_title if mode_title else '🚀 Practice Mission' }}</h2>
             {% if mode_description %}
-            <div style="text-align:center; color:#c4d1ff; font-size:0.9rem; margin-bottom:12px; background:rgba(255,111,216,0.1); padding:8px; border-radius:8px; border:1px solid rgba(255,111,216,0.3);">
+            <div class="mode-badge" style="text-align:center; color:#fff; font-size:0.9rem; margin-bottom:12px; background:var(--mode-glow, rgba(255,111,216,0.1)); padding:10px 16px; border-radius:12px; border:2px solid var(--mode-color, rgba(255,111,216,0.3)); font-weight:600; box-shadow:0 4px 12px var(--mode-glow, rgba(0,0,0,0.2));">
                 {{ mode_description }}
             </div>
             {% endif %}
@@ -788,6 +795,14 @@ let totalQuestions = 0;
 
 // START: Return button (no form resubmission)
 function goBackToQuestionScreen() {
+    // If return_url was provided, go back there
+    const returnUrl = "{{ return_url }}";
+    if (returnUrl && returnUrl !== "") {
+        window.location.href = decodeURIComponent(returnUrl);
+        return;
+    }
+
+    // Otherwise, fallback to ask-question page
     const subject = "{{ subject }}";
     const grade = "{{ grade }}";
     window.location.href = "/ask-question?subject="

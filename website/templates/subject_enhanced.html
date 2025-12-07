@@ -1461,12 +1461,17 @@ function setupTextSelection() {
 
 // FEATURE #13: Practice Mode Selection
 function startPractice(mode) {
+    // Get the current page URL to return to
+    const returnUrl = encodeURIComponent(window.location.href);
+    const topic = encodeURIComponent('{{ question }}');
+    const subject = '{{ subject }}';
+
     const modes = {
-        'quick': `/practice?topic=${encodeURIComponent('{{ question }}')}&subject={{ subject }}&mode=quick&questions=5`,
-        'full': `/practice?topic=${encodeURIComponent('{{ question }}')}&subject={{ subject }}&mode=full`,
-        'timed': `/practice?topic=${encodeURIComponent('{{ question }}')}&subject={{ subject }}&mode=timed&duration=10`,
-        'teach': `/deep_study?topic=${encodeURIComponent('{{ question }}')}&subject={{ subject }}`,
-        'related': `/related_topics?topic=${encodeURIComponent('{{ question }}')}&subject={{ subject }}`
+        'quick': `/practice?topic=${topic}&subject=${subject}&mode=quick&return_url=${returnUrl}`,
+        'full': `/practice?topic=${topic}&subject=${subject}&mode=full&return_url=${returnUrl}`,
+        'timed': `/practice?topic=${topic}&subject=${subject}&mode=timed&return_url=${returnUrl}`,
+        'teach': `/practice?topic=${topic}&subject=${subject}&mode=teach&return_url=${returnUrl}`,
+        'related': `/practice?topic=${topic}&subject=${subject}&mode=related&return_url=${returnUrl}`
     };
 
     window.location.href = modes[mode] || modes['full'];
