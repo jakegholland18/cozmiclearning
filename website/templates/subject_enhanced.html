@@ -1099,6 +1099,11 @@
 <div class="practice-options-section">
     <h2 class="practice-options-title">🚀 Ready to Practice?</h2>
     <div class="practice-grid">
+        <div class="practice-card" onclick="startPractice('interactive')">
+            <div class="practice-card-icon">🎮</div>
+            <div class="practice-card-title">Interactive Practice</div>
+            <div class="practice-card-description">Hands-on practice with instant feedback</div>
+        </div>
         <div class="practice-card" onclick="startPractice('quick')">
             <div class="practice-card-icon">⚡</div>
             <div class="practice-card-title">Quick Quiz</div>
@@ -1467,6 +1472,7 @@ function startPractice(mode) {
     const subject = '{{ subject }}';
 
     const modes = {
+        'interactive': `/practice?topic=${topic}&subject=${subject}&mode=interactive&return_url=${returnUrl}`,
         'quick': `/practice?topic=${topic}&subject=${subject}&mode=quick&return_url=${returnUrl}`,
         'full': `/practice?topic=${topic}&subject=${subject}&mode=full&return_url=${returnUrl}`,
         'timed': `/practice?topic=${topic}&subject=${subject}&mode=timed&return_url=${returnUrl}`,
@@ -1474,7 +1480,7 @@ function startPractice(mode) {
         'related': `/practice?topic=${topic}&subject=${subject}&mode=related&return_url=${returnUrl}`
     };
 
-    window.location.href = modes[mode] || modes['full'];
+    window.location.href = modes[mode] || modes['interactive'];
 }
 
 // FEATURE #4: Inline Practice Questions

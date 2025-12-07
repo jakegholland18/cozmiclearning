@@ -7450,6 +7450,12 @@ def practice():
 
     # Mode-specific settings
     mode_config = {
+        'interactive': {
+            'title': '🎮 Interactive Practice',
+            'description': 'Hands-on practice with instant feedback',
+            'questions': 10,
+            'show_hints': True
+        },
         'quick': {
             'title': '⚡ Quick Quiz',
             'description': '5 quick questions to test your understanding',
@@ -7484,7 +7490,7 @@ def practice():
         }
     }
 
-    config = mode_config.get(mode, mode_config['full'])
+    config = mode_config.get(mode, mode_config['interactive'])
 
     return render_template(
         "practice.html",
@@ -7515,6 +7521,11 @@ def start_practice():
 
     # Mode-specific question generation
     mode_settings = {
+        'interactive': {
+            'num_questions': 10,
+            'differentiation_mode': 'none',
+            'context': 'student'
+        },
         'quick': {
             'num_questions': 5,
             'differentiation_mode': 'multiple_choice_only',
@@ -7542,7 +7553,7 @@ def start_practice():
         }
     }
 
-    settings = mode_settings.get(mode, mode_settings['full'])
+    settings = mode_settings.get(mode, mode_settings['interactive'])
 
     # Generate practice with mode-specific parameters
     practice_data = generate_practice_session(
