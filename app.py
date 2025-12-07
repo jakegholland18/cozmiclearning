@@ -104,7 +104,6 @@ limiter = Limiter(
 
 # Critical environment variables that must be set
 REQUIRED_ENV_VARS = [
-    'SECRET_KEY',
     'OPENAI_API_KEY',
     'STRIPE_SECRET_KEY',
     'STRIPE_PUBLISHABLE_KEY',
@@ -112,6 +111,7 @@ REQUIRED_ENV_VARS = [
 
 # Optional but recommended environment variables
 RECOMMENDED_ENV_VARS = [
+    'SECRET_KEY',  # Auto-generated if not set, but recommended to set explicitly
     'MAIL_USERNAME',
     'MAIL_PASSWORD',
     'ADMIN_PASSWORD',
