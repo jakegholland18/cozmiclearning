@@ -7592,7 +7592,7 @@ def start_practice():
         },
         'full': {
             'num_questions': 10,
-            'differentiation_mode': 'none',
+            'differentiation_mode': 'scaffold',  # Changed from 'none' to provide hints and support
             'context': 'student'
         },
         'timed': {

@@ -84,22 +84,46 @@ DIFFERENTIATION MODE: MASTERY
 
     if mode == "scaffold":
         return base_prompt + """
-DIFFERENTIATION MODE: SCAFFOLDED SUPPORT
-- Below grade-level entry.
-- Break tasks into smaller steps.
-- Simpler vocabulary & numbers.
-- Confidence-building approach.
+PRACTICE MODE: FULL PRACTICE - COMPREHENSIVE WITH SCAFFOLDING
+CRITICAL: This mode provides thorough practice WITH helpful hints and step-by-step support!
+
+REQUIREMENTS:
+- Mix of multiple choice AND free response questions
+- EVERY question MUST include a helpful hint
+- Hints should guide thinking without giving away the answer
+- Progressive difficulty - start easier, build to harder
+- Break complex problems into smaller steps
+- Include detailed explanations that teach the concept
+- Build confidence through gradual progression
+
+HINT EXAMPLES:
+- "Think about what happens to the denominator when you multiply fractions"
+- "Remember that photosynthesis requires sunlight, water, and CO2"
+- "Start by identifying the subject and verb in the sentence"
+
+FOCUS: Comprehensive learning with support and guidance
 """
 
     if mode == "multiple_choice_only":
         return base_prompt + """
 PRACTICE MODE: QUICK QUIZ
-- ALL questions MUST be multiple choice (A, B, C, D format)
-- Questions should be straightforward and clear
-- Fast assessment - no long explanations needed
-- Focus on quick recall and understanding
-- Each question should have 4 answer choices
-- Make it snappy and engaging
+CRITICAL: EVERY question MUST be multiple choice with exactly 4 options (A, B, C, D)!
+
+REQUIREMENTS:
+- 100% multiple choice format - NO free response questions allowed
+- Each question has exactly 4 answer options labeled A, B, C, D
+- Questions test core concepts and recall
+- Fast-paced, straightforward assessment
+- Focus on "what" and "which" rather than "why" or "how"
+- Make distractors plausible but clearly wrong
+
+EXAMPLE FORMAT:
+"What is 3/4 + 1/2?"
+A. 5/6
+B. 4/6
+C. 5/4
+D. 1 1/4
+Expected: ["d"]
 """
 
     if mode == "quick_assessment":
@@ -115,26 +139,44 @@ PRACTICE MODE: TIMED CHALLENGE
 
     if mode == "deep_conceptual":
         return base_prompt + """
-PRACTICE MODE: TEACH ME MORE
-- Focus on WHY and HOW, not just WHAT
-- Include conceptual questions that require explanation
-- Ask "explain why" and "how does this work" type questions
-- Encourage critical thinking
-- Mix of problem-solving and concept explanation
-- Push students to articulate their understanding
-- Include real-world applications
+PRACTICE MODE: TEACH ME MORE - DEEP CONCEPTUAL UNDERSTANDING
+CRITICAL: This mode MUST focus on deeper understanding, NOT basic practice!
+
+REQUIRED QUESTION TYPES (use ALL of these):
+1. "Explain WHY..." questions - require 2-3 sentence explanations
+2. "How does this work..." - ask about underlying mechanisms
+3. "What would happen if..." - hypothetical scenarios
+4. "Compare and contrast..." - analytical thinking
+5. "Apply this concept to..." - real-world applications
+
+EXAMPLES OF GOOD QUESTIONS:
+- "Explain WHY multiplying fractions gives a smaller result than the original fractions"
+- "How does photosynthesis demonstrate the law of conservation of energy?"
+- "What would happen if Earth's rotation suddenly stopped? Explain the physics."
+
+AVOID: Simple recall, basic calculations, or yes/no questions
+FOCUS: Deep thinking, connections, explanations, analysis
 """
 
     if mode == "cross_topic":
         return base_prompt + """
-PRACTICE MODE: RELATED TOPICS
-- Show connections between this topic and related concepts
-- Include questions that link to other subjects when possible
-- Ask "how does this relate to..." type questions
-- Explore the bigger picture
-- Make interdisciplinary connections
-- Help students see how topics connect
-- Encourage systems thinking
+PRACTICE MODE: RELATED TOPICS - INTERDISCIPLINARY CONNECTIONS
+CRITICAL: This mode MUST show how topics connect across subjects!
+
+REQUIRED APPROACH (use ALL of these):
+1. Explicitly connect to OTHER subjects (math↔science, history↔literature, etc.)
+2. Ask "How does [this topic] relate to [other subject]?" questions
+3. Show real-world applications that cross disciplines
+4. Explore historical context or future implications
+5. Make students see the BIG PICTURE beyond just one subject
+
+EXAMPLES OF GOOD QUESTIONS:
+- "How do fractions relate to musical rhythm and beats?"
+- "How is the water cycle similar to the economic cycle of supply and demand?"
+- "How did scientific discoveries during the Industrial Revolution change society?"
+
+AVOID: Questions that stay within one subject only
+FOCUS: Connections, relationships, interdisciplinary thinking, big picture
 """
 
     return base_prompt
