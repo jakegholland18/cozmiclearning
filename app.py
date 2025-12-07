@@ -6875,9 +6875,24 @@ def ask_question():
 def subject_answer():
     init_user()
 
-    # If GET request, redirect to ask-question page
+    # If GET request, show the last answer from session
     if request.method == "GET":
-        return redirect("/ask-question")
+        last_answer = session.get("last_answer")
+        if last_answer:
+            return render_template(
+                "subject_enhanced.html",
+                subject=last_answer.get("subject", ""),
+                grade=last_answer.get("grade", "8"),
+                question=last_answer.get("question", ""),
+                answer=last_answer.get("answer", ""),
+                sections=last_answer.get("sections", []),
+                character=last_answer.get("character", "everly"),
+                conversation=session.get("conversation", []),
+                pdf_url=None,
+                subjects=SUBJECT_LABELS,
+            )
+        else:
+            return redirect("/ask-question")
 
     # Check subscription status first
     user_role = session.get("user_role")
@@ -7033,6 +7048,17 @@ CozmicLearning Team
 
     # Increment question count for Basic plan tracking
     increment_question_count()
+
+    # Store answer in session so we can show it again when returning from practice
+    session["last_answer"] = {
+        "subject": subject,
+        "grade": grade,
+        "question": question,
+        "answer": answer,
+        "sections": sections,
+        "character": character
+    }
+    session.modified = True
 
     return render_template(
         "subject_enhanced.html",
