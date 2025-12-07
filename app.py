@@ -8722,10 +8722,18 @@ def homeschool_assign_questions():
         }
 
         print(f"📝 Creating assignment with {len(questions_data)} questions for parent {parent.id}")
-        print(f"   Parent has {len(parent.students) if parent.students else 0} student(s)")
+
+        # Safely check students - might be lazy-loaded relationship
+        try:
+            student_count = len(parent.students) if parent.students else 0
+        except Exception as e:
+            print(f"   Error accessing parent.students: {e}")
+            student_count = 0
+
+        print(f"   Parent has {student_count} student(s)")
 
         is_admin = session.get("admin_authenticated", False)
-        has_students = parent.students and len(parent.students) > 0
+        has_students = student_count > 0
 
         print(f"   Admin mode: {is_admin}")
         print(f"   Has students: {has_students}")
@@ -8830,7 +8838,7 @@ def homeschool_assign_questions():
             db.session.add(question)
             print(f"   Added question {idx + 1}: {q.get('prompt', '')[:50]}...")
 
-        student_count = len(parent.students)
+        # student_count already calculated above - no need to recalculate
 
         db.session.commit()
 
