@@ -475,6 +475,7 @@
         <h1>🚀 Review & Edit Questions</h1>
         <p><strong>{{ assignment.title }}</strong></p>
         <p>{{ assignment.subject|replace('_', ' ')|title }} · {{ assignment.topic }}</p>
+        <p style="font-size: 0.8rem; color: #888;">DEBUG: diff_analysis exists = {{ 'yes' if diff_analysis else 'no' }}, has metrics = {{ 'yes' if diff_analysis and diff_analysis.metrics else 'no' }}, difficulty_levels = {{ diff_analysis.metrics.difficulty_levels|length if diff_analysis and diff_analysis.metrics and diff_analysis.metrics.difficulty_levels else 0 }}</p>
     </div>
 
     {% if diff_analysis %}
