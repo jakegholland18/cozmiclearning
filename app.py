@@ -9112,10 +9112,10 @@ They're reading Section {section} of the answer and requested clarification:
 
 Provide a clear, concise clarification (2-3 sentences) that directly addresses their confusion while maintaining a friendly, encouraging tone."""
 
-    from modules.ai_client import simple_ai_call
+    from modules.shared_ai import study_buddy_ai
 
     try:
-        reply = simple_ai_call(prompt, grade, character)
+        reply = study_buddy_ai(prompt, grade, character)
         reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
     except Exception as e:
         app.logger.error(f"Clarification request failed: {e}")
@@ -9125,6 +9125,73 @@ Provide a clear, concise clarification (2-3 sentences) that directly addresses t
     increment_question_count()
 
     return jsonify({"reply": reply_text})
+
+
+@app.route("/adjust_difficulty", methods=["POST"])
+@csrf.exempt
+def adjust_difficulty():
+    """Adjust content difficulty (Explain like I'm 5 or Advanced Detail)."""
+    init_user()
+
+    data = request.get_json() or {}
+    question = data.get("question", "")
+    section_number = data.get("section", 1)
+    difficulty = data.get("difficulty", "simple")  # 'simple' or 'advanced'
+    grade = session.get("grade", "8")
+    character = session.get("character", "everly")
+    subject = data.get("subject", "")
+
+    # Get original sections from session
+    last_answer = session.get("last_answer", {})
+    original_sections = last_answer.get("sections", [])
+
+    if not original_sections or section_number > len(original_sections):
+        return jsonify({"error": "Section not found"})
+
+    original_section = original_sections[section_number - 1]
+    original_content = original_section.get("content", "")
+
+    # Generate adjusted version
+    if difficulty == "simple":
+        prompt = f"""A student asked: "{question}"
+
+Here's the current explanation (Section {section_number}):
+{original_content}
+
+Rewrite this explanation for a young child (like a 5-year-old):
+- Use very simple words
+- Short sentences
+- Fun analogies and comparisons
+- Remove complex terminology
+- Keep it brief and engaging
+
+Provide ONLY the simplified version, no other text."""
+
+    else:  # advanced
+        prompt = f"""A student asked: "{question}"
+
+Here's the current explanation (Section {section_number}):
+{original_content}
+
+Rewrite this with MORE advanced detail and depth:
+- Include technical terminology
+- Add more specific examples
+- Explain underlying mechanisms
+- Include relevant scientific principles or formulas
+- Expand on concepts mentioned
+
+Provide ONLY the advanced version, no other text."""
+
+    from modules.shared_ai import study_buddy_ai
+
+    try:
+        reply = study_buddy_ai(prompt, grade, character)
+        adjusted_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+    except Exception as e:
+        app.logger.error(f"Difficulty adjustment failed: {e}")
+        adjusted_text = original_content
+
+    return jsonify({"adjusted_content": adjusted_text})
 
 
 # ============================================================

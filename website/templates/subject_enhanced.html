@@ -1268,6 +1268,12 @@ function scrollToSection(num) {
 
 // FEATURE #8: Adaptive Difficulty
 function setDifficulty(level) {
+    if (level === 'grade-appropriate') {
+        // Reload original content
+        location.reload();
+        return;
+    }
+
     currentDifficulty = level;
 
     // Update button states
@@ -1275,14 +1281,38 @@ function setDifficulty(level) {
         btn.classList.toggle('active', btn.dataset.level === level);
     });
 
-    // In a real implementation, this would fetch alternative content
-    // For now, we'll show a visual indication
-    const indicator = document.querySelector('.section-indicator');
-    if (level === 'simple') {
-        indicator.textContent += ' (Simplified)';
-    } else if (level === 'advanced') {
-        indicator.textContent += ' (Advanced)';
-    }
+    // Fetch adjusted content for all sections
+    document.querySelectorAll('.section-card').forEach((card, index) => {
+        const sectionNum = index + 1;
+        const contentDiv = card.querySelector('.section-content');
+
+        // Show loading state
+        contentDiv.innerHTML = '<p style="text-align: center; opacity: 0.7;">⏳ Adjusting difficulty...</p>';
+
+        // Fetch adjusted content
+        fetch('/adjust_difficulty', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: '{{ question }}',
+                subject: '{{ subject }}',
+                section: sectionNum,
+                difficulty: level
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.adjusted_content) {
+                contentDiv.innerHTML = `<p>${data.adjusted_content}</p>`;
+            } else {
+                contentDiv.innerHTML = '<p>Error adjusting content. Please try again.</p>';
+            }
+        })
+        .catch(err => {
+            console.error("Error adjusting difficulty:", err);
+            contentDiv.innerHTML = '<p>Error loading adjusted content.</p>';
+        });
+    });
 }
 
 function toggleQuickView() {
