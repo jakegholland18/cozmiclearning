@@ -8750,10 +8750,11 @@ def homeschool_assign_questions():
         # Get or create a virtual homeschool teacher account
         homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
         if not homeschool_teacher:
+            from werkzeug.security import generate_password_hash
             homeschool_teacher = Teacher(
                 name="Homeschool System",
                 email="homeschool@system.internal",
-                password="SYSTEM_ACCOUNT"  # Not a real account, just a database placeholder
+                password_hash=generate_password_hash("SYSTEM_ACCOUNT_NOT_REAL")  # Not a real account
             )
             db.session.add(homeschool_teacher)
             db.session.flush()
