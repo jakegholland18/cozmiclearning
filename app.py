@@ -642,6 +642,20 @@ def rebuild_database_if_needed():
             except Exception as e:
                 print(f"⚠️ Could not create question_logs table: {e}")
 
+        # Add arcade game columns
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='game_sessions';")
+        if cur.fetchone():
+            cur.execute("PRAGMA table_info(game_sessions);")
+            game_session_cols = [col[1] for col in cur.fetchall()]
+            ensure_column("game_sessions", game_session_cols, "difficulty", "TEXT")
+            ensure_column("game_sessions", game_session_cols, "game_mode", "TEXT DEFAULT 'timed'")
+
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='game_leaderboards';")
+        if cur.fetchone():
+            cur.execute("PRAGMA table_info(game_leaderboards);")
+            game_leaderboard_cols = [col[1] for col in cur.fetchall()]
+            ensure_column("game_leaderboards", game_leaderboard_cols, "difficulty", "TEXT")
+
         conn.close()
 
         warnings = []
@@ -7927,7 +7941,7 @@ def parent_dashboard():
                 name="Demo Parent (Admin)",
                 email=OWNER_EMAIL,
                 password_hash=generate_password_hash("admin_demo"),
-                subscription_tier="homeschool"  # Give full access
+                plan="premium"  # Give full access
             )
             db.session.add(parent)
             db.session.commit()
