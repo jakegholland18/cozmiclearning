@@ -1322,14 +1322,14 @@ def get_stripe_price_id(role, plan, billing):
 
 
 def add_xp(amount: int):
-    session.get("xp", 0) += amount
+    session["xp"] = session.get("xp", 0) + amount
     xp_needed = session.get("level", 1) * 100
-    
+
     # Log level up activity
     if session.get("xp", 0) >= xp_needed:
-        session.get("xp", 0) -= xp_needed
-        session.get("level", 1) += 1
-        flash(f"LEVEL UP! You are now Level {session['level']}!", "info")
+        session["xp"] = session.get("xp", 0) - xp_needed
+        session["level"] = session.get("level", 1) + 1
+        flash(f"LEVEL UP! You are now Level {session.get('level', 1)}!", "info")
         
         # Log level up event
         student_id = session.get("student_id")
@@ -1750,14 +1750,14 @@ def arcade_submit():
     # Only award XP/tokens/badges in timed/challenge mode (not practice)
     if game_mode != "practice" and game_session:
         # Add XP and tokens to session
-        session.get("xp", 0) = session.get("xp", 0) + results["xp_earned"]
-        session.get("tokens", 100) = session.get("tokens", 0) + results["tokens_earned"]
+        session["xp"] = session.get("xp", 0) + results["xp_earned"]
+        session["tokens"] = session.get("tokens", 100) + results["tokens_earned"]
 
         # Check for level up
         xp_needed = session.get("level", 1) * 100
         if session.get("xp", 0) >= xp_needed:
-            session.get("xp", 0) -= xp_needed
-            session.get("level", 1) += 1
+            session["xp"] = session.get("xp", 0) - xp_needed
+            session["level"] = session.get("level", 1) + 1
             results["level_up"] = True
             results["new_level"] = session.get("level", 1)
 
@@ -1782,8 +1782,8 @@ def arcade_submit():
             results["challenge_bonus_tokens"] = game_session.tokens_earned - results["tokens_earned"]
 
             # Update session tokens/xp with bonus
-            session.get("xp", 0) += results.get("challenge_bonus_xp", 0)
-            session.get("tokens", 100) += results.get("challenge_bonus_tokens", 0)
+            session["xp"] = session.get("xp", 0) + results.get("challenge_bonus_xp", 0)
+            session["tokens"] = session.get("tokens", 100) + results.get("challenge_bonus_tokens", 0)
     else:
         # Practice mode - no rewards
         results["practice_mode"] = True
@@ -1924,7 +1924,7 @@ def purchase_powerup():
     success, message, remaining_tokens = buy_powerup(student_id, powerup_key, current_tokens)
 
     if success:
-        session.get("tokens", 100) = remaining_tokens
+        session["tokens"] = remaining_tokens
         session.modified = True
 
     return jsonify({
@@ -6411,7 +6411,7 @@ def assignment_take(practice_id):
         )
 
     session["practice"] = practice
-    session.get("practice_step", 0) = 0
+    session["practice_step"] = 0
     session["student_answers"] = []
     session.modified = True
 
@@ -6482,7 +6482,7 @@ def assignment_step(practice_id):
             app.logger.info(f"Assignment answer mismatch - User: '{student_answer}' | Expected: {correct_answers}")
 
         session["student_answers"].append(student_answer)
-        session.get("practice_step", 0) = step_index + 1
+        session["practice_step"] = step_index + 1
 
         # -----------------------------
         # If final step → summary page
@@ -6752,7 +6752,7 @@ def choose_character():
 @app.route("/select-character", methods=["POST"])
 def select_character():
     init_user()
-    session.get("character", "everly") = request.form.get("character") or "everly"
+    session["character"] = request.form.get("character") or "everly"
     return redirect("/dashboard")
 
 
@@ -6802,7 +6802,7 @@ def ask_question():
         return redirect(f"/choose-grade?subject={subject}")
 
     # Store validated grade in session
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     return render_template(
         "ask_question.html",
@@ -6851,7 +6851,7 @@ def subject_answer():
         return redirect(f"/choose-grade?subject={subject}")
 
     # Store validated grade in session
-    session.get("grade", "8") = grade
+    session["grade"] = grade
     
     # CONTENT MODERATION - Check question safety
     student_id = session.get("user_id")
@@ -6924,7 +6924,7 @@ CozmicLearning Team
         
         return redirect("/subjects")
 
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     session["progress"].setdefault(subject, {"questions": 0, "correct": 0})
     session["progress"][subject]["questions"] += 1
@@ -6953,7 +6953,7 @@ CozmicLearning Team
     session.modified = True
 
     add_xp(20)
-    session.get("tokens", 100) += 2
+    session["tokens"] = session.get("tokens", 100) + 2
 
     # Log question activity
     student_id = session.get("student_id")
@@ -7172,7 +7172,7 @@ def powergrid_submit():
     
     uploaded_files = request.files.getlist("file")  # Multiple files support
 
-    session.get("grade", "8") = grade
+    session["grade"] = grade
 
     text_parts = []
     
@@ -7436,7 +7436,7 @@ def start_practice():
 
     session["practice"] = practice_data
     session["practice_progress"] = progress
-    session.get("practice_step", 0) = 0
+    session["practice_step"] = 0
     session["practice_attempts"] = 0
     session.modified = True
 
@@ -7502,7 +7502,7 @@ def navigate_question():
 
     state = progress[index]
 
-    session.get("practice_step", 0) = index
+    session["practice_step"] = index
     session["practice_progress"] = progress
     session.modified = True
 
