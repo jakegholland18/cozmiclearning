@@ -9040,22 +9040,32 @@ def homeschool_assignment_overview(practice_id):
         return redirect("/homeschool/dashboard")
 
     practice = AssignedPractice.query.get_or_404(practice_id)
+    print(f"📖 [HOMESCHOOL_PREVIEW] Loading preview for assignment {practice_id}")
 
     # Verify this assignment belongs to this parent's virtual homeschool class
     homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
 
-    if homeschool_teacher:
-        virtual_class = Class.query.filter_by(
-            teacher_id=homeschool_teacher.id,
-            class_name=f"Homeschool - Parent {parent.id}"
-        ).first()
-
-        if not virtual_class or practice.class_id != virtual_class.id:
-            flash("This assignment is not for your students.", "error")
-            return redirect("/homeschool/assignments")
-    else:
+    if not homeschool_teacher:
+        print(f"❌ [HOMESCHOOL_PREVIEW] No homeschool teacher found")
         flash("Virtual homeschool class not found.", "error")
         return redirect("/homeschool/assignments")
+
+    virtual_class = Class.query.filter_by(
+        teacher_id=homeschool_teacher.id,
+        class_name=f"Homeschool - Parent {parent.id}"
+    ).first()
+
+    if not virtual_class:
+        print(f"❌ [HOMESCHOOL_PREVIEW] No virtual class found for parent {parent.id}")
+        flash("Virtual homeschool class not found.", "error")
+        return redirect("/homeschool/assignments")
+
+    if practice.class_id != virtual_class.id:
+        print(f"❌ [HOMESCHOOL_PREVIEW] Assignment class_id {practice.class_id} doesn't match virtual_class {virtual_class.id}")
+        flash("This assignment is not for your students.", "error")
+        return redirect("/homeschool/assignments")
+
+    print(f"✅ [HOMESCHOOL_PREVIEW] Assignment verified for parent {parent.id}")
 
     # Load stored mission JSON safely
     try:

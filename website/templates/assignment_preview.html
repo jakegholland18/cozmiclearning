@@ -518,6 +518,11 @@
     {% endif %}
 
     <div class="main-actions">
+        {% if is_homeschool %}
+        <a class="back-btn" href="{{ back_url or '/homeschool/assignments' }}" style="width: 100%; text-align: center;">
+            ← Back to Assignments
+        </a>
+        {% else %}
         <button class="publish-btn" onclick="publishAssignment()">
             ✅ Approve & Publish All
         </button>
@@ -525,6 +530,7 @@
         <a class="back-btn" href="/teacher/assignments/{{ assignment.id }}/edit">
             ← Back to Edit
         </a>
+        {% endif %}
     </div>
 
 </div>
