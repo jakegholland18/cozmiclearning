@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>📚 Full Practice - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #9333ea 100%);
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .practice-container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 45px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .return-btn {
+            background: none;
+            border: none;
+            color: #ffdd55;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .return-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .practice-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .practice-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .practice-description {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, #84ff00, #00d4ff);
+            color: #1a1a2e;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 35px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #ffdd55;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .difficulty-badge {
+            background: rgba(255, 107, 107, 0.3);
+            border: 1px solid #ff6b6b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.35rem;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .hint-section {
+            background: rgba(255, 221, 85, 0.15);
+            border-left: 4px solid #ffdd55;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hint-section:hover {
+            background: rgba(255, 221, 85, 0.25);
+        }
+
+        .hint-toggle {
+            color: #ffdd55;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hint-content {
+            display: none;
+            margin-top: 12px;
+            line-height: 1.6;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 221, 85, 0.3);
+        }
+
+        .answer-area {
+            margin: 25px 0;
+        }
+
+        .answer-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            resize: vertical;
+        }
+
+        .answer-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 16px 22px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #84ff00;
+            transform: translateX(5px);
+        }
+
+        .choice-btn.selected {
+            background: rgba(132, 255, 0, 0.25);
+            border-color: #84ff00;
+            box-shadow: 0 0 15px rgba(132, 255, 0, 0.3);
+        }
+
+        .feedback-section {
+            background: linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 212, 255, 0.15));
+            border: 2px solid #84ff00;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .feedback-title {
+            color: #84ff00;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+        }
+
+        .feedback-text {
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #84ff00, #00d4ff);
+            border: none;
+            color: #1a1a2e;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .completion-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        .final-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px 35px;
+            border-radius: 15px;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #84ff00;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="return-btn" onclick="goBack()">⬅️ Return to previous screen</button>
+
+    <div class="practice-container">
+        <div class="practice-header">
+            <div class="practice-title">📚 Full Practice</div>
+            <div class="practice-description">Comprehensive practice for {{ topic }}</div>
+        </div>
+
+        <div class="progress-info">
+            <div class="progress-text" id="progress-text">Question 1 of 10</div>
+            <div class="score-badge" id="score-badge">Score: 0/0</div>
+        </div>
+
+        <div id="practice-content">
+            <!-- Questions will be loaded here -->
+        </div>
+
+        <div id="completion-screen" class="completion-screen hidden">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">Practice Complete!</div>
+            <div class="final-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="final-score">0</div>
+                    <div class="stat-label">Questions Correct</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="final-percent">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            <button class="nav-btn" onclick="goBack()">Return to Learning</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let answers = [];
+        let score = 0;
+
+        const returnUrl = "{{ return_url }}";
+
+        function goBack() {
+            if (returnUrl && returnUrl !== "") {
+                window.location.href = decodeURIComponent(returnUrl);
+            } else {
+                window.location.href = "/ask-question";
+            }
+        }
+
+        // Load questions via API
+        fetch('/start_practice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: "{{ topic }}",
+                subject: "{{ subject }}",
+                grade: "{{ grade }}",
+                mode: "full"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.steps) {
+                questions = data.steps;
+                answers = new Array(questions.length).fill(null);
+                showQuestion();
+            }
+        })
+        .catch(err => {
+            console.error("Error loading practice:", err);
+            document.getElementById('practice-content').innerHTML =
+                '<p>Error loading practice. Please try again.</p>';
+        });
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            document.getElementById('progress-text').textContent =
+                `Question ${currentQuestion + 1} of ${questions.length}`;
+
+            let html = `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">Question ${currentQuestion + 1}</div>
+                    </div>
+                    <div class="question-text">${q.prompt}</div>
+            `;
+
+            // Hint section
+            if (q.hint) {
+                html += `
+                    <div class="hint-section" onclick="toggleHint()">
+                        <div class="hint-toggle">
+                            <span>💡 Need a hint?</span>
+                            <span id="hint-arrow">▼</span>
+                        </div>
+                        <div class="hint-content" id="hint-content">${q.hint}</div>
+                    </div>
+                `;
+            }
+
+            // Answer area
+            if (q.type === "multiple_choice" && q.choices) {
+                html += `<div class="answer-area">`;
+                q.choices.forEach((choice, idx) => {
+                    const letter = choice.split('.')[0].trim().toLowerCase();
+                    const isSelected = answers[currentQuestion] === letter;
+                    html += `<button class="choice-btn ${isSelected ? 'selected' : ''}" onclick="selectChoice('${letter}')">${choice}</button>`;
+                });
+                html += `</div>`;
+            } else {
+                html += `
+                    <div class="answer-area">
+                        <textarea class="answer-input" id="answer-input" placeholder="Type your answer here...">${answers[currentQuestion] || ''}</textarea>
+                    </div>
+                `;
+            }
+
+            // Feedback section
+            html += `
+                <div class="feedback-section" id="feedback-section">
+                    <div class="feedback-title">Explanation</div>
+                    <div class="feedback-text">${q.explanation || ''}</div>
+                </div>
+            `;
+
+            // Navigation
+            html += `
+                <div class="nav-buttons">
+                    ${currentQuestion > 0 ? '<button class="nav-btn secondary" onclick="prevQuestion()">← Previous</button>' : '<div></div>'}
+                    <button class="nav-btn" onclick="checkAnswerAndNext()">
+                        ${currentQuestion === questions.length - 1 ? 'Finish Practice' : 'Check & Continue →'}
+                    </button>
+                </div>
+            `;
+
+            html += `</div>`;
+
+            document.getElementById('practice-content').innerHTML = html;
+
+            // Auto-save textarea
+            if (q.type !== "multiple_choice") {
+                const textarea = document.getElementById('answer-input');
+                textarea.addEventListener('input', () => {
+                    answers[currentQuestion] = textarea.value.trim();
+                });
+            }
+        }
+
+        function toggleHint() {
+            const content = document.getElementById('hint-content');
+            const arrow = document.getElementById('hint-arrow');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            }
+        }
+
+        function selectChoice(letter) {
+            answers[currentQuestion] = letter;
+
+            // Update UI
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function checkAnswerAndNext() {
+            // Save textarea answer if present
+            const textarea = document.getElementById('answer-input');
+            if (textarea) {
+                answers[currentQuestion] = textarea.value.trim();
+            }
+
+            // Check if answer is correct
+            const q = questions[currentQuestion];
+            const userAnswer = answers[currentQuestion];
+            const correctAnswer = q.expected && q.expected[0];
+
+            if (q.type === "multiple_choice" && userAnswer === correctAnswer) {
+                score++;
+            } else if (q.type === "free" && userAnswer) {
+                score++; // Count as correct if they answered
+            }
+
+            // Update score display
+            document.getElementById('score-badge').textContent = `Score: ${score}/${currentQuestion + 1}`;
+
+            // Show feedback
+            document.getElementById('feedback-section').style.display = 'block';
+
+            // Auto-advance after showing feedback
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    showCompletion();
+                }
+            }, 2500);
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function showCompletion() {
+            const percentage = Math.round((score / questions.length) * 100);
+
+            document.getElementById('practice-content').classList.add('hidden');
+            document.getElementById('completion-screen').classList.remove('hidden');
+            document.getElementById('final-score').textContent = `${score}/${questions.length}`;
+            document.getElementById('final-percent').textContent = `${percentage}%`;
+        }
+    </script>
+</body>
+</html>

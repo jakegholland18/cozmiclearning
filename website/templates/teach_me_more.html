@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🎓 Teach Me More - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #2c7a7b 100%);
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .teach-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .return-btn {
+            background: none;
+            border: none;
+            color: #ffdd55;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .return-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .teach-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .teach-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .teach-description {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .concept-card {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-left: 6px solid #84ff00;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .concept-number {
+            color: #84ff00;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.7;
+            font-weight: 500;
+        }
+
+        .why-section {
+            background: rgba(132, 255, 0, 0.15);
+            border-left: 4px solid #84ff00;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+        }
+
+        .why-label {
+            color: #84ff00;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .answer-area {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .answer-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c7a7b;
+            font-family: "Poppins", sans-serif;
+            resize: vertical;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #84ff00;
+            transform: translateX(8px);
+        }
+
+        .choice-btn.selected {
+            background: rgba(132, 255, 0, 0.25);
+            border-color: #84ff00;
+            box-shadow: 0 0 15px rgba(132, 255, 0, 0.3);
+        }
+
+        .explanation-box {
+            background: linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 212, 255, 0.15));
+            border: 2px solid #84ff00;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .explanation-title {
+            color: #84ff00;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .explanation-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .hint-box {
+            background: rgba(255, 221, 85, 0.15);
+            border-left: 4px solid #ffdd55;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hint-box:hover {
+            background: rgba(255, 221, 85, 0.25);
+        }
+
+        .hint-label {
+            color: #ffdd55;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .hint-text {
+            display: none;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #84ff00, #00d4ff);
+            border: none;
+            color: #1a1a2e;
+            padding: 15px 35px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+            flex: 1;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        .completion-message {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="return-btn" onclick="goBack()">⬅️ Return to previous screen</button>
+
+    <div class="teach-container">
+        <div class="teach-header">
+            <div class="teach-title">🎓 Teach Me More</div>
+            <div class="teach-description">Deep dive into {{ topic }} - Understanding the WHY and HOW</div>
+        </div>
+
+        <div id="teach-content">
+            <!-- Concepts will be loaded here -->
+        </div>
+
+        <div id="completion-screen" class="completion-screen hidden">
+            <div class="completion-title">🌟 Excellent Deep Learning!</div>
+            <div class="completion-message">
+                You've explored the deeper concepts and connections in {{ topic }}.<br>
+                This kind of thoughtful learning builds lasting understanding.
+            </div>
+            <button class="nav-btn" onclick="goBack()">Return to Learning</button>
+        </div>
+    </div>
+
+    <script>
+        let concepts = [];
+        let currentConcept = 0;
+        let answers = [];
+
+        const returnUrl = "{{ return_url }}";
+
+        function goBack() {
+            if (returnUrl && returnUrl !== "") {
+                window.location.href = decodeURIComponent(returnUrl);
+            } else {
+                window.location.href = "/ask-question";
+            }
+        }
+
+        // Load concepts via API
+        fetch('/start_practice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: "{{ topic }}",
+                subject: "{{ subject }}",
+                grade: "{{ grade }}",
+                mode: "teach"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.steps) {
+                concepts = data.steps;
+                answers = new Array(concepts.length).fill(null);
+                showConcept();
+            }
+        })
+        .catch(err => {
+            console.error("Error loading concepts:", err);
+            document.getElementById('teach-content').innerHTML =
+                '<p>Error loading concepts. Please try again.</p>';
+        });
+
+        function showConcept() {
+            if (currentConcept >= concepts.length) {
+                showCompletion();
+                return;
+            }
+
+            const c = concepts[currentConcept];
+
+            let html = `
+                <div class="concept-card">
+                    <div class="concept-number">Concept ${currentConcept + 1} of ${concepts.length}</div>
+                    <div class="question-text">${c.prompt}</div>
+            `;
+
+            // Show hint if available
+            if (c.hint) {
+                html += `
+                    <div class="hint-box" onclick="toggleHint()">
+                        <div class="hint-label">💡 Need a hint? Click here</div>
+                        <div class="hint-text" id="hint-text">${c.hint}</div>
+                    </div>
+                `;
+            }
+
+            // Answer area
+            if (c.type === "multiple_choice" && c.choices) {
+                c.choices.forEach((choice, idx) => {
+                    const letter = choice.split('.')[0].trim().toLowerCase();
+                    const isSelected = answers[currentConcept] === letter;
+                    html += `<button class="choice-btn ${isSelected ? 'selected' : ''}" onclick="selectChoice('${letter}')">${choice}</button>`;
+                });
+            } else {
+                html += `
+                    <div class="answer-area">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600;">Your thoughtful response:</label>
+                        <textarea class="answer-input" id="answer-input" placeholder="Explain your thinking... Why do you think this? How does it work?">${answers[currentConcept] || ''}</textarea>
+                    </div>
+                `;
+            }
+
+            // Explanation (shown after answering)
+            html += `
+                <div class="explanation-box" id="explanation-box">
+                    <div class="explanation-title">
+                        <span>📚</span>
+                        <span>Deep Understanding</span>
+                    </div>
+                    <div class="explanation-text">${c.explanation || ''}</div>
+                </div>
+            `;
+
+            // Navigation
+            html += `
+                <div class="nav-buttons">
+                    ${currentConcept > 0 ? '<button class="nav-btn" onclick="prevConcept()">← Previous</button>' : '<div></div>'}
+                    <button class="nav-btn" onclick="showExplanationAndNext()">
+                        ${c.type === "multiple_choice" ? 'Check Answer' : 'See Explanation'} →
+                    </button>
+                </div>
+            `;
+
+            html += `</div>`;
+
+            document.getElementById('teach-content').innerHTML = html;
+
+            // Auto-save textarea
+            if (c.type !== "multiple_choice") {
+                const textarea = document.getElementById('answer-input');
+                textarea.addEventListener('input', () => {
+                    answers[currentConcept] = textarea.value.trim();
+                });
+            }
+        }
+
+        function toggleHint() {
+            const hintText = document.getElementById('hint-text');
+            hintText.style.display = hintText.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function selectChoice(letter) {
+            answers[currentConcept] = letter;
+
+            // Update UI
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function showExplanationAndNext() {
+            // Save textarea answer if present
+            const textarea = document.getElementById('answer-input');
+            if (textarea) {
+                answers[currentConcept] = textarea.value.trim();
+            }
+
+            // Show explanation
+            document.getElementById('explanation-box').style.display = 'block';
+
+            // Change button to Next
+            setTimeout(() => {
+                if (currentConcept < concepts.length - 1) {
+                    currentConcept++;
+                    showConcept();
+                } else {
+                    showCompletion();
+                }
+            }, 3000); // Give them time to read the explanation
+        }
+
+        function prevConcept() {
+            if (currentConcept > 0) {
+                currentConcept--;
+                showConcept();
+            }
+        }
+
+        function showCompletion() {
+            document.getElementById('teach-content').classList.add('hidden');
+            document.getElementById('completion-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

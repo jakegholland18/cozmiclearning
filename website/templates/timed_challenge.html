@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>⏱️ Timed Challenge - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #c44569 100%);
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .challenge-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .return-btn {
+            background: none;
+            border: none;
+            color: #ffdd55;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .return-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffdd55;
+            text-shadow: 0 0 20px rgba(255, 221, 85, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .timer-display.warning {
+            color: #ff3b30;
+            animation: flash 1s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .challenge-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .challenge-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .challenge-description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #84ff00, #00d4ff);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px rgba(132, 255, 0, 0.6);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .question-number {
+            color: #ffdd55;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            margin-bottom: 15px;
+        }
+
+        .answer-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #ffdd55;
+            transform: translateX(5px);
+        }
+
+        .choice-btn.selected {
+            background: rgba(132, 255, 0, 0.3);
+            border-color: #84ff00;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #84ff00, #00d4ff);
+            border: none;
+            color: #1a1a2e;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-screen {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .final-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #ffdd55;
+            text-shadow: 0 0 30px rgba(255, 221, 85, 0.6);
+            margin: 30px 0;
+        }
+
+        .time-bonus {
+            font-size: 1.5rem;
+            color: #84ff00;
+            margin: 20px 0;
+        }
+
+        .performance-message {
+            font-size: 1.8rem;
+            margin: 30px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-row">
+        <button class="return-btn" onclick="goBack()">⬅️ Return to previous screen</button>
+        <div class="timer-display" id="timer">10:00</div>
+    </div>
+
+    <div class="challenge-container">
+        <div class="challenge-header">
+            <div class="challenge-title">⏱️ Timed Challenge</div>
+            <div class="challenge-description">{{ topic }} - Race against the clock!</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+
+        <div id="challenge-content">
+            <!-- Questions will be loaded here -->
+        </div>
+
+        <div id="results-screen" class="results-screen hidden">
+            <div class="performance-message" id="performance-msg"></div>
+            <div class="final-score" id="final-score"></div>
+            <div class="time-bonus" id="time-bonus"></div>
+            <button class="submit-btn" onclick="goBack()">Return to Learning</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let answers = [];
+        let timeRemaining = 600; // 10 minutes in seconds
+        let timerInterval;
+        let startTime = Date.now();
+
+        const returnUrl = "{{ return_url }}";
+
+        function goBack() {
+            if (returnUrl && returnUrl !== "") {
+                window.location.href = decodeURIComponent(returnUrl);
+            } else {
+                window.location.href = "/ask-question";
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishChallenge();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = display;
+
+            if (timeRemaining <= 60) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        // Load questions via API
+        fetch('/start_practice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: "{{ topic }}",
+                subject: "{{ subject }}",
+                grade: "{{ grade }}",
+                mode: "timed"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.steps) {
+                questions = data.steps;
+                answers = new Array(questions.length).fill(null);
+                showQuestion();
+                startTimer();
+            }
+        })
+        .catch(err => {
+            console.error("Error loading challenge:", err);
+            document.getElementById('challenge-content').innerHTML =
+                '<p>Error loading challenge. Please try again.</p>';
+        });
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+
+            let html = `
+                <div class="question-card">
+                    <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+                    <div class="question-text">${q.prompt}</div>
+            `;
+
+            if (q.type === "multiple_choice" && q.choices) {
+                q.choices.forEach((choice, idx) => {
+                    const letter = choice.split('.')[0].trim().toLowerCase();
+                    const isSelected = answers[currentQuestion] === letter;
+                    html += `<button class="choice-btn ${isSelected ? 'selected' : ''}" onclick="selectChoice('${letter}')">${choice}</button>`;
+                });
+            } else {
+                const savedAnswer = answers[currentQuestion] || '';
+                html += `<input type="text" class="answer-input" id="answer-input" value="${savedAnswer}" placeholder="Type your answer...">`;
+            }
+
+            html += `
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    ${currentQuestion > 0 ? '<button class="submit-btn" onclick="prevQuestion()">← Previous</button>' : '<div></div>'}
+                    ${currentQuestion < questions.length - 1 ?
+                        '<button class="submit-btn" onclick="nextQuestion()">Next →</button>' :
+                        '<button class="submit-btn" onclick="finishChallenge()">Finish Challenge</button>'}
+                </div>
+                </div>
+            `;
+
+            document.getElementById('challenge-content').innerHTML = html;
+
+            // Auto-save free response answers
+            if (q.type !== "multiple_choice") {
+                const input = document.getElementById('answer-input');
+                input.addEventListener('input', () => {
+                    answers[currentQuestion] = input.value.trim();
+                });
+            }
+        }
+
+        function selectChoice(letter) {
+            answers[currentQuestion] = letter;
+
+            // Update UI
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                // Save free response answer
+                const input = document.getElementById('answer-input');
+                if (input) {
+                    answers[currentQuestion] = input.value.trim();
+                }
+
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function finishChallenge() {
+            clearInterval(timerInterval);
+
+            // Calculate score
+            let correctCount = 0;
+            questions.forEach((q, idx) => {
+                const userAnswer = answers[idx];
+                const correctAnswer = q.expected && q.expected[0];
+
+                if (q.type === "multiple_choice" && userAnswer === correctAnswer) {
+                    correctCount++;
+                } else if (q.type === "free" && userAnswer) {
+                    // For free response, count as correct if they answered
+                    correctCount++;
+                }
+            });
+
+            const timeUsed = 600 - timeRemaining;
+            const timeBonus = timeRemaining > 0 ? Math.floor(timeRemaining / 10) : 0;
+            const percentage = Math.round((correctCount / questions.length) * 100);
+
+            // Show results
+            document.getElementById('challenge-content').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = `${correctCount} / ${questions.length} (${percentage}%)`;
+
+            if (timeRemaining > 0) {
+                const minutesUsed = Math.floor(timeUsed / 60);
+                const secondsUsed = timeUsed % 60;
+                document.getElementById('time-bonus').textContent =
+                    `⚡ Completed in ${minutesUsed}:${secondsUsed.toString().padStart(2, '0')} - Time Bonus: +${timeBonus} points!`;
+            } else {
+                document.getElementById('time-bonus').textContent = '⏰ Time expired!';
+            }
+
+            if (percentage >= 90) {
+                document.getElementById('performance-msg').textContent = '🔥 INCREDIBLE! Lightning fast!';
+            } else if (percentage >= 70) {
+                document.getElementById('performance-msg').textContent = '⚡ Great speed and accuracy!';
+            } else if (percentage >= 50) {
+                document.getElementById('performance-msg').textContent = '👍 Good effort under pressure!';
+            } else {
+                document.getElementById('performance-msg').textContent = '💪 Keep practicing - you\'ll get faster!';
+            }
+        }
+    </script>
+</body>
+</html>
