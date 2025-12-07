@@ -6871,9 +6871,13 @@ def ask_question():
     )
 
 
-@app.route("/subject", methods=["POST"])
+@app.route("/subject", methods=["GET", "POST"])
 def subject_answer():
     init_user()
+
+    # If GET request, redirect to ask-question page
+    if request.method == "GET":
+        return redirect("/ask-question")
 
     # Check subscription status first
     user_role = session.get("user_role")
