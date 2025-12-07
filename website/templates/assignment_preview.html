@@ -477,9 +477,9 @@
         <p>{{ assignment.subject|replace('_', ' ')|title }} · {{ assignment.topic }}</p>
     </div>
 
-    {% if diff_analysis and assignment.differentiation_mode and assignment.differentiation_mode != 'none' %}
+    {% if diff_analysis %}
     <div class="diff-summary">
-        <h3>🎯 Differentiation Analysis: {{ assignment.differentiation_mode|replace('_', ' ')|title }} Mode</h3>
+        <h3>🎯 {% if assignment.differentiation_mode and assignment.differentiation_mode != 'none' %}Differentiation Analysis: {{ assignment.differentiation_mode|replace('_', ' ')|title }} Mode{% else %}Question Analysis{% endif %}</h3>
 
         <div class="diff-checks">
             {% for check in diff_analysis.checks %}
@@ -542,7 +542,7 @@
                 <div class="step-title">
                     <span>
                         Question {{ loop.index }}
-                        {% if diff_analysis and diff_analysis.metrics and diff_analysis.metrics.difficulty_levels %}
+                        {% if diff_analysis and diff_analysis.metrics and diff_analysis.metrics.difficulty_levels and loop.index0 < diff_analysis.metrics.difficulty_levels|length %}
                             {% set difficulty = diff_analysis.metrics.difficulty_levels[loop.index0] %}
                             <span class="difficulty-badge difficulty-{{ difficulty }}">{{ difficulty }}</span>
                         {% endif %}
