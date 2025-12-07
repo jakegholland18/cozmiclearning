@@ -1484,6 +1484,12 @@ def recompute_student_ability(student: Student):
 @app.errorhandler(500)
 def internal_server_error(error):
     """Handle 500 errors gracefully"""
+    # Record to health monitor
+    health_monitor.record_error(
+        error_type="500_internal_server_error",
+        details=f"{str(error)}\n{traceback.format_exc()}"
+    )
+
     db.session.rollback()  # Rollback any failed transactions
     app.logger.error(f"500 Internal Server Error: {str(error)}")
     return render_template("error.html",
@@ -1493,6 +1499,7 @@ def internal_server_error(error):
 @app.errorhandler(404)
 def page_not_found(error):
     """Handle 404 errors"""
+    # Don't record 404s to health monitor - they're not system errors
     return render_template("error.html",
                          error_code=404,
                          error_message="Page not found"), 404
@@ -1500,6 +1507,12 @@ def page_not_found(error):
 @app.errorhandler(Exception)
 def handle_exception(error):
     """Catch-all exception handler to prevent crashes"""
+    # Record to health monitor
+    health_monitor.record_error(
+        error_type=type(error).__name__,
+        details=f"Path: {request.path}\nError: {str(error)}\n{traceback.format_exc()}"
+    )
+
     db.session.rollback()
     app.logger.error(f"Unhandled exception: {str(error)}", exc_info=True)
 
@@ -9764,6 +9777,12 @@ def forbidden(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     """Handle 500 errors (server crashes)."""
+    # Record to health monitor
+    health_monitor.record_error(
+        error_type="500_internal_server_error",
+        details=f"{str(e)}\n{traceback.format_exc()}"
+    )
+
     app.logger.error(f"500 Error: {str(e)}")
     app.logger.error(traceback.format_exc())
     return render_template('errors/500.html'), 500
@@ -9771,6 +9790,12 @@ def internal_server_error(e):
 @app.errorhandler(Exception)
 def handle_exception(e):
     """Catch-all for any unhandled exceptions."""
+    # Record to health monitor
+    health_monitor.record_error(
+        error_type=type(e).__name__,
+        details=f"{str(e)}\n{traceback.format_exc()}"
+    )
+
     # Log the full error
     app.logger.error(f"Unhandled exception: {str(e)}")
     app.logger.error(traceback.format_exc())
