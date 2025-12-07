@@ -4993,6 +4993,11 @@ def assignment_preview(practice_id):
         assignment.differentiation_mode or "none"
     )
 
+    print(f"🔍 [DIFF_ANALYSIS] Analyzed {len(mission.get('steps', []))} questions")
+    print(f"   Mode: {assignment.differentiation_mode or 'none'}")
+    print(f"   Difficulty levels: {diff_analysis.get('metrics', {}).get('difficulty_levels', [])}")
+    print(f"   Valid: {diff_analysis.get('valid', False)}")
+
     return render_template(
         "assignment_preview.html",
         assignment=assignment,
