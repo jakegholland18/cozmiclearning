@@ -8780,11 +8780,11 @@ def homeschool_assign_questions():
         # If admin mode with no students, create a test student for this assignment
         if is_admin and not has_students:
             print(f"🔧 Admin mode: Creating test student for parent {parent.id}")
+            from werkzeug.security import generate_password_hash
             test_student = Student(
-                name=f"Test Student (Admin)",
-                email=f"test.student.{parent.id}@admin.internal",
-                password="ADMIN_TEST",
-                grade="8",
+                student_name=f"Test Student (Admin)",
+                student_email=f"test.student.{parent.id}@admin.internal",
+                password_hash=generate_password_hash("ADMIN_TEST"),
                 parent_id=parent.id,
                 class_id=virtual_class.id
             )
