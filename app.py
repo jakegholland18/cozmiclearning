@@ -8727,6 +8727,9 @@ def homeschool_assign_questions():
         is_admin = session.get("admin_authenticated", False)
         has_students = parent.students and len(parent.students) > 0
 
+        print(f"   Admin mode: {is_admin}")
+        print(f"   Has students: {has_students}")
+
         # In normal mode, require students. In admin mode, allow testing without students.
         if not has_students and not is_admin:
             print(f"⚠️  No students found for parent {parent.id} - assignment cannot be created")
