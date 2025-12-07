@@ -889,11 +889,11 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    resultDiv.innerHTML = `<span style="color: var(--success);">✅ Assignment created successfully!</span><br><small>Refresh to see it in your list.</small>`;
+                    resultDiv.innerHTML = `<span style="color: var(--success);">✅ Assignment created! Redirecting to preview...</span>`;
+                    // Redirect to preview page immediately
                     setTimeout(() => {
-                        closeAssignModal();
-                        location.reload();
-                    }, 2000);
+                        window.location.href = `/homeschool/assignments/${data.assignment_id}`;
+                    }, 1000);
                 } else {
                     resultDiv.innerHTML = `<span style="color: var(--warning);">Error: ${data.error || 'Failed to create assignment'}</span>`;
                 }

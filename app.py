@@ -9057,18 +9057,22 @@ def homeschool_assignment_overview(practice_id):
         flash("Virtual homeschool class not found.", "error")
         return redirect("/homeschool/assignments")
 
-    questions = practice.questions or []
+    # Load stored mission JSON safely
+    try:
+        import json
+        mission = json.loads(practice.preview_json) if practice.preview_json else {"steps": [], "final_message": "No preview available"}
+    except Exception:
+        mission = {"steps": [], "final_message": "Preview unavailable"}
 
     # Get students assigned to this class
     assigned_students = Student.query.filter_by(class_id=virtual_class.id).all()
 
     return render_template(
-        "homeschool_assignment_overview.html",
-        parent=parent,
+        "assignment_preview.html",  # Use the same interactive preview as teachers
         assignment=practice,
-        questions=questions,
-        assigned_students=assigned_students,
-        is_homeschool=True,
+        mission=mission,
+        is_homeschool=True,  # Flag to show homeschool-specific UI
+        back_url="/homeschool/assignments"
     )
 
 
