@@ -8897,16 +8897,25 @@ def homeschool_assignments():
         flash("Homeschool plan required for assignment features.", "error")
         return redirect("/homeschool/dashboard")
 
-    # Get all assignments for this parent's students
-    student_ids = [s.id for s in parent.students] if parent.students else []
+    # Get all assignments for this parent's virtual homeschool class
+    # Find the virtual homeschool class for this parent
+    homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
 
-    if student_ids:
-        assignments = (
-            AssignedPractice.query
-            .filter(AssignedPractice.student_id.in_(student_ids))
-            .order_by(AssignedPractice.created_at.desc())
-            .all()
-        )
+    if homeschool_teacher:
+        virtual_class = Class.query.filter_by(
+            teacher_id=homeschool_teacher.id,
+            class_name=f"Homeschool - Parent {parent.id}"
+        ).first()
+
+        if virtual_class:
+            assignments = (
+                AssignedPractice.query
+                .filter_by(class_id=virtual_class.id)
+                .order_by(AssignedPractice.created_at.desc())
+                .all()
+            )
+        else:
+            assignments = []
     else:
         assignments = []
 
@@ -9020,29 +9029,38 @@ def homeschool_assignment_overview(practice_id):
         return redirect("/parent/login")
 
     # Check if parent has homeschool plan
-    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    # Admin mode automatically has teacher features
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+    else:
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
     if not has_teacher_features:
         flash("Homeschool plan required for assignment features.", "error")
         return redirect("/homeschool/dashboard")
 
-    practice = Practice.query.get_or_404(practice_id)
+    practice = AssignedPractice.query.get_or_404(practice_id)
 
-    # Verify this assignment is for one of this parent's students
-    student_ids = [s.id for s in parent.students]
-    assigned_students = (
-        db.session.query(AssignedPractice)
-        .filter(
-            AssignedPractice.practice_id == practice_id,
-            AssignedPractice.student_id.in_(student_ids)
-        )
-        .all()
-    )
+    # Verify this assignment belongs to this parent's virtual homeschool class
+    homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
 
-    if not assigned_students:
-        flash("This assignment is not for your students.", "error")
+    if homeschool_teacher:
+        virtual_class = Class.query.filter_by(
+            teacher_id=homeschool_teacher.id,
+            class_name=f"Homeschool - Parent {parent.id}"
+        ).first()
+
+        if not virtual_class or practice.class_id != virtual_class.id:
+            flash("This assignment is not for your students.", "error")
+            return redirect("/homeschool/assignments")
+    else:
+        flash("Virtual homeschool class not found.", "error")
         return redirect("/homeschool/assignments")
 
     questions = practice.questions or []
+
+    # Get students assigned to this class
+    assigned_students = Student.query.filter_by(class_id=virtual_class.id).all()
 
     return render_template(
         "homeschool_assignment_overview.html",
