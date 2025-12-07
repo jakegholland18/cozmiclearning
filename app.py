@@ -7514,13 +7514,35 @@ def start_practice():
     character = session.get("character", "everly")
 
     # Mode-specific question generation
-    num_questions = {
-        'quick': 5,
-        'full': 10,
-        'timed': 10,
-        'teach': 8,
-        'related': 7
-    }.get(mode, 10)
+    mode_settings = {
+        'quick': {
+            'num_questions': 5,
+            'differentiation_mode': 'multiple_choice_only',
+            'context': 'student'
+        },
+        'full': {
+            'num_questions': 10,
+            'differentiation_mode': 'none',
+            'context': 'student'
+        },
+        'timed': {
+            'num_questions': 10,
+            'differentiation_mode': 'quick_assessment',
+            'context': 'student'
+        },
+        'teach': {
+            'num_questions': 8,
+            'differentiation_mode': 'deep_conceptual',
+            'context': 'student'
+        },
+        'related': {
+            'num_questions': 7,
+            'differentiation_mode': 'cross_topic',
+            'context': 'student'
+        }
+    }
+
+    settings = mode_settings.get(mode, mode_settings['full'])
 
     # Generate practice with mode-specific parameters
     practice_data = generate_practice_session(
@@ -7528,11 +7550,14 @@ def start_practice():
         subject=subject,
         grade_level=grade,
         character=character,
-        differentiation_mode="none",  # generic practice, no teacher mode
+        differentiation_mode=settings['differentiation_mode'],
+        context=settings['context'],
+        num_questions=settings['num_questions']
     )
 
     # Store mode in session for mode-specific behavior
     session["practice_mode"] = mode
+    session["practice_config"] = settings
 
     steps = practice_data.get("steps") or []
     if not steps:

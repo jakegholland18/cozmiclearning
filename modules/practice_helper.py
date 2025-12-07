@@ -91,6 +91,52 @@ DIFFERENTIATION MODE: SCAFFOLDED SUPPORT
 - Confidence-building approach.
 """
 
+    if mode == "multiple_choice_only":
+        return base_prompt + """
+PRACTICE MODE: QUICK QUIZ
+- ALL questions MUST be multiple choice (A, B, C, D format)
+- Questions should be straightforward and clear
+- Fast assessment - no long explanations needed
+- Focus on quick recall and understanding
+- Each question should have 4 answer choices
+- Make it snappy and engaging
+"""
+
+    if mode == "quick_assessment":
+        return base_prompt + """
+PRACTICE MODE: TIMED CHALLENGE
+- Mix of multiple choice and short answer
+- Questions should be answerable quickly (under 2 minutes each)
+- Focus on core concepts and skills
+- No lengthy word problems
+- Test readiness and speed
+- Clear, unambiguous questions
+"""
+
+    if mode == "deep_conceptual":
+        return base_prompt + """
+PRACTICE MODE: TEACH ME MORE
+- Focus on WHY and HOW, not just WHAT
+- Include conceptual questions that require explanation
+- Ask "explain why" and "how does this work" type questions
+- Encourage critical thinking
+- Mix of problem-solving and concept explanation
+- Push students to articulate their understanding
+- Include real-world applications
+"""
+
+    if mode == "cross_topic":
+        return base_prompt + """
+PRACTICE MODE: RELATED TOPICS
+- Show connections between this topic and related concepts
+- Include questions that link to other subjects when possible
+- Ask "how does this relate to..." type questions
+- Explore the bigger picture
+- Make interdisciplinary connections
+- Help students see how topics connect
+- Encourage systems thinking
+"""
+
     return base_prompt
 
 
