@@ -7568,6 +7568,13 @@ def start_practice():
     grade = session.get("grade", "8")
     character = session.get("character", "everly")
 
+    # If topic is empty or looks like a full question (more than 10 words), use subject name as topic
+    if not topic or len(topic.split()) > 10:
+        # Use the subject label as the topic
+        topic = SUBJECT_LABELS.get(subject, subject).replace(" Explorer", "").replace(" Sphere", "").replace(" Realm", "").replace(" Core", "").replace(" Haven", "").replace(" Forge", "").replace(" Star", "").replace(" Quest", "").replace(" Nova", "").replace(" Verse", "").replace(" Grid", "")
+        if not topic:
+            topic = "this subject"
+
     # Mode-specific question generation
     mode_settings = {
         'interactive': {
