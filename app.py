@@ -600,6 +600,8 @@ def rebuild_database_if_needed():
         ensure_column("students", student_cols, "trial_start", "DATETIME")
         ensure_column("students", student_cols, "trial_end", "DATETIME")
         ensure_column("students", student_cols, "subscription_active", "BOOLEAN")
+        ensure_column("students", student_cols, "stripe_customer_id", "VARCHAR(255)")
+        ensure_column("students", student_cols, "stripe_subscription_id", "VARCHAR(255)")
         ensure_column("students", student_cols, "password_hash", "VARCHAR(255)")  # Security fix: password authentication
         ensure_column("students", student_cols, "date_of_birth", "DATE")  # COPPA compliance: age verification
 
@@ -608,6 +610,8 @@ def rebuild_database_if_needed():
         ensure_column("parents", parent_cols, "trial_start", "DATETIME")
         ensure_column("parents", parent_cols, "trial_end", "DATETIME")
         ensure_column("parents", parent_cols, "subscription_active", "BOOLEAN")
+        ensure_column("parents", parent_cols, "stripe_customer_id", "VARCHAR(255)")
+        ensure_column("parents", parent_cols, "stripe_subscription_id", "VARCHAR(255)")
         ensure_column("parents", parent_cols, "access_code", "TEXT UNIQUE")
 
         ensure_column("teachers", teacher_cols, "plan", "TEXT")
@@ -615,6 +619,8 @@ def rebuild_database_if_needed():
         ensure_column("teachers", teacher_cols, "trial_start", "DATETIME")
         ensure_column("teachers", teacher_cols, "trial_end", "DATETIME")
         ensure_column("teachers", teacher_cols, "subscription_active", "BOOLEAN")
+        ensure_column("teachers", teacher_cols, "stripe_customer_id", "VARCHAR(255)")
+        ensure_column("teachers", teacher_cols, "stripe_subscription_id", "VARCHAR(255)")
 
         ensure_column("assigned_practice", practice_cols, "assignment_type", "VARCHAR(20) DEFAULT 'practice'")
 
