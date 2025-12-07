@@ -532,17 +532,41 @@
 
     /* FEATURE #5: Notes Panel */
     .notes-panel {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 24px;
-        background: linear-gradient(135deg, rgba(255, 221, 85, 0.12), rgba(255, 149, 0, 0.08));
-        border: 2px solid rgba(255, 221, 85, 0.35);
-        border-radius: 18px;
-        backdrop-filter: blur(12px);
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 30px;
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.98), rgba(42, 42, 72, 0.98));
+        border: 2px solid rgba(255, 221, 85, 0.5);
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        z-index: 1000;
         display: none;
     }
 
     .notes-panel.show {
+        display: block;
+    }
+
+    /* Overlay behind notes panel */
+    .notes-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        display: none;
+    }
+
+    .notes-overlay.show {
         display: block;
     }
 
@@ -1133,6 +1157,7 @@
 </div>
 
 <!-- FEATURE #5: Notes Panel -->
+<div class="notes-overlay" id="notes-overlay" onclick="toggleNotesPanel()"></div>
 <div class="notes-panel" id="notes-panel">
     <div class="notes-header">
         <h3 class="notes-title">📝 My Notes & Bookmarks</h3>
@@ -1400,6 +1425,7 @@ function loadNotes() {
 
 function toggleNotesPanel() {
     document.getElementById('notes-panel').classList.toggle('show');
+    document.getElementById('notes-overlay').classList.toggle('show');
 }
 
 function exportNotes() {
