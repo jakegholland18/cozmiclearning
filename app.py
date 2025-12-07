@@ -5235,127 +5235,144 @@ def teacher_grade_submission(submission_id):
 @app.route("/teacher/assign_questions", methods=["POST"])
 def teacher_assign_questions():
     """Generate AI questions and create assignment with AssignedQuestions."""
-    teacher = get_current_teacher()
-    if not teacher:
-        return jsonify({"error": "Not authenticated"}), 401
+    try:
+        teacher = get_current_teacher()
+        if not teacher:
+            return jsonify({"error": "Not authenticated"}), 401
 
-    data = request.get_json() or {}
+        data = request.get_json() or {}
 
-    class_id = data.get("class_id", type=int)
-    title = safe_text(data.get("title", ""), 120)
-    subject = safe_text(data.get("subject", "terra_nova"), 50)
-    topic = safe_text(data.get("topic", ""), 500)
-    grade = safe_text(data.get("grade", "8"), 10)
-    character = safe_text(data.get("character", "everly"), 50)
-    differentiation_mode = data.get("differentiation_mode", "none")
-    student_ability = data.get("student_ability", "on_level")
-    num_questions = data.get("num_questions", 10)
-    open_str = data.get("open_date", "").strip()
-    due_str = data.get("due_date", "").strip()
+        class_id = data.get("class_id", type=int)
+        title = safe_text(data.get("title", ""), 120)
+        subject = safe_text(data.get("subject", "terra_nova"), 50)
+        topic = safe_text(data.get("topic", ""), 500)
+        grade = safe_text(data.get("grade", "8"), 10)
+        character = safe_text(data.get("character", "everly"), 50)
+        differentiation_mode = data.get("differentiation_mode", "none")
+        student_ability = data.get("student_ability", "on_level")
+        num_questions = data.get("num_questions", 10)
+        open_str = data.get("open_date", "").strip()
+        due_str = data.get("due_date", "").strip()
 
-    if not class_id or not title or not topic:
-        return jsonify({"error": "Missing required fields: class_id, title, topic"}), 400
+        if not class_id or not title or not topic:
+            return jsonify({"error": "Missing required fields: class_id, title, topic"}), 400
 
-    # Check teacher owns class
-    cls = Class.query.get(class_id)
-    if not cls:
-        return jsonify({"error": "Class not found"}), 404
-    if not is_owner(teacher) and cls.teacher_id != teacher.id:
-        return jsonify({"error": "Not authorized for this class"}), 403
+        # Check teacher owns class
+        cls = Class.query.get(class_id)
+        if not cls:
+            return jsonify({"error": "Class not found"}), 404
+        if not is_owner(teacher) and cls.teacher_id != teacher.id:
+            return jsonify({"error": "Not authorized for this class"}), 403
 
-    # Parse open date (datetime-local format: YYYY-MM-DDTHH:MM)
-    open_date = None
-    if open_str:
-        try:
-            open_date = datetime.strptime(open_str, "%Y-%m-%dT%H:%M")
-        except Exception:
+        # Parse open date (datetime-local format: YYYY-MM-DDTHH:MM)
+        open_date = None
+        if open_str:
             try:
-                open_date = datetime.strptime(open_str, "%Y-%m-%d")
+                open_date = datetime.strptime(open_str, "%Y-%m-%dT%H:%M")
             except Exception:
-                open_date = None
+                try:
+                    open_date = datetime.strptime(open_str, "%Y-%m-%d")
+                except Exception:
+                    open_date = None
 
-    # Parse due date (datetime-local format: YYYY-MM-DDTHH:MM)
-    due_date = None
-    if due_str:
-        try:
-            due_date = datetime.strptime(due_str, "%Y-%m-%dT%H:%M")
-        except Exception:
+        # Parse due date (datetime-local format: YYYY-MM-DDTHH:MM)
+        due_date = None
+        if due_str:
             try:
-                due_date = datetime.strptime(due_str, "%Y-%m-%d")
+                due_date = datetime.strptime(due_str, "%Y-%m-%dT%H:%M")
             except Exception:
-                due_date = None
+                try:
+                    due_date = datetime.strptime(due_str, "%Y-%m-%d")
+                except Exception:
+                    due_date = None
 
-    # Generate questions using teacher_tools.assign_questions
-    payload = assign_questions(
-        subject=subject,
-        topic=topic,
-        grade=grade,
-        character=character,
-        differentiation_mode=differentiation_mode,
-        student_ability=student_ability,
-        num_questions=num_questions,
-    )
-
-    # Build preview JSON in mission format (compatible with assignment_preview.html)
-    questions_data = payload.get("questions", [])
-    mission_json = {
-        "steps": [
-            {
-                "prompt": q.get("prompt", ""),
-                "type": q.get("type", "free"),
-                "choices": q.get("choices", []),
-                "expected": q.get("expected", []),
-                "hint": q.get("hint", ""),
-                "explanation": q.get("explanation", "")
-            }
-            for q in questions_data
-        ],
-        "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
-    }
-
-    # Create AssignedPractice record with preview JSON
-    assignment = AssignedPractice(
-        class_id=class_id,
-        teacher_id=teacher.id,
-        title=title,
-        subject=subject,
-        topic=topic,
-        open_date=open_date,
-        due_date=due_date,
-        differentiation_mode=differentiation_mode,
-        is_published=False,  # Teacher can review before publishing
-        preview_json=json.dumps(mission_json)  # Store the mission preview
-    )
-    db.session.add(assignment)
-    db.session.flush()  # Get assignment.id
-
-    # Create AssignedQuestion records from generated questions
-    for q in questions_data:
-        choices = q.get("choices", [])
-        expected = q.get("expected", [])
-
-        new_q = AssignedQuestion(
-            practice_id=assignment.id,
-            question_text=q.get("prompt", ""),
-            question_type=q.get("type", "free"),
-            choice_a=choices[0] if len(choices) > 0 else None,
-            choice_b=choices[1] if len(choices) > 1 else None,
-            choice_c=choices[2] if len(choices) > 2 else None,
-            choice_d=choices[3] if len(choices) > 3 else None,
-            correct_answer=",".join(expected) if isinstance(expected, list) else str(expected),
-            explanation=q.get("explanation", ""),
-            difficulty_level="medium",
+        # Generate questions using teacher_tools.assign_questions
+        payload = assign_questions(
+            subject=subject,
+            topic=topic,
+            grade=grade,
+            character=character,
+            differentiation_mode=differentiation_mode,
+            student_ability=student_ability,
+            num_questions=num_questions,
         )
-        db.session.add(new_q)
 
-    db.session.commit()
+        # Build preview JSON in mission format (compatible with assignment_preview.html)
+        questions_data = payload.get("questions", [])
+        mission_json = {
+            "steps": [
+                {
+                    "prompt": q.get("prompt", ""),
+                    "type": q.get("type", "free"),
+                    "choices": q.get("choices", []),
+                    "expected": q.get("expected", []),
+                    "hint": q.get("hint", ""),
+                    "explanation": q.get("explanation", "")
+                }
+                for q in questions_data
+            ],
+            "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
+        }
 
-    return jsonify({
-        "success": True,
-        "assignment_id": assignment.id,
-        "message": f"Generated {len(questions_data)} questions for assignment '{title}'",
-        "edit_url": f"/teacher/assignments/{assignment.id}/edit",
-    }), 201
+        # Create AssignedPractice record with preview JSON
+        assignment = AssignedPractice(
+            class_id=class_id,
+            teacher_id=teacher.id,
+            title=title,
+            subject=subject,
+            topic=topic,
+            open_date=open_date,
+            due_date=due_date,
+            differentiation_mode=differentiation_mode,
+            is_published=False,  # Teacher can review before publishing
+            preview_json=json.dumps(mission_json)  # Store the mission preview
+        )
+        db.session.add(assignment)
+        db.session.flush()  # Get assignment.id
+
+        # Create AssignedQuestion records from generated questions
+        for q in questions_data:
+            choices = q.get("choices", [])
+            expected = q.get("expected", [])
+
+            new_q = AssignedQuestion(
+                practice_id=assignment.id,
+                question_text=q.get("prompt", ""),
+                question_type=q.get("type", "free"),
+                choice_a=choices[0] if len(choices) > 0 else None,
+                choice_b=choices[1] if len(choices) > 1 else None,
+                choice_c=choices[2] if len(choices) > 2 else None,
+                choice_d=choices[3] if len(choices) > 3 else None,
+                correct_answer=",".join(expected) if isinstance(expected, list) else str(expected),
+                explanation=q.get("explanation", ""),
+                difficulty_level="medium",
+            )
+            db.session.add(new_q)
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "assignment_id": assignment.id,
+            "message": f"Generated {len(questions_data)} questions for assignment '{title}'",
+            "edit_url": f"/teacher/assignments/{assignment.id}/edit",
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+
+        # Log to health monitor
+        health_monitor.record_error(
+            error_type="teacher_assign_questions_error",
+            details=f"Class: {class_id if 'class_id' in locals() else 'N/A'}, Title: {title if 'title' in locals() else 'N/A'}, Topic: {topic if 'topic' in locals() else 'N/A'}, Error: {str(e)}\n{traceback.format_exc()}"
+        )
+
+        app.logger.error(f"Error in teacher_assign_questions: {str(e)}", exc_info=True)
+
+        return jsonify({
+            "error": "Failed to create assignment",
+            "details": str(e)
+        }), 500
 
 # ============================================================
 # TEACHER - PREVIEW AI QUESTIONS (NO PERSISTENCE)
@@ -8632,119 +8649,136 @@ def homeschool_dashboard():
 @app.route("/homeschool/assign_questions", methods=["POST"])
 def homeschool_assign_questions():
     """Generate AI questions and create assignment for homeschool parent's students."""
-    parent_id = session.get("parent_id")
-    if not parent_id:
-        return jsonify({"error": "Not authenticated"}), 401
+    try:
+        parent_id = session.get("parent_id")
+        if not parent_id:
+            return jsonify({"error": "Not authenticated"}), 401
 
-    parent = Parent.query.get(parent_id)
-    if not parent:
-        return jsonify({"error": "Parent not found"}), 404
+        parent = Parent.query.get(parent_id)
+        if not parent:
+            return jsonify({"error": "Parent not found"}), 404
 
-    # Check if parent has homeschool plan (teacher features)
-    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
-    if not has_teacher_features:
-        return jsonify({"error": "Homeschool plan required for this feature"}), 403
+        # Check if parent has homeschool plan (teacher features)
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+        if not has_teacher_features:
+            return jsonify({"error": "Homeschool plan required for this feature"}), 403
 
-    data = request.get_json() or {}
+        data = request.get_json() or {}
 
-    title = safe_text(data.get("title", ""), 120)
-    subject = safe_text(data.get("subject", "terra_nova"), 50)
-    topic = safe_text(data.get("topic", ""), 500)
-    grade = safe_text(data.get("grade", "8"), 10)
-    num_questions = data.get("num_questions", 10)
-    open_str = data.get("open_date", "").strip() if data.get("open_date") else ""
-    due_str = data.get("due_date", "").strip() if data.get("due_date") else ""
+        title = safe_text(data.get("title", ""), 120)
+        subject = safe_text(data.get("subject", "terra_nova"), 50)
+        topic = safe_text(data.get("topic", ""), 500)
+        grade = safe_text(data.get("grade", "8"), 10)
+        num_questions = data.get("num_questions", 10)
+        open_str = data.get("open_date", "").strip() if data.get("open_date") else ""
+        due_str = data.get("due_date", "").strip() if data.get("due_date") else ""
 
-    if not title or not topic:
-        return jsonify({"error": "Missing required fields: title, topic"}), 400
+        if not title or not topic:
+            return jsonify({"error": "Missing required fields: title, topic"}), 400
 
-    # Parse dates
-    open_date = None
-    if open_str:
-        try:
-            open_date = datetime.strptime(open_str, "%Y-%m-%d")
-        except Exception:
-            pass
+        # Parse dates
+        open_date = None
+        if open_str:
+            try:
+                open_date = datetime.strptime(open_str, "%Y-%m-%d")
+            except Exception:
+                pass
 
-    due_date = None
-    if due_str:
-        try:
-            due_date = datetime.strptime(due_str, "%Y-%m-%d")
-        except Exception:
-            pass
+        due_date = None
+        if due_str:
+            try:
+                due_date = datetime.strptime(due_str, "%Y-%m-%d")
+            except Exception:
+                pass
 
-    # Generate questions using teacher_tools.assign_questions
-    from modules.teacher_tools import assign_questions
+        # Generate questions using teacher_tools.assign_questions
+        from modules.teacher_tools import assign_questions
 
-    payload = assign_questions(
-        subject=subject,
-        topic=topic,
-        grade=grade,
-        character="everly",
-        differentiation_mode="none",
-        student_ability="on_level",
-        num_questions=num_questions,
-    )
-
-    # Build preview JSON in mission format
-    questions_data = payload.get("questions", [])
-    mission_json = {
-        "steps": [
-            {
-                "prompt": q.get("prompt", ""),
-                "type": q.get("type", "free"),
-                "choices": q.get("choices", []),
-                "expected": q.get("expected", []),
-                "hint": q.get("hint", ""),
-                "explanation": q.get("explanation", "")
-            }
-            for q in questions_data
-        ],
-        "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
-    }
-
-    # Create Practice record (not AssignedPractice since no class)
-    # For homeschool, we'll create individual practice records for each student
-    assignment = Practice(
-        teacher_id=None,  # No teacher, this is a homeschool parent
-        title=title,
-        subject=subject,
-        open_date=open_date,
-        due_date=due_date,
-        is_published=True,
-    )
-    db.session.add(assignment)
-    db.session.flush()
-
-    # Add questions to the practice
-    for idx, q in enumerate(questions_data):
-        question = PracticeQuestion(
-            practice_id=assignment.id,
-            question_order=idx + 1,
-            prompt=safe_text(q.get("prompt", ""), 1000),
-            question_type=q.get("type", "multiple_choice"),
-            choices=q.get("choices", []),
-            expected_answer=q.get("expected", ""),
-            explanation=safe_text(q.get("explanation", ""), 2000),
+        payload = assign_questions(
+            subject=subject,
+            topic=topic,
+            grade=grade,
+            character="everly",
+            differentiation_mode="none",
+            student_ability="on_level",
+            num_questions=num_questions,
         )
-        db.session.add(question)
 
-    # Assign to all parent's students
-    for student in parent.students:
-        assigned = AssignedPractice(
-            student_id=student.id,
-            practice_id=assignment.id,
-            assigned_date=datetime.utcnow(),
+        # Build preview JSON in mission format
+        questions_data = payload.get("questions", [])
+        mission_json = {
+            "steps": [
+                {
+                    "prompt": q.get("prompt", ""),
+                    "type": q.get("type", "free"),
+                    "choices": q.get("choices", []),
+                    "expected": q.get("expected", []),
+                    "hint": q.get("hint", ""),
+                    "explanation": q.get("explanation", "")
+                }
+                for q in questions_data
+            ],
+            "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
+        }
+
+        # Create Practice record (not AssignedPractice since no class)
+        # For homeschool, we'll create individual practice records for each student
+        assignment = Practice(
+            teacher_id=None,  # No teacher, this is a homeschool parent
+            title=title,
+            subject=subject,
+            open_date=open_date,
+            due_date=due_date,
+            is_published=True,
         )
-        db.session.add(assigned)
+        db.session.add(assignment)
+        db.session.flush()
 
-    db.session.commit()
+        # Add questions to the practice
+        for idx, q in enumerate(questions_data):
+            question = PracticeQuestion(
+                practice_id=assignment.id,
+                question_order=idx + 1,
+                prompt=safe_text(q.get("prompt", ""), 1000),
+                question_type=q.get("type", "multiple_choice"),
+                choices=q.get("choices", []),
+                expected_answer=q.get("expected", ""),
+                explanation=safe_text(q.get("explanation", ""), 2000),
+            )
+            db.session.add(question)
 
-    return jsonify({
-        "success": True,
-        "assignment_id": assignment.id,
-        "message": f"Assignment created and assigned to {len(parent.students)} student(s)"
-    }), 200
+        # Assign to all parent's students
+        for student in parent.students:
+            assigned = AssignedPractice(
+                student_id=student.id,
+                practice_id=assignment.id,
+                assigned_date=datetime.utcnow(),
+            )
+            db.session.add(assigned)
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "assignment_id": assignment.id,
+            "message": f"Assignment created and assigned to {len(parent.students)} student(s)"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+
+        # Log to health monitor
+        health_monitor.record_error(
+            error_type="homeschool_assign_questions_error",
+            details=f"Title: {title if 'title' in locals() else 'N/A'}, Topic: {topic if 'topic' in locals() else 'N/A'}, Error: {str(e)}\n{traceback.format_exc()}"
+        )
+
+        app.logger.error(f"Error in homeschool_assign_questions: {str(e)}", exc_info=True)
+
+        return jsonify({
+            "error": "Failed to create assignment",
+            "details": str(e)
+        }), 500
 
 
 @app.route("/homeschool/assignments")
