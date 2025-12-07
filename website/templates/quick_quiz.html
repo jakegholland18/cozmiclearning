@@ -194,27 +194,46 @@
         }
 
         // Load questions via API
+        const topic = "{{ topic }}";
+        const subject = "{{ subject }}";
+        const grade = "{{ grade }}";
+
+        console.log("Loading quiz with:", { topic, subject, grade });
+
+        if (!topic || !subject) {
+            document.getElementById('quiz-content').innerHTML =
+                '<p>Error: Missing topic or subject. Please go back and try again.</p>';
+            return;
+        }
+
         fetch('/start_practice', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                topic: "{{ topic }}",
-                subject: "{{ subject }}",
-                grade: "{{ grade }}",
+                topic: topic,
+                subject: subject,
+                grade: grade,
                 mode: "quick"
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            console.log("Response status:", res.status);
+            return res.json();
+        })
         .then(data => {
-            if (data.steps) {
+            console.log("Received data:", data);
+            if (data.steps && data.steps.length > 0) {
                 questions = data.steps;
                 showQuestion();
+            } else {
+                document.getElementById('quiz-content').innerHTML =
+                    '<p>No questions were generated. Please try again.</p>';
             }
         })
         .catch(err => {
             console.error("Error loading quiz:", err);
             document.getElementById('quiz-content').innerHTML =
-                '<p>Error loading quiz. Please try again.</p>';
+                `<p>Error loading quiz: ${err.message}. Please try again.</p>`;
         });
 
         function showQuestion() {

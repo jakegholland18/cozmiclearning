@@ -1466,8 +1466,8 @@ function setupTextSelection() {
 
 // FEATURE #13: Practice Mode Selection
 function startPractice(mode) {
-    // Get the current page URL to return to
-    const returnUrl = encodeURIComponent(window.location.href);
+    // Return to ask-question page for the same subject after practice
+    const returnUrl = encodeURIComponent(`/ask-question?subject={{ subject }}`);
     const topic = encodeURIComponent('{{ question }}');
     const subject = '{{ subject }}';
 
