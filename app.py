@@ -7594,88 +7594,88 @@ def start_practice():
 
         # Mode-specific question generation
         mode_settings = {
-        'interactive': {
-            'num_questions': 10,
-            'differentiation_mode': 'none',
-            'context': 'student'
-        },
-        'quick': {
-            'num_questions': 5,
-            'differentiation_mode': 'multiple_choice_only',
-            'context': 'student'
-        },
-        'full': {
-            'num_questions': 10,
-            'differentiation_mode': 'scaffold',  # Changed from 'none' to provide hints and support
-            'context': 'student'
-        },
-        'timed': {
-            'num_questions': 10,
-            'differentiation_mode': 'quick_assessment',
-            'context': 'student'
-        },
-        'teach': {
-            'num_questions': 8,
-            'differentiation_mode': 'deep_conceptual',
-            'context': 'student'
-        },
-        'related': {
-            'num_questions': 7,
-            'differentiation_mode': 'cross_topic',
-            'context': 'student'
+            'interactive': {
+                'num_questions': 10,
+                'differentiation_mode': 'none',
+                'context': 'student'
+            },
+            'quick': {
+                'num_questions': 5,
+                'differentiation_mode': 'multiple_choice_only',
+                'context': 'student'
+            },
+            'full': {
+                'num_questions': 10,
+                'differentiation_mode': 'scaffold',  # Changed from 'none' to provide hints and support
+                'context': 'student'
+            },
+            'timed': {
+                'num_questions': 10,
+                'differentiation_mode': 'quick_assessment',
+                'context': 'student'
+            },
+            'teach': {
+                'num_questions': 8,
+                'differentiation_mode': 'deep_conceptual',
+                'context': 'student'
+            },
+            'related': {
+                'num_questions': 7,
+                'differentiation_mode': 'cross_topic',
+                'context': 'student'
+            }
         }
-    }
 
-    settings = mode_settings.get(mode, mode_settings['interactive'])
+        settings = mode_settings.get(mode, mode_settings['interactive'])
 
-    # Generate practice with mode-specific parameters
-    practice_data = generate_practice_session(
-        topic=topic,
-        subject=subject,
-        grade_level=grade,
-        character=character,
-        differentiation_mode=settings['differentiation_mode'],
-        context=settings['context'],
-        num_questions=settings['num_questions']
-    )
-
-    # Store mode in session for mode-specific behavior
-    session["practice_mode"] = mode
-    session["practice_config"] = settings
-
-    steps = practice_data.get("steps") or []
-    if not steps:
-        return jsonify(
-            {
-                "status": "error",
-                "message": "No practice questions were generated. Try a different topic.",
-                "character": character,
-            }
+        # Generate practice with mode-specific parameters
+        practice_data = generate_practice_session(
+            topic=topic,
+            subject=subject,
+            grade_level=grade,
+            character=character,
+            differentiation_mode=settings['differentiation_mode'],
+            context=settings['context'],
+            num_questions=settings['num_questions']
         )
 
-    progress = []
-    for _ in steps:
-        progress.append(
-            {"attempts": 0, "status": "unanswered", "last_answer": "", "chat": []}
-        )
+        # Store mode in session for mode-specific behavior
+        session["practice_mode"] = mode
+        session["practice_config"] = settings
 
-    session["practice"] = practice_data
-    session["practice_progress"] = progress
-    session["practice_step"] = 0
-    session["practice_attempts"] = 0
-    session.modified = True
+        steps = practice_data.get("steps") or []
+        if not steps:
+            return jsonify(
+                {
+                    "status": "error",
+                    "message": "No practice questions were generated. Try a different topic.",
+                    "character": character,
+                }
+            )
 
-    # For new practice mode templates (quick, full, timed, teach, related)
-    # Return all steps so they can handle their own UI
-    if mode in ['quick', 'full', 'timed', 'teach', 'related']:
-        return jsonify(
-            {
-                "status": "ok",
-                "steps": steps,
-                "total": len(steps),
-                "character": character,
-            }
-        )
+        progress = []
+        for _ in steps:
+            progress.append(
+                {"attempts": 0, "status": "unanswered", "last_answer": "", "chat": []}
+            )
+
+        session["practice"] = practice_data
+        session["practice_progress"] = progress
+        session["practice_step"] = 0
+        session["practice_attempts"] = 0
+        session.modified = True
+
+        # For new practice mode templates (quick, full, timed, teach, related)
+        # Return all steps so they can handle their own UI
+        if mode in ['quick', 'full', 'timed', 'teach', 'related']:
+            return jsonify(
+                {
+                    "status": "ok",
+                    "steps": steps,
+                    "total": len(steps),
+                    "character": character,
+                }
+            )
 
         # For interactive mode, return just the first question (old behavior)
         first = steps[0]
