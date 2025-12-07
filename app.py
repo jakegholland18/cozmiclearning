@@ -8724,11 +8724,11 @@ def homeschool_assign_questions():
         print(f"📝 Creating assignment with {len(questions_data)} questions for parent {parent.id}")
         print(f"   Parent has {len(parent.students) if parent.students else 0} student(s)")
 
-        # HOMESCHOOL LIMITATION: Current database schema requires students to exist
-        # AssignedPractice requires class_id and teacher_id (both non-nullable)
-        # Students must be linked to a class, which requires a teacher
-        # For now, require at least one student before creating assignments
-        if not parent.students or len(parent.students) == 0:
+        is_admin = session.get("admin_authenticated", False)
+        has_students = parent.students and len(parent.students) > 0
+
+        # In normal mode, require students. In admin mode, allow testing without students.
+        if not has_students and not is_admin:
             print(f"⚠️  No students found for parent {parent.id} - assignment cannot be created")
             return jsonify({
                 "error": "No students linked to your account",
@@ -8765,11 +8765,30 @@ def homeschool_assign_questions():
             db.session.flush()
             print(f"✨ Created virtual homeschool class ID {virtual_class.id}")
 
+        # If admin mode with no students, create a test student for this assignment
+        if is_admin and not has_students:
+            print(f"🔧 Admin mode: Creating test student for parent {parent.id}")
+            test_student = Student(
+                name=f"Test Student (Admin)",
+                email=f"test.student.{parent.id}@admin.internal",
+                password="ADMIN_TEST",
+                grade="8",
+                parent_id=parent.id,
+                class_id=virtual_class.id
+            )
+            db.session.add(test_student)
+            db.session.flush()
+            print(f"   Created test student ID {test_student.id}")
+            # Update parent.students so the rest of the code works
+            parent.students = [test_student]
+            has_students = True
+
         # Link parent's students to virtual class if not already linked
-        for student in parent.students:
-            if not student.class_id:
-                student.class_id = virtual_class.id
-                print(f"   Linked student {student.id} to virtual class {virtual_class.id}")
+        if has_students:
+            for student in parent.students:
+                if not student.class_id:
+                    student.class_id = virtual_class.id
+                    print(f"   Linked student {student.id} to virtual class {virtual_class.id}")
 
         # Create AssignedPractice record
         assignment = AssignedPractice(
