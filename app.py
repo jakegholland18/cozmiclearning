@@ -7548,11 +7548,14 @@ def quick_quiz():
     grade = session.get("grade", "8")
 
     return render_template(
-        "quick_quiz.html",
+        "practice_unified.html",
         subject=subject,
         topic=topic,
         grade=grade,
-        return_url=return_url
+        return_url=return_url,
+        mode="quick",
+        mode_title="⚡ Quick Quiz",
+        mode_description="5 rapid-fire questions to test your knowledge"
     )
 
 
@@ -8029,11 +8032,14 @@ def full_practice():
     grade = session.get("grade", "8")
 
     return render_template(
-        "full_practice.html",
+        "practice_unified.html",
         subject=subject,
         topic=topic,
         grade=grade,
-        return_url=return_url
+        return_url=return_url,
+        mode="full",
+        mode_title="📚 Full Practice",
+        mode_description="Comprehensive practice with step-by-step guidance"
     )
 
 
@@ -8048,11 +8054,14 @@ def timed_challenge():
     grade = session.get("grade", "8")
 
     return render_template(
-        "timed_challenge.html",
+        "practice_unified.html",
         subject=subject,
         topic=topic,
         grade=grade,
-        return_url=return_url
+        return_url=return_url,
+        mode="timed",
+        mode_title="⏱️ Timed Challenge",
+        mode_description="Race against time to master the material"
     )
 
 
@@ -8067,11 +8076,14 @@ def deep_study():
     grade = session.get("grade", "8")
 
     return render_template(
-        "teach_me_more.html",
+        "practice_unified.html",
         subject=subject,
         topic=topic,
         grade=grade,
-        return_url=return_url
+        return_url=return_url,
+        mode="teach",
+        mode_title="🎓 Teach Me More",
+        mode_description="Deep dive into advanced concepts and connections"
     )
 
 
@@ -8086,11 +8098,14 @@ def related_topics():
     grade = session.get("grade", "8")
 
     return render_template(
-        "related_topics.html",
+        "practice_unified.html",
         subject=subject,
         topic=topic,
         grade=grade,
-        return_url=return_url
+        return_url=return_url,
+        mode="related",
+        mode_title="🔗 Related Topics",
+        mode_description="Explore how this connects to other subjects"
     )
 
 
