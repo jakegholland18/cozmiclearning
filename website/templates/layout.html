@@ -274,9 +274,10 @@
             <hr>
             <a href="/parent_dashboard">📘 Parent Dashboard</a>
             <a href="/homeschool/dashboard">🏡 Homeschool Dashboard</a>
-            <a href="/parent/messages">💬 Message Teacher</a>
-            <a href="/parent/subjects">📚 Subjects</a>
-            <a href="/parent/progress">📈 Progress Reports</a>
+            <a href="/parent/students">👨‍👩‍👧‍👦 My Students</a>
+            <a href="/parent/analytics">📈 Analytics</a>
+            <a href="/parent/messages">💬 Messages</a>
+            <a href="/parent/lesson-plans">📚 Lesson Plans</a>
             <hr>
             <a href="/teacher/dashboard">📘 Teacher Dashboard</a>
             <a href="/teacher/dashboard">🏫 My Classes</a>
@@ -292,9 +293,10 @@
 
             {% if session.get('parent_logged_in') %}
                 <a href="/parent_dashboard">📘 Parent Dashboard</a>
-                <a href="/parent/messages">💬 Message Teacher</a>
-                <a href="/parent/subjects">📚 Subjects</a>
-                <a href="/parent/progress">📈 Progress Reports</a>
+                <a href="/parent/students">👨‍👩‍👧‍👦 My Students</a>
+                <a href="/parent/analytics">📈 Analytics</a>
+                <a href="/parent/messages">💬 Messages</a>
+                <a href="/parent/lesson-plans">📚 Lesson Plans</a>
             {% endif %}
 
             {% if session.get('teacher_id') %}
