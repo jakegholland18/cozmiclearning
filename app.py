@@ -7511,6 +7511,25 @@ def practice():
     )
 
 
+@app.route("/quick_quiz")
+def quick_quiz():
+    """Quick Quiz - 5 rapid-fire multiple choice questions"""
+    init_user()
+
+    subject = request.args.get("subject", "")
+    topic = request.args.get("topic", "")
+    return_url = request.args.get("return_url", "")
+    grade = session.get("grade", "8")
+
+    return render_template(
+        "quick_quiz.html",
+        subject=subject,
+        topic=topic,
+        grade=grade,
+        return_url=return_url
+    )
+
+
 @app.route("/start_practice", methods=["POST"])
 @csrf.exempt
 def start_practice():
@@ -7953,36 +7972,46 @@ Instead, start each bullet with a simple symbol like '•'.
 # DEEP STUDY & RELATED TOPICS
 # ============================================================
 
-@app.route("/deep_study")
-def deep_study():
-    """
-    Teach Me More mode - provides deeper dive into advanced concepts.
-    """
+@app.route("/timed_challenge")
+def timed_challenge():
+    """Timed Challenge - 10 questions in 10 minutes"""
     init_user()
 
     subject = request.args.get("subject", "")
     topic = request.args.get("topic", "")
-    character = session.get("character", "everly")
+    return_url = request.args.get("return_url", "")
     grade = session.get("grade", "8")
 
-    # Redirect to practice with teach mode
-    return redirect(f"/practice?subject={subject}&topic={topic}&mode=teach")
+    # For now, redirect to practice with timed mode (will create unique template later)
+    return redirect(f"/practice?subject={subject}&topic={topic}&mode=timed&return_url={return_url}")
+
+
+@app.route("/deep_study")
+def deep_study():
+    """Teach Me More - Deep conceptual learning"""
+    init_user()
+
+    subject = request.args.get("subject", "")
+    topic = request.args.get("topic", "")
+    return_url = request.args.get("return_url", "")
+    grade = session.get("grade", "8")
+
+    # For now, redirect to practice with teach mode (will create unique template later)
+    return redirect(f"/practice?subject={subject}&topic={topic}&mode=teach&return_url={return_url}")
 
 
 @app.route("/related_topics")
 def related_topics():
-    """
-    Related Topics mode - explores connected ideas and themes.
-    """
+    """Related Topics - Cross-subject connections"""
     init_user()
 
     subject = request.args.get("subject", "")
     topic = request.args.get("topic", "")
-    character = session.get("character", "everly")
+    return_url = request.args.get("return_url", "")
     grade = session.get("grade", "8")
 
-    # Redirect to practice with related mode
-    return redirect(f"/practice?subject={subject}&topic={topic}&mode=related")
+    # For now, redirect to practice with related mode (will create unique template later)
+    return redirect(f"/practice?subject={subject}&topic={topic}&mode=related&return_url={return_url}")
 
 
 # ============================================================

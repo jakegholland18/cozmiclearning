@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>⚡ Quick Quiz - CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Poppins", sans-serif;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .quiz-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .return-btn {
+            background: none;
+            border: none;
+            color: #ffdd55;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .return-btn:hover {
+            transform: translateX(-5px);
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #ffdd55;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .choice-btn {
+            display: block;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #ffdd55;
+            transform: translateX(5px);
+        }
+
+        .choice-btn.correct {
+            background: rgba(76, 217, 100, 0.4);
+            border-color: #4cd964;
+        }
+
+        .choice-btn.incorrect {
+            background: rgba(255, 59, 48, 0.4);
+            border-color: #ff3b30;
+        }
+
+        .explanation {
+            background: rgba(132, 255, 0, 0.2);
+            border-left: 4px solid #84ff00;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #84ff00, #00d4ff);
+            border: none;
+            color: #1a1a2e;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            float: right;
+            transition: transform 0.3s;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 40px 0;
+            color: #ffdd55;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .completion-message {
+            text-align: center;
+            font-size: 1.5rem;
+            margin: 30px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="return-btn" onclick="goBack()">⬅️ Return to previous screen</button>
+
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="quiz-title">⚡ Quick Quiz</div>
+            <div class="quiz-description">{{ topic }}</div>
+        </div>
+
+        <div id="quiz-content">
+            <!-- Questions will be loaded here by JavaScript -->
+        </div>
+
+        <div id="completion-screen" class="hidden">
+            <div class="score-display" id="final-score"></div>
+            <div class="completion-message">Great work! You've completed the quiz.</div>
+            <button class="next-btn" onclick="goBack()">Return to Learning</button>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        const returnUrl = "{{ return_url }}";
+
+        function goBack() {
+            if (returnUrl && returnUrl !== "") {
+                window.location.href = decodeURIComponent(returnUrl);
+            } else {
+                window.location.href = "/ask-question";
+            }
+        }
+
+        // Load questions via API
+        fetch('/start_practice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: "{{ topic }}",
+                subject: "{{ subject }}",
+                grade: "{{ grade }}",
+                mode: "quick"
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.steps) {
+                questions = data.steps;
+                showQuestion();
+            }
+        })
+        .catch(err => {
+            console.error("Error loading quiz:", err);
+            document.getElementById('quiz-content').innerHTML =
+                '<p>Error loading quiz. Please try again.</p>';
+        });
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            answered = false;
+
+            let html = `
+                <div class="question-card">
+                    <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+                    <div class="question-text">${q.prompt}</div>
+            `;
+
+            if (q.type === "multiple_choice" && q.choices) {
+                q.choices.forEach((choice, idx) => {
+                    html += `<button class="choice-btn" onclick="selectAnswer('${choice.split('.')[0].trim().toLowerCase()}')">${choice}</button>`;
+                });
+            } else {
+                html += `<input type="text" id="answer-input" placeholder="Type your answer..." style="width: 100%; padding: 12px; border-radius: 8px; font-size: 1.1rem;">`;
+                html += `<button class="next-btn" onclick="checkFreeResponse()">Submit</button>`;
+            }
+
+            html += `
+                    <div class="explanation" id="explanation">
+                        ${q.explanation || ""}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('quiz-content').innerHTML = html;
+        }
+
+        function selectAnswer(selected) {
+            if (answered) return;
+            answered = true;
+
+            const q = questions[currentQuestion];
+            const correct = q.expected && q.expected[0];
+            const isCorrect = selected === correct;
+
+            if (isCorrect) {
+                score++;
+            }
+
+            // Show which answer was selected and if it's correct
+            const buttons = document.querySelectorAll('.choice-btn');
+            buttons.forEach(btn => {
+                const letter = btn.textContent.split('.')[0].trim().toLowerCase();
+                if (letter === selected) {
+                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+                if (letter === correct) {
+                    btn.classList.add('correct');
+                }
+                btn.style.pointerEvents = 'none';
+            });
+
+            // Show explanation
+            document.getElementById('explanation').style.display = 'block';
+
+            // Show next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'next-btn';
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? 'Finish' : 'Next';
+            nextBtn.onclick = nextQuestion;
+            document.querySelector('.question-card').appendChild(nextBtn);
+        }
+
+        function checkFreeResponse() {
+            if (answered) return;
+            answered = true;
+
+            const userAnswer = document.getElementById('answer-input').value.trim();
+            // For free response, we'll count it as correct (since AI will grade later)
+            score++;
+
+            document.getElementById('explanation').style.display = 'block';
+
+            setTimeout(nextQuestion, 2000);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+        }
+
+        function showCompletion() {
+            document.getElementById('quiz-content').classList.add('hidden');
+            document.getElementById('completion-screen').classList.remove('hidden');
+            document.getElementById('final-score').textContent = `${score} / ${questions.length}`;
+        }
+    </script>
+</body>
+</html>
