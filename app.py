@@ -7443,16 +7443,59 @@ def practice():
 
     subject = request.args.get("subject", "")
     topic = request.args.get("topic", "")
+    mode = request.args.get("mode", "full")  # full, quick, timed, teach, related
     character = session.get("character", "everly")
     grade = session.get("grade", "8")
+
+    # Mode-specific settings
+    mode_config = {
+        'quick': {
+            'title': '⚡ Quick Quiz',
+            'description': '5 quick questions to test your understanding',
+            'questions': 5,
+            'show_hints': False
+        },
+        'full': {
+            'title': '📚 Full Practice',
+            'description': 'Comprehensive practice with step-by-step help',
+            'questions': 10,
+            'show_hints': True
+        },
+        'timed': {
+            'title': '⏱️ Timed Challenge',
+            'description': 'Race against the clock for mastery',
+            'questions': 10,
+            'timer_minutes': 10,
+            'show_hints': False
+        },
+        'teach': {
+            'title': '🎓 Teach Me More',
+            'description': 'Deeper dive into advanced concepts',
+            'questions': 8,
+            'show_hints': True,
+            'deep_explanations': True
+        },
+        'related': {
+            'title': '🔗 Related Topics',
+            'description': 'Explore connected ideas and themes',
+            'questions': 7,
+            'show_hints': True
+        }
+    }
+
+    config = mode_config.get(mode, mode_config['full'])
 
     return render_template(
         "practice.html",
         subject=subject,
         topic=topic,
+        mode=mode,
+        mode_title=config['title'],
+        mode_description=config['description'],
         character=character,
         grade=grade,
         subjects=SUBJECT_LABELS,
+        config=config
     )
 
 
@@ -7464,9 +7507,20 @@ def start_practice():
     data = request.get_json() or {}
     topic = data.get("topic", "").strip()
     subject = data.get("subject", "")
+    mode = data.get("mode", "full")
     grade = session.get("grade", "8")
     character = session.get("character", "everly")
 
+    # Mode-specific question generation
+    num_questions = {
+        'quick': 5,
+        'full': 10,
+        'timed': 10,
+        'teach': 8,
+        'related': 7
+    }.get(mode, 10)
+
+    # Generate practice with mode-specific parameters
     practice_data = generate_practice_session(
         topic=topic,
         subject=subject,
@@ -7474,6 +7528,9 @@ def start_practice():
         character=character,
         differentiation_mode="none",  # generic practice, no teacher mode
     )
+
+    # Store mode in session for mode-specific behavior
+    session["practice_mode"] = mode
 
     steps = practice_data.get("steps") or []
     if not steps:
@@ -7848,6 +7905,42 @@ Instead, start each bullet with a simple symbol like '•'.
     session.modified = True
 
     return jsonify({"reply": reply_text, "chat": chat_history})
+
+
+# ============================================================
+# DEEP STUDY & RELATED TOPICS
+# ============================================================
+
+@app.route("/deep_study")
+def deep_study():
+    """
+    Teach Me More mode - provides deeper dive into advanced concepts.
+    """
+    init_user()
+
+    subject = request.args.get("subject", "")
+    topic = request.args.get("topic", "")
+    character = session.get("character", "everly")
+    grade = session.get("grade", "8")
+
+    # Redirect to practice with teach mode
+    return redirect(f"/practice?subject={subject}&topic={topic}&mode=teach")
+
+
+@app.route("/related_topics")
+def related_topics():
+    """
+    Related Topics mode - explores connected ideas and themes.
+    """
+    init_user()
+
+    subject = request.args.get("subject", "")
+    topic = request.args.get("topic", "")
+    character = session.get("character", "everly")
+    grade = session.get("grade", "8")
+
+    # Redirect to practice with related mode
+    return redirect(f"/practice?subject={subject}&topic={topic}&mode=related")
 
 
 # ============================================================

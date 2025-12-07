@@ -685,7 +685,12 @@
         <div>
             <img id="character-avatar" class="avatar" src="/static/characters/{{ character }}.png">
 
-            <h2 class="prompt-title">🚀 Practice Mission</h2>
+            <h2 class="prompt-title">{{ mode_title if mode_title else '🚀 Practice Mission' }}</h2>
+            {% if mode_description %}
+            <div style="text-align:center; color:#c4d1ff; font-size:0.9rem; margin-bottom:12px; background:rgba(255,111,216,0.1); padding:8px; border-radius:8px; border:1px solid rgba(255,111,216,0.3);">
+                {{ mode_description }}
+            </div>
+            {% endif %}
             <div id="topic-recap" style="text-align:center; color:#c4d1ff; font-size:0.95rem; margin-bottom:8px; display:none;"></div>
 
             <!-- TOPIC SELECTION -->
@@ -777,6 +782,7 @@
 let currentType = "free";
 let currentTopic = "";
 let currentSubject = "{{ subject }}";
+let currentMode = "{{ mode if mode else 'full' }}";
 let currentIndex = 0;
 let totalQuestions = 0;
 
@@ -845,7 +851,8 @@ function startPractice() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             topic: currentTopic,
-            subject: currentSubject
+            subject: currentSubject,
+            mode: currentMode
         })
     })
     .then(res => res.json())
