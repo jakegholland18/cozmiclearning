@@ -99,6 +99,19 @@ limiter = Limiter(
 )
 
 # ============================================================
+# SELF-HEALING IMPORTS
+# ============================================================
+
+from modules.self_healing import (
+    ensure_session_defaults,
+    fix_corrupted_session,
+    safe_db_commit,
+    resilient_api_call,
+    health_monitor,
+    log_unhandled_exception
+)
+
+# ============================================================
 # ENVIRONMENT VARIABLE VALIDATION
 # ============================================================
 
@@ -183,6 +196,20 @@ STRIPE_PRICES = {
     'homeschool_complete_monthly': os.environ.get('STRIPE_HOMESCHOOL_COMPLETE_MONTHLY'),
     'homeschool_complete_yearly': os.environ.get('STRIPE_HOMESCHOOL_COMPLETE_YEARLY'),
 }
+
+# ============================================================
+# SELF-HEALING: AUTO-FIX ERRORS
+# ============================================================
+
+# Log all crashes automatically
+got_request_exception.connect(log_unhandled_exception, app)
+
+# Auto-heal session before every request
+@app.before_request
+def auto_heal():
+    """Fix corrupted session data automatically"""
+    ensure_session_defaults(session)
+    fix_corrupted_session(session)
 
 # ============================================================
 # PLAN LIMITS CONFIGURATION
@@ -305,6 +332,7 @@ import time
 def safe_commit(retries=3, delay=0.1):
     """
     Safely commit database changes with error handling and retry logic.
+    Now uses self-healing module for enhanced error recovery.
 
     Args:
         retries: Number of retry attempts (default 3)
@@ -313,30 +341,13 @@ def safe_commit(retries=3, delay=0.1):
     Returns:
         (success: bool, error: str or None)
     """
-    for attempt in range(retries):
-        try:
-            db.session.commit()
-            return True, None
-        except OperationalError as e:
-            # Database is locked - retry with exponential backoff
-            db.session.rollback()
-            if attempt < retries - 1:
-                wait_time = delay * (2 ** attempt)  # Exponential backoff
-                app.logger.warning(f"Database locked, retrying in {wait_time}s (attempt {attempt + 1}/{retries})")
-                time.sleep(wait_time)
-            else:
-                app.logger.error(f"Database commit failed after {retries} attempts: {str(e)}")
-                return False, str(e)
-        except SQLAlchemyError as e:
-            # Other database error - don't retry
-            db.session.rollback()
-            app.logger.error(f"Database commit failed: {str(e)}")
-            return False, str(e)
-        except Exception as e:
-            # Unexpected error - don't retry
-            db.session.rollback()
-            app.logger.error(f"Unexpected error during commit: {str(e)}")
-            return False, str(e)
+    # Use self-healing module's safe_db_commit
+    success = safe_db_commit(db.session, max_attempts=retries)
+
+    if success:
+        return True, None
+    else:
+        return False, "Database commit failed after retries"
 
     return False, "Max retries exceeded"
 
@@ -2729,6 +2740,32 @@ def admin_moderation_stats():
         "admin_moderation_stats.html",
         stats=stats,
         period=period
+    )
+
+
+# ============================================================
+# ADMIN - HEALTH MONITORING
+# ============================================================
+
+@app.route("/admin/health")
+def admin_health():
+    """
+    Health monitoring dashboard - shows self-healing status and errors.
+    Admin only. View at: /admin/health
+    """
+    if not is_admin():
+        flash("Access denied.", "error")
+        return redirect("/")
+
+    # Get health status from self-healing monitor
+    health_status = health_monitor.get_error_summary()
+
+    return render_template(
+        "admin/health.html",
+        status=health_status['status'],
+        total_errors=health_status['total_errors'],
+        errors_by_type=health_status['errors_by_type'],
+        time_window=health_status['time_window']
     )
 
 
