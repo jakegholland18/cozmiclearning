@@ -14,6 +14,44 @@ from models import db, GameSession, GameLeaderboard, ArcadeGame
 
 
 # ============================================================
+# QUESTION DEDUPLICATION HELPER
+# ============================================================
+
+def is_duplicate_question(question, seen_questions):
+    """
+    Check if a question is a duplicate.
+    Returns True if duplicate, False if unique.
+
+    Args:
+        question: dict with 'question' field (and optionally 'answer', 'word', etc.)
+        seen_questions: set of question strings seen so far
+    """
+    # Create a unique identifier for this question
+    # For math questions, use the question text
+    # For vocab/spelling, use the word or question text
+    # For other questions, use the full question text
+
+    if 'word' in question:
+        # Vocabulary/spelling question - track by word
+        identifier = question['word'].lower()
+    elif 'question' in question:
+        # Math or other text-based question - track by question text
+        identifier = str(question['question']).lower().strip()
+    elif 'symbol' in question:
+        # Element match - track by symbol
+        identifier = question['symbol'].upper()
+    else:
+        # Generic fallback - stringify the whole question
+        identifier = str(question)
+
+    if identifier in seen_questions:
+        return True  # Duplicate found
+
+    seen_questions.add(identifier)
+    return False  # Unique question
+
+
+# ============================================================
 # GAME CATALOG - 16 GAMES TOTAL (Phase 1+2 + Bible Trivia)
 # ============================================================
 
@@ -213,35 +251,40 @@ def generate_multiple_choice(correct_answer, wrong_range=20, count=3):
 def generate_speed_math(difficulty='medium'):
     """Generate math problems based on difficulty level"""
     questions = []
+    seen_questions = set()
+    max_attempts = 200  # Prevent infinite loops
 
-    for _ in range(20):
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
+        question = None
         if difficulty == 'easy':
             # Elementary level (grades 1-4)
             op = random.choice(["add", "subtract", "multiply"])
             if op == "add":
                 a = random.randint(1, 50)
                 b = random.randint(1, 50)
-                questions.append({
+                question = {
                     "question": f"{a} + {b}",
                     "answer": a + b,
                     "type": "addition"
-                })
+                }
             elif op == "subtract":
                 a = random.randint(10, 100)
                 b = random.randint(1, a)
-                questions.append({
+                question = {
                     "question": f"{a} - {b}",
                     "answer": a - b,
                     "type": "subtraction"
-                })
+                }
             else:  # multiply
                 a = random.randint(2, 12)
                 b = random.randint(2, 12)
-                questions.append({
+                question = {
                     "question": f"{a} × {b}",
                     "answer": a * b,
                     "type": "multiplication"
-                })
+                }
 
         elif difficulty == 'medium':
             # Middle school level (grades 5-8)
@@ -250,36 +293,36 @@ def generate_speed_math(difficulty='medium'):
                 b = random.randint(2, 15)
                 answer = random.randint(2, 20)
                 a = b * answer
-                questions.append({
+                question = {
                     "question": f"{a} ÷ {b}",
                     "answer": answer,
                     "type": "division"
-                })
+                }
             elif op == "multiply":
                 a = random.randint(5, 25)
                 b = random.randint(5, 25)
-                questions.append({
+                question = {
                     "question": f"{a} × {b}",
                     "answer": a * b,
                     "type": "multiplication"
-                })
+                }
             else:
                 a = random.randint(10, 250)
                 b = random.randint(10, 200)
                 if op == "add":
-                    questions.append({
+                    question = {
                         "question": f"{a} + {b}",
                         "answer": a + b,
                         "type": "addition"
-                    })
+                    }
                 else:
                     if a < b:
                         a, b = b, a
-                    questions.append({
+                    question = {
                         "question": f"{a} - {b}",
                         "answer": a - b,
                         "type": "subtraction"
-                    })
+                    }
 
         else:  # hard
             # High school level (grades 9-12)
@@ -287,20 +330,20 @@ def generate_speed_math(difficulty='medium'):
             if op == "percent":
                 whole = random.randint(50, 500)
                 pct = random.choice([10, 15, 20, 25, 30, 40, 50, 75])
-                questions.append({
+                question = {
                     "question": f"{pct}% of {whole}",
                     "answer": int(whole * pct / 100),
                     "type": "percentage"
-                })
+                }
             elif op == "algebra":
                 # Simple: x + a = b
                 a = random.randint(5, 50)
                 b = random.randint(a + 5, 150)
-                questions.append({
+                question = {
                     "question": f"x + {a} = {b}, solve for x",
                     "answer": b - a,
                     "type": "algebra"
-                })
+                }
             elif op == "fraction":
                 # Add fractions with same denominator
                 denom = random.choice([2, 3, 4, 5, 6, 8, 10])
@@ -308,28 +351,32 @@ def generate_speed_math(difficulty='medium'):
                 num2 = random.randint(1, denom-1)
                 total = num1 + num2
                 if total < denom:
-                    questions.append({
+                    question = {
                         "question": f"{num1}/{denom} + {num2}/{denom}",
                         "answer": f"{total}/{denom}",
                         "type": "fraction"
-                    })
+                    }
                 else:
                     # Fallback to multiplication
                     a = random.randint(15, 50)
                     b = random.randint(15, 50)
-                    questions.append({
+                    question = {
                         "question": f"{a} × {b}",
                         "answer": a * b,
                         "type": "multiplication"
-                    })
+                    }
             else:
                 a = random.randint(15, 50)
                 b = random.randint(15, 50)
-                questions.append({
+                question = {
                     "question": f"{a} × {b}",
                     "answer": a * b,
                     "type": "multiplication"
-                })
+                }
+
+        # Check for duplicates before adding
+        if question and not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     random.shuffle(questions)
     return questions
@@ -502,8 +549,13 @@ def generate_science_quiz(difficulty='medium'):
 def generate_multiplication_mayhem(difficulty='medium'):
     """Master multiplication tables through rapid-fire challenges"""
     questions = []
+    seen_questions = set()
+    max_attempts = 200
 
-    for _ in range(20):
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
+
         if difficulty == 'easy':
             # 1-5 times tables
             a = random.randint(1, 5)
@@ -524,12 +576,15 @@ def generate_multiplication_mayhem(difficulty='medium'):
                 b = random.randint(2, 9)
 
         answer = a * b
-        questions.append({
+        question = {
             "question": f"{a} × {b}",
             "answer": answer,
             "type": "multiplication",
             "options": generate_multiple_choice(answer, wrong_range=max(20, answer // 5))
-        })
+        }
+
+        if not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     return questions
 
@@ -717,8 +772,12 @@ def generate_map_master(difficulty='medium'):
 def generate_number_detective(difficulty='medium'):
     """Find patterns and solve number mysteries"""
     questions = []
+    seen_questions = set()
+    max_attempts = 200
 
-    for _ in range(20):
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
         pattern_type = random.choice(["sequence", "missing", "odd_one_out"])
 
         if difficulty == 'easy':
@@ -731,38 +790,42 @@ def generate_number_detective(difficulty='medium'):
             start = random.randint(5, 50)
             step = random.choice([3, 4, 7, 11, 13])
 
+        question = None
         if pattern_type == "sequence":
             seq = [start + i * step for i in range(5)]
             answer = seq[-1] + step
-            questions.append({
+            question = {
                 "question": f"What comes next? {', '.join(map(str, seq))}, __",
                 "answer": answer,
                 "type": "sequence",
                 "options": [answer, answer + 1, answer - 1, answer + step]
-            })
+            }
         elif pattern_type == "missing":
             seq = [start + i * step for i in range(4)]
             missing_idx = random.randint(1, 2)
             answer = seq[missing_idx]
             seq[missing_idx] = "?"
-            questions.append({
+            question = {
                 "question": f"Find the missing number: {', '.join(map(str, seq))}",
                 "answer": answer,
                 "type": "missing",
                 "options": [answer, answer + 1, answer - 1, answer + step]
-            })
+            }
         else:
             base = random.randint(2, 10) * 2
             evens = [base + i * 2 for i in range(3)]
             odd = random.randint(1, 20) * 2 + 1
             nums = evens + [odd]
             random.shuffle(nums)
-            questions.append({
+            question = {
                 "question": f"Which number is odd? {', '.join(map(str, nums))}",
                 "answer": odd,
                 "type": "odd_one_out",
                 "options": nums
-            })
+            }
+
+        if question and not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     return questions
 
@@ -770,8 +833,13 @@ def generate_number_detective(difficulty='medium'):
 def generate_fraction_frenzy(difficulty='medium'):
     """Match equivalent fractions"""
     questions = []
+    seen_questions = set()
+    max_attempts = 200
 
-    for _ in range(20):
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
+
         if difficulty == 'easy':
             num = random.randint(1, 4)
             den = random.randint(num + 1, 8)
@@ -788,8 +856,9 @@ def generate_fraction_frenzy(difficulty='medium'):
 
         question_type = random.choice(["match", "simplify"])
 
+        question = None
         if question_type == "match":
-            questions.append({
+            question = {
                 "question": f"Which fraction equals {num}/{den}?",
                 "answer": f"{equiv_num}/{equiv_den}",
                 "type": "match",
@@ -799,9 +868,9 @@ def generate_fraction_frenzy(difficulty='medium'):
                     f"{equiv_num}/{equiv_den + 1}",
                     f"{num}/{den + 1}"
                 ]
-            })
+            }
         else:
-            questions.append({
+            question = {
                 "question": f"Simplify: {equiv_num}/{equiv_den}",
                 "answer": f"{num}/{den}",
                 "type": "simplify",
@@ -811,7 +880,10 @@ def generate_fraction_frenzy(difficulty='medium'):
                     f"{num}/{den + 1}",
                     f"{equiv_num}/{den}"
                 ]
-            })
+            }
+
+        if question and not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     return questions
 
@@ -819,8 +891,14 @@ def generate_fraction_frenzy(difficulty='medium'):
 def generate_equation_race(difficulty='medium'):
     """Solve equations faster than your grade level"""
     questions = []
+    seen_questions = set()
+    max_attempts = 200
 
-    for _ in range(20):
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
+        question = None
+
         if difficulty == 'easy':
             a = random.randint(5, 20)
             x = random.randint(10, 30)
@@ -828,18 +906,18 @@ def generate_equation_race(difficulty='medium'):
 
             if op == "+":
                 b = x + a
-                questions.append({
+                question = {
                     "question": f"Solve: x + {a} = {b}",
                     "answer": x,
                     "type": "one_step"
-                })
+                }
             else:
                 b = x - a
-                questions.append({
+                question = {
                     "question": f"Solve: x - {a} = {b}",
                     "answer": x,
                     "type": "one_step"
-                })
+                }
         elif difficulty == 'medium':
             a = random.randint(5, 30)
             x = random.randint(10, 50)
@@ -847,29 +925,32 @@ def generate_equation_race(difficulty='medium'):
 
             if op == "+":
                 b = x + a
-                questions.append({
+                question = {
                     "question": f"Solve: x + {a} = {b}",
                     "answer": x,
                     "type": "one_step"
-                })
+                }
             else:
                 b = x - a
-                questions.append({
+                question = {
                     "question": f"Solve: x - {a} = {b}",
                     "answer": x,
                     "type": "one_step"
-                })
+                }
         else:  # hard
             a = random.randint(2, 10)
             x = random.randint(5, 20)
             b = random.randint(5, 30)
             c = a * x + b
 
-            questions.append({
+            question = {
                 "question": f"Solve: {a}x + {b} = {c}",
                 "answer": x,
                 "type": "two_step"
-            })
+            }
+
+        if question and not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     return questions
 
@@ -1086,16 +1167,24 @@ def generate_history_timeline(difficulty='medium'):
     ]
 
     questions = []
-    for _ in range(20):
+    seen_questions = set()
+    max_attempts = 200
+
+    attempts = 0
+    while len(questions) < 20 and attempts < max_attempts:
+        attempts += 1
         selected = random.sample(events, 2)
         correct_first = min(selected, key=lambda x: x['year'])
 
-        questions.append({
+        question = {
             "question": f"Which event happened FIRST?",
             "answer": correct_first["event"],
             "options": [selected[0]["event"], selected[1]["event"]],
             "type": "timeline"
-        })
+        }
+
+        if not is_duplicate_question(question, seen_questions):
+            questions.append(question)
 
     return questions
 
