@@ -7926,7 +7926,7 @@ def parent_dashboard():
             parent = Parent(
                 name="Demo Parent (Admin)",
                 email=OWNER_EMAIL,
-                password="admin_demo",
+                password_hash=generate_password_hash("admin_demo"),
                 subscription_tier="homeschool"  # Give full access
             )
             db.session.add(parent)
