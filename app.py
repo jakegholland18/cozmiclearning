@@ -5480,6 +5480,18 @@ def teacher_preview_assignment():
 
     print(f"✅ [PREVIEW_ASSIGNMENT] Found session data with {len(preview_data.get('questions', []))} questions")
 
+    # Analyze differentiation to provide feedback
+    from modules.practice_helper import analyze_differentiation
+    diff_analysis = analyze_differentiation(
+        preview_data.get("questions", []),
+        preview_data.get("differentiation_mode", "none")
+    )
+
+    print(f"🔍 [DIFF_ANALYSIS] Analyzed {len(preview_data.get('questions', []))} questions")
+    print(f"   Mode: {preview_data.get('differentiation_mode', 'none')}")
+    print(f"   Difficulty levels: {diff_analysis.get('metrics', {}).get('difficulty_levels', [])}")
+    print(f"   Valid: {diff_analysis.get('valid', False)}")
+
     # Get classes for dropdown (if admin, show all classes)
     if is_admin() or (hasattr(teacher, '__class__') and teacher.__class__.__name__ == 'AdminTeacher'):
         classes = Class.query.all()
@@ -5492,6 +5504,7 @@ def teacher_preview_assignment():
         classes=classes,
         teacher=teacher,
         is_owner=is_owner(teacher),
+        diff_analysis=diff_analysis,
     )
 
 

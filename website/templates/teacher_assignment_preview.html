@@ -425,6 +425,50 @@
             </div>
         </div>
 
+        <!-- Differentiation Analysis -->
+        {% if diff_analysis %}
+        <div style="background: linear-gradient(135deg, rgba(92,107,255,0.15), rgba(71,200,255,0.1)); border: 1px solid rgba(118,131,255,0.4); border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="font-size: 1.1rem; color: #00f2fe; margin: 0 0 15px 0; font-weight: 700;">
+                🎯 {% if preview.differentiation_mode and preview.differentiation_mode != 'none' %}Differentiation Analysis: {{ preview.differentiation_mode|replace('_', ' ')|title }} Mode{% else %}Question Analysis{% endif %}
+            </h3>
+
+            <div style="display: grid; gap: 10px; margin-bottom: 12px;">
+                {% for check in diff_analysis.checks %}
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.9rem; border-left: 3px solid {% if check.passed %}#84ff00{% else %}#ff9f1c{% endif %};">
+                    <span style="font-size: 1.2rem; min-width: 24px;">{% if check.passed %}✅{% else %}⚠️{% endif %}</span>
+                    <div style="flex: 1;">
+                        <strong>{{ check.label }}:</strong> {{ check.value }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 12px;">
+                <strong>Difficulty Trend:</strong>
+                <span style="display: inline-block; padding: 6px 12px; background: rgba(0,242,255,0.2); border-radius: 6px; font-size: 0.85rem; color: #00f2fe; font-weight: 600;">
+                    {% if diff_analysis.difficulty_trend == 'progressive' %}
+                        📈 Progressive (Easy → Hard)
+                    {% elif diff_analysis.difficulty_trend == 'balanced' %}
+                        ⚖️ Balanced
+                    {% else %}
+                        🔀 Mixed
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if diff_analysis.warnings %}
+            <div style="background: rgba(255,159,28,0.2); border: 1px solid rgba(255,159,28,0.4); border-radius: 8px; padding: 12px; margin-top: 10px; color: #ff9f1c; font-size: 0.9rem;">
+                <strong>⚠️ Recommendations:</strong>
+                <ul style="margin: 8px 0 0 20px; padding: 0;">
+                {% for warning in diff_analysis.warnings %}
+                    <li>{{ warning }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <!-- Questions Section -->
         <div class="questions-section">
             <div class="section-header">
