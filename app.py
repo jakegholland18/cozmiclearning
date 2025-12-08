@@ -4786,21 +4786,219 @@ def student_start_assignment(assignment_id):
         mission = {}
 
     questions = mission.get("steps", [])
+    adaptive_config = mission.get("adaptive_config")
+    is_adaptive = assignment.differentiation_mode == "adaptive" and adaptive_config
 
     # Load saved answers if any
     saved_answers = {}
+    adaptive_state = None
     try:
-        saved_answers = json.loads(submission.answers_json) if submission.answers_json else {}
+        submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
+        saved_answers = submission_data.get("answers", {}) if is_adaptive else submission_data
+        adaptive_state = submission_data.get("adaptive_state") if is_adaptive else None
     except:
         saved_answers = {}
+        adaptive_state = None
 
-    return render_template(
-        "student_take_assignment.html",
-        assignment=assignment,
-        submission=submission,
-        questions=questions,
-        saved_answers=saved_answers
-    )
+    # For adaptive assignments, initialize or load routing state
+    if is_adaptive:
+        if not adaptive_state:
+            # Initialize adaptive state
+            from modules.practice_helper import estimate_question_difficulty
+
+            # Categorize all questions by difficulty
+            question_pool = {
+                "easy": [],
+                "medium": [],
+                "hard": []
+            }
+            for idx, q in enumerate(questions):
+                difficulty = estimate_question_difficulty(q)
+                question_pool[difficulty].append(idx)
+
+            adaptive_state = {
+                "question_pool": question_pool,
+                "shown_questions": [],  # Indices of questions already shown
+                "performance_score": 0,  # Running score (-1 to +1 range)
+                "target_count": adaptive_config["student_question_count"],
+                "current_question_index": None
+            }
+
+            # Select first question (start with medium)
+            if question_pool["medium"]:
+                adaptive_state["current_question_index"] = question_pool["medium"][0]
+                adaptive_state["shown_questions"].append(question_pool["medium"][0])
+            elif question_pool["easy"]:
+                adaptive_state["current_question_index"] = question_pool["easy"][0]
+                adaptive_state["shown_questions"].append(question_pool["easy"][0])
+            else:
+                adaptive_state["current_question_index"] = 0
+                adaptive_state["shown_questions"].append(0)
+
+            print(f"🎯 [ADAPTIVE] Initialized routing for student {student.id} - pool sizes: E={len(question_pool['easy'])}, M={len(question_pool['medium'])}, H={len(question_pool['hard'])}")
+
+        # For adaptive mode, only show current question
+        current_idx = adaptive_state.get("current_question_index", 0)
+        questions_to_show = [questions[current_idx]] if current_idx < len(questions) else questions[:1]
+
+        return render_template(
+            "student_take_assignment.html",
+            assignment=assignment,
+            submission=submission,
+            questions=questions_to_show,
+            saved_answers=saved_answers,
+            is_adaptive=True,
+            adaptive_state=adaptive_state,
+            questions_answered=len(adaptive_state["shown_questions"]) - 1,  # Don't count current question
+            total_questions=adaptive_state["target_count"]
+        )
+    else:
+        # Non-adaptive: show all questions
+        return render_template(
+            "student_take_assignment.html",
+            assignment=assignment,
+            submission=submission,
+            questions=questions,
+            saved_answers=saved_answers,
+            is_adaptive=False
+        )
+
+
+@csrf.exempt
+@app.route("/student/assignments/<int:assignment_id>/next_question", methods=["POST"])
+def student_next_adaptive_question(assignment_id):
+    """Get next question in adaptive assignment based on previous answer"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    # Get assignment and submission
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+    submission = StudentSubmission.query.filter_by(
+        student_id=student.id,
+        assignment_id=assignment_id
+    ).first()
+
+    if not submission:
+        return jsonify({"success": False, "error": "No submission found"}), 404
+
+    # Parse request
+    data = request.get_json()
+    answered_correctly = data.get("correct", False)
+    current_answer = data.get("answer", "")
+    question_index = data.get("question_index", 0)
+
+    print(f"🎯 [ADAPTIVE] Student {student.id} answered question {question_index}: {'✓ correct' if answered_correctly else '✗ incorrect'}")
+
+    # Load mission and adaptive state
+    try:
+        mission = json.loads(assignment.preview_json)
+        submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
+        adaptive_state = submission_data.get("adaptive_state", {})
+        answers = submission_data.get("answers", {})
+    except:
+        return jsonify({"success": False, "error": "Failed to load assignment data"}), 500
+
+    # Save the current answer
+    answers[str(question_index)] = current_answer
+
+    # Update performance score
+    if answered_correctly:
+        adaptive_state["performance_score"] = min(1.0, adaptive_state.get("performance_score", 0) + 0.2)
+    else:
+        adaptive_state["performance_score"] = max(-1.0, adaptive_state.get("performance_score", 0) - 0.2)
+
+    shown_questions = adaptive_state.get("shown_questions", [])
+    question_pool = adaptive_state.get("question_pool", {"easy": [], "medium": [], "hard": []})
+    target_count = adaptive_state.get("target_count", 10)
+
+    print(f"   Performance score: {adaptive_state['performance_score']:.2f}, Shown: {len(shown_questions)}/{target_count}")
+
+    # Check if we've reached the target count
+    if len(shown_questions) >= target_count:
+        print(f"✅ [ADAPTIVE] Student {student.id} completed all {target_count} questions")
+
+        # Save final state
+        submission.answers_json = json.dumps({
+            "answers": answers,
+            "adaptive_state": adaptive_state
+        })
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "completed": True,
+            "message": "You've completed all questions!"
+        })
+
+    # Select next question based on performance
+    score = adaptive_state["performance_score"]
+
+    # Determine target difficulty tier
+    if score > 0.3:
+        # Doing well → harder questions
+        tier_preference = ["hard", "medium", "easy"]
+    elif score < -0.3:
+        # Struggling → easier questions
+        tier_preference = ["easy", "medium", "hard"]
+    else:
+        # Middle ground → medium questions
+        tier_preference = ["medium", "hard", "easy"]
+
+    print(f"   Score {score:.2f} → preference: {tier_preference[0]}")
+
+    # Find next question from preferred tier
+    next_question_index = None
+    for tier in tier_preference:
+        available = [idx for idx in question_pool[tier] if idx not in shown_questions]
+        if available:
+            next_question_index = available[0]
+            print(f"   Selected question {next_question_index} from '{tier}' tier")
+            break
+
+    # Fallback: pick any unshown question
+    if next_question_index is None:
+        all_indices = set(range(len(mission["steps"])))
+        unshown = list(all_indices - set(shown_questions))
+        if unshown:
+            next_question_index = unshown[0]
+            print(f"   Fallback: selected question {next_question_index}")
+        else:
+            # No more questions available
+            return jsonify({
+                "success": True,
+                "completed": True,
+                "message": "No more questions available"
+            })
+
+    # Update state
+    adaptive_state["current_question_index"] = next_question_index
+    adaptive_state["shown_questions"].append(next_question_index)
+
+    # Save state
+    submission.answers_json = json.dumps({
+        "answers": answers,
+        "adaptive_state": adaptive_state
+    })
+    db.session.commit()
+
+    # Return next question
+    next_question = mission["steps"][next_question_index]
+
+    return jsonify({
+        "success": True,
+        "completed": False,
+        "question": next_question,
+        "question_index": next_question_index,
+        "progress": {
+            "answered": len(shown_questions) - 1,  # Don't count the new question
+            "total": target_count
+        }
+    })
 
 
 @app.route("/student/assignments/<int:assignment_id>/save", methods=["POST"])
