@@ -428,24 +428,45 @@ def restore_classes_from_json_if_empty():
     except Exception as e:
         print(f"⚠️ Failed to restore classes: {e}")
 
-# SQLAlchemy config
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# SQLAlchemy config - PostgreSQL in production, SQLite for local dev
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-# ============================================================
-# DATABASE CONNECTION POOLING (Optimized for SQLite + Single Worker)
-# ============================================================
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_size": 5,           # Reduced for single worker (was 10)
-    "pool_recycle": 3600,     # Recycle connections after 1 hour to prevent stale connections
-    "pool_pre_ping": True,    # Test connection health before using (prevents stale connection errors)
-    "max_overflow": 2,        # Reduced overflow (was 5)
-    "pool_timeout": 30,       # Wait up to 30 seconds for available connection before failing
-    "connect_args": {
-        "timeout": 20,        # SQLite-specific: wait up to 20s for lock
-        "check_same_thread": False,  # Allow SQLite usage across threads
+if DATABASE_URL:
+    # PostgreSQL in production (Render provides DATABASE_URL)
+    # Fix for old postgres:// URLs (SQLAlchemy requires postgresql://)
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+    print(f"🐘 Using PostgreSQL database")
+
+    # PostgreSQL-optimized connection pool
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 10,          # PostgreSQL handles more concurrent connections well
+        "pool_recycle": 3600,     # Recycle connections after 1 hour
+        "pool_pre_ping": True,    # Test connection health before using
+        "max_overflow": 5,        # Allow up to 15 total connections (10 + 5)
+        "pool_timeout": 30,       # Wait up to 30 seconds for available connection
     }
-}
+else:
+    # SQLite for local development
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
+    print(f"💾 Using SQLite database at {DB_PATH}")
+
+    # SQLite-optimized connection pool
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 5,           # Reduced for single worker
+        "pool_recycle": 3600,     # Recycle connections after 1 hour
+        "pool_pre_ping": True,    # Test connection health before using
+        "max_overflow": 2,        # Reduced overflow for SQLite
+        "pool_timeout": 30,       # Wait up to 30 seconds for available connection
+        "connect_args": {
+            "timeout": 20,        # SQLite-specific: wait up to 20s for lock
+            "check_same_thread": False,  # Allow SQLite usage across threads
+        }
+    }
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
