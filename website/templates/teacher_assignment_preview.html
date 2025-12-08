@@ -445,7 +445,10 @@
 
             {% if diff_analysis.mode == 'adaptive' %}
             <div style="margin-top: 12px; padding: 10px; background: rgba(0,242,255,0.1); border-radius: 8px; font-size: 0.85rem; color: #c4d1ff;">
-                <strong>ℹ️ About Adaptive Mode:</strong> Questions will be dynamically selected based on student performance during the assignment. Correct answers → harder questions; incorrect answers → easier questions.
+                <strong>ℹ️ About Adaptive Mode:</strong> This assignment has a bank of {{ preview.questions|length }} questions. Each student will see 10 questions selected dynamically based on their performance:<br>
+                • Answer correctly → next question is harder<br>
+                • Answer incorrectly → next question is easier<br>
+                Each student gets a personalized path through the question pool.
             </div>
             {% else %}
             <div style="margin-top: 12px;">
@@ -478,7 +481,13 @@
         <!-- Questions Section -->
         <div class="questions-section">
             <div class="section-header">
-                <h2>Questions ({{ preview.questions|length }})</h2>
+                <h2>
+                    {% if preview.differentiation_mode == 'adaptive' %}
+                        Question Bank ({{ preview.questions|length }} total - students see 10)
+                    {% else %}
+                        Questions ({{ preview.questions|length }})
+                    {% endif %}
+                </h2>
                 <div style="display: flex; gap: 10px;">
                     <button onclick="regenerateAllQuestions()" class="btn btn-add" style="background: linear-gradient(135deg, #ff9900, #ffbb00); font-size: 0.85rem;">🔄 Regenerate All</button>
                     <button onclick="addQuestion()" class="btn btn-add">+ Add Manual Question</button>

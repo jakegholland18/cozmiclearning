@@ -208,13 +208,25 @@ def validate_differentiation_mode(metrics: Dict, mode: str, total: int) -> Dict:
             valid = False
 
         # Check if pool is large enough for meaningful adaptation
-        if total < 8:
-            warnings.append(f"Only {total} questions - adaptive works best with 10+ questions for better routing options")
+        # For 3x generation (30 questions for 10-question assignment), we expect at least 20 questions
+        if total < 20:
+            warnings.append(f"Only {total} questions in pool - expected ~30 for a robust adaptive experience")
+
+        # Check that each difficulty tier has enough questions
+        min_per_tier = 5  # Need at least 5 of each difficulty
+        if easy < min_per_tier or medium < min_per_tier or hard < min_per_tier:
+            warnings.append(f"Unbalanced pool - need at least {min_per_tier} questions at each difficulty level")
 
         checks.append({
             "label": "Pool size for routing",
-            "value": f"{total} questions",
-            "passed": total >= 8
+            "value": f"{total} questions (students see ~{total // 3})",
+            "passed": total >= 20
+        })
+
+        checks.append({
+            "label": "Balanced difficulty tiers",
+            "value": f"Min tier size: {min(easy, medium, hard)}",
+            "passed": min(easy, medium, hard) >= min_per_tier
         })
 
     elif mode == "gap_fill":

@@ -5299,6 +5299,13 @@ def teacher_assign_questions():
                 except Exception:
                     due_date = None
 
+        # For adaptive mode, generate 3x questions to create a question bank
+        # Students will see num_questions, but system routes through larger pool
+        actual_questions_to_generate = num_questions * 3 if differentiation_mode == "adaptive" else num_questions
+
+        if differentiation_mode == "adaptive":
+            print(f"🎯 [ADAPTIVE] Generating {actual_questions_to_generate} questions (3x pool) for {num_questions}-question adaptive assignment")
+
         # Generate questions using teacher_tools.assign_questions
         payload = assign_questions(
             subject=subject,
@@ -5307,7 +5314,7 @@ def teacher_assign_questions():
             character=character,
             differentiation_mode=differentiation_mode,
             student_ability=student_ability,
-            num_questions=num_questions,
+            num_questions=actual_questions_to_generate,
         )
 
         # Build preview JSON in mission format (compatible with assignment_preview.html)
@@ -5324,7 +5331,11 @@ def teacher_assign_questions():
                 }
                 for q in questions_data
             ],
-            "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready.")
+            "final_message": payload.get("final_message", "Great work! Review your answers and submit when ready."),
+            "adaptive_config": {
+                "student_question_count": num_questions,  # How many questions students actually see
+                "total_pool_size": len(questions_data)     # Total question bank size
+            } if differentiation_mode == "adaptive" else None
         }
 
         # Create AssignedPractice record with preview JSON
