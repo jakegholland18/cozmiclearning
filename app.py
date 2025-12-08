@@ -4787,21 +4787,112 @@ def student_start_assignment(assignment_id):
 
     questions = mission.get("steps", [])
     adaptive_config = mission.get("adaptive_config")
+    scaffold_config = mission.get("scaffold_config")
+    gap_fill_config = mission.get("gap_fill_config")
+    mastery_config = mission.get("mastery_config")
     is_adaptive = assignment.differentiation_mode == "adaptive" and adaptive_config
+    is_scaffold = assignment.differentiation_mode == "scaffold" and scaffold_config
+    is_gap_fill = assignment.differentiation_mode == "gap_fill" and gap_fill_config
+    is_mastery = assignment.differentiation_mode == "mastery" and mastery_config
 
     # Load saved answers if any
     saved_answers = {}
     adaptive_state = None
+    scaffold_state = None
+    gap_fill_state = None
+    mastery_state = None
     try:
         submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
-        saved_answers = submission_data.get("answers", {}) if is_adaptive else submission_data
-        adaptive_state = submission_data.get("adaptive_state") if is_adaptive else None
+        if is_adaptive:
+            saved_answers = submission_data.get("answers", {})
+            adaptive_state = submission_data.get("adaptive_state")
+        elif is_scaffold:
+            saved_answers = submission_data.get("answers", {})
+            scaffold_state = submission_data.get("scaffold_state")
+        elif is_gap_fill:
+            saved_answers = submission_data.get("answers", {})
+            gap_fill_state = submission_data.get("gap_fill_state")
+        elif is_mastery:
+            saved_answers = submission_data.get("answers", {})
+            mastery_state = submission_data.get("mastery_state")
+        else:
+            saved_answers = submission_data
     except:
         saved_answers = {}
         adaptive_state = None
+        scaffold_state = None
+        gap_fill_state = None
+        mastery_state = None
+
+    # For scaffold assignments, initialize or load routing state
+    if is_scaffold:
+        if not scaffold_state:
+            # Initialize scaffold state
+            from modules.practice_helper import estimate_question_difficulty
+
+            # Categorize all questions by difficulty
+            question_pool = {
+                "easy": [],
+                "medium": [],
+                "hard": []
+            }
+            for idx, q in enumerate(questions):
+                difficulty = estimate_question_difficulty(q)
+                question_pool[difficulty].append(idx)
+
+            scaffold_state = {
+                "question_pool": question_pool,
+                "shown_questions": [],  # Indices of questions already shown
+                "consecutive_wrong": 0,  # Track consecutive wrong answers
+                "consecutive_right": 0,  # Track consecutive right answers
+                "target_count": scaffold_config["student_question_count"],
+                "current_question_index": None,
+                "current_tier": "medium",  # Start with medium difficulty
+                "hints_revealed": {},  # Track which questions have revealed hints {index: bool}
+                "progressive_hints": scaffold_config.get("progressive_hints", True),
+                "adjust_difficulty": scaffold_config.get("adjust_difficulty", True),
+                "wrong_threshold": scaffold_config.get("wrong_threshold", 2)
+            }
+
+            # Select first question (start with medium, or easy if no medium)
+            if question_pool["medium"]:
+                scaffold_state["current_question_index"] = question_pool["medium"][0]
+                scaffold_state["shown_questions"].append(question_pool["medium"][0])
+            elif question_pool["easy"]:
+                scaffold_state["current_question_index"] = question_pool["easy"][0]
+                scaffold_state["current_tier"] = "easy"
+                scaffold_state["shown_questions"].append(question_pool["easy"][0])
+            else:
+                scaffold_state["current_question_index"] = 0
+                scaffold_state["shown_questions"].append(0)
+
+            print(f"📚 [SCAFFOLD] Initialized routing for student {student.id}")
+            print(f"   Pool sizes: E={len(question_pool['easy'])}, M={len(question_pool['medium'])}, H={len(question_pool['hard'])}")
+            print(f"   Settings: Progressive hints={scaffold_state['progressive_hints']}, Adjust difficulty={scaffold_state['adjust_difficulty']}, Threshold={scaffold_state['wrong_threshold']}")
+
+        # For scaffold mode, only show current question
+        current_idx = scaffold_state.get("current_question_index", 0)
+        questions_to_show = [questions[current_idx]] if current_idx < len(questions) else questions[:1]
+
+        # Hide hint if progressive hints is enabled and hint not yet revealed
+        if scaffold_state["progressive_hints"] and current_idx not in scaffold_state["hints_revealed"]:
+            questions_to_show[0] = dict(questions_to_show[0])  # Make a copy
+            questions_to_show[0]["hint"] = ""  # Hide hint initially
+
+        return render_template(
+            "student_take_assignment.html",
+            assignment=assignment,
+            submission=submission,
+            questions=questions_to_show,
+            saved_answers=saved_answers,
+            is_scaffold=True,
+            scaffold_state=scaffold_state,
+            questions_answered=len(scaffold_state["shown_questions"]) - 1,  # Don't count current question
+            total_questions=scaffold_state["target_count"]
+        )
 
     # For adaptive assignments, initialize or load routing state
-    if is_adaptive:
+    elif is_adaptive:
         if not adaptive_state:
             # Initialize adaptive state
             from modules.practice_helper import estimate_question_difficulty
@@ -4852,8 +4943,120 @@ def student_start_assignment(assignment_id):
             questions_answered=len(adaptive_state["shown_questions"]) - 1,  # Don't count current question
             total_questions=adaptive_state["target_count"]
         )
+
+    # For gap_fill assignments, initialize or load routing state
+    elif is_gap_fill:
+        if not gap_fill_state:
+            # Initialize gap fill state with diagnostic phase
+            from modules.practice_helper import estimate_question_difficulty
+
+            # Divide pool into sub-skills (4 skills with ~5 questions each for 20 total)
+            all_indices = list(range(len(questions)))
+            skill_size = len(questions) // gap_fill_config.get("skills_count", 4)
+            skills = {}
+            for i in range(gap_fill_config.get("skills_count", 4)):
+                start_idx = i * skill_size
+                end_idx = start_idx + skill_size if i < 3 else len(questions)
+                skills[f"skill_{i+1}"] = list(range(start_idx, end_idx))
+
+            diagnostic_count = gap_fill_config.get("diagnostic_count", 5)
+            diagnostic_questions = []
+            # Pick diagnostic questions from each skill
+            for skill_name, indices in skills.items():
+                if indices and len(diagnostic_questions) < diagnostic_count:
+                    diagnostic_questions.append(indices[0])
+
+            gap_fill_state = {
+                "phase": "diagnostic",
+                "skills": skills,
+                "diagnostic_questions": diagnostic_questions,
+                "diagnostic_results": {},
+                "weak_skills": [],
+                "shown_questions": [],
+                "target_count": gap_fill_config["student_question_count"],
+                "current_question_index": diagnostic_questions[0] if diagnostic_questions else 0,
+                "use_diagnostic": gap_fill_config.get("use_diagnostic", True)
+            }
+
+            gap_fill_state["shown_questions"].append(gap_fill_state["current_question_index"])
+            print(f"🎓 [GAP_FILL] Initialized for student {student.id} - Phase: diagnostic")
+
+        current_idx = gap_fill_state.get("current_question_index", 0)
+        questions_to_show = [questions[current_idx]] if current_idx < len(questions) else questions[:1]
+
+        return render_template(
+            "student_take_assignment.html",
+            assignment=assignment,
+            submission=submission,
+            questions=questions_to_show,
+            saved_answers=saved_answers,
+            is_gap_fill=True,
+            gap_fill_state=gap_fill_state,
+            questions_answered=len(gap_fill_state["shown_questions"]) - 1,
+            total_questions=gap_fill_state["target_count"]
+        )
+
+    # For mastery assignments, initialize or load routing state
+    elif is_mastery:
+        if not mastery_state:
+            from modules.practice_helper import estimate_question_difficulty
+
+            # Categorize questions by difficulty for tier assignment
+            question_pool = {"easy": [], "medium": [], "hard": []}
+            for idx, q in enumerate(questions):
+                difficulty = estimate_question_difficulty(q)
+                question_pool[difficulty].append(idx)
+
+            # Assign tiers
+            tier_questions = {
+                "foundation": question_pool.get("easy", [])[:5] + question_pool.get("medium", [])[:2],
+                "challenge": question_pool.get("medium", [])[2:12],
+                "expert": question_pool.get("hard", [])[:5]
+            }
+
+            # Fallbacks if tiers are empty
+            if not tier_questions["foundation"]:
+                tier_questions["foundation"] = list(range(min(5, len(questions))))
+            if not tier_questions["challenge"]:
+                start = len(tier_questions["foundation"])
+                tier_questions["challenge"] = list(range(start, min(start + 10, len(questions))))
+            if not tier_questions["expert"]:
+                start = len(tier_questions["foundation"]) + len(tier_questions["challenge"])
+                tier_questions["expert"] = list(range(start, len(questions)))
+
+            mastery_state = {
+                "current_tier": "foundation",
+                "unlocked_tiers": ["foundation"],
+                "tier_questions": tier_questions,
+                "shown_questions": [],
+                "correct_count": 0,
+                "total_answered": 0,
+                "target_count": mastery_config["student_question_count"],
+                "current_question_index": tier_questions["foundation"][0] if tier_questions["foundation"] else 0,
+                "unlock_threshold": mastery_config.get("unlock_threshold", 70),
+                "expert_threshold": mastery_config.get("expert_threshold", 85)
+            }
+
+            mastery_state["shown_questions"].append(mastery_state["current_question_index"])
+            print(f"🏆 [MASTERY] Initialized for student {student.id} - Tier: foundation")
+
+        current_idx = mastery_state.get("current_question_index", 0)
+        questions_to_show = [questions[current_idx]] if current_idx < len(questions) else questions[:1]
+
+        return render_template(
+            "student_take_assignment.html",
+            assignment=assignment,
+            submission=submission,
+            questions=questions_to_show,
+            saved_answers=saved_answers,
+            is_mastery=True,
+            mastery_state=mastery_state,
+            questions_answered=len(mastery_state["shown_questions"]) - 1,
+            total_questions=mastery_state["target_count"]
+        )
+
     else:
-        # Non-adaptive: show all questions
+        # Non-dynamic: show all questions
         return render_template(
             "student_take_assignment.html",
             assignment=assignment,
@@ -4867,7 +5070,7 @@ def student_start_assignment(assignment_id):
 @csrf.exempt
 @app.route("/student/assignments/<int:assignment_id>/next_question", methods=["POST"])
 def student_next_adaptive_question(assignment_id):
-    """Get next question in adaptive assignment based on previous answer"""
+    """Get next question in adaptive or scaffold assignment based on previous answer"""
     init_user()
 
     student_id = session.get("student_id")
@@ -4892,6 +5095,31 @@ def student_next_adaptive_question(assignment_id):
     current_answer = data.get("answer", "")
     question_index = data.get("question_index", 0)
 
+    # Determine which dynamic mode this is
+    mode = assignment.differentiation_mode
+
+    if mode == "scaffold":
+        return _handle_scaffold_next_question(
+            student, assignment, submission, data, answered_correctly, current_answer, question_index
+        )
+    elif mode == "adaptive":
+        return _handle_adaptive_next_question(
+            student, assignment, submission, data, answered_correctly, current_answer, question_index
+        )
+    elif mode == "gap_fill":
+        return _handle_gap_fill_next_question(
+            student, assignment, submission, data, answered_correctly, current_answer, question_index
+        )
+    elif mode == "mastery":
+        return _handle_mastery_next_question(
+            student, assignment, submission, data, answered_correctly, current_answer, question_index
+        )
+    else:
+        return jsonify({"success": False, "error": "Not a dynamic assignment"}), 400
+
+
+def _handle_adaptive_next_question(student, assignment, submission, data, answered_correctly, current_answer, question_index):
+    """Handle adaptive mode routing"""
     print(f"🎯 [ADAPTIVE] Student {student.id} answered question {question_index}: {'✓ correct' if answered_correctly else '✗ incorrect'}")
 
     # Load mission and adaptive state
@@ -4998,6 +5226,395 @@ def student_next_adaptive_question(assignment_id):
             "answered": len(shown_questions) - 1,  # Don't count the new question
             "total": target_count
         }
+    })
+
+
+def _handle_scaffold_next_question(student, assignment, submission, data, answered_correctly, current_answer, question_index):
+    """Handle scaffold mode routing with progressive hints and difficulty adjustment"""
+    print(f"📚 [SCAFFOLD] Student {student.id} answered question {question_index}: {'✓ correct' if answered_correctly else '✗ incorrect'}")
+
+    # Load mission and scaffold state
+    try:
+        mission = json.loads(assignment.preview_json)
+        submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
+        scaffold_state = submission_data.get("scaffold_state", {})
+        answers = submission_data.get("answers", {})
+    except:
+        return jsonify({"success": False, "error": "Failed to load assignment data"}), 500
+
+    # Save the current answer
+    answers[str(question_index)] = current_answer
+
+    # Update consecutive counters
+    if answered_correctly:
+        scaffold_state["consecutive_right"] = scaffold_state.get("consecutive_right", 0) + 1
+        scaffold_state["consecutive_wrong"] = 0
+    else:
+        scaffold_state["consecutive_wrong"] = scaffold_state.get("consecutive_wrong", 0) + 1
+        scaffold_state["consecutive_right"] = 0
+
+        # If wrong AND progressive hints enabled, reveal hint for this question
+        if scaffold_state.get("progressive_hints", True):
+            scaffold_state.setdefault("hints_revealed", {})[question_index] = True
+            print(f"   Revealed hint for question {question_index}")
+
+    shown_questions = scaffold_state.get("shown_questions", [])
+    question_pool = scaffold_state.get("question_pool", {"easy": [], "medium": [], "hard": []})
+    target_count = scaffold_state.get("target_count", 10)
+    current_tier = scaffold_state.get("current_tier", "medium")
+    wrong_threshold = scaffold_state.get("wrong_threshold", 2)
+    adjust_difficulty = scaffold_state.get("adjust_difficulty", True)
+
+    print(f"   Consecutive: {scaffold_state['consecutive_right']} right, {scaffold_state['consecutive_wrong']} wrong")
+    print(f"   Current tier: {current_tier}, Shown: {len(shown_questions)}/{target_count}")
+
+    # Check if we've reached the target count
+    if len(shown_questions) >= target_count:
+        print(f"✅ [SCAFFOLD] Student {student.id} completed all {target_count} questions")
+
+        # Save final state
+        submission.answers_json = json.dumps({
+            "answers": answers,
+            "scaffold_state": scaffold_state
+        })
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "completed": True,
+            "message": "You've completed all questions!"
+        })
+
+    # Adjust difficulty tier if needed
+    if adjust_difficulty:
+        if scaffold_state["consecutive_wrong"] >= wrong_threshold and current_tier != "easy":
+            # Lower difficulty
+            if current_tier == "hard":
+                current_tier = "medium"
+                print(f"   ⬇️ Lowering difficulty: hard → medium")
+            elif current_tier == "medium":
+                current_tier = "easy"
+                print(f"   ⬇️ Lowering difficulty: medium → easy")
+            scaffold_state["current_tier"] = current_tier
+            scaffold_state["consecutive_wrong"] = 0  # Reset counter
+        elif scaffold_state["consecutive_right"] >= 2 and current_tier != "hard":
+            # Raise difficulty
+            if current_tier == "easy":
+                current_tier = "medium"
+                print(f"   ⬆️ Raising difficulty: easy → medium")
+            elif current_tier == "medium":
+                current_tier = "hard"
+                print(f"   ⬆️ Raising difficulty: medium → hard")
+            scaffold_state["current_tier"] = current_tier
+            scaffold_state["consecutive_right"] = 0  # Reset counter
+
+    # Select next question from current tier
+    tier_preference = [current_tier]
+    if current_tier == "medium":
+        tier_preference.extend(["easy", "hard"])
+    elif current_tier == "easy":
+        tier_preference.extend(["medium", "hard"])
+    else:  # hard
+        tier_preference.extend(["medium", "easy"])
+
+    next_question_index = None
+    for tier in tier_preference:
+        available = [idx for idx in question_pool.get(tier, []) if idx not in shown_questions]
+        if available:
+            next_question_index = available[0]
+            print(f"   Selected question {next_question_index} from '{tier}' tier")
+            break
+
+    # Fallback: pick any unshown question
+    if next_question_index is None:
+        all_indices = set(range(len(mission["steps"])))
+        unshown = list(all_indices - set(shown_questions))
+        if unshown:
+            next_question_index = unshown[0]
+            print(f"   Fallback: selected question {next_question_index}")
+        else:
+            # No more questions available
+            return jsonify({
+                "success": True,
+                "completed": True,
+                "message": "No more questions available"
+            })
+
+    # Update state
+    scaffold_state["current_question_index"] = next_question_index
+    scaffold_state["shown_questions"].append(next_question_index)
+
+    # Save state
+    submission.answers_json = json.dumps({
+        "answers": answers,
+        "scaffold_state": scaffold_state
+    })
+    db.session.commit()
+
+    # Return next question
+    next_question = dict(mission["steps"][next_question_index])  # Make a copy
+
+    # Hide hint if progressive hints enabled and not yet revealed
+    if scaffold_state.get("progressive_hints", True) and next_question_index not in scaffold_state.get("hints_revealed", {}):
+        next_question["hint"] = ""  # Hide hint initially
+
+    return jsonify({
+        "success": True,
+        "completed": False,
+        "question": next_question,
+        "question_index": next_question_index,
+        "progress": {
+            "answered": len(shown_questions) - 1,  # Don't count the new question
+            "total": target_count
+        }
+    })
+
+
+def _handle_gap_fill_next_question(student, assignment, submission, data, answered_correctly, current_answer, question_index):
+    """Handle gap fill mode routing with diagnostic phase then targeted practice"""
+    print(f"🎓 [GAP_FILL] Student {student.id} answered question {question_index}: {'✓ correct' if answered_correctly else '✗ incorrect'}")
+
+    # Load mission and gap fill state
+    try:
+        mission = json.loads(assignment.preview_json)
+        submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
+        gap_fill_state = submission_data.get("gap_fill_state", {})
+        answers = submission_data.get("answers", {})
+    except:
+        return jsonify({"success": False, "error": "Failed to load assignment data"}), 500
+
+    # Save the current answer
+    answers[str(question_index)] = current_answer
+
+    # Record diagnostic result
+    if gap_fill_state.get("phase") == "diagnostic":
+        gap_fill_state.setdefault("diagnostic_results", {})[question_index] = answered_correctly
+
+    shown_questions = gap_fill_state.get("shown_questions", [])
+    target_count = gap_fill_state.get("target_count", 10)
+    diagnostic_questions = gap_fill_state.get("diagnostic_questions", [])
+    skills = gap_fill_state.get("skills", {})
+
+    print(f"   Phase: {gap_fill_state.get('phase')}, Shown: {len(shown_questions)}/{target_count}")
+
+    # Check if diagnostic phase is complete
+    if gap_fill_state.get("phase") == "diagnostic":
+        diagnostic_results = gap_fill_state.get("diagnostic_results", {})
+        if len(diagnostic_results) >= len(diagnostic_questions):
+            # Diagnostic complete - identify weak skills
+            weak_skills = []
+            for skill_name, indices in skills.items():
+                # Check if first question of this skill was wrong
+                skill_diagnostic = indices[0] if indices else None
+                if skill_diagnostic in diagnostic_results and not diagnostic_results[skill_diagnostic]:
+                    weak_skills.append(skill_name)
+
+            gap_fill_state["weak_skills"] = weak_skills
+            gap_fill_state["phase"] = "targeted"
+            print(f"   ✅ Diagnostic complete. Weak skills: {weak_skills}")
+
+    # Check if we've reached the target count
+    if len(shown_questions) >= target_count:
+        print(f"✅ [GAP_FILL] Student {student.id} completed all {target_count} questions")
+
+        # Save final state
+        submission.answers_json = json.dumps({
+            "answers": answers,
+            "gap_fill_state": gap_fill_state
+        })
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "completed": True,
+            "message": "You've completed all questions!"
+        })
+
+    # Select next question
+    next_question_index = None
+
+    if gap_fill_state.get("phase") == "diagnostic":
+        # Still in diagnostic - get next diagnostic question
+        for diag_idx in diagnostic_questions:
+            if diag_idx not in shown_questions:
+                next_question_index = diag_idx
+                break
+    else:
+        # Targeted phase - focus on weak skills
+        weak_skills = gap_fill_state.get("weak_skills", [])
+        if weak_skills:
+            # Get questions from weak skills
+            for skill_name in weak_skills:
+                skill_indices = skills.get(skill_name, [])
+                available = [idx for idx in skill_indices if idx not in shown_questions]
+                if available:
+                    next_question_index = available[0]
+                    print(f"   Selected question {next_question_index} from weak skill '{skill_name}'")
+                    break
+
+        # Fallback: pick any unshown question
+        if next_question_index is None:
+            all_indices = set(range(len(mission["steps"])))
+            unshown = list(all_indices - set(shown_questions))
+            if unshown:
+                next_question_index = unshown[0]
+                print(f"   Fallback: selected question {next_question_index}")
+
+    if next_question_index is None:
+        return jsonify({
+            "success": True,
+            "completed": True,
+            "message": "No more questions available"
+        })
+
+    # Update state
+    gap_fill_state["current_question_index"] = next_question_index
+    gap_fill_state["shown_questions"].append(next_question_index)
+
+    # Save state
+    submission.answers_json = json.dumps({
+        "answers": answers,
+        "gap_fill_state": gap_fill_state
+    })
+    db.session.commit()
+
+    # Return next question
+    next_question = mission["steps"][next_question_index]
+
+    return jsonify({
+        "success": True,
+        "completed": False,
+        "question": next_question,
+        "question_index": next_question_index,
+        "progress": {
+            "answered": len(shown_questions) - 1,
+            "total": target_count
+        }
+    })
+
+
+def _handle_mastery_next_question(student, assignment, submission, data, answered_correctly, current_answer, question_index):
+    """Handle mastery mode routing with tier unlock system"""
+    print(f"🏆 [MASTERY] Student {student.id} answered question {question_index}: {'✓ correct' if answered_correctly else '✗ incorrect'}")
+
+    # Load mission and mastery state
+    try:
+        mission = json.loads(assignment.preview_json)
+        submission_data = json.loads(submission.answers_json) if submission.answers_json else {}
+        mastery_state = submission_data.get("mastery_state", {})
+        answers = submission_data.get("answers", {})
+    except:
+        return jsonify({"success": False, "error": "Failed to load assignment data"}), 500
+
+    # Save the current answer
+    answers[str(question_index)] = current_answer
+
+    # Update accuracy tracking
+    mastery_state["total_answered"] = mastery_state.get("total_answered", 0) + 1
+    if answered_correctly:
+        mastery_state["correct_count"] = mastery_state.get("correct_count", 0) + 1
+
+    shown_questions = mastery_state.get("shown_questions", [])
+    target_count = mastery_state.get("target_count", 10)
+    tier_questions = mastery_state.get("tier_questions", {})
+    unlocked_tiers = mastery_state.get("unlocked_tiers", ["foundation"])
+    current_tier = mastery_state.get("current_tier", "foundation")
+
+    # Calculate current accuracy
+    total_ans = mastery_state.get("total_answered", 1)
+    correct = mastery_state.get("correct_count", 0)
+    accuracy = (correct / total_ans) * 100 if total_ans > 0 else 0
+
+    print(f"   Accuracy: {accuracy:.1f}% ({correct}/{total_ans}), Current tier: {current_tier}, Shown: {len(shown_questions)}/{target_count}")
+
+    # Check for tier unlocks
+    unlock_threshold = mastery_state.get("unlock_threshold", 70)
+    expert_threshold = mastery_state.get("expert_threshold", 85)
+
+    if accuracy >= expert_threshold and "expert" not in unlocked_tiers:
+        unlocked_tiers.append("expert")
+        mastery_state["current_tier"] = "expert"
+        print(f"   🔓 Unlocked EXPERT tier! (accuracy {accuracy:.1f}% >= {expert_threshold}%)")
+    elif accuracy >= unlock_threshold and "challenge" not in unlocked_tiers:
+        unlocked_tiers.append("challenge")
+        mastery_state["current_tier"] = "challenge"
+        print(f"   🔓 Unlocked CHALLENGE tier! (accuracy {accuracy:.1f}% >= {unlock_threshold}%)")
+
+    mastery_state["unlocked_tiers"] = unlocked_tiers
+
+    # Check if we've reached the target count
+    if len(shown_questions) >= target_count:
+        print(f"✅ [MASTERY] Student {student.id} completed all {target_count} questions")
+
+        # Save final state
+        submission.answers_json = json.dumps({
+            "answers": answers,
+            "mastery_state": mastery_state
+        })
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "completed": True,
+            "message": f"You've completed all questions! Final accuracy: {accuracy:.1f}%"
+        })
+
+    # Select next question from highest unlocked tier
+    next_question_index = None
+    tier_preference = []
+    if "expert" in unlocked_tiers:
+        tier_preference = ["expert", "challenge", "foundation"]
+    elif "challenge" in unlocked_tiers:
+        tier_preference = ["challenge", "foundation"]
+    else:
+        tier_preference = ["foundation"]
+
+    for tier_name in tier_preference:
+        tier_indices = tier_questions.get(tier_name, [])
+        available = [idx for idx in tier_indices if idx not in shown_questions]
+        if available:
+            next_question_index = available[0]
+            print(f"   Selected question {next_question_index} from '{tier_name}' tier")
+            break
+
+    # Fallback: pick any unshown question
+    if next_question_index is None:
+        all_indices = set(range(len(mission["steps"])))
+        unshown = list(all_indices - set(shown_questions))
+        if unshown:
+            next_question_index = unshown[0]
+            print(f"   Fallback: selected question {next_question_index}")
+        else:
+            return jsonify({
+                "success": True,
+                "completed": True,
+                "message": "No more questions available"
+            })
+
+    # Update state
+    mastery_state["current_question_index"] = next_question_index
+    mastery_state["shown_questions"].append(next_question_index)
+
+    # Save state
+    submission.answers_json = json.dumps({
+        "answers": answers,
+        "mastery_state": mastery_state
+    })
+    db.session.commit()
+
+    # Return next question
+    next_question = mission["steps"][next_question_index]
+
+    return jsonify({
+        "success": True,
+        "completed": False,
+        "question": next_question,
+        "question_index": next_question_index,
+        "progress": {
+            "answered": len(shown_questions) - 1,
+            "total": target_count
+        },
+        "tier_unlocked": mastery_state.get("current_tier")
     })
 
 
@@ -5497,12 +6114,32 @@ def teacher_assign_questions():
                 except Exception:
                     due_date = None
 
-        # For adaptive mode, generate 3x questions to create a question bank
-        # Students will see num_questions, but system routes through larger pool
-        actual_questions_to_generate = num_questions * 3 if differentiation_mode == "adaptive" else num_questions
+        # Get dynamic config from request (for dynamic mode settings)
+        dynamic_config = data.get("dynamic_config", {})
 
+        # For dynamic modes, generate extra questions to create question banks/pools
+        # - Adaptive: 3x questions (30 for 10-question assignment) for performance-based routing
+        # - Scaffold: 1.5x questions (15 for 10-question assignment) for difficulty adjustment
+        # - Gap Fill: 2x questions (20 for 10-question assignment) for 4 sub-skills + diagnostic
+        # - Mastery: 2x questions (20 for 10-question assignment) for 3 tiers (foundation/challenge/expert)
+        # Students will see num_questions, but system routes through larger pool
         if differentiation_mode == "adaptive":
+            actual_questions_to_generate = num_questions * 3
             print(f"🎯 [ADAPTIVE] Generating {actual_questions_to_generate} questions (3x pool) for {num_questions}-question adaptive assignment")
+        elif differentiation_mode == "scaffold":
+            actual_questions_to_generate = int(num_questions * 1.5)
+            print(f"📚 [SCAFFOLD] Generating {actual_questions_to_generate} questions (1.5x pool) for {num_questions}-question scaffold assignment")
+            print(f"   Settings: Progressive hints={dynamic_config.get('progressive_hints', True)}, Adjust difficulty={dynamic_config.get('adjust_difficulty', True)}")
+        elif differentiation_mode == "gap_fill":
+            actual_questions_to_generate = num_questions * 2
+            print(f"🎓 [GAP_FILL] Generating {actual_questions_to_generate} questions (2x pool, 4 sub-skills) for {num_questions}-question gap fill assignment")
+            print(f"   Settings: Diagnostic={dynamic_config.get('use_diagnostic', True)}, Diagnostic count={dynamic_config.get('diagnostic_count', 5)}")
+        elif differentiation_mode == "mastery":
+            actual_questions_to_generate = num_questions * 2
+            print(f"🏆 [MASTERY] Generating {actual_questions_to_generate} questions (2x pool, 3 tiers) for {num_questions}-question mastery assignment")
+            print(f"   Settings: Unlock at={dynamic_config.get('unlock_threshold', 70)}%, Expert at={dynamic_config.get('expert_threshold', 85)}%")
+        else:
+            actual_questions_to_generate = num_questions
 
         # Generate questions using teacher_tools.assign_questions
         payload = assign_questions(
@@ -5533,7 +6170,28 @@ def teacher_assign_questions():
             "adaptive_config": {
                 "student_question_count": num_questions,  # How many questions students actually see
                 "total_pool_size": len(questions_data)     # Total question bank size
-            } if differentiation_mode == "adaptive" else None
+            } if differentiation_mode == "adaptive" else None,
+            "scaffold_config": {
+                "student_question_count": num_questions,
+                "total_pool_size": len(questions_data),
+                "progressive_hints": dynamic_config.get("progressive_hints", True),
+                "adjust_difficulty": dynamic_config.get("adjust_difficulty", True),
+                "wrong_threshold": dynamic_config.get("wrong_threshold", 2)
+            } if differentiation_mode == "scaffold" else None,
+            "gap_fill_config": {
+                "student_question_count": num_questions,
+                "total_pool_size": len(questions_data),
+                "use_diagnostic": dynamic_config.get("use_diagnostic", True),
+                "diagnostic_count": dynamic_config.get("diagnostic_count", 5),
+                "skills_count": 4  # Number of sub-skills to test
+            } if differentiation_mode == "gap_fill" else None,
+            "mastery_config": {
+                "student_question_count": num_questions,
+                "total_pool_size": len(questions_data),
+                "unlock_threshold": dynamic_config.get("unlock_threshold", 70),
+                "expert_threshold": dynamic_config.get("expert_threshold", 85),
+                "tiers": {"foundation": 5, "challenge": 10, "expert": 5}
+            } if differentiation_mode == "mastery" else None
         }
 
         # Create AssignedPractice record with preview JSON

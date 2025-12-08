@@ -291,12 +291,17 @@
 
         {% if submission.status in ['in_progress', 'not_started'] %}
         <div class="progress-indicator">
-            Question progress: <span id="progressCount">0</span> / {{ questions|length }}
+            {% if is_adaptive or is_scaffold %}
+                Question progress: <span id="progressCount">{{ questions_answered|default(0) }}</span> / {{ total_questions|default(questions|length) }}
+            {% else %}
+                Question progress: <span id="progressCount">0</span> / {{ questions|length }}
+            {% endif %}
         </div>
         {% endif %}
 
+        <div id="questionsContainer">
         {% for question in questions %}
-        <div class="question-card">
+        <div class="question-card" data-question-index="{{ loop.index0 }}">
             <div class="question-number">Question {{ loop.index }}</div>
             <div class="question-prompt">{{ question.prompt }}</div>
 
@@ -315,7 +320,7 @@
                 </div>
                 {% endfor %}
 
-            {% elif question.type == 'short_answer' %}
+            {% elif question.type == 'short_answer' or question.type == 'free' %}
                 <textarea
                     name="answer_{{ loop.index0 }}"
                     class="text-answer"
@@ -325,7 +330,7 @@
             {% endif %}
 
             {% if question.hint and submission.status in ['in_progress', 'not_started'] %}
-            <div class="hint-box">
+            <div class="hint-box" id="hint_{{ loop.index0 }}">
                 <strong>Hint:</strong> {{ question.hint }}
             </div>
             {% endif %}
@@ -335,26 +340,69 @@
                 <strong style="color: #4fff89;">Explanation:</strong> {{ question.explanation }}
             </div>
             {% endif %}
+
+            {% if is_adaptive or is_scaffold %}
+            <!-- Dynamic mode: Next button for each question -->
+            {% if submission.status in ['in_progress', 'not_started'] %}
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" onclick="submitAndLoadNext({{ loop.index0 }})" style="width: 100%;">
+                    ✅ Submit Answer & Continue
+                </button>
+            </div>
+            {% endif %}
+            {% endif %}
         </div>
         {% endfor %}
+        </div>
 
         <div class="action-buttons">
             {% if submission.status in ['in_progress', 'not_started'] %}
+            {% if not is_adaptive and not is_scaffold %}
             <button type="button" class="btn btn-secondary" onclick="saveProgress()">💾 Save Progress</button>
             <button type="button" class="btn btn-success" onclick="submitAssignment()">✅ Submit Assignment</button>
             {% endif %}
+            {% endif %}
             <a href="/student/assignments" class="btn btn-secondary">← Back to Assignments</a>
+        </div>
+
+        <!-- Completion message for dynamic modes -->
+        <div id="completionMessage" style="display: none; text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(132,255,0,0.15), rgba(79,172,254,0.1)); border: 1px solid rgba(132,255,0,0.4); border-radius: 14px; margin: 20px 0;">
+            <div style="font-size: 2rem; margin-bottom: 10px;">🎉</div>
+            <h2 style="color: #84ff00; margin-bottom: 10px;">Assignment Complete!</h2>
+            <p style="color: var(--muted-2); margin-bottom: 20px;">Great work! Your answers have been saved.</p>
+            <a href="/student/assignments" class="btn btn-primary">Return to Assignments</a>
         </div>
 
     </form>
 </div>
 
 <script>
+    // Dynamic mode flags
+    const isDynamicMode = {{ 'true' if (is_adaptive or is_scaffold) else 'false' }};
+    const isScaffold = {{ 'true' if is_scaffold else 'false' }};
+    const isAdaptive = {{ 'true' if is_adaptive else 'false' }};
+
+    // Track current question index for dynamic modes
+    let currentQuestionIndex = {{ questions[0].get('index', 0) if questions else 0 }};
+    {% if is_adaptive %}
+    let adaptiveState = {{ adaptive_state|tojson|safe if adaptive_state else '{}' }};
+    {% endif %}
+    {% if is_scaffold %}
+    let scaffoldState = {{ scaffold_state|tojson|safe if scaffold_state else '{}' }};
+    {% endif %}
+
     // Update progress count
     function updateProgress() {
+        {% if is_adaptive or is_scaffold %}
+        // For dynamic modes, progress is tracked on backend
+        const answered = {{ questions_answered|default(0) }};
+        const total = {{ total_questions|default(10) }};
+        document.getElementById('progressCount').textContent = answered;
+        {% else %}
         const total = {{ questions|length }};
         const answered = document.querySelectorAll('input[type="radio"]:checked, textarea:not(:placeholder-shown)').length;
         document.getElementById('progressCount').textContent = answered;
+        {% endif %}
     }
 
     // Handle choice selection
@@ -423,7 +471,7 @@
         }
     }
 
-    // Submit assignment
+    // Submit assignment (for non-dynamic modes)
     async function submitAssignment() {
         const unanswered = {{ questions|length }} - document.querySelectorAll('input[type="radio"]:checked, textarea:not(:placeholder-shown)').length;
 
@@ -467,6 +515,165 @@
             console.error('Submit error:', error);
             alert('❌ Network error while submitting');
         }
+    }
+
+    // Submit answer and load next question (for dynamic modes: scaffold & adaptive)
+    async function submitAndLoadNext(questionIndex) {
+        // Get the student's answer
+        const radioChecked = document.querySelector(`input[name="answer_${questionIndex}"]:checked`);
+        const textAnswer = document.querySelector(`textarea[name="answer_${questionIndex}"]`);
+
+        let answer = '';
+        let questionType = 'multiple_choice';
+
+        if (radioChecked) {
+            answer = radioChecked.value;
+            questionType = 'multiple_choice';
+        } else if (textAnswer) {
+            answer = textAnswer.value.trim();
+            questionType = 'free';
+        }
+
+        if (!answer) {
+            alert('⚠️ Please select or enter an answer before continuing.');
+            return;
+        }
+
+        // Disable the button to prevent double-clicks
+        const button = event.target;
+        button.disabled = true;
+        button.textContent = 'Loading next question...';
+
+        try {
+            // Get expected answer to determine if correct
+            const questionCard = document.querySelector(`[data-question-index="${questionIndex}"]`);
+            const expectedAnswers = {{ questions[0].expected|tojson|safe if questions else '[]' }};
+
+            // Simple correctness check (case-insensitive)
+            let isCorrect = false;
+            if (Array.isArray(expectedAnswers) && expectedAnswers.length > 0) {
+                isCorrect = expectedAnswers.some(exp =>
+                    exp.toString().toLowerCase() === answer.toLowerCase() ||
+                    answer.toLowerCase().includes(exp.toString().toLowerCase())
+                );
+            }
+
+            // Call the next_question API
+            const response = await fetch('/student/assignments/{{ assignment.id }}/next_question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    correct: isCorrect,
+                    answer: answer,
+                    question_index: questionIndex
+                })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                alert('❌ Error: ' + (data.error || 'Unknown error'));
+                button.disabled = false;
+                button.textContent = '✅ Submit Answer & Continue';
+                return;
+            }
+
+            // Check if assignment is completed
+            if (data.completed) {
+                // Hide question container and show completion message
+                document.getElementById('questionsContainer').style.display = 'none';
+                document.getElementById('completionMessage').style.display = 'block';
+                document.querySelector('.progress-indicator').style.display = 'none';
+                return;
+            }
+
+            // Load the next question
+            const nextQuestion = data.question;
+            const nextIndex = data.question_index;
+
+            // Update progress
+            if (data.progress) {
+                document.getElementById('progressCount').textContent = data.progress.answered + 1;
+            }
+
+            // Build the new question HTML
+            const questionHTML = buildQuestionHTML(nextQuestion, nextIndex);
+
+            // Replace the current question with the new one
+            document.getElementById('questionsContainer').innerHTML = questionHTML;
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch (error) {
+            console.error('Error loading next question:', error);
+            alert('❌ Network error. Please try again.');
+            button.disabled = false;
+            button.textContent = '✅ Submit Answer & Continue';
+        }
+    }
+
+    // Build HTML for a question
+    function buildQuestionHTML(question, questionIndex) {
+        let html = `
+            <div class="question-card" data-question-index="${questionIndex}">
+                <div class="question-number">Question ${questionIndex + 1}</div>
+                <div class="question-prompt">${escapeHtml(question.prompt)}</div>
+        `;
+
+        // Multiple choice
+        if (question.type === 'multiple_choice' || !question.type) {
+            question.choices.forEach((choice, choiceIdx) => {
+                html += `
+                    <div class="choice-option" onclick="selectChoice(this, ${choiceIdx}, '${questionIndex}')">
+                        <input
+                            type="radio"
+                            name="answer_${questionIndex}"
+                            value="${escapeHtml(choice)}"
+                            id="q${questionIndex}_c${choiceIdx}"
+                        >
+                        <label for="q${questionIndex}_c${choiceIdx}">${escapeHtml(choice)}</label>
+                    </div>
+                `;
+            });
+        } else {
+            // Free response
+            html += `
+                <textarea
+                    name="answer_${questionIndex}"
+                    class="text-answer"
+                    placeholder="Type your answer here..."
+                ></textarea>
+            `;
+        }
+
+        // Hint (may be hidden for scaffold mode)
+        if (question.hint && question.hint.trim()) {
+            html += `
+                <div class="hint-box" id="hint_${questionIndex}">
+                    <strong>Hint:</strong> ${escapeHtml(question.hint)}
+                </div>
+            `;
+        }
+
+        // Submit button
+        html += `
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" onclick="submitAndLoadNext(${questionIndex})" style="width: 100%;">
+                    ✅ Submit Answer & Continue
+                </button>
+            </div>
+        </div>
+        `;
+
+        return html;
+    }
+
+    // Utility: Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 </script>
 
