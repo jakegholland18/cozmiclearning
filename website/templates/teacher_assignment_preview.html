@@ -443,6 +443,11 @@
                 {% endfor %}
             </div>
 
+            {% if diff_analysis.mode == 'adaptive' %}
+            <div style="margin-top: 12px; padding: 10px; background: rgba(0,242,255,0.1); border-radius: 8px; font-size: 0.85rem; color: #c4d1ff;">
+                <strong>ℹ️ About Adaptive Mode:</strong> Questions will be dynamically selected based on student performance during the assignment. Correct answers → harder questions; incorrect answers → easier questions.
+            </div>
+            {% else %}
             <div style="margin-top: 12px;">
                 <strong>Difficulty Trend:</strong>
                 <span style="display: inline-block; padding: 6px 12px; background: rgba(0,242,255,0.2); border-radius: 6px; font-size: 0.85rem; color: #00f2fe; font-weight: 600;">
@@ -455,6 +460,7 @@
                     {% endif %}
                 </span>
             </div>
+            {% endif %}
 
             {% if diff_analysis.warnings %}
             <div style="background: rgba(255,159,28,0.2); border: 1px solid rgba(255,159,28,0.4); border-radius: 8px; padding: 12px; margin-top: 10px; color: #ff9f1c; font-size: 0.9rem;">

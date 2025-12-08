@@ -68,7 +68,8 @@ def analyze_differentiation(questions: List[Dict], differentiation_mode: str) ->
         "metrics": metrics,
         "warnings": validation["warnings"],
         "checks": validation["checks"],
-        "difficulty_trend": analyze_difficulty_trend(metrics["difficulty_levels"])
+        "difficulty_trend": analyze_difficulty_trend(metrics["difficulty_levels"]),
+        "mode": differentiation_mode  # Include mode for conditional display
     }
 
 
@@ -192,19 +193,29 @@ def validate_differentiation_mode(metrics: Dict, mode: str, total: int) -> Dict:
         })
 
     elif mode == "adaptive":
-        # Adaptive should have mixed difficulty
+        # Adaptive needs a question pool with varied difficulty for runtime routing
         easy = metrics["difficulty_levels"].count("easy")
         medium = metrics["difficulty_levels"].count("medium")
         hard = metrics["difficulty_levels"].count("hard")
 
         checks.append({
-            "label": "Difficulty distribution",
+            "label": "Question pool variety (for adaptive routing)",
             "value": f"Easy: {easy}, Medium: {medium}, Hard: {hard}",
-            "passed": easy > 0 and hard > 0  # Must have both ends
+            "passed": easy > 0 and hard > 0  # Must have both ends of the spectrum
         })
         if not (easy > 0 and hard > 0):
-            warnings.append("Adaptive mode should include easy and hard questions")
+            warnings.append("Adaptive mode needs both easy and hard questions in the pool so students can be routed based on performance")
             valid = False
+
+        # Check if pool is large enough for meaningful adaptation
+        if total < 8:
+            warnings.append(f"Only {total} questions - adaptive works best with 10+ questions for better routing options")
+
+        checks.append({
+            "label": "Pool size for routing",
+            "value": f"{total} questions",
+            "passed": total >= 8
+        })
 
     elif mode == "gap_fill":
         # Gap fill should have explanations and hints
