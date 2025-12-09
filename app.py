@@ -6175,6 +6175,10 @@ def teacher_assign_questions():
 
         # Build preview JSON in mission format (compatible with assignment_preview.html)
         questions_data = payload.get("questions", [])
+        print(f"   📝 AI generated {len(questions_data)} questions (requested {actual_questions_to_generate})")
+
+        # Estimate difficulty for each question (for preview display and routing)
+        from modules.practice_helper import estimate_question_difficulty
         mission_json = {
             "steps": [
                 {
@@ -6183,7 +6187,8 @@ def teacher_assign_questions():
                     "choices": q.get("choices", []),
                     "expected": q.get("expected", []),
                     "hint": q.get("hint", ""),
-                    "explanation": q.get("explanation", "")
+                    "explanation": q.get("explanation", ""),
+                    "difficulty": estimate_question_difficulty(q)  # Add difficulty label
                 }
                 for q in questions_data
             ],

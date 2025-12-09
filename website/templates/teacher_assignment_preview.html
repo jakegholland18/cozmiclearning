@@ -510,6 +510,9 @@
                         <div>
                             <span class="question-number">📌 Question {{ loop.index }}</span>
                             <span class="type-badge">{{ q.type or 'multiple_choice' }}</span>
+                            {% if q.difficulty %}
+                            <span class="type-badge" style="{% if q.difficulty == 'easy' %}background: rgba(132, 255, 0, 0.2); color: #84ff00;{% elif q.difficulty == 'medium' %}background: rgba(255, 159, 28, 0.2); color: #ff9f1c;{% else %}background: rgba(255, 107, 107, 0.2); color: #ff6b6b;{% endif %}">{{ q.difficulty|upper }}</span>
+                            {% endif %}
                         </div>
                         <div class="question-actions">
                             <button class="icon-btn" onclick="regenerateQuestion({{ loop.index0 }})" title="Generate a new version of this question">🔄 Regenerate</button>
