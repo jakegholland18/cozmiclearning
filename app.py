@@ -912,6 +912,8 @@ from modules import (
 from modules.practice_helper import generate_practice_session
 from modules.answer_formatter import parse_into_sections
 from modules.teacher_tools import assign_questions, generate_lesson_plan
+import trial_manager
+from trial_manager import get_trial_status, start_trial, can_access_feature, trial_context_processor
 import string
 
 # ============================================================
@@ -1580,6 +1582,13 @@ def handle_exception(error):
     return render_template("error.html",
                          error_code=500,
                          error_message="An unexpected error occurred. Please try again."), 500
+
+# ============================================================
+# CONTEXT PROCESSORS
+# ============================================================
+
+# Register trial context processor to make trial status available in all templates
+app.context_processor(trial_context_processor)
 
 # ============================================================
 # CORE ROUTES – LANDING + SUBJECTS
