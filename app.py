@@ -6180,8 +6180,8 @@ def teacher_assign_questions():
         # - Mastery: 2x questions (20 for 10-question assignment) for 3 tiers (foundation/challenge/expert)
         # Students will see num_questions, but system routes through larger pool
         if differentiation_mode == "adaptive":
-            actual_questions_to_generate = num_questions * 3
-            print(f"🎯 [ADAPTIVE] Generating {actual_questions_to_generate} questions (3x pool) for {num_questions}-question adaptive assignment")
+            actual_questions_to_generate = num_questions * 2  # Reduced from 3x to 2x to prevent timeouts
+            print(f"🎯 [ADAPTIVE] Generating {actual_questions_to_generate} questions (2x pool) for {num_questions}-question adaptive assignment")
         elif differentiation_mode == "scaffold":
             actual_questions_to_generate = int(num_questions * 1.5)
             print(f"📚 [SCAFFOLD] Generating {actual_questions_to_generate} questions (1.5x pool) for {num_questions}-question scaffold assignment")
@@ -6358,8 +6358,8 @@ def teacher_preview_questions():
         # For dynamic modes, generate extra questions for routing pools
         # Same logic as assign_questions route
         if differentiation_mode == "adaptive":
-            actual_questions_to_generate = num_questions * 3
-            print(f"🎯 [PREVIEW_QUESTIONS] Adaptive mode: generating {actual_questions_to_generate} questions (3x pool) for {num_questions} student questions")
+            actual_questions_to_generate = num_questions * 2  # Reduced from 3x to 2x to prevent timeouts
+            print(f"🎯 [PREVIEW_QUESTIONS] Adaptive mode: generating {actual_questions_to_generate} questions (2x pool) for {num_questions} student questions")
         elif differentiation_mode == "scaffold":
             actual_questions_to_generate = int(num_questions * 1.5)
             print(f"📚 [PREVIEW_QUESTIONS] Scaffold mode: generating {actual_questions_to_generate} questions (1.5x pool) for {num_questions} student questions")
