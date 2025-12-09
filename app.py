@@ -9240,11 +9240,12 @@ def dashboard():
 
     # Time limit enforcement (Phase 3)
     student_id = session.get("student_id")
+    student = None  # Initialize student to None
     time_limit_active = False
     minutes_remaining = None
     daily_limit = None
     trial_days_remaining = 0
-    
+
     if student_id:
         student = Student.query.get(student_id)
         
