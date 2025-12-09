@@ -2295,8 +2295,27 @@ def admin_set_mode(mode):
         # Find first student and switch to their view
         student = Student.query.first()
         if not student:
-            flash("No students found in database. Create a student first.", "error")
-            return redirect("/admin")
+            # Auto-create demo student for admin testing
+            demo_parent = Parent.query.first()
+            if not demo_parent:
+                demo_parent = Parent(
+                    email="demo_parent@cozmiclearning.com",
+                    name="Demo Parent",
+                    plan="premium",
+                    password_hash=generate_password_hash("demo123")
+                )
+                db.session.add(demo_parent)
+                db.session.flush()
+
+            student = Student(
+                parent_id=demo_parent.id,
+                student_name="Demo Student",
+                email="demo_student@cozmiclearning.com",
+                grade="8"
+            )
+            db.session.add(student)
+            db.session.commit()
+            flash("Created demo student for admin testing.", "info")
         return redirect(f"/admin/switch_to_student/{student.id}")
 
     elif mode == "parent":
@@ -2308,8 +2327,16 @@ def admin_set_mode(mode):
             # If no regular parent, try any parent
             parent = Parent.query.first()
         if not parent:
-            flash("No parents found in database. Create a parent first.", "error")
-            return redirect("/admin")
+            # Auto-create demo parent for admin testing
+            parent = Parent(
+                email="demo_parent@cozmiclearning.com",
+                name="Demo Parent",
+                plan="premium",
+                password_hash=generate_password_hash("demo123")
+            )
+            db.session.add(parent)
+            db.session.commit()
+            flash("Created demo parent for admin testing.", "info")
         return redirect(f"/admin/switch_to_parent/{parent.id}")
 
     elif mode == "teacher":
@@ -2442,8 +2469,16 @@ def admin_switch_to_homeschool():
     ).first()
 
     if not homeschool_parent:
-        flash("No homeschool parent accounts found. Create one first.", "error")
-        return redirect("/admin")
+        # Auto-create demo homeschool parent for admin testing
+        homeschool_parent = Parent(
+            email="demo_homeschool@cozmiclearning.com",
+            name="Demo Homeschool Parent",
+            plan="homeschool_complete",
+            password_hash=generate_password_hash("demo123")
+        )
+        db.session.add(homeschool_parent)
+        db.session.commit()
+        flash("Created demo homeschool parent for admin testing.", "info")
 
     # Save admin flags before clearing
     admin_authenticated = session.get("admin_authenticated")
