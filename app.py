@@ -2858,7 +2858,7 @@ def admin_moderation_stats():
 @app.route("/admin/health")
 def admin_health():
     """
-    Health monitoring dashboard - shows self-healing status and errors.
+    Health monitoring dashboard - shows self-healing status, Sentry errors, and system health.
     Admin only. View at: /admin/health
     """
     if not is_admin():
@@ -2868,12 +2868,68 @@ def admin_health():
     # Get health status from self-healing monitor
     health_status = health_monitor.get_error_summary()
 
+    # Get Sentry configuration status
+    sentry_configured = bool(os.environ.get("SENTRY_DSN"))
+    sentry_environment = os.environ.get("SENTRY_ENVIRONMENT", "production")
+
+    # Get database health
+    db_healthy = True
+    db_connection_count = 0
+    try:
+        # Test database connection
+        db.session.execute(db.text("SELECT 1"))
+        db.session.commit()
+
+        # Get connection pool stats (PostgreSQL only)
+        if DATABASE_URL:
+            result = db.session.execute(db.text("SELECT count(*) FROM pg_stat_activity WHERE datname = current_database()"))
+            db_connection_count = result.scalar()
+    except Exception as e:
+        db_healthy = False
+        print(f"❌ Database health check failed: {e}")
+
+    # Get recent error logs (from your existing logging)
+    recent_errors = []
+    try:
+        # Get last 10 unique errors from health monitor
+        if hasattr(health_monitor, 'recent_errors'):
+            recent_errors = health_monitor.recent_errors[-10:]
+    except:
+        pass
+
+    # System metrics
+    import psutil
+    try:
+        memory_percent = psutil.virtual_memory().percent
+        cpu_percent = psutil.cpu_percent(interval=0.1)
+    except:
+        memory_percent = 0
+        cpu_percent = 0
+
     return render_template(
-        "admin/health.html",
+        "admin_health.html",
+        # Self-healing status
         status=health_status['status'],
         total_errors=health_status['total_errors'],
         errors_by_type=health_status['errors_by_type'],
-        time_window=health_status['time_window']
+        time_window=health_status['time_window'],
+
+        # Sentry integration
+        sentry_configured=sentry_configured,
+        sentry_environment=sentry_environment,
+        sentry_project_url=f"https://sentry.io/organizations/your-org/issues/" if sentry_configured else None,
+
+        # Database health
+        db_healthy=db_healthy,
+        db_type="PostgreSQL" if DATABASE_URL else "SQLite",
+        db_connection_count=db_connection_count,
+
+        # System metrics
+        memory_percent=memory_percent,
+        cpu_percent=cpu_percent,
+
+        # Recent errors
+        recent_errors=recent_errors
     )
 
 
