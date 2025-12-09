@@ -9340,6 +9340,11 @@ def parent_dashboard():
             parent = Parent.query.get(parent_id)
 
         if parent:
+            # Ensure parent has an access code (fix for existing parents missing codes)
+            if not parent.access_code:
+                parent.access_code = generate_parent_access_code()
+                db.session.commit()
+
             # Get trial days remaining
             trial_days_remaining = get_days_remaining_in_trial(parent)
 
@@ -9557,6 +9562,11 @@ def homeschool_dashboard():
         parent = Parent.query.get(parent_id)
 
         if parent:
+            # Ensure parent has an access code (fix for existing parents missing codes)
+            if not parent.access_code:
+                parent.access_code = generate_parent_access_code()
+                db.session.commit()
+
             # Get trial days remaining
             trial_days_remaining = get_days_remaining_in_trial(parent)
 
