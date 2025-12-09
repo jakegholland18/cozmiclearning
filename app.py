@@ -6320,7 +6320,24 @@ def teacher_preview_questions():
         if not topic:
             return jsonify({"error": "Topic is required for AI generation"}), 400
 
-        print(f"🔧 [PREVIEW_QUESTIONS] Generating {num_questions} AI questions for topic: {topic}")
+        # For dynamic modes, generate extra questions for routing pools
+        # Same logic as assign_questions route
+        if differentiation_mode == "adaptive":
+            actual_questions_to_generate = num_questions * 3
+            print(f"🎯 [PREVIEW_QUESTIONS] Adaptive mode: generating {actual_questions_to_generate} questions (3x pool) for {num_questions} student questions")
+        elif differentiation_mode == "scaffold":
+            actual_questions_to_generate = int(num_questions * 1.5)
+            print(f"📚 [PREVIEW_QUESTIONS] Scaffold mode: generating {actual_questions_to_generate} questions (1.5x pool) for {num_questions} student questions")
+        elif differentiation_mode == "gap_fill":
+            actual_questions_to_generate = num_questions * 2
+            print(f"🎓 [PREVIEW_QUESTIONS] Gap Fill mode: generating {actual_questions_to_generate} questions (2x pool) for {num_questions} student questions")
+        elif differentiation_mode == "mastery":
+            actual_questions_to_generate = num_questions * 2
+            print(f"🏆 [PREVIEW_QUESTIONS] Mastery mode: generating {actual_questions_to_generate} questions (2x pool) for {num_questions} student questions")
+        else:
+            actual_questions_to_generate = num_questions
+            print(f"🔧 [PREVIEW_QUESTIONS] Generating {num_questions} AI questions for topic: {topic}")
+
         payload = assign_questions(
             subject=subject,
             topic=topic,
@@ -6328,7 +6345,7 @@ def teacher_preview_questions():
             character=character,
             differentiation_mode=differentiation_mode,
             student_ability=student_ability,
-            num_questions=num_questions,
+            num_questions=actual_questions_to_generate,
         )
         questions = payload.get("questions", [])
         print(f"✅ [PREVIEW_QUESTIONS] Generated {len(questions)} questions")
