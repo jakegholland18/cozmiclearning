@@ -93,7 +93,7 @@ from flask_limiter.util import get_remote_address
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],  # Global default limits
+    default_limits=["10000 per day", "500 per hour"],  # Increased for normal usage (was 50/hr - way too low!)
     storage_uri="memory://",  # Use memory storage (upgrade to Redis for production)
     strategy="fixed-window"
 )

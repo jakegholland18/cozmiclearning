@@ -57,17 +57,13 @@ class StudentBehavior(SequentialTaskSet):
             "num_forge", "atom_sphere", "ink_haven",
             "faith_realm", "chrono_core"
         ])
-        self.client.get(f"/practice/{subject}")
+        self.client.get(f"/practice?subject={subject}")
 
     @task
     def ask_question(self):
         """Ask AI a question (simulated)"""
-        with self.client.post(
-            "/student_question",
-            json={
-                "question": "What is photosynthesis?",
-                "subject": "atom_sphere"
-            },
+        with self.client.get(
+            "/ask-question?subject=atom_sphere",
             catch_response=True
         ) as response:
             if response.status_code == 200:
@@ -116,19 +112,14 @@ class AnonymousUser(HttpUser):
         self.client.get("/")
 
     @task(2)
-    def view_pricing(self):
-        """View pricing page"""
-        self.client.get("/pricing")
+    def view_privacy(self):
+        """View privacy page"""
+        self.client.get("/privacy")
 
     @task(1)
     def view_terms(self):
         """View terms of service"""
         self.client.get("/terms")
-
-    @task(1)
-    def view_privacy(self):
-        """View privacy policy"""
-        self.client.get("/privacy")
 
 
 class StudentUser(HttpUser):
