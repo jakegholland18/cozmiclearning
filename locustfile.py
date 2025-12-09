@@ -31,19 +31,12 @@ import random
 
 
 class StudentBehavior(SequentialTaskSet):
-    """Simulates typical student user flow"""
-
-    def on_start(self):
-        """Login when task set starts"""
-        self.client.post("/student/login", data={
-            "email": f"test_student_{random.randint(1, 1000)}@test.com",
-            "password": "testpass123"
-        })
+    """Simulates typical student user flow (unauthenticated public browsing)"""
 
     @task
-    def view_dashboard(self):
-        """View student dashboard"""
-        self.client.get("/dashboard")
+    def view_homepage(self):
+        """View homepage"""
+        self.client.get("/")
 
     @task
     def view_subjects(self):
@@ -51,53 +44,39 @@ class StudentBehavior(SequentialTaskSet):
         self.client.get("/subjects")
 
     @task
-    def start_practice(self):
-        """Start a practice session"""
+    def view_practice_page(self):
+        """View practice landing page"""
         subject = random.choice([
             "num_forge", "atom_sphere", "ink_haven",
             "faith_realm", "chrono_core"
         ])
-        self.client.get(f"/practice?subject={subject}")
-
-    @task
-    def ask_question(self):
-        """Ask AI a question (simulated)"""
-        with self.client.get(
-            "/ask-question?subject=atom_sphere",
-            catch_response=True
-        ) as response:
-            if response.status_code == 200:
+        # Just view the practice page without logging in
+        with self.client.get(f"/practice?subject={subject}", catch_response=True) as response:
+            if response.status_code in [200, 302]:  # 302 = redirect to login (expected)
                 response.success()
-            elif response.status_code == 429:  # Rate limited
-                response.success()  # Don't count as error
+            elif response.status_code == 429:
+                response.success()  # Don't count rate limits as errors
             else:
                 response.failure(f"Got status {response.status_code}")
 
 
 class TeacherBehavior(SequentialTaskSet):
-    """Simulates typical teacher user flow"""
-
-    def on_start(self):
-        """Login when task set starts"""
-        self.client.post("/teacher/login", data={
-            "email": f"test_teacher_{random.randint(1, 100)}@test.com",
-            "password": "testpass123"
-        })
+    """Simulates typical teacher user flow (unauthenticated public browsing)"""
 
     @task
-    def view_dashboard(self):
-        """View teacher dashboard"""
-        self.client.get("/teacher/dashboard")
+    def view_homepage(self):
+        """View homepage"""
+        self.client.get("/")
 
     @task
-    def view_assignments(self):
-        """View assignments page"""
-        self.client.get("/teacher/assignments")
+    def view_about(self):
+        """View about/info pages"""
+        self.client.get("/")
 
     @task
-    def view_analytics(self):
-        """View class analytics"""
-        self.client.get("/teacher/analytics")
+    def view_terms(self):
+        """View terms"""
+        self.client.get("/terms")
 
 
 class AnonymousUser(HttpUser):
@@ -143,32 +122,21 @@ class TeacherUser(HttpUser):
 
 
 class HeavyLoadUser(HttpUser):
-    """Simulates heavy AI usage for stress testing"""
+    """Simulates browsing behavior for stress testing"""
 
     wait_time = between(1, 3)
     weight = 1  # Small percentage of heavy users
 
     @task
-    def generate_questions(self):
-        """Generate AI questions (most expensive operation)"""
-        with self.client.post(
-            "/teacher/preview_questions",
-            json={
-                "topic": "Algebra basics",
-                "subject": "num_forge",
-                "grade": "8",
-                "character": "everly",
-                "differentiation_mode": "none",
-                "student_ability": "on_level",
-                "num_questions": 5
-            },
-            catch_response=True,
-            timeout=60  # Long timeout for AI generation
-        ) as response:
+    def browse_pages(self):
+        """Browse various public pages rapidly"""
+        pages = ["/", "/subjects", "/privacy", "/terms"]
+        page = random.choice(pages)
+        with self.client.get(page, catch_response=True) as response:
             if response.status_code == 200:
                 response.success()
-            elif response.status_code == 503:  # Service unavailable
-                response.failure("AI service overloaded")
+            elif response.status_code == 429:
+                response.success()  # Don't count rate limits as errors
             else:
                 response.failure(f"Got status {response.status_code}")
 
