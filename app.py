@@ -2302,7 +2302,8 @@ def admin_set_mode(mode):
                     email="demo_parent@cozmiclearning.com",
                     name="Demo Parent",
                     plan="premium",
-                    password_hash=generate_password_hash("demo123")
+                    password_hash=generate_password_hash("demo123"),
+                    access_code=generate_parent_access_code()
                 )
                 db.session.add(demo_parent)
                 db.session.flush()
@@ -2332,7 +2333,8 @@ def admin_set_mode(mode):
                 email="demo_parent@cozmiclearning.com",
                 name="Demo Parent",
                 plan="premium",
-                password_hash=generate_password_hash("demo123")
+                password_hash=generate_password_hash("demo123"),
+                access_code=generate_parent_access_code()
             )
             db.session.add(parent)
             db.session.commit()
@@ -2474,7 +2476,8 @@ def admin_switch_to_homeschool():
             email="demo_homeschool@cozmiclearning.com",
             name="Demo Homeschool Parent",
             plan="homeschool_complete",
-            password_hash=generate_password_hash("demo123")
+            password_hash=generate_password_hash("demo123"),
+            access_code=generate_parent_access_code()
         )
         db.session.add(homeschool_parent)
         db.session.commit()
