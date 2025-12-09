@@ -71,6 +71,42 @@ app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 csrf = CSRFProtect(app)
 
 # ============================================================
+# SENTRY ERROR TRACKING (PRODUCTION ONLY)
+# ============================================================
+
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+# Initialize Sentry if DSN is provided (production only)
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            FlaskIntegration(),
+        ],
+        # Performance monitoring - track slow database queries, API calls, etc.
+        traces_sample_rate=0.1,  # Sample 10% of transactions for performance monitoring
+
+        # Set environment to distinguish prod/staging/dev
+        environment=os.environ.get("SENTRY_ENVIRONMENT", "production"),
+
+        # Release tracking - use git commit hash if available
+        release=os.environ.get("RENDER_GIT_COMMIT", "unknown"),
+
+        # Filter out sensitive data
+        send_default_pii=False,  # Don't send user IP addresses, cookies, etc.
+
+        # Don't report errors from these paths (health checks, static files)
+        ignore_errors=[
+            "404 Not Found",
+        ],
+    )
+    print(f"✅ Sentry error tracking enabled (environment: {os.environ.get('SENTRY_ENVIRONMENT', 'production')})")
+else:
+    print("⚠️  Sentry DSN not configured - error tracking disabled (local dev mode)")
+
+# ============================================================
 # EMAIL CONFIGURATION (FLASK-MAIL)
 # ============================================================
 
