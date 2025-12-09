@@ -77,6 +77,8 @@ def estimate_question_difficulty(question: Dict) -> str:
     """
     Estimate difficulty of a single question based on characteristics.
     Returns: "easy", "medium", or "hard"
+
+    Adjusted thresholds for better distribution across difficulty tiers.
     """
     prompt = question.get("prompt", "")
     hint = question.get("hint", "")
@@ -84,10 +86,10 @@ def estimate_question_difficulty(question: Dict) -> str:
 
     difficulty_score = 0
 
-    # Length indicators
-    if len(prompt) > 200:
-        difficulty_score += 2  # Long questions are often harder
-    elif len(prompt) > 100:
+    # Length indicators (more generous scoring)
+    if len(prompt) > 150:
+        difficulty_score += 2  # Longer questions tend to be harder
+    elif len(prompt) > 80:
         difficulty_score += 1
 
     # Type indicators
@@ -95,23 +97,27 @@ def estimate_question_difficulty(question: Dict) -> str:
         difficulty_score += 1  # Free response is harder than multiple choice
 
     # Multi-step indicators (keywords)
-    multi_step_keywords = ["calculate", "then", "next", "finally", "both", "compare", "analyze", "explain why"]
+    multi_step_keywords = ["calculate", "then", "next", "finally", "both", "compare", "analyze", "explain why", "describe", "determine"]
     if any(keyword in prompt.lower() for keyword in multi_step_keywords):
-        difficulty_score += 2
+        difficulty_score += 1
 
     # Hint quality (good hints suggest harder questions)
     if len(hint) > 50:
         difficulty_score += 1
 
     # Vocabulary complexity (simple check for advanced words)
-    advanced_words = ["synthesize", "evaluate", "derive", "integrate", "differentiate", "critique"]
+    advanced_words = ["synthesize", "evaluate", "derive", "integrate", "differentiate", "critique", "justify", "interpret"]
     if any(word in prompt.lower() for word in advanced_words):
         difficulty_score += 2
 
-    # Return difficulty rating
-    if difficulty_score >= 5:
+    # Numeric/calculation indicators
+    if any(char.isdigit() for char in prompt):
+        difficulty_score += 1  # Questions with numbers often require calculation
+
+    # Return difficulty rating (adjusted thresholds for better distribution)
+    if difficulty_score >= 4:
         return "hard"
-    elif difficulty_score >= 3:
+    elif difficulty_score >= 2:
         return "medium"
     else:
         return "easy"
