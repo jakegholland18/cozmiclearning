@@ -171,9 +171,9 @@ def assign_questions(
     )
 
     steps = session.get("steps", [])
-    # Ensure we got the right number (fallback trim if AI returned more)
-    if isinstance(num_questions, int) and num_questions > 0:
-        steps = steps[:num_questions]
+    # Note: For dynamic modes (adaptive/scaffold/gap_fill/mastery), num_questions may be
+    # larger than what students see (e.g., 30 questions for 10-student adaptive assignment)
+    # Don't trim - we need the full pool for routing!
 
     questions: List[Dict] = []
     for s in steps:
