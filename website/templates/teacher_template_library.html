@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Templates - CozmicLearning</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <style>
+        .templates-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .template-section {
+            margin-bottom: 40px;
+        }
+
+        .template-section h2 {
+            color: #2c5282;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4299e1;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .template-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .template-card h3 {
+            color: #2d3748;
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .template-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            color: #718096;
+            margin: 10px 0;
+        }
+
+        .template-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .template-description {
+            color: #4a5568;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .template-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .tag {
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3182ce;
+        }
+
+        .btn-danger {
+            background-color: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #e53e3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input {
+            width: 300px;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .use-count {
+            background: #48bb78;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #4299e1;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    {% include '_navbar.html' %}
+
+    <div class="templates-container">
+        <a href="/teacher/dashboard" class="back-link">← Back to Dashboard</a>
+
+        <h1>📚 Assignment Template Library</h1>
+        <p style="color: #718096; margin-bottom: 30px;">Save successful assignments as templates and reuse them with future classes.</p>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Search templates by title or description...">
+            <select id="subjectFilter">
+                <option value="">All Subjects</option>
+                {% for key, label in subjects.items() %}
+                <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- My Templates Section -->
+        <div class="template-section">
+            <h2>🔐 My Private Templates ({{ my_templates|length }})</h2>
+
+            {% if my_templates %}
+            <div class="template-grid" id="myTemplatesGrid">
+                {% for template in my_templates %}
+                <div class="template-card" data-subject="{{ template.subject }}" data-title="{{ template.title|lower }}" data-description="{{ template.description|lower if template.description else '' }}">
+                    <h3>{{ template.title }}</h3>
+
+                    <div class="template-meta">
+                        <span>📖 {{ subjects.get(template.subject, template.subject) }}</span>
+                        <span>📊 Grade {{ template.grade_level }}</span>
+                        {% if template.use_count > 0 %}
+                        <span class="use-count">{{ template.use_count }} uses</span>
+                        {% endif %}
+                    </div>
+
+                    {% if template.description %}
+                    <p class="template-description">{{ template.description }}</p>
+                    {% endif %}
+
+                    {% if template.tags %}
+                    <div class="template-tags">
+                        {% for tag in template.tags|fromjson %}
+                        <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="template-actions">
+                        <button class="btn btn-primary" onclick="duplicateTemplate({{ template.id }})">
+                            Use Template
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteTemplate({{ template.id }}, '{{ template.title }}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>You haven't created any templates yet. Create an assignment and save it as a template for future use!</p>
+                <a href="/teacher/assignments/create" class="btn btn-primary" style="margin-top: 20px;">Create First Assignment</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Public Templates Section -->
+        <div class="template-section">
+            <h2>🌎 Community Templates ({{ public_templates|length }})</h2>
+            <p style="color: #718096; margin-bottom: 15px;">Browse templates shared by other educators</p>
+
+            {% if public_templates %}
+            <div class="template-grid" id="publicTemplatesGrid">
+                {% for template in public_templates %}
+                <div class="template-card" data-subject="{{ template.subject }}" data-title="{{ template.title|lower }}" data-description="{{ template.description|lower if template.description else '' }}">
+                    <h3>{{ template.title }}</h3>
+
+                    <div class="template-meta">
+                        <span>📖 {{ subjects.get(template.subject, template.subject) }}</span>
+                        <span>📊 Grade {{ template.grade_level }}</span>
+                        <span class="use-count">{{ template.use_count }} uses</span>
+                    </div>
+
+                    {% if template.description %}
+                    <p class="template-description">{{ template.description }}</p>
+                    {% endif %}
+
+                    {% if template.tags %}
+                    <div class="template-tags">
+                        {% for tag in template.tags|fromjson %}
+                        <span class="tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="template-actions">
+                        <button class="btn btn-primary" onclick="duplicateTemplate({{ template.id }})">
+                            Use Template
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No public templates available yet. Be the first to share one!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Search and filter functionality
+        const searchInput = document.getElementById('searchInput');
+        const subjectFilter = document.getElementById('subjectFilter');
+
+        function filterTemplates() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedSubject = subjectFilter.value;
+
+            const grids = ['myTemplatesGrid', 'publicTemplatesGrid'];
+            grids.forEach(gridId => {
+                const grid = document.getElementById(gridId);
+                if (!grid) return;
+
+                const cards = grid.querySelectorAll('.template-card');
+                cards.forEach(card => {
+                    const title = card.dataset.title;
+                    const description = card.dataset.description;
+                    const subject = card.dataset.subject;
+
+                    const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                    const matchesSubject = !selectedSubject || subject === selectedSubject;
+
+                    card.style.display = (matchesSearch && matchesSubject) ? 'block' : 'none';
+                });
+            });
+        }
+
+        searchInput.addEventListener('input', filterTemplates);
+        subjectFilter.addEventListener('change', filterTemplates);
+
+        // Duplicate template
+        async function duplicateTemplate(templateId) {
+            try {
+                const response = await fetch(`/duplicate-template/${templateId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to duplicate template'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to duplicate template');
+            }
+        }
+
+        // Delete template
+        async function deleteTemplate(templateId, templateTitle) {
+            if (!confirm(`Are you sure you want to delete "${templateTitle}"? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/delete-template/${templateId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to delete template'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete template');
+            }
+        }
+    </script>
+</body>
+</html>

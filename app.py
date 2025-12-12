@@ -8007,7 +8007,7 @@ def teacher_templates():
     ).order_by(AssignmentTemplate.use_count.desc()).limit(20).all()
 
     return render_template(
-        "teacher/template_library.html",
+        "teacher_template_library.html",
         my_templates=my_templates,
         public_templates=public_templates,
         subjects=SUBJECT_LABELS,
@@ -8044,7 +8044,7 @@ def homeschool_templates():
     ).order_by(AssignmentTemplate.use_count.desc()).limit(20).all()
 
     return render_template(
-        "homeschool/template_library.html",
+        "homeschool_template_library.html",
         my_templates=my_templates,
         public_templates=public_templates,
         subjects=SUBJECT_LABELS,
