@@ -6988,41 +6988,90 @@ def teacher_gradebook():
     else:
         classes = Class.query.filter_by(teacher_id=teacher.id).all()
 
+    # Calculate grading backlog across all classes
+    from datetime import datetime, timedelta
+    total_ungraded = 0
+    oldest_ungraded = None
+    grading_backlog = []
+
     # For each class, get assignment summary with average scores
     class_data = []
     for cls in classes:
         assignments = AssignedPractice.query.filter_by(class_id=cls.id, is_published=True).all()
-        
+
         assignment_summary = []
         for assignment in assignments:
             # Get all submissions for this assignment
             submissions = StudentSubmission.query.filter_by(assignment_id=assignment.id, status='graded').all()
-            
+
+            # Count ungraded submissions
+            ungraded = StudentSubmission.query.filter_by(assignment_id=assignment.id, status='submitted').all()
+            total_ungraded += len(ungraded)
+
+            # Find oldest ungraded
+            for sub in ungraded:
+                if sub.submitted_at:
+                    if not oldest_ungraded or sub.submitted_at < oldest_ungraded:
+                        oldest_ungraded = sub.submitted_at
+
+                    # Add to backlog list
+                    grading_backlog.append({
+                        'student_id': sub.student_id,
+                        'assignment_id': assignment.id,
+                        'assignment_title': assignment.title,
+                        'class_name': cls.class_name,
+                        'submitted_at': sub.submitted_at,
+                        'days_waiting': (datetime.utcnow() - sub.submitted_at).days
+                    })
+
             if submissions:
                 avg_score = sum(s.score for s in submissions if s.score) / len(submissions)
                 graded_count = len(submissions)
             else:
                 avg_score = None
                 graded_count = 0
-            
+
             assignment_summary.append({
                 'assignment': assignment,
                 'avg_score': avg_score,
                 'graded_count': graded_count,
-                'total_students': len(cls.students)
+                'total_students': len(cls.students),
+                'ungraded_count': len(ungraded)
             })
-        
+
         class_data.append({
             'class': cls,
             'assignments': assignment_summary,
             'student_count': len(cls.students)
         })
 
+    # Calculate average grading time for recent graded submissions
+    recent_graded = StudentSubmission.query.filter(
+        StudentSubmission.status == 'graded',
+        StudentSubmission.graded_at.isnot(None),
+        StudentSubmission.submitted_at.isnot(None)
+    ).order_by(StudentSubmission.graded_at.desc()).limit(20).all()
+
+    grading_times = []
+    for sub in recent_graded:
+        time_diff = (sub.graded_at - sub.submitted_at).total_seconds() / 3600  # hours
+        grading_times.append(time_diff)
+
+    avg_grading_hours = sum(grading_times) / len(grading_times) if grading_times else 0
+
+    # Sort backlog by oldest first
+    grading_backlog.sort(key=lambda x: x['submitted_at'])
+
     return render_template(
         "gradebook.html",
         teacher=teacher,
         class_data=class_data,
         is_owner=is_owner(teacher),
+        total_ungraded=total_ungraded,
+        oldest_ungraded=oldest_ungraded,
+        avg_grading_hours=round(avg_grading_hours, 1),
+        grading_backlog=grading_backlog[:10],  # Top 10 oldest
+        now=datetime.utcnow()  # For template date calculations
     )
 
 
