@@ -7901,6 +7901,265 @@ def teacher_student_report(student_id):
 
 
 # ============================================================
+# ASSIGNMENT TEMPLATES (SHARED: TEACHERS & HOMESCHOOL)
+# ============================================================
+
+@app.route("/save-assignment-template", methods=["POST"])
+def save_assignment_template():
+    """Save current assignment as a reusable template"""
+    try:
+        data = request.get_json() or {}
+
+        # Determine if user is teacher or homeschool parent
+        teacher_id = session.get("teacher_id")
+        parent_id = session.get("user_id") if session.get("user_type") == "parent" else None
+
+        # Get user based on type
+        from models import AssignmentTemplate
+        if teacher_id:
+            teacher = Teacher.query.get(teacher_id)
+            if not teacher:
+                return jsonify({"error": "Not authenticated"}), 401
+            user_id = teacher_id
+            user_type = "teacher"
+        elif parent_id:
+            parent = Parent.query.get(parent_id)
+            if not parent:
+                return jsonify({"error": "Not authenticated"}), 401
+            # Verify this parent has homeschool/teacher features
+            _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+            if not has_teacher_features:
+                return jsonify({"error": "Homeschool features required"}), 403
+            user_id = parent_id
+            user_type = "parent"
+        else:
+            return jsonify({"error": "Not authenticated"}), 401
+
+        # Extract template data
+        title = safe_text(data.get("title", ""), 200)
+        description = safe_text(data.get("description", ""), 1000)
+        subject = safe_text(data.get("subject", ""), 50)
+        grade_level = safe_text(data.get("grade_level", ""), 20)
+        is_public = bool(data.get("is_public", False))
+        tags_list = data.get("tags", [])
+
+        # Validate required fields
+        if not title:
+            return jsonify({"error": "Title is required"}), 400
+
+        # Build template data JSON
+        template_data = {
+            "topic": data.get("topic", ""),
+            "instructions": data.get("instructions", ""),
+            "differentiation_mode": data.get("differentiation_mode", "none"),
+            "assignment_type": data.get("assignment_type", "practice"),
+            "questions": data.get("questions", []),
+            "character": data.get("character", "everly"),
+        }
+
+        # Create template
+        template = AssignmentTemplate(
+            teacher_id=teacher_id if user_type == "teacher" else None,
+            parent_id=parent_id if user_type == "parent" else None,
+            title=title,
+            description=description,
+            subject=subject,
+            grade_level=grade_level,
+            template_data=json.dumps(template_data),
+            is_public=is_public,
+            tags=json.dumps(tags_list) if tags_list else None,
+        )
+
+        db.session.add(template)
+        db.session.commit()
+
+        print(f"✅ Template saved: '{title}' by {user_type} {user_id}")
+
+        return jsonify({
+            "success": True,
+            "template_id": template.id,
+            "message": f"Template '{title}' saved successfully!"
+        }), 201
+
+    except Exception as e:
+        print(f"❌ Error saving template: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/teacher/templates")
+def teacher_templates():
+    """Teacher views their assignment template library"""
+    teacher = get_teacher_or_admin()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    from models import AssignmentTemplate
+
+    # Get teacher's private templates
+    my_templates = AssignmentTemplate.query.filter_by(teacher_id=teacher.id).order_by(
+        AssignmentTemplate.created_at.desc()
+    ).all()
+
+    # Get public templates from other teachers
+    public_templates = AssignmentTemplate.query.filter_by(is_public=True).filter(
+        AssignmentTemplate.teacher_id != teacher.id
+    ).order_by(AssignmentTemplate.use_count.desc()).limit(20).all()
+
+    return render_template(
+        "teacher/template_library.html",
+        my_templates=my_templates,
+        public_templates=public_templates,
+        subjects=SUBJECT_LABELS,
+    )
+
+
+@app.route("/homeschool/templates")
+def homeschool_templates():
+    """Homeschool parent views their assignment template library"""
+    parent_id = session.get("user_id")
+    if not parent_id or session.get("user_type") != "parent":
+        return redirect("/login")
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return redirect("/login")
+
+    # Verify homeschool features
+    _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+    if not has_teacher_features:
+        flash("Homeschool features required", "error")
+        return redirect("/parent_dashboard")
+
+    from models import AssignmentTemplate
+
+    # Get parent's private templates
+    my_templates = AssignmentTemplate.query.filter_by(parent_id=parent.id).order_by(
+        AssignmentTemplate.created_at.desc()
+    ).all()
+
+    # Get public templates
+    public_templates = AssignmentTemplate.query.filter_by(is_public=True).filter(
+        AssignmentTemplate.parent_id != parent.id
+    ).order_by(AssignmentTemplate.use_count.desc()).limit(20).all()
+
+    return render_template(
+        "homeschool/template_library.html",
+        my_templates=my_templates,
+        public_templates=public_templates,
+        subjects=SUBJECT_LABELS,
+    )
+
+
+@app.route("/duplicate-template/<int:template_id>", methods=["POST"])
+def duplicate_template(template_id):
+    """Duplicate a template to create a new assignment"""
+    try:
+        from models import AssignmentTemplate
+
+        # Get current user
+        teacher_id = session.get("teacher_id")
+        parent_id = session.get("user_id") if session.get("user_type") == "parent" else None
+
+        if not teacher_id and not parent_id:
+            return jsonify({"error": "Not authenticated"}), 401
+
+        # Get template
+        template = AssignmentTemplate.query.get_or_404(template_id)
+
+        # Verify access: must be owner OR template must be public
+        has_access = False
+        if teacher_id and template.teacher_id == teacher_id:
+            has_access = True
+        elif parent_id and template.parent_id == parent_id:
+            has_access = True
+        elif template.is_public:
+            has_access = True
+
+        if not has_access:
+            return jsonify({"error": "Access denied"}), 403
+
+        # Load template data
+        template_data = json.loads(template.template_data)
+
+        # Store in session for preview/creation
+        session["template_assignment"] = {
+            "template_id": template.id,
+            "title": template.title,
+            "subject": template.subject,
+            "grade": template.grade_level,
+            "topic": template_data.get("topic", ""),
+            "instructions": template_data.get("instructions", ""),
+            "differentiation_mode": template_data.get("differentiation_mode", "none"),
+            "assignment_type": template_data.get("assignment_type", "practice"),
+            "questions": template_data.get("questions", []),
+            "character": template_data.get("character", "everly"),
+        }
+
+        # Increment use count
+        template.use_count += 1
+        db.session.commit()
+
+        # Redirect to appropriate assignment creation page
+        if teacher_id:
+            redirect_url = "/teacher/assignments/create?from_template=1"
+        else:
+            redirect_url = "/homeschool/assignments/create?from_template=1"
+
+        return jsonify({
+            "success": True,
+            "redirect": redirect_url
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error duplicating template: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/delete-template/<int:template_id>", methods=["POST"])
+def delete_template(template_id):
+    """Delete a template (owner only)"""
+    try:
+        from models import AssignmentTemplate
+
+        # Get current user
+        teacher_id = session.get("teacher_id")
+        parent_id = session.get("user_id") if session.get("user_type") == "parent" else None
+
+        if not teacher_id and not parent_id:
+            return jsonify({"error": "Not authenticated"}), 401
+
+        # Get template
+        template = AssignmentTemplate.query.get_or_404(template_id)
+
+        # Verify ownership
+        is_owner = False
+        if teacher_id and template.teacher_id == teacher_id:
+            is_owner = True
+        elif parent_id and template.parent_id == parent_id:
+            is_owner = True
+
+        if not is_owner:
+            return jsonify({"error": "Only the owner can delete this template"}), 403
+
+        # Delete template
+        db.session.delete(template)
+        db.session.commit()
+
+        print(f"✅ Template deleted: {template.title}")
+
+        return jsonify({
+            "success": True,
+            "message": "Template deleted successfully"
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error deleting template: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+# ============================================================
 # CHARACTER SELECT + GRADE + SUBJECT Q&A
 # ============================================================
 

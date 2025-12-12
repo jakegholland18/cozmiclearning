@@ -567,6 +567,50 @@ class HomeschoolLessonPlan(db.Model):
 
 
 # ============================================================
+# ASSIGNMENT TEMPLATES (SHARED: TEACHERS & HOMESCHOOL)
+# ============================================================
+
+class AssignmentTemplate(db.Model):
+    """
+    Reusable assignment templates for teachers and homeschool parents.
+    Allows saving successful assignments as templates for future use.
+    Supports private templates and optional public library sharing.
+    """
+    __tablename__ = "assignment_templates"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Owner (either teacher OR parent, not both)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id"), nullable=True)
+
+    # Template metadata
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    subject = db.Column(db.String(50))  # num_forge, atom_sphere, ink_haven, etc.
+    grade_level = db.Column(db.String(20))  # K, 1, 2, 3, ... 12
+
+    # Full assignment data stored as JSON
+    # Includes: questions, difficulty, differentiation settings, instructions, etc.
+    template_data = db.Column(db.Text, nullable=False)  # JSON string
+
+    # Sharing & Discovery
+    is_public = db.Column(db.Boolean, default=False)  # Public library templates
+    use_count = db.Column(db.Integer, default=0)  # How many times duplicated
+
+    # Categorization
+    tags = db.Column(db.Text, nullable=True)  # JSON array: ["fractions", "word_problems"]
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    teacher = db.relationship("Teacher", backref="assignment_templates", lazy=True)
+    parent = db.relationship("Parent", backref="assignment_templates", lazy=True)
+
+
+# ============================================================
 # ARCADE MODE ENHANCEMENTS - BADGES, POWERUPS, CHALLENGES
 # ============================================================
 
@@ -785,5 +829,12 @@ db.Index('idx_daily_challenge_date', DailyChallenge.challenge_date)
 db.Index('idx_student_challenge_student_id', StudentChallengeProgress.student_id)
 db.Index('idx_student_challenge_challenge_id', StudentChallengeProgress.challenge_id)
 db.Index('idx_game_streak_student_id', GameStreak.student_id)
+
+# Assignment Template Indices
+db.Index('idx_assignment_template_teacher_id', AssignmentTemplate.teacher_id)
+db.Index('idx_assignment_template_parent_id', AssignmentTemplate.parent_id)
+db.Index('idx_assignment_template_subject', AssignmentTemplate.subject)
+db.Index('idx_assignment_template_is_public', AssignmentTemplate.is_public)
+db.Index('idx_assignment_template_created_at', AssignmentTemplate.created_at)
 
 
