@@ -7167,11 +7167,178 @@ def teacher_gradebook_class(class_id):
     )
 
 
+@app.route("/teacher/gradebook/class/<int:class_id>/export")
+def teacher_gradebook_export(class_id):
+    """Export gradebook data for a class to CSV format."""
+    import csv
+    from io import StringIO
+    from flask import make_response
+
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    cls = Class.query.get_or_404(class_id)
+
+    # Check authorization
+    if not is_owner(teacher) and cls.teacher_id != teacher.id:
+        flash("Not authorized to export this class.", "error")
+        return redirect("/teacher/gradebook")
+
+    # Get all published assignments for this class
+    assignments = AssignedPractice.query.filter_by(class_id=class_id, is_published=True).order_by(AssignedPractice.due_date).all()
+
+    # Get all students in this class
+    students = cls.students
+
+    # Create CSV in memory
+    si = StringIO()
+    writer = csv.writer(si)
+
+    # Header row: Student Name, Email, then each assignment title, then Average
+    header = ['Student Name', 'Email']
+    for assignment in assignments:
+        header.append(f"{assignment.title} ({assignment.assignment_type})")
+    header.append('Average (%)')
+    header.append('Assignments Graded')
+    writer.writerow(header)
+
+    # Data rows
+    for student in students:
+        row = [
+            getattr(student, 'student_name', 'Student'),
+            getattr(student, 'email', '')
+        ]
+
+        total_score = 0
+        graded_count = 0
+
+        for assignment in assignments:
+            submission = StudentSubmission.query.filter_by(
+                student_id=student.id,
+                assignment_id=assignment.id
+            ).first()
+
+            if submission and submission.status == 'graded' and submission.score is not None:
+                row.append(f"{submission.score:.1f}")
+                total_score += submission.score
+                graded_count += 1
+            elif submission and submission.status == 'submitted':
+                row.append('Pending')
+            else:
+                row.append('Not Submitted')
+
+        # Calculate average
+        if graded_count > 0:
+            average = total_score / graded_count
+            row.append(f"{average:.1f}")
+        else:
+            row.append('N/A')
+
+        row.append(str(graded_count))
+        writer.writerow(row)
+
+    # Add class averages row
+    avg_row = ['CLASS AVERAGE', '']
+    for assignment in assignments:
+        submissions = StudentSubmission.query.filter_by(
+            assignment_id=assignment.id,
+            status='graded'
+        ).all()
+
+        if submissions:
+            scores = [s.score for s in submissions if s.score is not None]
+            if scores:
+                avg_row.append(f"{sum(scores) / len(scores):.1f}")
+            else:
+                avg_row.append('N/A')
+        else:
+            avg_row.append('N/A')
+    avg_row.append('')  # No overall average for class average row
+    avg_row.append('')  # No graded count
+    writer.writerow(avg_row)
+
+    # Create response with CSV content
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = f"attachment; filename=gradebook_{cls.class_name.replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
+
+
+@app.route("/teacher/gradebook/export-all")
+def teacher_gradebook_export_all():
+    """Export gradebook data for all classes to a single CSV file."""
+    import csv
+    from io import StringIO
+    from flask import make_response
+
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    # Get all classes for this teacher
+    if is_owner(teacher):
+        classes = Class.query.all()
+    else:
+        classes = Class.query.filter_by(teacher_id=teacher.id).all()
+
+    # Create CSV in memory
+    si = StringIO()
+    writer = csv.writer(si)
+
+    # Header row
+    header = ['Class Name', 'Grade Level', 'Student Name', 'Email', 'Assignment', 'Type', 'Score (%)', 'Status', 'Due Date']
+    writer.writerow(header)
+
+    # Data rows
+    for cls in classes:
+        students = cls.students
+        assignments = AssignedPractice.query.filter_by(class_id=cls.id, is_published=True).order_by(AssignedPractice.due_date).all()
+
+        for student in students:
+            for assignment in assignments:
+                submission = StudentSubmission.query.filter_by(
+                    student_id=student.id,
+                    assignment_id=assignment.id
+                ).first()
+
+                row = [
+                    cls.class_name,
+                    cls.grade_level or 'N/A',
+                    getattr(student, 'student_name', 'Student'),
+                    getattr(student, 'email', ''),
+                    assignment.title,
+                    assignment.assignment_type or 'practice',
+                ]
+
+                if submission and submission.status == 'graded' and submission.score is not None:
+                    row.append(f"{submission.score:.1f}")
+                    row.append('Graded')
+                elif submission and submission.status == 'submitted':
+                    row.append('N/A')
+                    row.append('Pending')
+                else:
+                    row.append('N/A')
+                    row.append('Not Submitted')
+
+                row.append(assignment.due_date.strftime('%Y-%m-%d') if assignment.due_date else 'No Due Date')
+
+                writer.writerow(row)
+
+    # Create response with CSV content
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = f"attachment; filename=gradebook_all_classes_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
+
+
 @app.route("/homeschool/gradebook")
 def homeschool_gradebook():
     """Homeschool gradebook - view student progress grouped by subject."""
     init_user()
-    
+
     parent_id = session.get("parent_id")
     
     # Temporary debug - auto-login test homeschool parent
