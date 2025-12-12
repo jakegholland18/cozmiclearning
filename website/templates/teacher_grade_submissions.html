@@ -192,7 +192,17 @@
 
 <div class="grading-container">
     <div class="header-box">
-        <h1>{{ assignment.title }} - Submissions</h1>
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+            <div>
+                <h1>{{ assignment.title }} - Submissions</h1>
+            </div>
+            <a href="/teacher/assignment/{{ assignment.id }}/export"
+               style="padding: 10px 20px; background: linear-gradient(135deg, #48bb78, #38a169); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; white-space: nowrap; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(72,187,120,0.3);"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(72,187,120,0.4)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(72,187,120,0.3)'">
+                📊 Export to CSV
+            </a>
+        </div>
         <p class="assignment-meta"><strong>Subject:</strong> {{ assignment.subject|title }}</p>
         <p class="assignment-meta"><strong>Topic:</strong> {{ assignment.topic }}</p>
         <p class="assignment-meta"><strong>Total Questions:</strong> {{ questions|length }}</p>

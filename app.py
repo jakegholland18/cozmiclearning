@@ -7334,6 +7334,135 @@ def teacher_gradebook_export_all():
     return output
 
 
+@app.route("/teacher/assignment/<int:assignment_id>/export")
+def teacher_assignment_export(assignment_id):
+    """Export detailed performance data for a specific assignment to CSV."""
+    import csv
+    from io import StringIO
+    from flask import make_response
+
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+    cls = Class.query.get(assignment.class_id)
+
+    # Check authorization
+    if not is_owner(teacher) and cls.teacher_id != teacher.id:
+        flash("Not authorized to export this assignment.", "error")
+        return redirect("/teacher/gradebook")
+
+    # Get all students in this class
+    students = cls.students
+
+    # Create CSV in memory
+    si = StringIO()
+    writer = csv.writer(si)
+
+    # Header row
+    header = [
+        'Student Name',
+        'Email',
+        'Score (%)',
+        'Status',
+        'Submitted At',
+        'Graded At',
+        'Time to Grade (hours)',
+        'Attempts',
+        'Teacher Feedback'
+    ]
+    writer.writerow(header)
+
+    # Collect statistics
+    scores = []
+    graded_count = 0
+    submitted_count = 0
+    not_submitted_count = 0
+    total_grading_time = 0
+    grading_time_count = 0
+
+    # Data rows
+    for student in students:
+        submission = StudentSubmission.query.filter_by(
+            student_id=student.id,
+            assignment_id=assignment.id
+        ).first()
+
+        row = [
+            getattr(student, 'student_name', 'Student'),
+            getattr(student, 'email', '')
+        ]
+
+        if submission:
+            # Score
+            if submission.status == 'graded' and submission.score is not None:
+                row.append(f"{submission.score:.1f}")
+                scores.append(submission.score)
+                graded_count += 1
+            else:
+                row.append('N/A')
+
+            # Status
+            row.append(submission.status.title())
+            if submission.status == 'submitted':
+                submitted_count += 1
+
+            # Submitted At
+            row.append(submission.submitted_at.strftime('%Y-%m-%d %H:%M') if submission.submitted_at else 'N/A')
+
+            # Graded At
+            row.append(submission.graded_at.strftime('%Y-%m-%d %H:%M') if submission.graded_at else 'N/A')
+
+            # Time to Grade
+            if submission.submitted_at and submission.graded_at:
+                time_diff = (submission.graded_at - submission.submitted_at).total_seconds() / 3600
+                row.append(f"{time_diff:.1f}")
+                total_grading_time += time_diff
+                grading_time_count += 1
+            else:
+                row.append('N/A')
+
+            # Attempts
+            row.append(getattr(submission, 'attempts', 1))
+
+            # Teacher Feedback
+            feedback = getattr(submission, 'teacher_feedback', '') or ''
+            # Remove newlines and limit length for CSV
+            feedback = feedback.replace('\n', ' ').replace('\r', '')[:200]
+            row.append(feedback)
+        else:
+            # No submission
+            row.extend(['N/A', 'Not Submitted', 'N/A', 'N/A', 'N/A', '0', ''])
+            not_submitted_count += 1
+
+        writer.writerow(row)
+
+    # Add summary statistics rows
+    writer.writerow([])  # Empty row
+    writer.writerow(['SUMMARY STATISTICS'])
+    writer.writerow(['Total Students', len(students)])
+    writer.writerow(['Graded', graded_count])
+    writer.writerow(['Submitted (Pending)', submitted_count])
+    writer.writerow(['Not Submitted', not_submitted_count])
+
+    if scores:
+        writer.writerow(['Average Score', f"{sum(scores) / len(scores):.1f}%"])
+        writer.writerow(['Highest Score', f"{max(scores):.1f}%"])
+        writer.writerow(['Lowest Score', f"{min(scores):.1f}%"])
+
+    if grading_time_count > 0:
+        writer.writerow(['Avg. Grading Time', f"{total_grading_time / grading_time_count:.1f} hours"])
+
+    # Create response with CSV content
+    output = make_response(si.getvalue())
+    safe_title = assignment.title.replace(' ', '_').replace('/', '_')
+    output.headers["Content-Disposition"] = f"attachment; filename=assignment_{safe_title}_{datetime.utcnow().strftime('%Y%m%d')}.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
+
+
 @app.route("/homeschool/gradebook")
 def homeschool_gradebook():
     """Homeschool gradebook - view student progress grouped by subject."""
