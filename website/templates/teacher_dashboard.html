@@ -655,6 +655,78 @@
 <!-- ================= MAIN LAYOUT ================= -->
 <div class="layout">
 
+    <!-- ============ EARLY WARNINGS PANEL ============ -->
+    {% if early_warnings and early_warnings.total_at_risk > 0 %}
+    <div class="card full-width" style="background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 77, 77, 0.08)); border-color: rgba(255, 107, 157, 0.3);">
+        <h2 style="color: #ff6b9d;">⚠️ Early Warnings ({{ early_warnings.total_at_risk }} Students)</h2>
+        <small>Students who may need intervention or support</small>
+
+        <!-- Critical Warnings (Multiple Issues) -->
+        {% if early_warnings.critical %}
+        <div style="margin-top: 20px;">
+            <h3 style="color: #ff4444; font-size: 1.1rem; margin-bottom: 10px;">🔴 Critical ({{ early_warnings.critical|length }})</h3>
+            <div style="display: grid; gap: 10px;">
+                {% for warning in early_warnings.critical[:5] %}
+                <div style="background: rgba(255, 68, 68, 0.15); border: 1px solid rgba(255, 68, 68, 0.3); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>{{ warning.student_name }}</strong> · <span style="color: #c4d1ff;">{{ warning.class_name }}</span>
+                        <br>
+                        <span style="font-size: 0.85rem; color: #ff6b9d;">{{ warning.warning_count }} issues:
+                            {% if 'declining' in warning.warning_types %}📉 Declining{% endif %}
+                            {% if 'low_performance' in warning.warning_types %}📊 Low Scores{% endif %}
+                            {% if 'inactive' in warning.warning_types %}💤 Inactive{% endif %}
+                        </span>
+                    </div>
+                    <a href="/teacher/student/{{ warning.student_id }}/report" style="padding: 6px 12px; background: rgba(255, 107, 157, 0.2); border: 1px solid rgba(255, 107, 157, 0.4); border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.85rem;">View Details</a>
+                </div>
+                {% endfor %}
+                {% if early_warnings.critical|length > 5 %}
+                <p style="text-align: center; color: #c4d1ff; font-size: 0.9rem;">+ {{ early_warnings.critical|length - 5 }} more critical students</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Declining Performance -->
+        {% if early_warnings.declining_performance and not early_warnings.critical %}
+        <div style="margin-top: 20px;">
+            <h3 style="color: #ff9f1c; font-size: 1.1rem; margin-bottom: 10px;">📉 Declining Performance ({{ early_warnings.declining_performance|length }})</h3>
+            <div style="display: grid; gap: 10px;">
+                {% for warning in early_warnings.declining_performance[:3] %}
+                <div style="background: rgba(255, 159, 28, 0.1); border: 1px solid rgba(255, 159, 28, 0.3); border-radius: 8px; padding: 12px;">
+                    <strong>{{ warning.student_name }}</strong> · <span style="color: #c4d1ff;">{{ warning.class_name }}</span>
+                    <br>
+                    <span style="font-size: 0.85rem;">Current: {{ warning.current_avg }}% ({{ warning.delta }}%) · Previous: {{ warning.previous_avg }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Inactive Students -->
+        {% if early_warnings.inactive and not early_warnings.critical and not early_warnings.declining_performance %}
+        <div style="margin-top: 20px;">
+            <h3 style="color: #ffd54f; font-size: 1.1rem; margin-bottom: 10px;">💤 Inactive Students ({{ early_warnings.inactive|length }})</h3>
+            <div style="display: grid; gap: 10px;">
+                {% for warning in early_warnings.inactive[:3] %}
+                <div style="background: rgba(255, 213, 79, 0.1); border: 1px solid rgba(255, 213, 79, 0.3); border-radius: 8px; padding: 12px;">
+                    <strong>{{ warning.student_name }}</strong> · <span style="color: #c4d1ff;">{{ warning.class_name }}</span>
+                    <br>
+                    <span style="font-size: 0.85rem;">Last login: {{ warning.days_since_login }} days ago ({{ warning.last_login }})</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/teacher/analytics" style="padding: 10px 20px; background: linear-gradient(135deg, #ff6b9d, #c44569); color: white; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600;">
+                View Full Analytics →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- ============ CLASSES PANEL ============ -->
     <div class="card full-width">
         <h2>Your Classes</h2>

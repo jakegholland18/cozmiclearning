@@ -296,3 +296,134 @@ def build_progress_report(student_id: int) -> Dict:
     scores = [r.score for r in results if r.score is not None]
     avg = sum(scores) / len(scores) if scores else 0
     return {"student_id": student_id, "avg": avg, "results": [{"score": r.score, "subject": r.subject, "created_at": r.created_at.isoformat()} for r in results]}
+
+
+def get_early_warnings(teacher_id: int) -> Dict:
+    """
+    Get comprehensive early warning alerts for all students across teacher's classes.
+    Returns at-risk students categorized by warning type.
+    """
+    from models import Student, Class, AssessmentResult, ActivityLog
+    from datetime import datetime, timedelta
+
+    classes = Class.query.filter_by(teacher_id=teacher_id).all()
+    warnings = {
+        "declining_performance": [],  # Delta < -10
+        "low_performance": [],  # 2+ subjects < 60%
+        "inactive": [],  # No login in 7+ days
+        "no_recent_activity": [],  # No activity in 7+ days
+        "critical": []  # Multiple warning types
+    }
+
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+
+    for cls in classes:
+        students = Student.query.filter_by(class_id=cls.id).all()
+
+        for student in students:
+            student_warnings = []
+
+            # Check 1: Declining performance (delta < -10)
+            results = (
+                AssessmentResult.query.filter_by(student_id=student.id)
+                .order_by(AssessmentResult.created_at.desc())
+                .limit(20)
+                .all()
+            )
+
+            if len(results) >= 10:
+                last10 = results[:10]
+                prev10 = results[10:20]
+                scores_last = [r.score_percent for r in last10 if r.score_percent is not None]
+                scores_prev = [r.score_percent for r in prev10 if r.score_percent is not None]
+
+                if scores_last and scores_prev:
+                    avg_last = sum(scores_last) / len(scores_last)
+                    avg_prev = sum(scores_prev) / len(scores_prev)
+                    delta = avg_last - avg_prev
+
+                    if delta < -10:
+                        student_warnings.append("declining")
+                        warnings["declining_performance"].append({
+                            "student_id": student.id,
+                            "student_name": student.student_name,
+                            "class_name": cls.class_name,
+                            "class_id": cls.id,
+                            "delta": round(delta, 1),
+                            "current_avg": round(avg_last, 1),
+                            "previous_avg": round(avg_prev, 1)
+                        })
+
+            # Check 2: Low performance in multiple subjects
+            if len(results) >= 5:
+                subject_groups = {}
+                for r in results[:10]:
+                    if r.subject and r.score_percent is not None:
+                        subject_groups.setdefault(r.subject, []).append(r.score_percent)
+
+                weak_subjects = []
+                for subj, scores in subject_groups.items():
+                    avg = sum(scores) / len(scores)
+                    if avg < 60:
+                        weak_subjects.append({"subject": subj, "avg": round(avg, 1)})
+
+                if len(weak_subjects) >= 2:
+                    student_warnings.append("low_performance")
+                    warnings["low_performance"].append({
+                        "student_id": student.id,
+                        "student_name": student.student_name,
+                        "class_name": cls.class_name,
+                        "class_id": cls.id,
+                        "weak_subjects": weak_subjects,
+                        "count": len(weak_subjects)
+                    })
+
+            # Check 3: Haven't logged in recently
+            if student.last_login:
+                days_since_login = (now - student.last_login).days
+                if days_since_login >= 7:
+                    student_warnings.append("inactive")
+                    warnings["inactive"].append({
+                        "student_id": student.id,
+                        "student_name": student.student_name,
+                        "class_name": cls.class_name,
+                        "class_id": cls.id,
+                        "days_since_login": days_since_login,
+                        "last_login": student.last_login.strftime("%Y-%m-%d") if student.last_login else "Never"
+                    })
+
+            # Check 4: No recent activity
+            recent_activity = ActivityLog.query.filter(
+                ActivityLog.student_id == student.id,
+                ActivityLog.created_at >= week_ago
+            ).count()
+
+            if recent_activity == 0 and len(results) > 0:  # Has history but no recent activity
+                student_warnings.append("no_activity")
+                warnings["no_recent_activity"].append({
+                    "student_id": student.id,
+                    "student_name": student.student_name,
+                    "class_name": cls.class_name,
+                    "class_id": cls.id,
+                    "days_inactive": 7
+                })
+
+            # Critical: Multiple warning types
+            if len(student_warnings) >= 2:
+                warnings["critical"].append({
+                    "student_id": student.id,
+                    "student_name": student.student_name,
+                    "class_name": cls.class_name,
+                    "class_id": cls.id,
+                    "warning_types": student_warnings,
+                    "warning_count": len(student_warnings)
+                })
+
+    # Calculate totals
+    warnings["total_at_risk"] = len(set(
+        [w["student_id"] for category in ["declining_performance", "low_performance", "inactive", "no_recent_activity"]
+         for w in warnings[category]]
+    ))
+
+    return warnings

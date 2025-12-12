@@ -4200,6 +4200,17 @@ def teacher_dashboard():
             is_read=False,
         ).count()
 
+    # Get early warnings for at-risk students
+    from modules.teacher_tools import get_early_warnings
+    early_warnings = get_early_warnings(teacher.id) if teacher.id else {
+        "declining_performance": [],
+        "low_performance": [],
+        "inactive": [],
+        "no_recent_activity": [],
+        "critical": [],
+        "total_at_risk": 0
+    }
+
     classes = teacher.classes or []
     response = make_response(render_template(
         "teacher_dashboard.html",
@@ -4208,6 +4219,7 @@ def teacher_dashboard():
         is_owner=is_owner(teacher),
         unread_messages=unread_messages,
         trial_days_remaining=trial_days_remaining,
+        early_warnings=early_warnings,
     ))
     # Prevent caching to ensure layout updates are immediately visible
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
