@@ -92,6 +92,16 @@
             box-shadow: 0 10px 30px rgba(132, 255, 0, 0.4);
         }
 
+        .btn-template {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: #fff;
+        }
+
+        .btn-template:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
+        }
+
         .btn-add {
             background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: #fff;
@@ -381,6 +391,7 @@
         <h1>📝 Preview & Edit Assignment</h1>
         <div class="top-bar-actions">
             <a href="/teacher/dashboard" class="btn btn-cancel">✕ Cancel</a>
+            <button onclick="saveAsTemplate()" class="btn btn-template">📚 Save as Template</button>
             <button onclick="saveAssignment()" class="btn btn-save">💾 Save Assignment</button>
         </div>
     </div>
@@ -990,6 +1001,110 @@
                 container.innerHTML = originalHTML;
                 updateDragHandlers();
                 showFlash('Network error while regenerating', 'error');
+            }
+        }
+
+        // Save as Template
+        async function saveAsTemplate() {
+            const title = document.getElementById('title').value.trim();
+            const subject = document.getElementById('subject').value;
+            const grade = document.getElementById('grade_level')?.value || '{{ preview.grade }}';
+
+            if (!title) {
+                showFlash('Please enter a title for the template', 'error');
+                return;
+            }
+
+            // Collect all questions
+            const questions = [];
+            const cards = document.querySelectorAll('.question-card');
+
+            cards.forEach((card, index) => {
+                const prompt = card.querySelector('.question-prompt').value.trim();
+                const typeBadge = card.querySelector('.type-badge').textContent.trim();
+                const explanation = card.querySelector('.question-explanation').value.trim();
+
+                if (!prompt) return; // Skip empty questions
+
+                const questionData = {
+                    prompt: prompt,
+                    type: typeBadge,
+                    explanation: explanation
+                };
+
+                if (typeBadge === 'multiple_choice') {
+                    const choiceInputs = card.querySelectorAll('.choice-input');
+                    const choices = [];
+                    let expectedAnswer = null;
+
+                    choiceInputs.forEach((input, choiceIndex) => {
+                        const choiceText = input.value.trim();
+                        if (choiceText) {
+                            choices.push(choiceText);
+                            const radio = card.querySelector(`.choice-radio[data-choice-index="${choiceIndex}"]`);
+                            if (radio && radio.checked) {
+                                expectedAnswer = choiceText;
+                            }
+                        }
+                    });
+
+                    questionData.choices = choices;
+                    questionData.expected = expectedAnswer;
+                } else if (typeBadge === 'short_answer') {
+                    const expectedAnswer = card.querySelector('.expected-answer')?.value.trim();
+                    questionData.choices = [];
+                    questionData.expected = expectedAnswer || '';
+                }
+
+                questions.push(questionData);
+            });
+
+            if (questions.length === 0) {
+                showFlash('Template must have at least one question', 'error');
+                return;
+            }
+
+            // Show loading
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ Saving Template...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/save-assignment-template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: title,
+                        subject: subject,
+                        grade_level: grade,
+                        topic: '{{ preview.topic }}',
+                        differentiation_mode: '{{ preview.differentiation_mode }}',
+                        character: '{{ preview.character }}',
+                        questions: questions,
+                        is_public: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showFlash(`✅ Template "${title}" saved successfully!`, 'success');
+                    setTimeout(() => {
+                        if (confirm('Template saved! Would you like to view your template library?')) {
+                            window.location.href = '/teacher/templates';
+                        }
+                    }, 500);
+                } else {
+                    showFlash('Error: ' + (data.error || 'Failed to save template'), 'error');
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Save template error:', error);
+                showFlash('Network error while saving template', 'error');
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
     </script>
