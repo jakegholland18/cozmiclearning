@@ -54,6 +54,17 @@ def run_migrations():
         logger.error(f"❌ Error in add_stripe_ids: {e}")
         success = False
 
+    # Migration 4: Add Assignment Templates table
+    try:
+        logger.info("\n📋 Migration 4: Add Assignment Templates")
+        from add_assignment_templates_migration import add_assignment_templates
+        if not add_assignment_templates():
+            logger.error("❌ Failed to add assignment templates table")
+            success = False
+    except Exception as e:
+        logger.error(f"❌ Error in add_assignment_templates: {e}")
+        success = False
+
     if success:
         logger.info("\n✅ All startup migrations completed successfully!")
     else:
