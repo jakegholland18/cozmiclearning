@@ -2356,8 +2356,7 @@ def admin_set_mode(mode):
             student = Student(
                 parent_id=demo_parent.id,
                 student_name="Demo Student",
-                student_email="demo_student@cozmiclearning.com",
-                grade="8"
+                student_email="demo_student@cozmiclearning.com"
             )
             db.session.add(student)
             db.session.commit()
