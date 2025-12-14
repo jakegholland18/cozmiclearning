@@ -10295,6 +10295,7 @@ def parent_dashboard():
         ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
         ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
         ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
+        ("noble_forge", "noble_forge.png", "NobleForge", "Character & Manners"),
     ]
 
     return render_template(
@@ -10513,6 +10514,7 @@ def homeschool_dashboard():
         ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
         ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
         ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
+        ("noble_forge", "noble_forge.png", "NobleForge", "Character & Manners"),
     ]
 
     return render_template(

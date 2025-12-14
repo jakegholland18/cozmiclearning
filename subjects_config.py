@@ -170,6 +170,21 @@ SUBJECTS = {
         "features": ["file_upload", "deep_study"],
         "order": 10,
     },
+    "noble_forge": {
+        "key": "noble_forge",
+        "name": "NobleForge",
+        "label": "NobleForge (Life Skills)",
+        "description": "Learn manners, common sense, respect, and how to act in public",
+        "subtitle": "Character & Manners",
+        "icon": "noble_forge.png",
+        "category": "life_skills",
+        "min_grade": 1,
+        "max_grade": 12,
+        "handler_module": "manners_helper",
+        "handler_function": "teach_manners",
+        "features": ["practice", "chat"],
+        "order": 12,
+    },
 }
 
 
@@ -266,6 +281,7 @@ def get_subject_map():
         money_helper,
         question_helper,
         text_helper,
+        manners_helper,
     )
 
     handler_modules = {
@@ -279,6 +295,7 @@ def get_subject_map():
         "money_helper": money_helper,
         "question_helper": question_helper,
         "text_helper": text_helper,
+        "manners_helper": manners_helper,
     }
 
     for key, config in SUBJECTS.items():
