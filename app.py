@@ -11899,6 +11899,142 @@ def ratelimit_handler(e):
 
 
 # ============================================================
+# NOBLEFORGE - CHARACTER & MANNERS LESSONS
+# ============================================================
+
+@app.route("/nobleforge")
+def nobleforge():
+    """NobleForge main page with preset lesson categories"""
+    init_user()
+
+    from modules.manners_helper import get_all_lessons
+
+    grade = request.args.get("grade") or session.get("grade", "8")
+    character = request.args.get("character") or session.get("character", "everly")
+
+    session["grade"] = grade
+    session["character"] = character
+
+    lessons = get_all_lessons()
+
+    return render_template(
+        "nobleforge.html",
+        lessons=lessons,
+        grade=grade,
+        character=character
+    )
+
+
+@app.route("/nobleforge/lesson/<lesson_id>")
+def nobleforge_lesson(lesson_id):
+    """Display individual NobleForge lesson with AI-generated content"""
+    init_user()
+
+    from modules.manners_helper import get_lesson_by_id, teach_manners
+
+    grade = request.args.get("grade") or session.get("grade", "8")
+    character = request.args.get("character") or session.get("character", "everly")
+
+    session["grade"] = grade
+    session["character"] = character
+
+    # Get lesson info
+    lesson_info = get_lesson_by_id(lesson_id)
+
+    if not lesson_info:
+        flash("Lesson not found.", "error")
+        return redirect("/nobleforge")
+
+    # Generate AI lesson content
+    scenario = f"""
+Teach a lesson about: {lesson_info['lesson']['title']}
+
+Topic description: {lesson_info['lesson']['description']}
+
+This is a {lesson_info['category']} lesson. Provide practical, real-world examples and actionable advice that students can use immediately.
+"""
+
+    lesson_content = teach_manners(scenario, grade, character)
+
+    # Convert plain text to HTML with proper line breaks
+    lesson_content_html = lesson_content.replace('\n\n', '</p><p>').replace('\n', '<br>')
+    lesson_content_html = '<p>' + lesson_content_html + '</p>'
+
+    return render_template(
+        "nobleforge_lesson.html",
+        lesson_info=lesson_info,
+        lesson_content=lesson_content_html,
+        grade=grade,
+        character=character
+    )
+
+
+@app.route("/nobleforge/chat", methods=["POST"])
+@csrf.exempt
+def nobleforge_chat():
+    """Handle follow-up chat questions for NobleForge lessons"""
+    init_user()
+
+    from modules.manners_helper import teach_manners
+
+    data = request.get_json()
+
+    lesson_id = data.get("lesson_id")
+    question = data.get("question", "").strip()
+    conversation_history = data.get("conversation_history", [])
+    grade = data.get("grade", "8")
+    character = data.get("character", "everly")
+
+    if not question:
+        return jsonify({"success": False, "error": "No question provided"})
+
+    # Build conversation context
+    conversation_text = ""
+    for turn in conversation_history[-6:]:  # Last 3 exchanges (6 messages)
+        role = "Student" if turn.get("role") == "user" else "Tutor"
+        content = turn.get("content", "")
+        conversation_text += f"{role}: {content}\n"
+
+    # Generate response
+    prompt = f"""
+You are having a follow-up conversation with a student about a NobleForge lesson on manners and character.
+
+CONVERSATION SO FAR:
+{conversation_text}
+
+RESPONSE RULES:
+• Keep your response natural and conversational (2-4 sentences)
+• Answer their specific question directly
+• Provide practical examples they can use
+• Be warm, encouraging, and friendly
+• No structured sections - just natural conversation
+• If they ask for clarification, give real-world scenarios
+
+Respond to the student's most recent question in a friendly, helpful way.
+"""
+
+    try:
+        response = teach_manners(prompt, grade, character)
+
+        # Clean up response (remove any section headers if AI included them)
+        response = response.replace("SECTION 1 — OVERVIEW", "").replace("SECTION 2 — KEY FACTS", "")
+        response = response.replace("SECTION 3 — CHRISTIAN VIEW", "").replace("SECTION 4 — AGREEMENT", "")
+        response = response.replace("SECTION 5 — DIFFERENCE", "").replace("SECTION 6 — PRACTICE", "")
+        response = response.strip()
+
+        return jsonify({
+            "success": True,
+            "response": response
+        })
+    except Exception as e:
+        print(f"NobleForge chat error: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate response"
+        })
+
+
+# ============================================================
 # ADMIN MIGRATION BLUEPRINT (Temporary - for arcade setup)
 # ============================================================
 

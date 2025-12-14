@@ -437,7 +437,15 @@ function showPreview(subject, name, subtitle, img, mastery) {
     modalMastery.textContent = mastery + '%';
     modalXP.textContent = Math.floor(mastery * 1.2);
     modalProgressBar.style.width = mastery + '%';
-    modalStartBtn.href = '/choose-grade?subject=' + subject;
+
+    // Special handling for subjects with custom routes
+    if (subject === 'noble_forge') {
+        modalStartBtn.href = '/nobleforge';
+    } else if (subject === 'power_grid') {
+        modalStartBtn.href = '/choose-grade?subject=' + subject; // PowerGrid also has custom handling
+    } else {
+        modalStartBtn.href = '/choose-grade?subject=' + subject;
+    }
 
     // Show modal
     modal.style.display = 'flex';

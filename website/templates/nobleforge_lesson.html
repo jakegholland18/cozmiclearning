@@ -1,0 +1,463 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .lesson-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 32px;
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 140, 0, 0.1));
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 20px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 8px;
+        color: var(--gold);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-bottom: 24px;
+    }
+
+    .back-button:hover {
+        background: rgba(255, 215, 0, 0.2);
+        border-color: rgba(255, 215, 0, 0.6);
+        transform: translateX(-4px);
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255, 215, 0, 0.2);
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: var(--gold);
+        margin-bottom: 16px;
+    }
+
+    .lesson-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #ffd700, #ffed4e, #ffa500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .lesson-description {
+        font-size: 1.1rem;
+        color: var(--muted-2);
+    }
+
+    /* Lesson Content */
+    .lesson-content {
+        background: linear-gradient(135deg, rgba(92, 107, 255, 0.08), rgba(0, 242, 255, 0.05));
+        border: 2px solid rgba(118, 131, 255, 0.25);
+        padding: 40px;
+        border-radius: 20px;
+        margin-bottom: 40px;
+        line-height: 1.8;
+    }
+
+    .lesson-content h3 {
+        color: var(--gold);
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-top: 32px;
+        margin-bottom: 16px;
+    }
+
+    .lesson-content h3:first-child {
+        margin-top: 0;
+    }
+
+    .lesson-content p {
+        color: var(--muted);
+        margin-bottom: 16px;
+        font-size: 1.05rem;
+    }
+
+    /* Chat Section */
+    .chat-section {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 165, 0, 0.05));
+        border: 2px solid rgba(255, 215, 0, 0.25);
+        padding: 32px;
+        border-radius: 20px;
+        margin-top: 40px;
+    }
+
+    .chat-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .chat-header h3 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        min-height: 150px;
+    }
+
+    .chat-message {
+        margin-bottom: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .chat-message.user {
+        background: linear-gradient(135deg, rgba(92, 107, 255, 0.2), rgba(0, 242, 255, 0.15));
+        border: 1px solid rgba(118, 131, 255, 0.3);
+        margin-left: 40px;
+    }
+
+    .chat-message.assistant {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1));
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        margin-right: 40px;
+    }
+
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .message-header.user {
+        color: var(--accent);
+    }
+
+    .message-header.assistant {
+        color: var(--gold);
+    }
+
+    .message-text {
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .chat-input-container {
+        display: flex;
+        gap: 12px;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        resize: vertical;
+        min-height: 60px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .chat-input:focus {
+        border-color: rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .send-button {
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        border: none;
+        border-radius: 12px;
+        color: #000;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .send-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
+    }
+
+    .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .loading-indicator {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(255, 215, 0, 0.1);
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+
+    .loading-indicator.active {
+        display: flex;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 215, 0, 0.3);
+        border-top-color: var(--gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .lesson-title {
+            font-size: 2rem;
+        }
+
+        .lesson-content {
+            padding: 24px;
+        }
+
+        .chat-section {
+            padding: 20px;
+        }
+
+        .chat-message.user,
+        .chat-message.assistant {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .chat-input-container {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="lesson-container">
+    <!-- Back Button -->
+    <a href="/nobleforge?grade={{ grade }}&character={{ character }}" class="back-button">
+        ← Back to NobleForge
+    </a>
+
+    <!-- Lesson Header -->
+    <div class="lesson-header">
+        <div class="category-badge">
+            <span>{{ lesson_info.icon }}</span>
+            <span>{{ lesson_info.category }}</span>
+        </div>
+        <h1 class="lesson-title">{{ lesson_info.lesson.title }}</h1>
+        <p class="lesson-description">{{ lesson_info.lesson.description }}</p>
+    </div>
+
+    <!-- Lesson Content -->
+    <div class="lesson-content" id="lessonContent">
+        {% if lesson_content %}
+            {{ lesson_content|safe }}
+        {% else %}
+            <p style="text-align: center; color: var(--muted-3);">Loading lesson content...</p>
+        {% endif %}
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-section">
+        <div class="chat-header">
+            <span style="font-size: 2rem;">💬</span>
+            <h3>Ask Follow-Up Questions</h3>
+        </div>
+
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <span style="color: var(--gold); font-weight: 600;">Thinking...</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message assistant">
+                <div class="message-header assistant">
+                    <span>✨</span>
+                    <span>{{ character|title }} (Your Tutor)</span>
+                </div>
+                <div class="message-text">
+                    Hi! I just taught you about {{ lesson_info.lesson.title }}. Do you have any questions or want to talk about specific situations where you might use this?
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <textarea
+                class="chat-input"
+                id="chatInput"
+                placeholder="Ask a follow-up question about this lesson..."
+                rows="2"
+            ></textarea>
+            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                Send ✈️
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let conversationHistory = [];
+
+// Allow Enter to send (Shift+Enter for new line)
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Disable input while sending
+    input.disabled = true;
+    document.getElementById('sendButton').disabled = true;
+    document.getElementById('loadingIndicator').classList.add('active');
+
+    // Add user message to chat
+    addMessageToChat('user', message);
+    conversationHistory.push({ role: 'user', content: message });
+
+    // Clear input
+    input.value = '';
+
+    try {
+        // Send to server
+        const response = await fetch('/nobleforge/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                lesson_id: '{{ lesson_info.lesson.id }}',
+                question: message,
+                conversation_history: conversationHistory,
+                grade: '{{ grade }}',
+                character: '{{ character }}'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Add assistant response to chat
+            addMessageToChat('assistant', data.response);
+            conversationHistory.push({ role: 'assistant', content: data.response });
+        } else {
+            addMessageToChat('assistant', 'Sorry, I had trouble understanding that. Could you ask your question again?');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        addMessageToChat('assistant', 'Oops! Something went wrong. Please try again.');
+    } finally {
+        // Re-enable input
+        input.disabled = false;
+        document.getElementById('sendButton').disabled = false;
+        document.getElementById('loadingIndicator').classList.remove('active');
+        input.focus();
+    }
+}
+
+function addMessageToChat(role, text) {
+    const chatMessages = document.getElementById('chatMessages');
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${role}`;
+
+    const headerDiv = document.createElement('div');
+    headerDiv.className = `message-header ${role}`;
+
+    if (role === 'user') {
+        headerDiv.innerHTML = '<span>👤</span><span>You</span>';
+    } else {
+        headerDiv.innerHTML = '<span>✨</span><span>{{ character|title }} (Your Tutor)</span>';
+    }
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    textDiv.textContent = text;
+
+    messageDiv.appendChild(headerDiv);
+    messageDiv.appendChild(textDiv);
+    chatMessages.appendChild(messageDiv);
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Format lesson content sections
+document.addEventListener('DOMContentLoaded', function() {
+    const content = document.getElementById('lessonContent');
+    if (content) {
+        // Replace section markers with styled headers
+        const sections = [
+            'SECTION 1 — OVERVIEW',
+            'SECTION 2 — KEY FACTS',
+            'SECTION 3 — CHRISTIAN VIEW',
+            'SECTION 4 — AGREEMENT',
+            'SECTION 5 — DIFFERENCE',
+            'SECTION 6 — PRACTICE'
+        ];
+
+        let html = content.innerHTML;
+        sections.forEach(section => {
+            const regex = new RegExp(section, 'g');
+            html = html.replace(regex, `<h3>${section}</h3>`);
+        });
+        content.innerHTML = html;
+    }
+});
+</script>
+
+{% endblock %}
