@@ -8092,11 +8092,72 @@ def teacher_analytics_overview():
             "total_assessments": total_assessments,
         })
     
+    # Calculate time-series performance data (last 30 days by week)
+    from datetime import datetime, timedelta
+    import json
+
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=30)
+
+    # Get all student IDs across teacher's classes
+    all_student_ids = []
+    for cls in classes:
+        all_student_ids.extend([s.id for s in cls.students])
+
+    # Query assessment results in the last 30 days
+    time_series_results = AssessmentResult.query.filter(
+        AssessmentResult.student_id.in_(all_student_ids),
+        AssessmentResult.created_at >= start_date
+    ).order_by(AssessmentResult.created_at).all()
+
+    # Group by week for cleaner visualization
+    weekly_data = {}
+    for result in time_series_results:
+        if result.score_percent is None:
+            continue
+
+        # Get week key (e.g., "2024-W01")
+        week_key = result.created_at.strftime("%Y-W%W")
+        week_label = result.created_at.strftime("%b %d")
+
+        if week_key not in weekly_data:
+            weekly_data[week_key] = {
+                'label': week_label,
+                'scores': [],
+                'date': result.created_at
+            }
+
+        weekly_data[week_key]['scores'].append(result.score_percent)
+
+    # Calculate weekly averages
+    chart_labels = []
+    chart_data = []
+
+    for week_key in sorted(weekly_data.keys(), key=lambda k: weekly_data[k]['date']):
+        scores = weekly_data[week_key]['scores']
+        if scores:
+            chart_labels.append(weekly_data[week_key]['label'])
+            chart_data.append(round(sum(scores) / len(scores), 1))
+
+    # Calculate early warnings summary (for analytics page)
+    from modules.teacher_tools import get_early_warnings
+    early_warnings = get_early_warnings(teacher.id) if teacher.id else {
+        "declining_performance": [],
+        "low_performance": [],
+        "inactive": [],
+        "no_recent_activity": [],
+        "critical": [],
+        "total_at_risk": 0
+    }
+
     return render_template(
         "analytics_overview.html",
         teacher=teacher,
         class_summaries=class_summaries,
         is_owner=is_owner(teacher),
+        chart_labels=json.dumps(chart_labels),
+        chart_data=json.dumps(chart_data),
+        early_warnings=early_warnings
     )
 
 
