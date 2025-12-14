@@ -7972,13 +7972,13 @@ Keep it SHORT, HELPFUL, and HOPEFUL."""
         from modules.shared_ai import get_client
         client = get_client()
         
-        response = client.responses.create(
-            model="gpt-4.1-mini",
-            max_output_tokens=800,
-            input=messages,
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            max_tokens=800,
+            messages=messages,
         )
-        
-        answer = response.output_text.strip()
+
+        answer = response.choices[0].message.content.strip()
         
         # Update history
         history.append({"role": "user", "content": question})

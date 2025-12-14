@@ -113,15 +113,15 @@ GRADE RULE:
 
     client = get_client()
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt},
         ],
     )
 
-    return response.output_text
+    return response.choices[0].message.content
 
 
 # -------------------------------------------------------
@@ -226,14 +226,14 @@ GRADE LEVEL DEPTH:
 
     client = get_client()
 
-    response = client.responses.create(
-        model="gpt-4.1",
-        input=[
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt},
         ],
     )
 
-    return response.output_text
+    return response.choices[0].message.content
 
 

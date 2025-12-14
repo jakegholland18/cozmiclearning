@@ -6,14 +6,14 @@ from openai import OpenAI
 # Load OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def ask_ai(prompt: str, model: str = "gpt-4.1-mini") -> str:
+def ask_ai(prompt: str, model: str = "gpt-4o-mini") -> str:
     """
     Sends a simple prompt to OpenAI and returns plain text output.
-    Uses the new Responses API (same as shared_ai.py).
+    Uses the Chat Completions API.
     """
-    response = client.responses.create(
+    response = client.chat.completions.create(
         model=model,
-        input=prompt
+        messages=[{"role": "user", "content": prompt}]
     )
-    return response.output_text
+    return response.choices[0].message.content
 

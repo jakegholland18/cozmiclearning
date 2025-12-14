@@ -626,16 +626,16 @@ IMPORTANT:
         print(f"\nUSER PROMPT:\n{user_prompt}")
         print(f"{'='*60}\n")
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        max_output_tokens=4000,  # Increased from 1800 to accommodate more questions with full details
-        input=[
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        max_tokens=4000,  # Increased from 1800 to accommodate more questions with full details
+        messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
     )
 
-    raw = response.output_text.strip()
+    raw = response.choices[0].message.content.strip()
 
     # DEBUG: Print AI response for teacher context
     if context == "teacher":
