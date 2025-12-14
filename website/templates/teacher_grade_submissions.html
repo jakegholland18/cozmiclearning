@@ -223,6 +223,86 @@
         </div>
     </div>
 
+    <!-- ============ ASSIGNMENT ANALYTICS ============ -->
+    {% if analytics and analytics.has_data %}
+    <div style="background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08)); border: 1px solid rgba(118,131,255,0.35); border-radius: 16px; padding: 24px; margin-bottom: 25px;">
+        <h2 style="color: var(--accent); font-size: 1.5rem; margin-bottom: 20px;">📊 Assignment Analytics</h2>
+
+        <!-- Top Metrics -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div style="background: rgba(0,0,0,0.3); padding: 18px; border-radius: 12px; border-left: 4px solid {{ analytics.difficulty_color }};">
+                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 6px;">Difficulty Rating</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: {{ analytics.difficulty_color }};">{{ analytics.difficulty_label }}</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 18px; border-radius: 12px; border-left: 4px solid #00f2ff;">
+                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 6px;">Completion Rate</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #00f2ff;">{{ analytics.completion_rate }}%</div>
+                <div style="font-size: 0.75rem; color: var(--muted-3); margin-top: 4px;">{{ analytics.submitted_count }}/{{ analytics.submitted_count + analytics.not_started_count }} submitted</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 18px; border-radius: 12px; border-left: 4px solid #4fff89;">
+                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 6px;">Average Score</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #4fff89;">{{ analytics.avg_score }}%</div>
+                <div style="font-size: 0.75rem; color: var(--muted-3); margin-top: 4px;">Range: {{ analytics.low_score }}% - {{ analytics.high_score }}%</div>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 18px; border-radius: 12px; border-left: 4px solid #ff9f1c;">
+                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 6px;">Avg. Time</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #ff9f1c;">{{ analytics.avg_time_minutes }} min</div>
+                <div style="font-size: 0.75rem; color: var(--muted-3); margin-top: 4px;">{{ analytics.fastest_time_minutes }} - {{ analytics.slowest_time_minutes }} min</div>
+            </div>
+        </div>
+
+        <!-- Score Distribution -->
+        {% if analytics.score_distribution %}
+        <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+            <h3 style="color: var(--text); font-size: 1.1rem; margin-bottom: 16px;">Score Distribution</h3>
+            <div style="display: flex; align-items: flex-end; gap: 12px; height: 150px;">
+                {% for range, count in analytics.score_distribution.items() %}
+                {% set max_count = analytics.score_distribution.values()|max %}
+                {% set height = (count / max_count * 100)|int if max_count > 0 else 0 %}
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+                    <div style="background: {% if '90-100' in range %}rgba(79, 255, 137, 0.6){% elif '80-89' in range %}rgba(0, 242, 255, 0.6){% elif '70-79' in range %}rgba(255, 159, 28, 0.6){% else %}rgba(255, 68, 68, 0.6){% endif %}; width: 100%; height: {{ height }}%; min-height: {% if count > 0 %}20px{% else %}0{% endif %}; border-radius: 6px 6px 0 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                        {{ count }}
+                    </div>
+                    <div style="margin-top: 8px; font-size: 0.8rem; color: var(--muted-3); text-align: center;">{{ range }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Hardest Questions -->
+        {% if analytics.question_analytics %}
+        <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px;">
+            <h3 style="color: var(--text); font-size: 1.1rem; margin-bottom: 16px;">❗ Hardest Questions (Needs Reteaching)</h3>
+            <div style="display: grid; gap: 12px;">
+                {% for q in analytics.question_analytics[:5] %}
+                <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; display: flex; align-items: center; gap: 16px; border-left: 3px solid {% if q.difficulty == 'hard' %}#ff4444{% elif q.difficulty == 'medium' %}#ff9f1c{% else %}#4fff89{% endif %};">
+                    <div style="background: rgba(0,0,0,0.4); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--accent);">
+                        Q{{ q.number }}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="color: var(--text); font-size: 0.9rem; margin-bottom: 4px;">{{ q.prompt }}</div>
+                        <div style="font-size: 0.75rem; color: var(--muted-3);">{{ q.correct }}/{{ q.total }} students answered correctly</div>
+                    </div>
+                    <div style="text-align: right; min-width: 60px;">
+                        <div style="font-size: 1.3rem; font-weight: 700; color: {% if q.accuracy >= 85 %}#4fff89{% elif q.accuracy >= 50 %}#ff9f1c{% else %}#ff4444{% endif %};">
+                            {{ q.accuracy }}%
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--muted-3);">accuracy</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if analytics.question_analytics|length > 5 %}
+            <p style="text-align: center; color: var(--muted-3); font-size: 0.85rem; margin-top: 12px;">
+                + {{ analytics.question_analytics|length - 5 }} more questions analyzed
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% if student_submissions %}
     <table class="submissions-table">
         <thead>

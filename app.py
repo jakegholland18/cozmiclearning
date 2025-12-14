@@ -6143,11 +6143,137 @@ def teacher_view_submissions(assignment_id):
 
     questions = mission.get("steps", [])
 
+    # ============ ASSIGNMENT ANALYTICS ============
+    import json as json_module
+    from datetime import timedelta
+
+    total_students = len(students)
+    submitted_count = len([s for s in submissions if s.status in ['submitted', 'graded']])
+    graded_count = len([s for s in submissions if s.status == 'graded'])
+    not_started_count = total_students - submitted_count
+
+    # Completion rate
+    completion_rate = (submitted_count / total_students * 100) if total_students > 0 else 0
+
+    # Score statistics (only graded submissions)
+    graded_submissions = [s for s in submissions if s.status == 'graded' and s.score is not None]
+    scores = [s.score for s in graded_submissions]
+
+    if scores:
+        avg_score = sum(scores) / len(scores)
+        high_score = max(scores)
+        low_score = min(scores)
+
+        # Difficulty analysis
+        high_scores = len([s for s in scores if s >= 95])
+        low_scores = len([s for s in scores if s < 70])
+
+        if high_scores / len(scores) >= 0.9:
+            difficulty_rating = "too_easy"
+            difficulty_label = "Too Easy"
+            difficulty_color = "#00f2a0"
+        elif low_scores / len(scores) >= 0.6:
+            difficulty_rating = "too_hard"
+            difficulty_label = "Too Hard"
+            difficulty_color = "#ff4444"
+        else:
+            difficulty_rating = "balanced"
+            difficulty_label = "Well-Balanced"
+            difficulty_color = "#4facfe"
+
+        # Score distribution for histogram
+        score_distribution = {
+            "0-59": len([s for s in scores if s < 60]),
+            "60-69": len([s for s in scores if 60 <= s < 70]),
+            "70-79": len([s for s in scores if 70 <= s < 80]),
+            "80-89": len([s for s in scores if 80 <= s < 90]),
+            "90-100": len([s for s in scores if s >= 90])
+        }
+    else:
+        avg_score = 0
+        high_score = 0
+        low_score = 0
+        difficulty_rating = "unknown"
+        difficulty_label = "Not Enough Data"
+        difficulty_color = "#8a92b3"
+        score_distribution = {}
+
+    # Time metrics
+    completion_times = []
+    for sub in graded_submissions:
+        if sub.submitted_at and sub.created_at:
+            time_diff = (sub.submitted_at - sub.created_at).total_seconds() / 60  # minutes
+            if 0 < time_diff < 300:  # Ignore outliers > 5 hours
+                completion_times.append(time_diff)
+
+    if completion_times:
+        avg_time = sum(completion_times) / len(completion_times)
+        fastest_time = min(completion_times)
+        slowest_time = max(completion_times)
+    else:
+        avg_time = 0
+        fastest_time = 0
+        slowest_time = 0
+
+    # Question-level analytics
+    question_analytics = []
+    for idx, question in enumerate(questions):
+        question_num = idx + 1
+        correct_count = 0
+        total_answered = 0
+
+        for sub in graded_submissions:
+            if sub.answers_json:
+                try:
+                    answers = json_module.loads(sub.answers_json)
+                    if isinstance(answers, list) and len(answers) > idx:
+                        answer_data = answers[idx]
+                        if isinstance(answer_data, dict):
+                            total_answered += 1
+                            if answer_data.get('correct'):
+                                correct_count += 1
+                except:
+                    pass
+
+        if total_answered > 0:
+            accuracy = (correct_count / total_answered) * 100
+            question_analytics.append({
+                'number': question_num,
+                'prompt': question.get('prompt', '')[:80] + '...' if len(question.get('prompt', '')) > 80 else question.get('prompt', ''),
+                'accuracy': round(accuracy, 1),
+                'correct': correct_count,
+                'total': total_answered,
+                'difficulty': 'easy' if accuracy >= 85 else ('hard' if accuracy < 50 else 'medium')
+            })
+
+    # Sort by accuracy (hardest first)
+    question_analytics.sort(key=lambda x: x['accuracy'])
+
+    analytics = {
+        'completion_rate': round(completion_rate, 1),
+        'submitted_count': submitted_count,
+        'graded_count': graded_count,
+        'not_started_count': not_started_count,
+        'avg_score': round(avg_score, 1) if scores else 0,
+        'high_score': round(high_score, 1) if scores else 0,
+        'low_score': round(low_score, 1) if scores else 0,
+        'difficulty_rating': difficulty_rating,
+        'difficulty_label': difficulty_label,
+        'difficulty_color': difficulty_color,
+        'score_distribution': score_distribution,
+        'avg_time_minutes': round(avg_time, 1) if completion_times else 0,
+        'fastest_time_minutes': round(fastest_time, 1) if completion_times else 0,
+        'slowest_time_minutes': round(slowest_time, 1) if completion_times else 0,
+        'question_analytics': question_analytics[:10],  # Top 10 hardest questions
+        'has_data': len(graded_submissions) >= 3  # Require at least 3 graded submissions for meaningful analytics
+    }
+
     return render_template(
         "teacher_grade_submissions.html",
         assignment=assignment,
         student_submissions=student_submissions,
-        questions=questions
+        questions=questions,
+        analytics=analytics
     )
 
 
