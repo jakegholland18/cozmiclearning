@@ -64,6 +64,27 @@
         border-radius: 16px;
         cursor: pointer;
         transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .category-header::after {
+        content: 'Click to expand/collapse';
+        position: absolute;
+        top: -8px;
+        right: 16px;
+        background: rgba(255, 215, 0, 0.9);
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .category-header:hover::after {
+        opacity: 1;
     }
 
     .category-header:hover {
@@ -348,12 +369,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Open first category by default
-    const firstCategory = categorySections[0];
-    if (firstCategory) {
-        const categoryKey = firstCategory.dataset.category;
+    // Open ALL categories by default so students can see all lessons
+    categorySections.forEach(section => {
+        const categoryKey = section.dataset.category;
         toggleCategory(categoryKey);
-    }
+    });
 });
 </script>
 
