@@ -439,8 +439,8 @@ function showPreview(subject, name, subtitle, img, mastery) {
     modalProgressBar.style.width = mastery + '%';
 
     // Special handling for subjects with custom routes
-    if (subject === 'noble_forge') {
-        modalStartBtn.href = '/nobleforge';
+    if (subject === 'respect_realm') {
+        modalStartBtn.href = '/respectrealm';
     } else if (subject === 'power_grid') {
         modalStartBtn.href = '/choose-grade?subject=' + subject; // PowerGrid also has custom handling
     } else {

@@ -3,8 +3,8 @@
 from modules.shared_ai import study_buddy_ai
 
 
-# Preset NobleForge Lessons - Organized by Category
-NOBLEFORGE_LESSONS = {
+# Preset RespectRealm Lessons - Organized by Category
+RESPECTREALM_LESSONS = {
     "table_manners": {
         "category": "Table Manners & Dining",
         "icon": "🍽️",
@@ -90,12 +90,12 @@ NOBLEFORGE_LESSONS = {
 
 def get_all_lessons():
     """Get all lessons organized by category."""
-    return NOBLEFORGE_LESSONS
+    return RESPECTREALM_LESSONS
 
 
 def get_lesson_by_id(lesson_id):
     """Find a specific lesson by its ID."""
-    for category_key, category_data in NOBLEFORGE_LESSONS.items():
+    for category_key, category_data in RESPECTREALM_LESSONS.items():
         for lesson in category_data["lessons"]:
             if lesson["id"] == lesson_id:
                 return {
@@ -130,7 +130,7 @@ SCENARIO/QUESTION:
 {scenario}
 
 TEACHING FOCUS:
-This is NobleForge - where we teach students how to be respectful, courteous, and use common sense in everyday situations. Cover topics like:
+This is RespectRealm - where we teach students how to be respectful, courteous, and use common sense in everyday situations. Cover topics like:
 
 • Table manners and dining etiquette
 • How to behave in public spaces (restaurants, stores, church, etc.)

@@ -170,13 +170,13 @@ SUBJECTS = {
         "features": ["file_upload", "deep_study"],
         "order": 10,
     },
-    "noble_forge": {
-        "key": "noble_forge",
-        "name": "NobleForge",
-        "label": "NobleForge (Life Skills)",
+    "respect_realm": {
+        "key": "respect_realm",
+        "name": "RespectRealm",
+        "label": "RespectRealm (Life Skills)",
         "description": "Learn manners, common sense, respect, and how to act in public",
         "subtitle": "Character & Manners",
-        "icon": "noble_forge.png",
+        "icon": "respect_realm.png",
         "category": "life_skills",
         "min_grade": 1,
         "max_grade": 12,

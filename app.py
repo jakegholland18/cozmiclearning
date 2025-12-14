@@ -10295,7 +10295,7 @@ def parent_dashboard():
         ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
         ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
         ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
-        ("noble_forge", "noble_forge.png", "NobleForge", "Character & Manners"),
+        ("respect_realm", "respect_realm.png", "RespectRealm", "Character & Manners"),
     ]
 
     return render_template(
@@ -10514,7 +10514,7 @@ def homeschool_dashboard():
         ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
         ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
         ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
-        ("noble_forge", "noble_forge.png", "NobleForge", "Character & Manners"),
+        ("respect_realm", "respect_realm.png", "RespectRealm", "Character & Manners"),
     ]
 
     return render_template(
@@ -11899,12 +11899,12 @@ def ratelimit_handler(e):
 
 
 # ============================================================
-# NOBLEFORGE - CHARACTER & MANNERS LESSONS
+# RESPECTREALM - CHARACTER & MANNERS LESSONS
 # ============================================================
 
-@app.route("/nobleforge")
-def nobleforge():
-    """NobleForge main page with preset lesson categories"""
+@app.route("/respectrealm")
+def respectrealm():
+    """RespectRealm main page with preset lesson categories"""
     init_user()
 
     from modules.manners_helper import get_all_lessons
@@ -11918,16 +11918,16 @@ def nobleforge():
     lessons = get_all_lessons()
 
     return render_template(
-        "nobleforge.html",
+        "respectrealm.html",
         lessons=lessons,
         grade=grade,
         character=character
     )
 
 
-@app.route("/nobleforge/lesson/<lesson_id>")
-def nobleforge_lesson(lesson_id):
-    """Display individual NobleForge lesson with AI-generated content"""
+@app.route("/respectrealm/lesson/<lesson_id>")
+def respectrealm_lesson(lesson_id):
+    """Display individual RespectRealm lesson with AI-generated content"""
     init_user()
 
     from modules.manners_helper import get_lesson_by_id, teach_manners
@@ -11943,7 +11943,7 @@ def nobleforge_lesson(lesson_id):
 
     if not lesson_info:
         flash("Lesson not found.", "error")
-        return redirect("/nobleforge")
+        return redirect("/respectrealm")
 
     # Generate AI lesson content
     scenario = f"""
@@ -11961,7 +11961,7 @@ This is a {lesson_info['category']} lesson. Provide practical, real-world exampl
     lesson_content_html = '<p>' + lesson_content_html + '</p>'
 
     return render_template(
-        "nobleforge_lesson.html",
+        "respectrealm_lesson.html",
         lesson_info=lesson_info,
         lesson_content=lesson_content_html,
         grade=grade,
@@ -11969,10 +11969,10 @@ This is a {lesson_info['category']} lesson. Provide practical, real-world exampl
     )
 
 
-@app.route("/nobleforge/chat", methods=["POST"])
+@app.route("/respectrealm/chat", methods=["POST"])
 @csrf.exempt
-def nobleforge_chat():
-    """Handle follow-up chat questions for NobleForge lessons"""
+def respectrealm_chat():
+    """Handle follow-up chat questions for RespectRealm lessons"""
     init_user()
 
     from modules.manners_helper import teach_manners
@@ -11997,7 +11997,7 @@ def nobleforge_chat():
 
     # Generate response
     prompt = f"""
-You are having a follow-up conversation with a student about a NobleForge lesson on manners and character.
+You are having a follow-up conversation with a student about a RespectRealm lesson on manners and character.
 
 CONVERSATION SO FAR:
 {conversation_text}
@@ -12027,7 +12027,7 @@ Respond to the student's most recent question in a friendly, helpful way.
             "response": response
         })
     except Exception as e:
-        print(f"NobleForge chat error: {e}")
+        print(f"RespectRealm chat error: {e}")
         return jsonify({
             "success": False,
             "error": "Failed to generate response"
