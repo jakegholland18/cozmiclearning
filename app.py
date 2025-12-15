@@ -9458,15 +9458,23 @@ def powergrid_submit():
         combined_text = "No content provided."
 
     # Generate study guide with mode and style
-    study_guide = study_helper.generate_powergrid_master_guide(
-        combined_text, grade, session.get("character", "everly"), 
-        mode=study_mode, learning_style=learning_style
-    )
-    
+    try:
+        study_guide = study_helper.generate_powergrid_master_guide(
+            combined_text, grade, session.get("character", "everly"),
+            mode=study_mode, learning_style=learning_style
+        )
+    except Exception as e:
+        app.logger.error(f"PowerGrid study guide generation failed: {e}")
+        flash("Sorry, there was an error generating your study guide. Please try again.", "error")
+        return redirect("/powergrid")
+
     # Update log with AI response if topic was provided
     if topic and 'log_entry' in locals():
-        log_entry.ai_response = study_guide[:5000]
-        db.session.commit()
+        try:
+            log_entry.ai_response = study_guide[:5000]
+            db.session.commit()
+        except Exception as e:
+            app.logger.error(f"Failed to update question log: {e}")
 
     # Generate PDF
     import uuid

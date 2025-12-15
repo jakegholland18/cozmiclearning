@@ -1,0 +1,197 @@
+{
+  "timestamp": "2025-12-14T20:44:34.817367",
+  "base_url": "http://localhost:5000",
+  "test_accounts": {
+    "teacher": {
+      "name": "Test Teacher",
+      "email": "teacher_test_1765763074@cozmictest.com",
+      "password": "TeacherPass123!"
+    },
+    "students": [
+      {
+        "name": "Student One",
+        "email": "student1_test_1765763074@cozmictest.com",
+        "password": "StudentPass123!",
+        "date_of_birth": "2011-12-18"
+      },
+      {
+        "name": "Student Two",
+        "email": "student2_test_1765763074@cozmictest.com",
+        "password": "StudentPass123!",
+        "date_of_birth": "2010-12-18"
+      }
+    ],
+    "parent": {
+      "name": "Test Parent",
+      "email": "parent_test_1765763074@cozmictest.com",
+      "password": "ParentPass123!",
+      "plan": "homeschool_essential"
+    }
+  },
+  "total_tests": 23,
+  "success_rate": 0.0,
+  "successes": [],
+  "issues": [
+    {
+      "category": "Teacher Signup",
+      "severity": "critical",
+      "description": "Failed to create teacher",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.786891"
+    },
+    {
+      "category": "Student Signup",
+      "severity": "high",
+      "description": "Failed to create student 1",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.789792"
+    },
+    {
+      "category": "Student Signup",
+      "severity": "high",
+      "description": "Failed to create student 2",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.792225"
+    },
+    {
+      "category": "Parent Signup",
+      "severity": "high",
+      "description": "Failed to create parent",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.795153"
+    },
+    {
+      "category": "Class Creation",
+      "severity": "high",
+      "description": "Failed to create class",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.798145"
+    },
+    {
+      "category": "Assignment Creation",
+      "severity": "high",
+      "description": "Failed to create assignment",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.799313"
+    },
+    {
+      "category": "Teacher Analytics",
+      "severity": "medium",
+      "description": "Analytics page failed",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.799869"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "NumForge (Math) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.800500"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "AtomSphere (Science) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.801058"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "ChronoCore (History) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.801615"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "StoryVerse (Reading) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.802170"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "InkHaven (Writing) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.802744"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "FaithRealm (Bible) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.803332"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "CoinQuest (Money) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.803912"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "StockStar (Investing) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.804478"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "TerraNova (General) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.805053"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "PowerGrid (Deep Study) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.805599"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "TruthForge (Apologetics) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.806155"
+    },
+    {
+      "category": "Subject Load",
+      "severity": "high",
+      "description": "RespectRealm (Life Skills) failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.806725"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "high",
+      "description": "Landing page failed",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.807335"
+    },
+    {
+      "category": "Student Practice",
+      "severity": "medium",
+      "description": "Student could not access practice",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.810658"
+    },
+    {
+      "category": "Parent Dashboard",
+      "severity": "medium",
+      "description": "Dashboard failed to load",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.816488"
+    },
+    {
+      "category": "Lesson Plans",
+      "severity": "medium",
+      "description": "Library page failed",
+      "details": "Status: 403",
+      "timestamp": "2025-12-14T20:44:34.817148"
+    }
+  ]
+}

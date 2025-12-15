@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Metrics - CozmicLearning{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">📊 Performance Metrics Dashboard</h1>
+
+    <!-- Alerts Section -->
+    {% if alerts %}
+    <div class="alert alert-warning">
+        <h5>⚠️ Performance Alerts</h5>
+        <ul class="mb-0">
+            {% for alert in alerts %}
+            <li>{{ alert }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="alert alert-success">
+        ✅ No alerts - All systems normal
+    </div>
+    {% endif %}
+
+    <!-- Key Metrics Cards -->
+    <div class="row mb-4">
+        <!-- Signups -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">New Signups</h5>
+                    <h2 class="mb-0">{{ summary_7day.total_signups }}</h2>
+                    <small>Last 7 days</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logins -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Total Logins</h5>
+                    <h2 class="mb-0">{{ summary_7day.total_logins }}</h2>
+                    <small>Last 7 days</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Questions -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">AI Questions</h5>
+                    <h2 class="mb-0">{{ summary_7day.total_ai_questions }}</h2>
+                    <small>Last 7 days</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Users Today -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Active Today</h5>
+                    <h2 class="mb-0">{{ summary_7day.active_users_today }}</h2>
+                    <small>Concurrent users</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">⚡ Average Response Time</h5>
+                    <h2 class="mb-0">{{ summary_7day.avg_response_time }}s</h2>
+                    <small>Lower is better (target: &lt; 3s)</small>
+                    {% if summary_7day.avg_response_time > 5 %}
+                    <div class="alert alert-danger mt-2">⚠️ Response times are slow!</div>
+                    {% elif summary_7day.avg_response_time > 3 %}
+                    <div class="alert alert-warning mt-2">⚠️ Response times getting slow</div>
+                    {% else %}
+                    <div class="alert alert-success mt-2">✅ Response times good</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🚨 Error Rate</h5>
+                    <h2 class="mb-0">{{ summary_7day.total_errors }}</h2>
+                    <small>Errors in last 7 days</small>
+                    {% if summary_7day.total_errors > 100 %}
+                    <div class="alert alert-danger mt-2">⚠️ High error rate!</div>
+                    {% elif summary_7day.total_errors > 50 %}
+                    <div class="alert alert-warning mt-2">⚠️ Moderate errors</div>
+                    {% else %}
+                    <div class="alert alert-success mt-2">✅ Low error rate</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Breakdown -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📈 7-Day Breakdown</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Signups</th>
+                            <th>Logins</th>
+                            <th>AI Questions</th>
+                            <th>Errors</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date in summary_7day.daily_breakdown.signups.keys() | sort(reverse=True) %}
+                        <tr>
+                            <td>{{ date }}</td>
+                            <td>{{ summary_7day.daily_breakdown.signups[date] }}</td>
+                            <td>{{ summary_7day.daily_breakdown.logins[date] }}</td>
+                            <td>{{ summary_7day.daily_breakdown.ai_questions[date] }}</td>
+                            <td>
+                                {% if summary_7day.daily_breakdown.errors[date] > 10 %}
+                                <span class="badge bg-danger">{{ summary_7day.daily_breakdown.errors[date] }}</span>
+                                {% else %}
+                                {{ summary_7day.daily_breakdown.errors[date] }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 30-Day Summary -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📅 30-Day Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Total Signups:</strong><br>
+                    <h4>{{ summary_30day.total_signups }}</h4>
+                </div>
+                <div class="col-md-3">
+                    <strong>Total Logins:</strong><br>
+                    <h4>{{ summary_30day.total_logins }}</h4>
+                </div>
+                <div class="col-md-3">
+                    <strong>Total AI Questions:</strong><br>
+                    <h4>{{ summary_30day.total_ai_questions }}</h4>
+                </div>
+                <div class="col-md-3">
+                    <strong>Total Errors:</strong><br>
+                    <h4>{{ summary_30day.total_errors }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capacity Status -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">🚀 Capacity Status</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Current Plan:</strong> Starter ($7/month)</p>
+            <p><strong>Recommended Capacity:</strong> 20-50 concurrent users</p>
+            <p><strong>Peak Capacity:</strong> 100 concurrent users (before slowdown)</p>
+
+            {% if summary_7day.active_users_today > 80 %}
+            <div class="alert alert-danger">
+                ⚠️ <strong>Critical:</strong> Approaching capacity! Consider upgrading to Standard plan.
+            </div>
+            {% elif summary_7day.active_users_today > 50 %}
+            <div class="alert alert-warning">
+                ⚠️ <strong>Warning:</strong> Getting close to capacity. Monitor performance closely.
+            </div>
+            {% elif summary_7day.active_users_today > 30 %}
+            <div class="alert alert-info">
+                ℹ️ <strong>Notice:</strong> Moderate usage. Keep monitoring.
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                ✅ <strong>Good:</strong> Plenty of capacity remaining.
+            </div>
+            {% endif %}
+
+            <p class="mb-0"><strong>Active Users Today:</strong> {{ summary_7day.active_users_today }} / ~50 capacity</p>
+            <div class="progress" style="height: 30px;">
+                {% set usage_percent = (summary_7day.active_users_today / 50 * 100) | int %}
+                <div class="progress-bar {% if usage_percent > 80 %}bg-danger{% elif usage_percent > 60 %}bg-warning{% else %}bg-success{% endif %}"
+                     role="progressbar"
+                     style="width: {{ usage_percent }}%"
+                     aria-valuenow="{{ usage_percent }}"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    {{ usage_percent }}%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">🔧 Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <a href="https://dashboard.render.com" target="_blank" class="btn btn-primary">
+                📊 View Render Metrics
+            </a>
+            <a href="{{ url_for('metrics_api', days=7) }}" target="_blank" class="btn btn-secondary">
+                📥 Download JSON Data
+            </a>
+            <a href="https://dashboard.render.com" target="_blank" class="btn btn-info">
+                📝 View Logs
+            </a>
+            <button class="btn btn-success" onclick="location.reload()">
+                🔄 Refresh Metrics
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-4 mb-5">
+        <p class="text-muted">
+            <small>
+                Last updated: {{ "now" | date }} |
+                <a href="/metrics">Refresh</a> |
+                <a href="https://dashboard.render.com" target="_blank">Render Dashboard</a>
+            </small>
+        </p>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-body h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.progress {
+    margin-top: 10px;
+}
+
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}

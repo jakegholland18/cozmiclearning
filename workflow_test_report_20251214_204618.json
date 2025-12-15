@@ -1,0 +1,219 @@
+{
+  "timestamp": "2025-12-14T20:46:18.951609",
+  "base_url": "https://cozmiclearning-1.onrender.com",
+  "test_accounts": {
+    "teacher": {
+      "name": "Test Teacher",
+      "email": "teacher_test_1765763175@cozmictest.com",
+      "password": "TeacherPass123!"
+    },
+    "students": [
+      {
+        "name": "Student One",
+        "email": "student1_test_1765763175@cozmictest.com",
+        "password": "StudentPass123!",
+        "date_of_birth": "2011-12-18"
+      },
+      {
+        "name": "Student Two",
+        "email": "student2_test_1765763175@cozmictest.com",
+        "password": "StudentPass123!",
+        "date_of_birth": "2010-12-18"
+      }
+    ],
+    "parent": {
+      "name": "Test Parent",
+      "email": "parent_test_1765763175@cozmictest.com",
+      "password": "ParentPass123!",
+      "plan": "homeschool_essential"
+    }
+  },
+  "total_tests": 35,
+  "success_rate": 60.0,
+  "successes": [
+    {
+      "category": "Teacher Analytics",
+      "description": "Analytics page loads"
+    },
+    {
+      "category": "Subject Load",
+      "description": "NumForge (Math) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "AtomSphere (Science) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "ChronoCore (History) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "StoryVerse (Reading) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "InkHaven (Writing) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "FaithRealm (Bible) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "CoinQuest (Money) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "StockStar (Investing) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "TerraNova (General) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "PowerGrid (Deep Study) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "TruthForge (Apologetics) accessible"
+    },
+    {
+      "category": "Subject Load",
+      "description": "RespectRealm (Life Skills) accessible"
+    },
+    {
+      "category": "RespectRealm",
+      "description": "Landing page loads"
+    },
+    {
+      "category": "RespectRealm",
+      "description": "Category found: Table Manners"
+    },
+    {
+      "category": "RespectRealm",
+      "description": "Category found: Public Behavior"
+    },
+    {
+      "category": "RespectRealm",
+      "description": "Category found: Basic Courtesy"
+    },
+    {
+      "category": "RespectRealm",
+      "description": "Category found: Conversation Skills"
+    },
+    {
+      "category": "Parent Dashboard",
+      "description": "Dashboard loads"
+    },
+    {
+      "category": "Parent Reports",
+      "description": "Progress reports visible"
+    },
+    {
+      "category": "Lesson Plans",
+      "description": "Library page loads"
+    }
+  ],
+  "issues": [
+    {
+      "category": "Teacher Signup",
+      "severity": "critical",
+      "description": "Failed to create teacher",
+      "details": "Status: 500",
+      "timestamp": "2025-12-14T20:46:15.436411"
+    },
+    {
+      "category": "Student Signup",
+      "severity": "high",
+      "description": "Failed to create student 1",
+      "details": "Status: 500",
+      "timestamp": "2025-12-14T20:46:15.649467"
+    },
+    {
+      "category": "Student Signup",
+      "severity": "high",
+      "description": "Failed to create student 2",
+      "details": "Status: 500",
+      "timestamp": "2025-12-14T20:46:15.964818"
+    },
+    {
+      "category": "Parent Signup",
+      "severity": "high",
+      "description": "Failed to create parent",
+      "details": "Status: 500",
+      "timestamp": "2025-12-14T20:46:16.190604"
+    },
+    {
+      "category": "Class Creation",
+      "severity": "high",
+      "description": "Failed to create class",
+      "details": "Status: 404",
+      "timestamp": "2025-12-14T20:46:16.587715"
+    },
+    {
+      "category": "Assignment Creation",
+      "severity": "high",
+      "description": "Failed to create assignment",
+      "details": "Status: 404",
+      "timestamp": "2025-12-14T20:46:16.868296"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Respect & Courtesy",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999280"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Phone & Digital Manners",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999420"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Personal Care & Hygiene",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999489"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Responsibility & Work Ethic",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999615"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Physical Discipline & Fitness",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999690"
+    },
+    {
+      "category": "RespectRealm",
+      "severity": "medium",
+      "description": "Category not visible: Humility & Growth",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:17.999765"
+    },
+    {
+      "category": "Student Practice",
+      "severity": "medium",
+      "description": "Student could not access practice",
+      "details": "Status: 404",
+      "timestamp": "2025-12-14T20:46:18.265749"
+    },
+    {
+      "category": "Lesson Plans",
+      "severity": "low",
+      "description": "Back button not found",
+      "details": "",
+      "timestamp": "2025-12-14T20:46:18.951346"
+    }
+  ]
+}
