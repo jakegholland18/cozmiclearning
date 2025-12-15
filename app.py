@@ -1045,6 +1045,11 @@ def init_user():
         "is_owner": session.get("is_owner"),
     }
 
+    # Generate user_id if not present (for anonymous session tracking)
+    if "user_id" not in session:
+        import uuid
+        session["user_id"] = str(uuid.uuid4())
+
     defaults = {
         "tokens": 0,
         "xp": 0,
