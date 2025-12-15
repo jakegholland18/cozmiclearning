@@ -76,6 +76,8 @@
         transition: all 0.3s ease;
         backdrop-filter: blur(8px);
         position: relative;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .lesson-card:hover {
@@ -167,7 +169,7 @@
 
 <div class="lessons-grid">
     {% for lesson_topic in lesson_topics %}
-    <div class="lesson-card" onclick="startLesson('{{ lesson_topic }}')">
+    <div class="lesson-card" onclick="startLesson({{ lesson_topic|tojson }})">
         <span class="lesson-number">Lesson {{ loop.index }}</span>
         <div class="lesson-icon">
             {% if 'Math' in subject_config['name'] or 'NumForge' in subject_config['name'] %}🔢
@@ -196,15 +198,30 @@
 
 <script>
 function startLesson(topic) {
+    console.log('Starting lesson:', topic);
+
     const params = new URLSearchParams(window.location.search);
     const subject = params.get("subject");
     const grade = params.get("grade");
 
+    console.log('Subject:', subject, 'Grade:', grade);
+
     // URL-encode the topic to handle special characters
     const encodedTopic = encodeURIComponent(topic);
 
-    window.location.href = `/view-lesson?subject=${subject}&grade=${grade}&topic=${encodedTopic}`;
+    const url = `/view-lesson?subject=${subject}&grade=${grade}&topic=${encodedTopic}`;
+    console.log('Navigating to:', url);
+
+    window.location.href = url;
 }
+
+// Check if page loaded correctly
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Lesson library page loaded');
+    console.log('Current URL:', window.location.href);
+    console.log('Subject param:', new URLSearchParams(window.location.search).get('subject'));
+    console.log('Grade param:', new URLSearchParams(window.location.search).get('grade'));
+});
 </script>
 
 {% endblock %}
