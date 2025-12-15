@@ -7,11 +7,12 @@ Tests full workflow: Teacher → Student → Parent interactions
 import requests
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 
 # CONFIGURATION
-BASE_URL = "http://localhost:5000"  # Change to production URL when ready
-# BASE_URL = "https://cozmiclearning-1.onrender.com"
+# BASE_URL = "http://localhost:5000"  # Use this for local testing
+BASE_URL = "https://cozmiclearning-1.onrender.com"  # Production URL
 
 # Test accounts (will be created fresh each run)
 TEST_ACCOUNTS = {
@@ -25,13 +26,13 @@ TEST_ACCOUNTS = {
             "name": "Student One",
             "email": f"student1_test_{int(time.time())}@cozmictest.com",
             "password": "StudentPass123!",
-            "grade": "8"
+            "date_of_birth": (datetime.now() - timedelta(days=365*14)).strftime("%Y-%m-%d")  # 14 years old
         },
         {
             "name": "Student Two",
             "email": f"student2_test_{int(time.time())}@cozmictest.com",
             "password": "StudentPass123!",
-            "grade": "9"
+            "date_of_birth": (datetime.now() - timedelta(days=365*15)).strftime("%Y-%m-%d")  # 15 years old
         }
     ],
     "parent": {
@@ -49,6 +50,18 @@ class CompleteWorkflowTester:
         self.issues = []
         self.successes = []
         self.test_data = {}  # Store created IDs, etc.
+
+    def get_csrf_token(self, url):
+        """Extract CSRF token from a page"""
+        try:
+            response = self.session.get(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            csrf_token = soup.find('input', {'name': 'csrf_token'})
+            if csrf_token:
+                return csrf_token.get('value')
+        except:
+            pass
+        return None
 
     def log_issue(self, category, severity, description, details=""):
         """Log an issue"""
@@ -85,13 +98,22 @@ class CompleteWorkflowTester:
         print("\n👨‍🏫 Creating Teacher Account...")
         try:
             teacher = TEST_ACCOUNTS["teacher"]
+
+            # Get CSRF token
+            csrf_token = self.get_csrf_token(f"{self.base_url}/teacher/signup")
+
+            # Prepare form data
+            form_data = {
+                "name": teacher["name"],
+                "email": teacher["email"],
+                "password": teacher["password"]
+            }
+            if csrf_token:
+                form_data["csrf_token"] = csrf_token
+
             response = self.session.post(
                 f"{self.base_url}/teacher/signup",
-                data={
-                    "teacher_name": teacher["name"],
-                    "teacher_email": teacher["email"],
-                    "teacher_password": teacher["password"]
-                },
+                data=form_data,
                 allow_redirects=True
             )
 
@@ -116,14 +138,23 @@ class CompleteWorkflowTester:
             try:
                 # Use new session for each student
                 student_session = requests.Session()
+
+                # Get CSRF token
+                csrf_token = self.get_csrf_token(f"{self.base_url}/student/signup")
+
+                # Prepare form data
+                form_data = {
+                    "name": student["name"],
+                    "email": student["email"],
+                    "password": student["password"],
+                    "date_of_birth": student["date_of_birth"]
+                }
+                if csrf_token:
+                    form_data["csrf_token"] = csrf_token
+
                 response = student_session.post(
                     f"{self.base_url}/student/signup",
-                    data={
-                        "student_name": student["name"],
-                        "student_email": student["email"],
-                        "student_password": student["password"],
-                        "student_grade": student["grade"]
-                    },
+                    data=form_data,
                     allow_redirects=True
                 )
 
@@ -147,14 +178,23 @@ class CompleteWorkflowTester:
         try:
             parent = TEST_ACCOUNTS["parent"]
             parent_session = requests.Session()
+
+            # Get CSRF token
+            csrf_token = self.get_csrf_token(f"{self.base_url}/parent/signup")
+
+            # Prepare form data
+            form_data = {
+                "name": parent["name"],
+                "email": parent["email"],
+                "password": parent["password"],
+                "plan": parent["plan"]
+            }
+            if csrf_token:
+                form_data["csrf_token"] = csrf_token
+
             response = parent_session.post(
                 f"{self.base_url}/parent/signup",
-                data={
-                    "parent_name": parent["name"],
-                    "parent_email": parent["email"],
-                    "parent_password": parent["password"],
-                    "plan": parent["plan"]
-                },
+                data=form_data,
                 allow_redirects=True
             )
 
@@ -180,21 +220,34 @@ class CompleteWorkflowTester:
         try:
             # Login as teacher first
             teacher = TEST_ACCOUNTS["teacher"]
+
+            # Get CSRF token for login
+            csrf_token = self.get_csrf_token(f"{self.base_url}/teacher/login")
+            login_data = {
+                "email": teacher["email"],
+                "password": teacher["password"]
+            }
+            if csrf_token:
+                login_data["csrf_token"] = csrf_token
+
             self.session.post(
                 f"{self.base_url}/teacher/login",
-                data={
-                    "teacher_email": teacher["email"],
-                    "teacher_password": teacher["password"]
-                }
+                data=login_data
             )
+
+            # Get CSRF token for create class
+            csrf_token = self.get_csrf_token(f"{self.base_url}/teacher/dashboard")
+            class_data = {
+                "class_name": "Test Class Grade 8-9",
+                "grade_level": "8"
+            }
+            if csrf_token:
+                class_data["csrf_token"] = csrf_token
 
             # Create class
             response = self.session.post(
                 f"{self.base_url}/teacher/create_class",
-                data={
-                    "class_name": "Test Class Grade 8-9",
-                    "grade_level": "8"
-                },
+                data=class_data,
                 allow_redirects=False
             )
 
@@ -213,15 +266,22 @@ class CompleteWorkflowTester:
         """Teacher assigns practice to students"""
         print("\n📝 Teacher Assigning Practice...")
         try:
+            # Get CSRF token
+            csrf_token = self.get_csrf_token(f"{self.base_url}/teacher/dashboard")
+
             # Assign math practice
+            assignment_data = {
+                "subject": "num_forge",
+                "topic": "Linear Equations",
+                "difficulty": "medium",
+                "question_count": "5"
+            }
+            if csrf_token:
+                assignment_data["csrf_token"] = csrf_token
+
             response = self.session.post(
                 f"{self.base_url}/teacher/assign_practice",
-                data={
-                    "subject": "num_forge",
-                    "topic": "Linear Equations",
-                    "difficulty": "medium",
-                    "question_count": "5"
-                }
+                data=assignment_data
             )
 
             if response.status_code in [200, 302]:
@@ -327,13 +387,23 @@ class CompleteWorkflowTester:
             student = TEST_ACCOUNTS["students"][0]
             student_session = requests.Session()
 
+            # Get CSRF token for login
+            response = student_session.get(f"{self.base_url}/student/login")
+            soup = BeautifulSoup(response.text, 'html.parser')
+            csrf_token = soup.find('input', {'name': 'csrf_token'})
+            csrf_value = csrf_token.get('value') if csrf_token else None
+
             # Login as student
+            login_data = {
+                "email": student["email"],
+                "password": student["password"]
+            }
+            if csrf_value:
+                login_data["csrf_token"] = csrf_value
+
             student_session.post(
                 f"{self.base_url}/student/login",
-                data={
-                    "student_email": student["email"],
-                    "student_password": student["password"]
-                }
+                data=login_data
             )
 
             # Try to access practice
@@ -392,13 +462,23 @@ class CompleteWorkflowTester:
             parent = TEST_ACCOUNTS["parent"]
             parent_session = requests.Session()
 
+            # Get CSRF token for login
+            response = parent_session.get(f"{self.base_url}/parent/login")
+            soup = BeautifulSoup(response.text, 'html.parser')
+            csrf_token = soup.find('input', {'name': 'csrf_token'})
+            csrf_value = csrf_token.get('value') if csrf_token else None
+
             # Login as parent
+            login_data = {
+                "email": parent["email"],
+                "password": parent["password"]
+            }
+            if csrf_value:
+                login_data["csrf_token"] = csrf_value
+
             parent_session.post(
                 f"{self.base_url}/parent/login",
-                data={
-                    "parent_email": parent["email"],
-                    "parent_password": parent["password"]
-                }
+                data=login_data
             )
 
             # Access parent dashboard
