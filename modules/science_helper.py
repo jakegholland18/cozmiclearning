@@ -85,7 +85,7 @@ Remember: This is a CHRISTIAN tutor. We honor God's Word as the foundation for u
 # -------------------------------------------------------
 # MAIN PUBLIC FUNCTION
 # -------------------------------------------------------
-def explain_science(topic: str, grade_level="8", character="everly"):
+def explain_science(topic: str, grade_level="8", character="nova"):
 
     # Use creationist prompt for all science questions
     base_prompt = build_science_prompt(topic, grade_level)

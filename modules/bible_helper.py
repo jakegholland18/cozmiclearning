@@ -23,7 +23,7 @@ def is_christian_request(text: str) -> bool:
 # ------------------------------------------------------------
 # Main Bible Topic — 6 Sections, NO bullets
 # ------------------------------------------------------------
-def bible_lesson(topic: str, grade_level="8", character="everly"):
+def bible_lesson(topic: str, grade_level="8", character="nova"):
     """
     Full Bible lesson using the mandatory 6-section CozmicLearning format.
     Output is paragraph-based only — no bullet points.
@@ -81,7 +81,7 @@ as plain sentences (not bullets).
 # ------------------------------------------------------------
 # Explain a Specific Verse — 6 sections, paragraph-only
 # ------------------------------------------------------------
-def explain_verse(reference: str, text: str, grade_level="8", character="everly"):
+def explain_verse(reference: str, text: str, grade_level="8", character="nova"):
 
     verse_question = f"What does {reference} mean? The verse says: {text}"
 
@@ -131,7 +131,7 @@ Ask 2–3 tiny reflection questions with short example answers written as senten
 # ------------------------------------------------------------
 # Explain a Whole Bible Story — 6 sections
 # ------------------------------------------------------------
-def explain_bible_story(story: str, grade_level="8", character="everly"):
+def explain_bible_story(story: str, grade_level="8", character="nova"):
 
     prompt = f"""
 You are a gentle Bible tutor for a grade {grade_level} student.
@@ -181,7 +181,7 @@ All responses must be sentence-based, not bullets.
 # ------------------------------------------------------------
 # General Christian worldview question — 6 sections
 # ------------------------------------------------------------
-def christian_worldview(question: str, grade_level="8", character="everly"):
+def christian_worldview(question: str, grade_level="8", character="nova"):
 
     prompt = f"""
 You are a gentle Christian worldview tutor for a grade {grade_level} student.

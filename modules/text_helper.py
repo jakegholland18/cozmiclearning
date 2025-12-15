@@ -97,7 +97,7 @@ Tone must stay soft, warm, and appropriate for kids.
 # ------------------------------------------------------------
 # MAIN TEXT EXPLAINER
 # ------------------------------------------------------------
-def explain_text(topic: str, grade_level="8", character="everly"):
+def explain_text(topic: str, grade_level="8", character="nova"):
 
     if is_christian_question(topic):
         prompt = build_christian_text_prompt(topic, grade_level)
@@ -124,7 +124,7 @@ def explain_text(topic: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # GENERAL READING QUESTION
 # ------------------------------------------------------------
-def reading_question(question: str, grade_level="8", character="everly"):
+def reading_question(question: str, grade_level="8", character="nova"):
 
     prompt = build_text_prompt(question, grade_level)
     prompt = apply_personality(character, prompt)
@@ -146,7 +146,7 @@ def reading_question(question: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # TEXT / READING QUIZ
 # ------------------------------------------------------------
-def text_quiz(topic: str, grade_level="8", character="everly"):
+def text_quiz(topic: str, grade_level="8", character="nova"):
 
     prompt = f"""
 Create a gentle reading/literature quiz for a grade {grade_level} student.

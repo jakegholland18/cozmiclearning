@@ -24,7 +24,7 @@ def is_apologetics_question(text: str) -> bool:
 # ------------------------------------------------------------
 # MAIN APOLOGETICS ANSWER — 6 SECTIONS, NO BULLETS
 # ------------------------------------------------------------
-def apologetics_answer(question: str, grade_level="8", character="everly"):
+def apologetics_answer(question: str, grade_level="8", character="nova"):
     """
     Full apologetics explanation using the 6-section CozmicLearning style.
     Output must contain 6 labeled sections, all paragraph-based.
@@ -87,7 +87,7 @@ Tone: warm, gentle, calm, respectful, kid-safe, never preachy.
 # ------------------------------------------------------------
 # APOLOGETICS FOLLOW-UP / CLARIFICATION FUNCTION
 # ------------------------------------------------------------
-def apologetics_clarify(question: str, grade_level="8", character="everly"):
+def apologetics_clarify(question: str, grade_level="8", character="nova"):
     """
     A softer, simpler apologetics answer for younger students,
     still following the 6-section CozmicLearning style.

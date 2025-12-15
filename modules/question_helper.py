@@ -89,7 +89,7 @@ Ask 2–3 small reflection questions with short example answers.
 # -------------------------------------------------------
 # MAIN PUBLIC FUNCTION
 # -------------------------------------------------------
-def answer_question(question: str, grade_level="8", character="everly"):
+def answer_question(question: str, grade_level="8", character="nova"):
 
     # Choose which base prompt to use
     if is_christian_question(question):

@@ -102,7 +102,7 @@ Give 2–3 reflection questions with tiny example answers.
 # ------------------------------------------------------------
 # MAIN PUBLIC FUNCTION — explain investing
 # ------------------------------------------------------------
-def explain_investing(topic: str, grade_level="8", character="everly"):
+def explain_investing(topic: str, grade_level="8", character="nova"):
 
     # Choose base prompt
     if is_christian_question(topic):
@@ -134,7 +134,7 @@ def explain_investing(topic: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # GENERAL INVESTING QUESTION (same structure)
 # ------------------------------------------------------------
-def investment_question(question: str, grade_level="8", character="everly"):
+def investment_question(question: str, grade_level="8", character="nova"):
 
     base_prompt = build_investing_prompt(question, grade_level)
     enriched = apply_personality(character, base_prompt)
@@ -156,7 +156,7 @@ def investment_question(question: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # INVESTING QUIZ — still six sections (NO BULLETS)
 # ------------------------------------------------------------
-def investment_quiz(topic: str, grade_level="8", character="everly"):
+def investment_quiz(topic: str, grade_level="8", character="nova"):
 
     prompt = f"""
 Create a gentle investing quiz for a grade {grade_level} student.

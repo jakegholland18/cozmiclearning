@@ -108,7 +108,7 @@ Ask 2–3 reflection questions with tiny example answers using short sentences.
 # ------------------------------------------------------------
 # MAIN HISTORY EXPLAINER — STANDARDIZED FOR ALL SUBJECTS
 # ------------------------------------------------------------
-def explain_history(topic: str, grade_level="8", character="everly"):
+def explain_history(topic: str, grade_level="8", character="nova"):
 
     if is_christian_question(topic):
         base_prompt = build_christian_history_prompt(topic, grade_level)
@@ -134,7 +134,7 @@ def explain_history(topic: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # SIMPLE HISTORY QUESTION
 # ------------------------------------------------------------
-def answer_history_question(question: str, grade_level="8", character="everly"):
+def answer_history_question(question: str, grade_level="8", character="nova"):
 
     base_prompt = build_history_prompt(question, grade_level)
     enriched = apply_personality(character, base_prompt)
@@ -156,7 +156,7 @@ def answer_history_question(question: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # HISTORY QUIZ — STILL 6 SECTIONS, NO BULLETS
 # ------------------------------------------------------------
-def generate_history_quiz(topic: str, grade_level="8", character="everly"):
+def generate_history_quiz(topic: str, grade_level="8", character="nova"):
 
     prompt = f"""
 Create a gentle history quiz for a grade {grade_level} student.

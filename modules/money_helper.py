@@ -87,7 +87,7 @@ Tone must be soft and calm.
 # ------------------------------------------------------------
 # MAIN FUNCTION — explain money
 # ------------------------------------------------------------
-def explain_money(topic: str, grade_level="8", character="everly"):
+def explain_money(topic: str, grade_level="8", character="nova"):
 
     if is_christian_question(topic):
         prompt = build_christian_money_prompt(topic, grade_level)
@@ -113,7 +113,7 @@ def explain_money(topic: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # GENERAL MONEY QUESTION
 # ------------------------------------------------------------
-def money_question(question: str, grade_level="8", character="everly"):
+def money_question(question: str, grade_level="8", character="nova"):
 
     prompt = build_money_prompt(question, grade_level)
     prompt = apply_personality(character, prompt)
@@ -135,7 +135,7 @@ def money_question(question: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # MONEY QUIZ
 # ------------------------------------------------------------
-def money_quiz(topic: str, grade_level="8", character="everly"):
+def money_quiz(topic: str, grade_level="8", character="nova"):
 
     prompt = f"""
 Create a gentle money quiz for grade {grade_level}.

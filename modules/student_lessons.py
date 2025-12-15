@@ -206,7 +206,7 @@ def generate_student_lesson(
         "nova": "inventive engineer who builds understanding through hands-on discovery"
     }
 
-    character_style = character_styles.get(character, character_styles["everly"])
+    character_style = character_styles.get(character, character_styles["nova"])
 
     client = get_client()
 

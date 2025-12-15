@@ -1057,7 +1057,7 @@ def init_user():
         "streak": 1,
         "last_visit": str(datetime.today().date()),
         "inventory": [],
-        "character": "everly",
+        "character": "nova",
         "usage_minutes": 0,
         "progress": {},
         "conversation": [],
@@ -1613,7 +1613,7 @@ def subjects():
     return render_template(
         "subjects.html",
         planets=planets,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
     )
 
 
@@ -1675,7 +1675,7 @@ def arcade_hub():
         all_games=ARCADE_GAMES,
         stats=stats,
         grade=grade,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -1718,7 +1718,7 @@ def arcade_game(game_key):
         game=game_info,
         stats=stats,
         leaderboards=leaderboards,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -1759,7 +1759,7 @@ def arcade_play(game_key):
         return render_template(
             "arcade_difficulty_select.html",
             game=game_info,
-            character=session.get("character", "everly")
+            character=session.get("character", "nova")
         )
 
     # Use selected difficulty
@@ -1805,7 +1805,7 @@ def arcade_play(game_key):
         game=game_info,
         questions=questions,
         difficulty=difficulty,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -1961,7 +1961,7 @@ def arcade_badges():
         badges_by_category=badges_by_category,
         total_badges=total_badges,
         earned_count=earned_count,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -2006,7 +2006,7 @@ def arcade_powerups():
         "arcade_powerups.html",
         powerups=powerups_data,
         tokens=tokens,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -2088,7 +2088,7 @@ def arcade_challenges():
     return render_template(
         "arcade_challenges.html",
         challenge=challenge_data,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -2159,7 +2159,7 @@ def arcade_stats():
         stats=stats,
         game_stats=game_stats,
         chart_data=json.dumps(chart_data),
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -2181,7 +2181,7 @@ def subject_preview():
 
     subject = request.args.get("subject", "terra_nova")
     grade = session.get("grade", "8")
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     # PowerGrid handled separately; return brief guidance
     if subject == "power_grid":
@@ -4666,7 +4666,7 @@ def assignment_generate_more(practice_id):
         subject=assignment.subject,
         topic=assignment.topic,
         grade=str(assignment.class_ref.grade_level or "8"),
-        character="everly",
+        character="nova",
         differentiation_mode=assignment.differentiation_mode or "none",
         student_ability="on_level",
         num_questions=num_questions,
@@ -5935,7 +5935,7 @@ def assignment_preview(practice_id):
                 subject=assignment.subject or "terra_nova",
                 topic=assignment.topic or "General Study",
                 grade="8",  # Default grade
-                character="everly",
+                character="nova",
                 differentiation_mode=assignment.differentiation_mode or "none",
                 student_ability="on_level",
                 num_questions=10,
@@ -6377,7 +6377,7 @@ def teacher_assign_questions():
         subject = safe_text(data.get("subject", "terra_nova"), 50)
         topic = safe_text(data.get("topic", ""), 500)
         grade = safe_text(data.get("grade", "8"), 10)
-        character = safe_text(data.get("character", "everly"), 50)
+        character = safe_text(data.get("character", "nova"), 50)
         differentiation_mode = data.get("differentiation_mode", "none")
         student_ability = data.get("student_ability", "on_level")
         num_questions = data.get("num_questions", 10)
@@ -6582,7 +6582,7 @@ def teacher_preview_questions():
     subject = safe_text(data.get("subject", "terra_nova"), 50)
     topic = safe_text(data.get("topic", ""), 500)
     grade = safe_text(data.get("grade", "8"), 10)
-    character = safe_text(data.get("character", "everly"), 50)
+    character = safe_text(data.get("character", "nova"), 50)
     differentiation_mode = data.get("differentiation_mode", "none")
     student_ability = data.get("student_ability", "on_level")
     num_questions = data.get("num_questions", 10)
@@ -6712,7 +6712,7 @@ def teacher_regenerate_question():
     subject = safe_text(data.get("subject", "terra_nova"), 50)
     topic = safe_text(data.get("topic", ""), 500)
     grade = safe_text(data.get("grade", "8"), 10)
-    character = safe_text(data.get("character", "everly"), 50)
+    character = safe_text(data.get("character", "nova"), 50)
     differentiation_mode = data.get("differentiation_mode", "none")
     student_ability = data.get("student_ability", "on_level")
     question_type = data.get("question_type", "multiple_choice")  # User can request specific type
@@ -6857,7 +6857,7 @@ def teacher_generate_lesson_plan():
         subject = safe_text(data.get("subject", "terra_nova"), 50)
         topic = safe_text(data.get("topic", ""), 500)
         grade = safe_text(data.get("grade", "8"), 10)
-        character = safe_text(data.get("character", "everly"), 50)
+        character = safe_text(data.get("character", "nova"), 50)
 
         if not topic:
             return jsonify({"error": "Topic is required"}), 400
@@ -7068,7 +7068,7 @@ def regenerate_lesson_section(lesson_id):
         subject=lesson.subject,
         topic=lesson.topic,
         grade=lesson.grade,
-        character="everly",
+        character="nova",
     )
 
     new_sections = new_lesson.get("sections", {})
@@ -8503,7 +8503,7 @@ def save_assignment_template():
             "differentiation_mode": data.get("differentiation_mode", "none"),
             "assignment_type": data.get("assignment_type", "practice"),
             "questions": data.get("questions", []),
-            "character": data.get("character", "everly"),
+            "character": data.get("character", "nova"),
         }
 
         # Create template
@@ -8642,7 +8642,7 @@ def duplicate_template(template_id):
             "differentiation_mode": template_data.get("differentiation_mode", "none"),
             "assignment_type": template_data.get("assignment_type", "practice"),
             "questions": template_data.get("questions", []),
-            "character": template_data.get("character", "everly"),
+            "character": template_data.get("character", "nova"),
         }
 
         # Increment use count
@@ -8721,7 +8721,7 @@ def choose_character():
 @app.route("/select-character", methods=["POST"])
 def select_character():
     init_user()
-    session["character"] = request.form.get("character") or "everly"
+    session["character"] = request.form.get("character") or "nova"
     return redirect("/dashboard")
 
 
@@ -8781,7 +8781,7 @@ def learning_mode():
         subject=subject,
         grade=grade,
         subject_config=subject_config,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -8818,7 +8818,7 @@ def lesson_library():
         grade=grade,
         subject_config=subject_config,
         lesson_topics=lesson_topics,
-        character=session.get("character", "everly")
+        character=session.get("character", "nova")
     )
 
 
@@ -8839,7 +8839,7 @@ def view_lesson():
 
     # Generate the lesson
     from modules.student_lessons import generate_student_lesson
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     result = generate_student_lesson(subject, int(grade), topic, character)
 
@@ -8873,7 +8873,7 @@ def lesson_chat():
     subject = data.get("subject")
     grade = data.get("grade")
     topic = data.get("topic")
-    character = data.get("character", "everly")
+    character = data.get("character", "nova")
 
     if not question or not subject or not topic:
         return jsonify({"success": False, "error": "Missing required fields"})
@@ -8940,7 +8940,7 @@ def ask_question():
         "ask_question.html",
         subject=subject,
         grade=grade,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
         characters=get_all_characters(),
         subjects=SUBJECT_LABELS,
     )
@@ -8986,7 +8986,7 @@ def subject_answer():
     subject = request.form.get("subject")
     grade = request.form.get("grade")
     question = request.form.get("question")
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     # Validate subject
     if not validate_subject(subject):
@@ -9172,7 +9172,7 @@ def followup_message():
 
     data = request.get_json() or {}
     grade = data.get("grade")
-    character = data.get("character") or session.get("character", "everly")
+    character = data.get("character") or session.get("character", "nova")
     message = data.get("message", "")
     
     # CONTENT MODERATION
@@ -9244,7 +9244,7 @@ def deep_study_message():
     message = data.get("message", "")
 
     grade = session.get("grade", "8")
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
     
     # CONTENT MODERATION
     student_id = session.get("user_id")
@@ -9473,7 +9473,7 @@ def powergrid_submit():
     # Generate study guide with mode and style
     try:
         study_guide = study_helper.generate_powergrid_master_guide(
-            combined_text, grade, session.get("character", "everly"),
+            combined_text, grade, session.get("character", "nova"),
             mode=study_mode, learning_style=learning_style
         )
     except Exception as e:
@@ -9540,7 +9540,7 @@ def powergrid_submit():
         grade=grade,
         question=topic or "Multi-source study guide",
         answer=study_guide,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
         conversation=session["conversation"],
         pdf_url=pdf_url,
     )
@@ -9566,7 +9566,7 @@ def practice():
     topic = request.args.get("topic", "")
     mode = request.args.get("mode", "full")  # full, quick, timed, teach, related
     return_url = request.args.get("return_url", "")  # Where to return when done
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
     grade = session.get("grade", "8")
 
     # Mode-specific settings
@@ -9661,7 +9661,7 @@ def start_practice():
         subject = data.get("subject", "")
         mode = data.get("mode", "full")
         grade = session.get("grade", "8")
-        character = session.get("character", "everly")
+        character = session.get("character", "nova")
 
         # If topic is empty or looks like a full question (more than 10 words), use subject name as topic
         if not topic or len(topic.split()) > 10:
@@ -9802,7 +9802,7 @@ def navigate_question():
 
     practice_data = session.get("practice")
     progress = session.get("practice_progress", [])
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     if not practice_data:
         return jsonify(
@@ -9869,7 +9869,7 @@ def practice_step():
 
     practice_data = session.get("practice")
     index = session.get("practice_step", 0)
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     if not practice_data:
         return jsonify(
@@ -10031,7 +10031,7 @@ def practice_help_message():
 
     practice_data = session.get("practice")
     index = session.get("practice_step", 0)
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
     grade = session.get("grade", "8")
 
     if not practice_data:
@@ -10364,7 +10364,7 @@ def dashboard():
         level=level,
         tokens=tokens,
         streak=streak,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
         xp_percent=xp_percent,
         xp_to_next=xp_to_next,
         missions=missions,
@@ -10491,7 +10491,7 @@ def parent_dashboard():
         level=session.get("level", 1),
         tokens=session.get("tokens", 100),
         unread_messages=unread_messages,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
         has_teacher_features=has_teacher_features,
         student_limit=student_limit if student_limit != float('inf') else None,
         lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
@@ -10710,7 +10710,7 @@ def homeschool_dashboard():
         level=session.get("level", 1),
         tokens=session.get("tokens", 100),
         unread_messages=unread_messages,
-        character=session.get("character", "everly"),
+        character=session.get("character", "nova"),
         has_teacher_features=has_teacher_features,
         student_limit=student_limit if student_limit != float('inf') else None,
         lesson_plans_limit=lesson_plans_limit if lesson_plans_limit != float('inf') else None,
@@ -10773,7 +10773,7 @@ def homeschool_assign_questions():
             subject=subject,
             topic=topic,
             grade=grade,
-            character="everly",
+            character="nova",
             differentiation_mode="none",
             student_ability="on_level",
             num_questions=num_questions,
@@ -11436,7 +11436,7 @@ def request_clarification():
     clarification = data.get("clarification", "")
 
     grade = session.get("grade", "8")
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
 
     # Generate clarification response using AI
     prompt = f"""A student asked: "{question}"
@@ -11472,7 +11472,7 @@ def adjust_difficulty():
     section_number = data.get("section", 1)
     difficulty = data.get("difficulty", "simple")  # 'simple' or 'advanced'
     grade = session.get("grade", "8")
-    character = session.get("character", "everly")
+    character = session.get("character", "nova")
     subject = data.get("subject", "")
 
     # Get original sections from session
@@ -12094,7 +12094,7 @@ def respectrealm():
     from modules.manners_helper import get_all_lessons
 
     grade = request.args.get("grade") or session.get("grade", "8")
-    character = request.args.get("character") or session.get("character", "everly")
+    character = request.args.get("character") or session.get("character", "nova")
 
     session["grade"] = grade
     session["character"] = character
@@ -12117,7 +12117,7 @@ def respectrealm_lesson(lesson_id):
     from modules.manners_helper import get_lesson_by_id, teach_manners
 
     grade = request.args.get("grade") or session.get("grade", "8")
-    character = request.args.get("character") or session.get("character", "everly")
+    character = request.args.get("character") or session.get("character", "nova")
 
     session["grade"] = grade
     session["character"] = character
@@ -12167,7 +12167,7 @@ def respectrealm_chat():
     question = data.get("question", "").strip()
     conversation_history = data.get("conversation_history", [])
     grade = data.get("grade", "8")
-    character = data.get("character", "everly")
+    character = data.get("character", "nova")
 
     if not question:
         return jsonify({"success": False, "error": "No question provided"})

@@ -8,7 +8,7 @@ import json
 # ============================================================
 # DEEP STUDY CHAT FOLLOW-UP (Conversation Mode)
 # ============================================================
-def deep_study_chat(question, grade_level="8", character="everly"):
+def deep_study_chat(question, grade_level="8", character="nova"):
     """
     PowerGrid Deep Study Chat:
     Generates conversational follow-up responses
@@ -73,7 +73,7 @@ RULES:
 # ============================================================
 # OLD MASTER GUIDE (Bullet-Only) — STILL AVAILABLE
 # ============================================================
-def generate_master_study_guide(text, grade_level="8", character="everly"):
+def generate_master_study_guide(text, grade_level="8", character="nova"):
     """
     OLD bullet-only master guide for legacy subjects.
     """
@@ -118,7 +118,7 @@ FORMAT:
 # ============================================================
 # NEW COMPRESSED POWERGRID STUDY GUIDE (WITH MODES)
 # ============================================================
-def generate_powergrid_master_guide(text, grade_level="8", character="everly", mode="standard", learning_style="balanced"):
+def generate_powergrid_master_guide(text, grade_level="8", character="nova", mode="standard", learning_style="balanced"):
     """
     ENHANCED POWERGRID MASTER GUIDE with multiple modes and learning styles
     

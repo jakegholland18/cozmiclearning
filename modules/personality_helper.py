@@ -42,7 +42,7 @@ def apply_personality(character_key: str, prompt: str) -> str:
     Keeps personality mild, stable, and child-friendly.
     """
 
-    character = CHARACTERS.get(character_key, CHARACTERS["everly"])
+    character = CHARACTERS.get(character_key, CHARACTERS["nova"])
 
     personality_instruction = f"""
 Respond in the voice of {character['name']}, {character['title']}.

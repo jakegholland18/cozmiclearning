@@ -14,7 +14,7 @@ original_content = content
 
 # Session key replacements with safe defaults
 replacements = {
-    'session["character"]': 'session.get("character", "everly")',
+    'session["character"]': 'session.get("character", "nova")',
     'session["level"]': 'session.get("level", 1)',
     'session["xp"]': 'session.get("xp", 0)',
     'session["tokens"]': 'session.get("tokens", 100)',

@@ -93,7 +93,7 @@ Give a couple of tiny practice problems with short example answers.
 # -----------------------------------------------------------
 # MAIN PUBLIC FUNCTION — math explanation
 # -----------------------------------------------------------
-def explain_math(question: str, grade_level="5", character="everly"):
+def explain_math(question: str, grade_level="5", character="nova"):
 
     # Build proper base prompt
     if is_christian_question(question):

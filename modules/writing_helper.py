@@ -91,7 +91,7 @@ Tone must be soft and child-friendly.
 # ------------------------------------------------------------
 # MAIN WRITING EXPLAINER (USED BY APP)
 # ------------------------------------------------------------
-def help_write(topic: str, grade_level="8", character="everly"):
+def help_write(topic: str, grade_level="8", character="nova"):
 
     # Choose correct prompt
     if is_christian_question(topic):
@@ -119,7 +119,7 @@ def help_write(topic: str, grade_level="8", character="everly"):
 # ------------------------------------------------------------
 # WRITING QUIZ
 # ------------------------------------------------------------
-def writing_quiz(topic: str, grade_level="8", character="everly"):
+def writing_quiz(topic: str, grade_level="8", character="nova"):
 
     prompt = f"""
 Create a gentle writing quiz for a grade {grade_level} student.
