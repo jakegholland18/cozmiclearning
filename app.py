@@ -9423,25 +9423,33 @@ def powergrid_submit():
     # Add manual topic if provided
     if topic:
         # CONTENT MODERATION for topic
-        student_id = session.get("user_id")
-        moderation_result = moderate_content(topic, student_id=student_id, context="powergrid")
-        
-        # Log the topic request
-        log_entry = QuestionLog(
-            student_id=student_id,
-            question_text=topic,
-            sanitized_text=moderation_result.get("sanitized_text"),
-            subject="power_grid",
-            context="powergrid",
-            grade_level=grade,
-            flagged=moderation_result.get("flagged", False),
-            allowed=moderation_result.get("allowed", True),
-            moderation_reason=moderation_result.get("reason"),
-            moderation_data_json=str(moderation_result.get("moderation_data", {})),
-            severity=moderation_result.get("severity", "low")
-        )
-        db.session.add(log_entry)
-        db.session.commit()
+        user_id = session.get("user_id")
+        moderation_result = moderate_content(topic, student_id=user_id, context="powergrid")
+
+        # Log the topic request (only if user has a real Student record, not anonymous session)
+        # Check if user_id is an integer (real student) vs UUID string (anonymous session)
+        try:
+            student_id_int = int(user_id) if user_id else None
+            if student_id_int:
+                log_entry = QuestionLog(
+                    student_id=student_id_int,
+                    question_text=topic,
+                    sanitized_text=moderation_result.get("sanitized_text"),
+                    subject="power_grid",
+                    context="powergrid",
+                    grade_level=grade,
+                    flagged=moderation_result.get("flagged", False),
+                    allowed=moderation_result.get("allowed", True),
+                    moderation_reason=moderation_result.get("reason"),
+                    moderation_data_json=str(moderation_result.get("moderation_data", {})),
+                    severity=moderation_result.get("severity", "low")
+                )
+                db.session.add(log_entry)
+                db.session.commit()
+        except (ValueError, TypeError):
+            # user_id is a UUID string (anonymous session), skip logging to database
+            app.logger.info(f"Skipping question log for anonymous user: {user_id}")
+            log_entry = None
         
         # If blocked, redirect with error
         if not moderation_result["allowed"]:
@@ -9473,8 +9481,8 @@ def powergrid_submit():
         flash("Sorry, there was an error generating your study guide. Please try again.", "error")
         return redirect("/powergrid")
 
-    # Update log with AI response if topic was provided
-    if topic and 'log_entry' in locals():
+    # Update log with AI response if topic was provided and log entry exists
+    if topic and 'log_entry' in locals() and log_entry is not None:
         try:
             log_entry.ai_response = study_guide[:5000]
             db.session.commit()
