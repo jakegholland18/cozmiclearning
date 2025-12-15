@@ -11,26 +11,54 @@
 
     <style>
         :root {
-            --bg: #02020a;
+            /* PowerGrid Electric Theme Colors */
+            --bg: #0a0e1f;
+            --bg-secondary: #050813;
             --text: #ffffff;
             --muted: #c4d1ff;
             --muted-2: #b3c0ff;
             --muted-3: #8a92b3;
-            --primary: #5c6bff;
-            --primary-2: #7683ff;
+
+            /* Electric Blue/Cyan Primary Colors */
+            --primary: #00f2ff;
+            --primary-2: #00b8d4;
+            --primary-3: #4facfe;
             --accent: #00f2ff;
             --accent-2: #4facfe;
+            --accent-3: #6dd5ed;
+
+            /* Secondary Electric Colors */
+            --electric-cyan: #00ffff;
+            --electric-blue: #0099ff;
+            --electric-purple: #6600ff;
+            --electric-magenta: #ff00ff;
+
+            /* Gradient Definitions */
+            --bg-gradient-main: linear-gradient(135deg, #0a0e1f 0%, #050813 100%);
+            --gradient-electric: linear-gradient(135deg, #00f2ff, #00b8d4, #4facfe);
+            --gradient-neon: linear-gradient(135deg, #00ffff 0%, #0099ff 20%, #0066ff 40%, #6600ff 60%, #cc00ff 80%, #ff00ff 100%);
+
+            /* Success/Warning Colors */
             --success: #84ff00;
             --gold: #ffd54f;
             --warning: #ff9f1c;
             --pink: #ff6b9d;
-            --shadow-strong: rgba(92, 107, 255, 0.5);
-            --shadow-soft: rgba(92, 107, 255, 0.3);
-            --border-soft: rgba(118, 131, 255, 0.3);
-            --border-mid: rgba(118, 131, 255, 0.4);
-            --glass-1: rgba(92, 107, 255, 0.08);
-            --glass-2: rgba(0, 242, 255, 0.08);
-            --glass-3: rgba(132, 255, 0, 0.08);
+
+            /* Electric Glow Shadows */
+            --shadow-electric: 0 0 30px rgba(0, 242, 255, 0.6);
+            --shadow-strong: 0 0 50px rgba(0, 242, 255, 0.8);
+            --shadow-soft: 0 0 20px rgba(0, 242, 255, 0.4);
+            --shadow-neon: 0 0 40px rgba(0, 255, 255, 0.8), 0 0 80px rgba(79, 172, 254, 0.6);
+
+            /* Borders */
+            --border-electric: 2px solid rgba(0, 242, 255, 0.6);
+            --border-soft: rgba(0, 242, 255, 0.3);
+            --border-mid: rgba(0, 242, 255, 0.4);
+
+            /* Glass/Translucent Backgrounds */
+            --glass-1: rgba(0, 242, 255, 0.08);
+            --glass-2: rgba(79, 172, 254, 0.08);
+            --glass-3: rgba(0, 150, 255, 0.12);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,41 +66,66 @@
         body {
             font-family: "Poppins", sans-serif;
             min-height: 100vh;
-            background: var(--bg);
+            background: var(--bg-gradient-main);
             color: var(--text);
             overflow-x: hidden;
             display: flex;
         }
 
-        /* Stars Background */
+        /* Electric Stars Background with Cyan Tint */
         .stars {
             position: fixed;
             inset: 0;
-            background: 
-                radial-gradient(2px 2px at 20% 30%, white, transparent),
-                radial-gradient(2px 2px at 60% 70%, white, transparent),
-                radial-gradient(1px 1px at 50% 50%, white, transparent),
-                radial-gradient(1px 1px at 80% 10%, white, transparent),
-                radial-gradient(2px 2px at 90% 60%, white, transparent),
-                radial-gradient(1px 1px at 33% 90%, white, transparent),
-                radial-gradient(2px 2px at 70% 20%, white, transparent);
+            background:
+                radial-gradient(2px 2px at 20% 30%, #00f2ff, transparent),
+                radial-gradient(2px 2px at 60% 70%, #00f2ff, transparent),
+                radial-gradient(1px 1px at 50% 50%, #ffffff, transparent),
+                radial-gradient(1px 1px at 80% 10%, #ffffff, transparent),
+                radial-gradient(2px 2px at 90% 60%, #00f2ff, transparent),
+                radial-gradient(1px 1px at 33% 90%, #4facfe, transparent),
+                radial-gradient(2px 2px at 70% 20%, #6dd5ed, transparent),
+                radial-gradient(1px 1px at 15% 75%, #00f2ff, transparent);
             background-size: 200% 200%;
-            animation: twinkle 20s ease-in-out infinite;
-            opacity: 0.4;
+            animation: electricTwinkle 20s ease-in-out infinite;
+            opacity: 0.5;
             z-index: 0;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+        @keyframes electricTwinkle {
+            0%, 100% {
+                opacity: 0.4;
+                filter: hue-rotate(0deg);
+            }
+            50% {
+                opacity: 0.7;
+                filter: hue-rotate(10deg);
+            }
         }
 
-        /* SIDEBAR */
+        /* Circuit Board Pattern Overlay */
+        .circuit-pattern {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(90deg, rgba(0,242,255,0.02) 1px, transparent 1px),
+                linear-gradient(rgba(0,242,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 1;
+            animation: circuitPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes circuitPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.4; }
+        }
+
+        /* SIDEBAR - Electric Theme */
         .sidebar {
             width: 260px;
             min-height: 100vh;
-            background: linear-gradient(135deg, rgba(92, 107, 255, 0.12), rgba(71, 200, 255, 0.08));
-            border-right: 1px solid var(--border-soft);
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.08), rgba(79, 172, 254, 0.05));
+            border-right: 2px solid var(--border-soft);
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
@@ -81,7 +134,9 @@
             left: 0;
             top: 0;
             backdrop-filter: blur(12px);
-            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
+            box-shadow:
+                8px 0 24px rgba(0, 0, 0, 0.3),
+                4px 0 20px rgba(0, 242, 255, 0.1);
             z-index: 100;
         }
 
@@ -194,6 +249,7 @@
 
 <body>
     <div class="stars"></div>
+    <div class="circuit-pattern"></div>
 
     <!-- ADMIN MODE INDICATOR -->
     {% if session.get('admin_authenticated') %}
