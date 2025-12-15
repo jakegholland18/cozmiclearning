@@ -125,6 +125,13 @@
         gap: 25px;
     }
 
+    /* LESSON CARD LINK WRAPPER */
+    .lesson-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
     /* LESSON CARD WITH ELECTRIC GLOW */
     .lesson-card {
         background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(100,0,255,0.1));
@@ -155,10 +162,9 @@
         background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(255,0,255,0.2) 50%, transparent 70%);
         opacity: 0;
         transition: opacity 0.4s ease;
-        pointer-events: none;
     }
 
-    .lesson-card:hover::before {
+    .lesson-card-link:hover .lesson-card::before {
         opacity: 1;
         animation: shimmer 1.5s ease-in-out infinite;
     }
@@ -180,10 +186,9 @@
         mask-composite: exclude;
         opacity: 0;
         transition: opacity 0.4s ease;
-        pointer-events: none;
     }
 
-    .lesson-card:hover::after {
+    .lesson-card-link:hover .lesson-card::after {
         opacity: 1;
     }
 
@@ -205,7 +210,7 @@
     .lesson-card:nth-child(5) { animation-delay: 0.5s; }
     .lesson-card:nth-child(6) { animation-delay: 0.6s; }
 
-    .lesson-card:hover {
+    .lesson-card-link:hover .lesson-card {
         transform: translateY(-15px) scale(1.08) rotateX(5deg);
         box-shadow:
             0 0 40px rgba(0,255,255,1),
@@ -217,7 +222,7 @@
         background: linear-gradient(135deg, rgba(0,255,255,0.3), rgba(255,0,255,0.25));
     }
 
-    .lesson-card:active {
+    .lesson-card-link:active .lesson-card {
         transform: translateY(-10px) scale(1.02);
         transition: all 0.1s ease;
     }
@@ -236,7 +241,6 @@
         box-shadow: 0 2px 8px rgba(0,200,255,0.5);
         backdrop-filter: blur(8px);
         text-shadow: 0 0 10px rgba(0,255,255,0.8);
-        pointer-events: none;
     }
 
     .lesson-icon {
@@ -246,7 +250,6 @@
         filter: drop-shadow(0 4px 12px rgba(0,200,255,0.6))
                 drop-shadow(0 0 20px rgba(255,0,255,0.4));
         animation: iconFloat 3s ease-in-out infinite;
-        pointer-events: none;
     }
 
     @keyframes iconFloat {
@@ -254,7 +257,7 @@
         50% { transform: translateY(-8px); }
     }
 
-    .lesson-card:hover .lesson-icon {
+    .lesson-card-link:hover .lesson-icon {
         animation: iconBounce 0.6s ease;
         filter: drop-shadow(0 8px 20px rgba(0,255,255,1))
                 drop-shadow(0 0 40px rgba(255,0,255,0.8));
@@ -278,7 +281,6 @@
             0 2px 4px rgba(0,0,0,0.4);
         line-height: 1.4;
         letter-spacing: 0.5px;
-        pointer-events: none;
     }
 
     .lesson-description {
@@ -378,59 +380,33 @@
 
 <div class="lessons-grid">
     {% for lesson_topic in lesson_topics %}
-    <div class="lesson-card" onclick="startLesson({{ lesson_topic|tojson }})">
-        <span class="lesson-number">Lesson {{ loop.index }}</span>
-        <div class="lesson-icon">
-            {% if 'Math' in subject_config['name'] or 'NumForge' in subject_config['name'] %}🔢
-            {% elif 'Science' in subject_config['name'] or 'Atom' in subject_config['name'] %}🔬
-            {% elif 'History' in subject_config['name'] or 'Chrono' in subject_config['name'] %}📜
-            {% elif 'Reading' in subject_config['name'] or 'Story' in subject_config['name'] %}📖
-            {% elif 'Writing' in subject_config['name'] or 'Ink' in subject_config['name'] %}✍️
-            {% elif 'Bible' in subject_config['name'] or 'Faith' in subject_config['name'] %}✝️
-            {% elif 'Money' in subject_config['name'] or 'Coin' in subject_config['name'] %}💰
-            {% elif 'Invest' in subject_config['name'] or 'Stock' in subject_config['name'] %}📈
-            {% elif 'Truth' in subject_config['name'] or 'Apologetics' in subject_config['name'] %}🛡️
-            {% elif 'Geography' in subject_config['name'] or 'Terra' in subject_config['name'] %}🌍
-            {% elif 'Career' in subject_config['name'] or 'Power' in subject_config['name'] %}💼
-            {% elif 'Character' in subject_config['name'] or 'Respect' in subject_config['name'] %}⭐
-            {% else %}📚
-            {% endif %}
+    <a href="/view-lesson?subject={{ subject }}&grade={{ grade }}&topic={{ lesson_topic|urlencode }}" class="lesson-card-link">
+        <div class="lesson-card">
+            <span class="lesson-number">Lesson {{ loop.index }}</span>
+            <div class="lesson-icon">
+                {% if 'Math' in subject_config['name'] or 'NumForge' in subject_config['name'] %}🔢
+                {% elif 'Science' in subject_config['name'] or 'Atom' in subject_config['name'] %}🔬
+                {% elif 'History' in subject_config['name'] or 'Chrono' in subject_config['name'] %}📜
+                {% elif 'Reading' in subject_config['name'] or 'Story' in subject_config['name'] %}📖
+                {% elif 'Writing' in subject_config['name'] or 'Ink' in subject_config['name'] %}✍️
+                {% elif 'Bible' in subject_config['name'] or 'Faith' in subject_config['name'] %}✝️
+                {% elif 'Money' in subject_config['name'] or 'Coin' in subject_config['name'] %}💰
+                {% elif 'Invest' in subject_config['name'] or 'Stock' in subject_config['name'] %}📈
+                {% elif 'Truth' in subject_config['name'] or 'Apologetics' in subject_config['name'] %}🛡️
+                {% elif 'Geography' in subject_config['name'] or 'Terra' in subject_config['name'] %}🌍
+                {% elif 'Career' in subject_config['name'] or 'Power' in subject_config['name'] %}💼
+                {% elif 'Character' in subject_config['name'] or 'Respect' in subject_config['name'] %}⭐
+                {% else %}📚
+                {% endif %}
+            </div>
+            <div class="lesson-title">{{ lesson_topic }}</div>
         </div>
-        <div class="lesson-title">{{ lesson_topic }}</div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 
 <a href="/learning-mode?subject={{ subject }}&grade={{ grade }}" class="back-button">
     ← Back to Learning Mode
 </a>
-
-<script>
-function startLesson(topic) {
-    console.log('Starting lesson:', topic);
-
-    const params = new URLSearchParams(window.location.search);
-    const subject = params.get("subject");
-    const grade = params.get("grade");
-
-    console.log('Subject:', subject, 'Grade:', grade);
-
-    // URL-encode the topic to handle special characters
-    const encodedTopic = encodeURIComponent(topic);
-
-    const url = `/view-lesson?subject=${subject}&grade=${grade}&topic=${encodedTopic}`;
-    console.log('Navigating to:', url);
-
-    window.location.href = url;
-}
-
-// Check if page loaded correctly
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Lesson library page loaded');
-    console.log('Current URL:', window.location.href);
-    console.log('Subject param:', new URLSearchParams(window.location.search).get('subject'));
-    console.log('Grade param:', new URLSearchParams(window.location.search).get('grade'));
-});
-</script>
 
 {% endblock %}
