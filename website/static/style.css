@@ -83,10 +83,12 @@ body::before {
     position: fixed;
     inset: -40px;
     background:
-        url('/static/stars.png') repeat,
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 2px, transparent 2px),
         radial-gradient(circle at 10% 10%, rgba(0, 255, 255, 0.12), transparent 60%),
         radial-gradient(circle at 85% 70%, rgba(255, 95, 162, 0.18), transparent 65%);
-    background-size: cover;
+    background-size: 200px 200px, 300px 300px, 400px 400px, cover, cover;
     opacity: 0.25;
     z-index: -3;
     animation: skyDrift 80s linear infinite;
