@@ -251,7 +251,41 @@
             height: 60px;
         }
     }
+
+    /* LOADING MESSAGE */
+    #loading-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(59, 130, 246, 0.2));
+        border: 2px solid rgba(139, 92, 246, 0.6);
+        border-radius: 16px;
+        padding: 25px 40px;
+        color: #a78bfa;
+        font-size: 1.3rem;
+        font-weight: 600;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+        z-index: 10000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #loading-message.show {
+        opacity: 1;
+        animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.05); }
+    }
 </style>
+
+<div id="loading-message"></div>
 
 <div class="planets-hero">
     <div class="planets-header">
@@ -446,6 +480,11 @@ function showPreview(subject, name, subtitle, img, mastery) {
         modalStartBtn.href = '/choose-grade?subject=' + subject;
     }
 
+    // Add loading message on click
+    modalStartBtn.onclick = function() {
+        showLoadingMessage();
+    };
+
     // Show modal
     modal.style.display = 'flex';
 
@@ -459,6 +498,24 @@ function closePreview() {
 
     // Restore body scroll
     document.body.style.overflow = '';
+}
+
+// Loading message function
+function showLoadingMessage() {
+    const loadingMessages = [
+        "🚀 Launching into your learning adventure...",
+        "🌌 Warping to your chosen planet...",
+        "✨ Preparing your cosmic classroom...",
+        "🔭 Scanning the learning universe...",
+        "🌟 Powering up the knowledge engines...",
+        "⚡ Activating learning protocols...",
+        "🛸 Traveling through space to begin..."
+    ];
+
+    const loadingDiv = document.getElementById('loading-message');
+    const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    loadingDiv.textContent = randomMessage;
+    loadingDiv.classList.add('show');
 }
 
 // Close modal on background click

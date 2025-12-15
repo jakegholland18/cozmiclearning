@@ -391,9 +391,43 @@
             padding: 20px 15px;
         }
     }
+
+    /* LOADING MESSAGE */
+    #loading-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(79, 172, 254, 0.15));
+        border: 2px solid rgba(0, 242, 255, 0.5);
+        border-radius: 16px;
+        padding: 25px 40px;
+        color: #00f2ff;
+        font-size: 1.3rem;
+        font-weight: 600;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #loading-message.show {
+        opacity: 1;
+        animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.05); }
+    }
 </style>
 
 <div class="stars"></div>
+
+<div id="loading-message"></div>
 
 <div class="library-header">
     <h1 class="library-title">{{ subject_config['name'] }} Lessons</h1>
@@ -433,5 +467,30 @@
 <a href="/learning-mode?subject={{ subject }}&grade={{ grade }}" class="back-button">
     ← Back to Learning Mode
 </a>
+
+<script>
+const loadingMessages = [
+    "📚 Opening your lesson...",
+    "✨ Preparing learning materials...",
+    "🌟 Getting ready to learn...",
+    "🔮 Loading cosmic knowledge...",
+    "🚀 Starting your lesson journey...",
+    "⚡ Activating learning mode...",
+    "🌌 Accessing the lesson vault..."
+];
+
+// Add click event to all lesson cards
+document.addEventListener('DOMContentLoaded', function() {
+    const lessonLinks = document.querySelectorAll('.lesson-card-link');
+    lessonLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const loadingDiv = document.getElementById('loading-message');
+            const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+            loadingDiv.textContent = randomMessage;
+            loadingDiv.classList.add('show');
+        });
+    });
+});
+</script>
 
 {% endblock %}
