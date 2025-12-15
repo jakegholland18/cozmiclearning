@@ -158,7 +158,11 @@
 <body class="fade-in">
 
 <div style="max-width: 1200px; margin: 0 auto; padding-top: 20px;">
-    <a href="/homeschool/dashboard" class="btn-back">← Back to Dashboard</a>
+    {% if teacher %}
+        <a href="/teacher/dashboard" class="btn-back">← Back to Dashboard</a>
+    {% else %}
+        <a href="/homeschool/dashboard" class="btn-back">← Back to Dashboard</a>
+    {% endif %}
 </div>
 
 <div class="page-title">📚 Lesson Plans Library</div>
@@ -167,7 +171,11 @@
     <div class="library-header">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="color: var(--text); margin: 0;">Your Lesson Plans ({{ lesson_plans|length }})</h2>
-            <a href="/homeschool/dashboard#lessons" class="btn btn-view">+ Create New Lesson</a>
+            {% if teacher %}
+                <a href="/teacher/dashboard#lessons" class="btn btn-view">+ Create New Lesson</a>
+            {% else %}
+                <a href="/homeschool/dashboard#lessons" class="btn btn-view">+ Create New Lesson</a>
+            {% endif %}
         </div>
         <input type="text" id="searchLessons" class="search-bar" placeholder="🔍 Search lesson plans...">
     </div>
