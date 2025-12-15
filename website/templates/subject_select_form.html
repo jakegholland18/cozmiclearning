@@ -112,7 +112,7 @@
 function goToQuestion(grade) {
     const params = new URLSearchParams(window.location.search);
     const subject = params.get("subject");
-    window.location.href = `/ask-question?subject=${subject}&grade=${grade}`;
+    window.location.href = `/learning-mode?subject=${subject}&grade=${grade}`;
 }
 </script>
 

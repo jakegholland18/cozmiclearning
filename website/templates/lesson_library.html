@@ -1,0 +1,210 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    body {
+        background: var(--bg-gradient-main);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        color: white;
+    }
+
+    .stars {
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.07) 2px, transparent 2px);
+        background-size: 200px 200px, 300px 300px, 400px 400px;
+        opacity: 0.45;
+        animation: drift 50s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes drift {
+        from { transform: translateY(0); }
+        to { transform: translateY(-1300px); }
+    }
+
+    .library-header {
+        text-align: center;
+        margin-top: 60px;
+        padding: 0 20px;
+    }
+
+    .library-title {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #cfe8ff;
+        text-shadow:
+            0 0 25px rgba(130,180,255,0.7),
+            0 0 10px rgba(255,255,255,0.3);
+        margin-bottom: 10px;
+    }
+
+    .library-subtitle {
+        font-size: 1.3rem;
+        color: #aac5e0;
+        opacity: 0.9;
+        margin-bottom: 20px;
+    }
+
+    .library-instructions {
+        font-size: 1.1rem;
+        color: #b8d4f0;
+        max-width: 600px;
+        margin: 0 auto 40px auto;
+    }
+
+    .lessons-grid {
+        max-width: 1000px;
+        margin: 40px auto 80px auto;
+        padding: 0 30px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .lesson-card {
+        background: rgba(255,255,255,0.08);
+        border: 2px solid rgba(180,210,255,0.3);
+        border-radius: 16px;
+        padding: 25px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
+        position: relative;
+    }
+
+    .lesson-card:hover {
+        transform: translateY(-8px) scale(1.04);
+        box-shadow:
+            0 0 20px rgba(140,200,255,0.7),
+            0 0 40px rgba(60,140,255,0.4);
+        border-color: rgba(160,200,255,0.7);
+    }
+
+    .lesson-number {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 0.85rem;
+        color: #7fa8d9;
+        font-weight: 600;
+    }
+
+    .lesson-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .lesson-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #d9ecff;
+        margin-bottom: 10px;
+        text-shadow: 0 0 12px rgba(130,180,255,0.5);
+    }
+
+    .lesson-description {
+        font-size: 0.95rem;
+        color: #b8d4f0;
+        line-height: 1.5;
+    }
+
+    .back-button {
+        display: block;
+        width: fit-content;
+        margin: 20px auto;
+        padding: 12px 30px;
+        background: rgba(100,150,255,0.2);
+        border: 2px solid rgba(130,180,255,0.5);
+        border-radius: 10px;
+        color: #d9ecff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        background: rgba(100,150,255,0.3);
+        border-color: rgba(160,200,255,0.8);
+        transform: translateY(-2px);
+    }
+
+    @media(max-width: 700px) {
+        .library-title {
+            font-size: 2rem;
+        }
+
+        .library-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .lessons-grid {
+            padding: 0 15px;
+            gap: 20px;
+        }
+
+        .lesson-card {
+            padding: 20px 15px;
+        }
+    }
+</style>
+
+<div class="stars"></div>
+
+<div class="library-header">
+    <h1 class="library-title">{{ subject_config['name'] }} Lessons</h1>
+    <p class="library-subtitle">Grade {{ grade }}</p>
+    <p class="library-instructions">
+        Choose a lesson to begin your learning journey! Each lesson includes explanations, examples, and a chance to chat with {{ character.title() }}.
+    </p>
+</div>
+
+<div class="lessons-grid">
+    {% for lesson_topic in lesson_topics %}
+    <div class="lesson-card" onclick="startLesson('{{ lesson_topic }}')">
+        <span class="lesson-number">Lesson {{ loop.index }}</span>
+        <div class="lesson-icon">
+            {% if 'Math' in subject_config['name'] or 'NumForge' in subject_config['name'] %}🔢
+            {% elif 'Science' in subject_config['name'] or 'Atom' in subject_config['name'] %}🔬
+            {% elif 'History' in subject_config['name'] or 'Chrono' in subject_config['name'] %}📜
+            {% elif 'Reading' in subject_config['name'] or 'Story' in subject_config['name'] %}📖
+            {% elif 'Writing' in subject_config['name'] or 'Ink' in subject_config['name'] %}✍️
+            {% elif 'Bible' in subject_config['name'] or 'Faith' in subject_config['name'] %}✝️
+            {% elif 'Money' in subject_config['name'] or 'Coin' in subject_config['name'] %}💰
+            {% elif 'Invest' in subject_config['name'] or 'Stock' in subject_config['name'] %}📈
+            {% elif 'Truth' in subject_config['name'] or 'Apologetics' in subject_config['name'] %}🛡️
+            {% elif 'Geography' in subject_config['name'] or 'Terra' in subject_config['name'] %}🌍
+            {% elif 'Career' in subject_config['name'] or 'Power' in subject_config['name'] %}💼
+            {% elif 'Character' in subject_config['name'] or 'Respect' in subject_config['name'] %}⭐
+            {% else %}📚
+            {% endif %}
+        </div>
+        <div class="lesson-title">{{ lesson_topic }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<a href="/learning-mode?subject={{ subject }}&grade={{ grade }}" class="back-button">
+    ← Back to Learning Mode
+</a>
+
+<script>
+function startLesson(topic) {
+    const params = new URLSearchParams(window.location.search);
+    const subject = params.get("subject");
+    const grade = params.get("grade");
+
+    // URL-encode the topic to handle special characters
+    const encodedTopic = encodeURIComponent(topic);
+
+    window.location.href = `/view-lesson?subject=${subject}&grade=${grade}&topic=${encodedTopic}`;
+}
+</script>
+
+{% endblock %}

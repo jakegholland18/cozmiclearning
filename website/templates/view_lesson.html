@@ -1,0 +1,419 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    body {
+        background: var(--bg-gradient-main);
+        margin: 0;
+        padding: 0;
+        color: white;
+    }
+
+    .stars {
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.07) 2px, transparent 2px);
+        background-size: 200px 200px, 300px 300px, 400px 400px;
+        opacity: 0.45;
+        animation: drift 50s linear infinite;
+        z-index: -1;
+    }
+
+    .lesson-container {
+        max-width: 900px;
+        margin: 40px auto 100px auto;
+        padding: 0 20px;
+    }
+
+    .lesson-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .lesson-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #cfe8ff;
+        text-shadow: 0 0 25px rgba(130,180,255,0.7);
+        margin-bottom: 10px;
+    }
+
+    .lesson-meta {
+        font-size: 1.1rem;
+        color: #aac5e0;
+        opacity: 0.9;
+    }
+
+    .lesson-section {
+        background: rgba(255,255,255,0.08);
+        border: 2px solid rgba(180,210,255,0.3);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 25px;
+        backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #d9ecff;
+        margin-bottom: 15px;
+        text-shadow: 0 0 15px rgba(130,180,255,0.5);
+    }
+
+    .section-content {
+        font-size: 1.1rem;
+        color: #c5daf5;
+        line-height: 1.8;
+        white-space: pre-wrap;
+    }
+
+    .key-concept {
+        background: rgba(100,150,255,0.15);
+        border-left: 4px solid #6fa8ff;
+        padding: 12px 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        color: #d9ecff;
+    }
+
+    .example-box {
+        background: rgba(130,180,255,0.1);
+        border: 2px solid rgba(130,180,255,0.4);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+    }
+
+    .example-scenario {
+        font-weight: 600;
+        color: #b8d4f0;
+        margin-bottom: 10px;
+    }
+
+    .example-solution {
+        color: #c5daf5;
+        padding-left: 20px;
+        border-left: 3px solid #6fa8ff;
+        margin-top: 8px;
+    }
+
+    .try-it-box {
+        background: linear-gradient(135deg, rgba(100,150,255,0.2), rgba(60,140,255,0.15));
+        border: 2px solid rgba(130,180,255,0.5);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+    }
+
+    .try-it-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #cfe8ff;
+        margin-bottom: 15px;
+    }
+
+    .discussion-question {
+        background: rgba(255,255,255,0.05);
+        border-left: 4px solid #9fb8e0;
+        padding: 15px 20px;
+        margin: 12px 0;
+        border-radius: 8px;
+        color: #c5daf5;
+    }
+
+    .chat-section {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(180,210,255,0.4);
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 40px;
+    }
+
+    .chat-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #cfe8ff;
+        margin-bottom: 20px;
+        text-align: center;
+        text-shadow: 0 0 20px rgba(130,180,255,0.6);
+    }
+
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px;
+    }
+
+    .chat-message {
+        margin: 15px 0;
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .user-message {
+        background: rgba(100,150,255,0.2);
+        border-left: 4px solid #6fa8ff;
+        margin-left: 20px;
+    }
+
+    .ai-message {
+        background: rgba(130,180,255,0.15);
+        border-left: 4px solid #9fb8e0;
+        margin-right: 20px;
+    }
+
+    .chat-input-box {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input {
+        flex: 1;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(180,210,255,0.3);
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        outline: none;
+    }
+
+    .chat-input:focus {
+        border-color: rgba(160,200,255,0.6);
+    }
+
+    .chat-send-btn {
+        padding: 15px 30px;
+        background: rgba(100,150,255,0.3);
+        border: 2px solid rgba(130,180,255,0.5);
+        border-radius: 10px;
+        color: #d9ecff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .chat-send-btn:hover {
+        background: rgba(100,150,255,0.5);
+        border-color: rgba(160,200,255,0.8);
+        transform: translateY(-2px);
+    }
+
+    .chat-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 10px 25px;
+        background: rgba(100,150,255,0.2);
+        border: 2px solid rgba(130,180,255,0.4);
+        border-radius: 10px;
+        color: #d9ecff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        background: rgba(100,150,255,0.3);
+        border-color: rgba(160,200,255,0.7);
+    }
+
+    @media(max-width: 700px) {
+        .lesson-title {
+            font-size: 2rem;
+        }
+
+        .lesson-section {
+            padding: 20px;
+        }
+
+        .chat-input-box {
+            flex-direction: column;
+        }
+
+        .chat-send-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="stars"></div>
+
+<div class="lesson-container">
+    <a href="/lesson-library?subject={{ subject }}&grade={{ grade }}" class="back-link">← Back to Lessons</a>
+
+    <div class="lesson-header">
+        <h1 class="lesson-title">{{ lesson.title }}</h1>
+        <p class="lesson-meta">{{ subject_config['name'] }} - Grade {{ grade }} - with {{ character.title() }}</p>
+    </div>
+
+    <!-- HOOK / INTRO -->
+    <div class="lesson-section">
+        <div class="section-title">🚀 Let's Begin!</div>
+        <div class="section-content">{{ lesson.hook }}</div>
+    </div>
+
+    <!-- LEARNING GOAL -->
+    <div class="lesson-section">
+        <div class="section-title">🎯 What You'll Learn</div>
+        <div class="section-content">{{ lesson.learning_goal }}</div>
+    </div>
+
+    <!-- MAIN EXPLANATION -->
+    <div class="lesson-section">
+        <div class="section-title">📖 Explanation</div>
+        <div class="section-content">{{ lesson.explanation }}</div>
+    </div>
+
+    <!-- KEY CONCEPTS -->
+    <div class="lesson-section">
+        <div class="section-title">💡 Key Concepts</div>
+        {% for concept in lesson.key_concepts %}
+        <div class="key-concept">{{ concept }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- EXAMPLES -->
+    <div class="lesson-section">
+        <div class="section-title">🌟 Examples</div>
+        {% for example in lesson.examples %}
+        <div class="example-box">
+            <div class="example-scenario">{{ example.scenario }}</div>
+            <div class="example-solution">{{ example.solution }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- TRY IT -->
+    <div class="lesson-section">
+        <div class="try-it-box">
+            <div class="try-it-title">✏️ Try It Yourself!</div>
+            <div class="section-content">{{ lesson.try_it.instruction }}</div>
+            {% if lesson.try_it.hint %}
+            <div class="section-content" style="margin-top: 15px; opacity: 0.8; font-style: italic;">
+                💡 Hint: {{ lesson.try_it.hint }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- DISCUSSION QUESTIONS -->
+    <div class="lesson-section">
+        <div class="section-title">🤔 Think About This</div>
+        {% for question in lesson.discussion_questions %}
+        <div class="discussion-question">{{ question }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="lesson-section">
+        <div class="section-title">📝 Quick Recap</div>
+        <div class="section-content">{{ lesson.summary }}</div>
+    </div>
+
+    <!-- ENCOURAGEMENT -->
+    <div class="lesson-section" style="text-align: center; background: linear-gradient(135deg, rgba(100,150,255,0.15), rgba(60,140,255,0.1));">
+        <div class="section-content" style="font-size: 1.2rem; font-style: italic;">
+            {{ lesson.encouragement }}
+        </div>
+    </div>
+
+    <!-- FOLLOW-UP CHAT -->
+    <div class="chat-section">
+        <div class="chat-title">💬 Chat with {{ character.title() }}</div>
+        <p style="text-align: center; color: #b8d4f0; margin-bottom: 20px;">
+            Have questions about this lesson? Ask {{ character.title() }} anything!
+        </p>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Chat messages will appear here -->
+        </div>
+
+        <div class="chat-input-box">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Type your question here...">
+            <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSendBtn = document.getElementById('chatSendBtn');
+
+// Allow Enter key to send
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !chatSendBtn.disabled) {
+        sendMessage();
+    }
+});
+
+async function sendMessage() {
+    const question = chatInput.value.trim();
+    if (!question) return;
+
+    // Disable input while processing
+    chatInput.disabled = true;
+    chatSendBtn.disabled = true;
+
+    // Add user message to chat
+    addMessage('user', question);
+    chatInput.value = '';
+
+    try {
+        // Send to backend
+        const response = await fetch('/lesson-chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question: question,
+                subject: '{{ subject }}',
+                grade: {{ grade }},
+                topic: '{{ lesson.title }}',
+                character: '{{ character }}'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            addMessage('ai', data.answer);
+        } else {
+            addMessage('ai', 'Sorry, I had trouble understanding. Can you try asking again?');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('ai', 'Oops! Something went wrong. Please try again.');
+    } finally {
+        // Re-enable input
+        chatInput.disabled = false;
+        chatSendBtn.disabled = false;
+        chatInput.focus();
+    }
+}
+
+function addMessage(type, text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${type}-message`;
+    messageDiv.textContent = text;
+    chatMessages.appendChild(messageDiv);
+
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+
+{% endblock %}

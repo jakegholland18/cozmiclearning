@@ -8740,9 +8740,172 @@ def choose_grade():
     )
 
 
+@app.route("/learning-mode")
+def learning_mode():
+    """Choice between structured lessons or free exploration"""
+    init_user()
+    subject = request.args.get("subject")
+    grade = request.args.get("grade")
+
+    # Validate subject
+    if not validate_subject(subject):
+        flash(f"Invalid subject selected.", "error")
+        return redirect("/subjects")
+
+    # Validate and normalize grade
+    grade = str(validate_grade(grade))
+
+    # Check if grade is appropriate for this subject
+    if not validate_grade_for_subject(subject, grade):
+        subject_config = get_subject(subject)
+        flash(
+            f"Grade {grade} is not available for {subject_config['name']}. "
+            f"This subject is for grades {subject_config['min_grade']}-{subject_config['max_grade']}.",
+            "warning"
+        )
+        return redirect(f"/choose-grade?subject={subject}")
+
+    # Store validated grade in session
+    session["grade"] = grade
+    session["subject"] = subject
+
+    subject_config = get_subject(subject)
+
+    return render_template(
+        "learning_mode_choice.html",
+        subject=subject,
+        grade=grade,
+        subject_config=subject_config,
+        character=session.get("character", "everly")
+    )
+
+
+@app.route("/lesson-library")
+def lesson_library():
+    """Show available lessons for subject and grade"""
+    init_user()
+    subject = request.args.get("subject")
+    grade = request.args.get("grade")
+
+    # Validate
+    if not validate_subject(subject):
+        flash(f"Invalid subject selected.", "error")
+        return redirect("/subjects")
+
+    grade = str(validate_grade(grade))
+
+    if not validate_grade_for_subject(subject, grade):
+        return redirect(f"/choose-grade?subject={subject}")
+
+    # Get lesson topics for this subject/grade
+    from modules.student_lessons import get_lessons_for_subject_grade
+    lesson_topics = get_lessons_for_subject_grade(subject, int(grade))
+
+    if not lesson_topics:
+        flash(f"No lessons available yet for this subject and grade.", "warning")
+        return redirect(f"/learning-mode?subject={subject}&grade={grade}")
+
+    subject_config = get_subject(subject)
+
+    return render_template(
+        "lesson_library.html",
+        subject=subject,
+        grade=grade,
+        subject_config=subject_config,
+        lesson_topics=lesson_topics,
+        character=session.get("character", "everly")
+    )
+
+
+@app.route("/view-lesson")
+def view_lesson():
+    """Generate and display a lesson with follow-up chat"""
+    init_user()
+    subject = request.args.get("subject")
+    grade = request.args.get("grade")
+    topic = request.args.get("topic")
+
+    # Validate
+    if not validate_subject(subject) or not topic:
+        flash(f"Invalid lesson request.", "error")
+        return redirect("/subjects")
+
+    grade = str(validate_grade(grade))
+
+    # Generate the lesson
+    from modules.student_lessons import generate_student_lesson
+    character = session.get("character", "everly")
+
+    result = generate_student_lesson(subject, int(grade), topic, character)
+
+    if not result.get("success"):
+        flash(f"Error generating lesson: {result.get('error', 'Unknown error')}", "error")
+        return redirect(f"/lesson-library?subject={subject}&grade={grade}")
+
+    subject_config = get_subject(subject)
+
+    # Initialize chat history for this lesson
+    session[f"lesson_chat_{topic}"] = []
+
+    return render_template(
+        "view_lesson.html",
+        subject=subject,
+        grade=grade,
+        subject_config=subject_config,
+        lesson=result["lesson"],
+        character=character
+    )
+
+
+@app.route("/lesson-chat", methods=["POST"])
+@limiter.limit("20 per hour")
+def lesson_chat():
+    """Handle follow-up questions about a lesson"""
+    init_user()
+
+    data = request.get_json()
+    question = data.get("question", "").strip()
+    subject = data.get("subject")
+    grade = data.get("grade")
+    topic = data.get("topic")
+    character = data.get("character", "everly")
+
+    if not question or not subject or not topic:
+        return jsonify({"success": False, "error": "Missing required fields"})
+
+    # Get chat history for this lesson
+    chat_key = f"lesson_chat_{topic}"
+    conversation_history = session.get(chat_key, [])
+
+    # Get AI response
+    from modules.student_lessons import get_lesson_chat_response
+
+    try:
+        answer = get_lesson_chat_response(
+            topic, subject, int(grade), question, character, conversation_history
+        )
+
+        # Update conversation history
+        conversation_history.append({"role": "user", "content": question})
+        conversation_history.append({"role": "assistant", "content": answer})
+
+        # Keep only last 10 messages (5 exchanges)
+        if len(conversation_history) > 10:
+            conversation_history = conversation_history[-10:]
+
+        session[chat_key] = conversation_history
+
+        return jsonify({"success": True, "answer": answer})
+
+    except Exception as e:
+        print(f"Error in lesson chat: {e}")
+        return jsonify({"success": False, "error": "AI service error"})
+
+
 @app.route("/ask-question")
 @limiter.limit("30 per hour")  # Limit AI question asking to 30 per hour
 def ask_question():
+    """Free exploration mode - direct AI chat"""
     init_user()
     subject = request.args.get("subject")
     grade = request.args.get("grade")
