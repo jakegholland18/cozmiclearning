@@ -279,7 +279,66 @@
             width: 100%;
         }
     }
+
+    /* LOADING OVERLAY */
+    #lesson-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(10, 14, 31, 0.95), rgba(5, 8, 19, 0.98));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #lesson-loading.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .loading-content {
+        text-align: center;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 25px;
+        border: 4px solid rgba(0, 242, 255, 0.2);
+        border-top: 4px solid #00f2ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-message {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #00f2ff;
+        text-shadow: 0 0 20px rgba(0, 242, 255, 0.7);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
 </style>
+
+<div id="lesson-loading">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-message">📚 Loading your lesson...</div>
+    </div>
+</div>
 
 <div class="stars"></div>
 
@@ -448,6 +507,16 @@ function addMessage(type, text) {
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
+
+// Hide loading overlay when page is fully loaded
+window.addEventListener('load', function() {
+    const loadingOverlay = document.getElementById('lesson-loading');
+    if (loadingOverlay) {
+        setTimeout(function() {
+            loadingOverlay.classList.add('hidden');
+        }, 300); // Small delay for smooth transition
+    }
+});
 </script>
 
 {% endblock %}
