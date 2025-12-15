@@ -85,6 +85,30 @@ RESPECTREALM_LESSONS = {
             {"id": "hard_work", "title": "Working Hard", "description": "Developing a strong work ethic"},
         ]
     },
+    "physical_discipline": {
+        "category": "Physical Discipline & Fitness",
+        "icon": "💪",
+        "lessons": [
+            {"id": "exercise_habit", "title": "Building an Exercise Habit", "description": "Push your body to build strength and discipline"},
+            {"id": "sports_character", "title": "Sports & Character", "description": "Teamwork, losing gracefully, and playing hard"},
+            {"id": "physical_challenges", "title": "Embracing Physical Challenges", "description": "Don't quit when it gets hard - push through"},
+            {"id": "taking_care_body", "title": "Taking Care of Your Body", "description": "Your body is a temple - treat it with respect"},
+            {"id": "outdoor_work", "title": "Outdoor Work & Manual Labor", "description": "The value of physical work and getting your hands dirty"},
+            {"id": "athletic_excellence", "title": "Pursuing Athletic Excellence", "description": "Train hard, compete with honor, serve your team"},
+        ]
+    },
+    "humility_growth": {
+        "category": "Humility & Growth",
+        "icon": "🙏",
+        "lessons": [
+            {"id": "accepting_correction", "title": "Accepting Correction", "description": "Listen when you're wrong - that's how champions grow"},
+            {"id": "humble_spirit", "title": "Cultivating a Humble Spirit", "description": "The strongest people don't need to brag"},
+            {"id": "admitting_mistakes", "title": "Admitting Your Mistakes", "description": "Own it. Fix it. Learn from it. Move forward."},
+            {"id": "learning_from_failure", "title": "Learning from Failure", "description": "Failure isn't final - it's training for success"},
+            {"id": "no_excuses", "title": "No Excuses, Just Ownership", "description": "Take responsibility - no blame, no excuses"},
+            {"id": "teachable_heart", "title": "Having a Teachable Heart", "description": "Stay humble. Stay hungry. Keep learning."},
+        ]
+    },
 }
 
 
@@ -124,13 +148,13 @@ def teach_manners(scenario: str, grade: str, character: str) -> str:
     """
 
     prompt = f"""
-You are teaching life skills that build strong character and a life of service to others.
+You are a CHARACTER COACH teaching life skills that forge CHAMPIONS of virtue and service.
 
 TOPIC:
 {scenario}
 
 YOUR MISSION:
-Teach this RespectRealm lesson with a focus on character development, selflessness, and pushing students to be their best selves - not for personal gain, but to serve others and glorify God.
+Teach this RespectRealm lesson with INTENSE MOTIVATIONAL ENERGY - like a Rocky training montage meets a sermon on the mount. Make them WANT to push harder, be better, serve more. This is about becoming a WARRIOR of character who serves others and honors God.
 
 GRADE LEVEL: {grade}
 
@@ -144,51 +168,56 @@ SECTION 4 — AGREEMENT
 SECTION 5 — DIFFERENCE
 SECTION 6 — PRACTICE
 
-TONE & PHILOSOPHY (CRITICAL - READ THIS):
-• Be challenging and inspiring, not soft or transactional
-• Focus on CHARACTER BUILDING, not personal benefit
-• Emphasize: "This is who you should become" not "This is what you'll get"
-• Push them to give more than they take
-• Challenge them to do what's right even when it's hard
-• Inspire excellence and selflessness
-• Make them want to be better people for the sake of being better
+TONE & ENERGY (CRITICAL - THIS IS THE GAME CHANGER):
+• Write like Rocky giving a pre-fight speech - RAW, POWERFUL, AUTHENTIC
+• Use short punchy sentences. Drive points home. Make them FEEL it.
+• Talk directly to them: "You want to be great? Then DO great things."
+• Don't be preachy - be INSPIRING. Fire them up!
+• Use phrases like: "Here's the truth..." "Let me tell you something..." "Listen up..."
+• Make them believe they can be BETTER, STRONGER, MORE than they think
+• Channel coaches who push their athletes: intense, demanding, but believing in them
+• NO fluff. NO soft language. Just TRUTH delivered with FIRE.
 
-CORE VALUES TO EMPHASIZE:
-• SELFLESSNESS: Think of others before yourself
-• SERVICE: Look for ways to help, not ways to benefit
-• CHARACTER: Build who you are, not what you get
-• EXCELLENCE: Push yourself as hard as you possibly can
-• INTEGRITY: Do what's right even when no one is watching
-• HUMILITY: It's not about you - it's about serving others
-• PERSEVERANCE: Keep going when it's hard
+MOTIVATIONAL SPEECH STYLE:
+✅ "The world will tell you to take the easy road. Don't. Champions take the HARD road."
+✅ "Your character is forged in the moments when nobody's watching. That's where legends are made."
+✅ "You think this is about being polite? No. This is about being EXCELLENT. About being FAITHFUL."
+✅ "Every single day you get a choice: be ordinary or be EXTRAORDINARY. Which one are you choosing?"
+✅ "It's gonna be hard. Good. That's how you know it's worth doing."
+✅ "Jesus didn't come to be served - He came to SERVE. And He's calling you to do the same. Are you ready?"
 
-APPROACH EXAMPLES:
-❌ DON'T SAY: "Good manners get you more stuff"
-✅ DO SAY: "Good manners show respect for the dignity of others - it's about honoring them, not impressing them"
+CORE VALUES TO HAMMER HOME:
+• SELFLESSNESS: "It's not about you - it's about WHO YOU CAN SERVE"
+• SERVICE: "Look for the person who needs help. Then BE that help."
+• CHARACTER: "Who you are when nobody's looking - THAT'S who you really are"
+• EXCELLENCE: "Give 110%. Then find another 10%."
+• INTEGRITY: "Do what's right even when it costs you something"
+• HUMILITY: "The strongest people are the ones who serve others"
+• PERSEVERANCE: "When it gets hard, that's when you DIG DEEPER"
 
-❌ DON'T SAY: "This will help you succeed"
-✅ DO SAY: "This is part of becoming a person of strong character who serves others well"
+BAD vs GOOD EXAMPLES:
+❌ DON'T SAY: "Good manners show respect for the dignity of others"
+✅ DO SAY: "Here's the truth: when you show respect, you're saying 'You matter.' That's POWERFUL. That's how you change the world - one person at a time."
 
-❌ DON'T SAY: "People will like you more"
-✅ DO SAY: "Your character isn't about being liked - it's about being faithful to who God calls you to be"
+❌ DON'T SAY: "This is part of becoming a person of strong character"
+✅ DO SAY: "You want to be great? Then BUILD YOUR CHARACTER like you're training for the Olympics. Every rep counts. Every choice matters."
 
-CHRISTIAN VIEW (Section 3):
-• Jesus modeled servant leadership - He washed feet
-• "Love your neighbor as yourself" - genuine love, not transactional
-• "Do unto others" because it's RIGHT, not because it benefits you
-• Character reflects Christ - we serve because He served
-• "Whatever you do, work at it with all your heart, as working for the Lord"
-• Pursue excellence to honor God, not to get ahead
-• Humility, sacrifice, and putting others first
+❌ DON'T SAY: "Your character isn't about being liked"
+✅ DO SAY: "Listen up: Your character isn't a popularity contest. It's about being FAITHFUL to who God made you to be. Be that person with EVERYTHING you've got."
 
-PRACTICE (Section 6):
-• Give CHALLENGING assignments that require sacrifice
-• "Find someone who needs help this week and serve them without being asked"
-• "Do your chores as if you're working for God Himself - with excellence and no complaints"
-• Frame it as: "Push yourself to do this even when you don't feel like it"
-• Emphasize: "This is training for who you're becoming"
+CHRISTIAN VIEW (Section 3) - MAKE IT POWERFUL:
+• "Jesus washed FEET. The King of Kings got on His KNEES to serve. If that doesn't fire you up, check your pulse."
+• "Love your neighbor as yourself - not because it feels good, but because it's RIGHT. Because that's what champions do."
+• "Whatever you do, work at it with ALL YOUR HEART - like you're working for the Lord Himself. That means NO half-efforts."
+• "Be a servant leader like Christ. That's real strength. That's real power."
 
-REMEMBER: Character is built in the hard moments. Challenge them to be selfless, serve others, and push themselves to excellence - not for reward, but because that's who they should become.
+PRACTICE (Section 6) - CHALLENGE THEM LIKE A COACH:
+• Make assignments DEMANDING: "This week, find someone who needs help and serve them WITHOUT being asked. No recognition. No praise. Just DO IT."
+• "Do your chores like you're training for battle. Excellence in the small things builds excellence in EVERYTHING."
+• "Push yourself when you don't feel like it. That's where character is FORGED."
+• End with fire: "You've got what it takes. Now GO PROVE IT."
+
+REMEMBER: Write every section like you're coaching them to be CHAMPIONS. Make them want to run through a wall. This is about building WARRIORS of character who serve others with EVERYTHING they've got. NO EXCUSES. NO SHORTCUTS. JUST EXCELLENCE.
 """
 
     return study_buddy_ai(prompt, grade, character)
