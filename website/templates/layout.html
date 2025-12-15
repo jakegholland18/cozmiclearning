@@ -266,24 +266,6 @@
                     <a href="/admin_mode/homeschool" style="flex: 1; min-width: 45%; padding: 6px 8px; background: rgba(255, 107, 237, 0.15); border: 1px solid rgba(255, 107, 237, 0.3); border-radius: 6px; font-size: 0.75rem; text-align: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(255, 107, 237, 0.25)'" onmouseout="this.style.background='rgba(255, 107, 237, 0.15)'">🏡 Homeschool</a>
                 </div>
             </div>
-            <hr>
-
-            <a href="/dashboard">📊 Student Dashboard</a>
-            <a href="/subjects">🪐 Explore Subjects</a>
-            <a href="/choose-character">🎨 Choose Mentor</a>
-            <hr>
-            <a href="/parent_dashboard">📘 Parent Dashboard</a>
-            <a href="/homeschool/dashboard">🏡 Homeschool Dashboard</a>
-            <a href="/parent/students">👨‍👩‍👧‍👦 My Students</a>
-            <a href="/parent/analytics">📈 Analytics</a>
-            <a href="/parent/messages">💬 Messages</a>
-            <a href="/parent/lesson-plans">📚 Lesson Plans</a>
-            <hr>
-            <a href="/teacher/dashboard">📘 Teacher Dashboard</a>
-            <a href="/teacher/dashboard">🏫 My Classes</a>
-            <a href="/teacher/assignments">📝 Assign Practice</a>
-            <a href="/teacher/analytics">📈 Analytics</a>
-            <a href="/teacher/messages">💬 Message Parents</a>
         {% else %}
             {% if session.get('student_id') %}
                 <a href="/dashboard">📊 Student Dashboard</a>
