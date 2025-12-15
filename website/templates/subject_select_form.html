@@ -17,19 +17,23 @@
         background:
             radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.08) 1px, transparent 1px),
             radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.08) 1px, transparent 1px),
-            radial-gradient(circle at 40% 40%, rgba(0, 255, 200, 0.1) 2px, transparent 2px),
-            radial-gradient(circle at 15% 15%, rgba(0, 200, 255, 0.2), transparent 50%),
-            radial-gradient(circle at 85% 85%, rgba(255, 0, 200, 0.15), transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(100, 0, 255, 0.12), transparent 60%);
-        background-size: 200px 200px, 300px 300px, 400px 400px, 800px 800px, 800px 800px, 1000px 1000px;
-        opacity: 0.7;
-        animation: drift 60s linear infinite, colorShift 15s ease-in-out infinite;
+            radial-gradient(circle at 40% 40%, rgba(0, 100, 255, 0.1) 2px, transparent 2px),
+            radial-gradient(circle at 15% 15%, rgba(0, 150, 255, 0.25), transparent 50%),
+            radial-gradient(circle at 85% 85%, rgba(255, 0, 200, 0.18), transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(100, 0, 255, 0.15), transparent 60%),
+            radial-gradient(circle at 30% 60%, rgba(0, 200, 255, 0.2), transparent 55%),
+            radial-gradient(circle at 70% 30%, rgba(0, 255, 150, 0.12), transparent 60%);
+        background-size: 200px 200px, 300px 300px, 400px 400px, 800px 800px, 800px 800px, 1000px 1000px, 900px 900px, 850px 850px;
+        opacity: 0.8;
+        animation: drift 60s linear infinite, colorShift 20s ease-in-out infinite;
         z-index: -1;
     }
 
     @keyframes colorShift {
-        0%, 100% { filter: hue-rotate(0deg); }
-        50% { filter: hue-rotate(30deg); }
+        0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+        25% { filter: hue-rotate(20deg) brightness(1.1); }
+        50% { filter: hue-rotate(40deg) brightness(1.2); }
+        75% { filter: hue-rotate(20deg) brightness(1.1); }
     }
 
     @keyframes drift {
@@ -43,21 +47,32 @@
         margin-top: 60px;
         font-size: 3.2rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #00ffff 0%, #00d4ff 25%, #0080ff 50%, #8000ff 75%, #ff00ff 100%);
+        background: linear-gradient(135deg, #00ffff 0%, #0099ff 20%, #0066ff 40%, #6600ff 60%, #cc00ff 80%, #ff00ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        background-size: 200% 200%;
-        animation: titleGlow 3s ease-in-out infinite, gradientShift 8s ease infinite;
+        background-size: 300% 300%;
+        animation: titleGlow 3s ease-in-out infinite, gradientShift 10s ease infinite;
         position: relative;
-        filter: drop-shadow(0 0 25px rgba(0, 200, 255, 0.8))
-                drop-shadow(0 0 50px rgba(255, 0, 255, 0.5));
+        filter: drop-shadow(0 0 30px rgba(0, 150, 255, 1))
+                drop-shadow(0 0 60px rgba(100, 0, 255, 0.7))
+                drop-shadow(0 0 90px rgba(255, 0, 255, 0.5));
         letter-spacing: 2px;
     }
 
     @keyframes titleGlow {
-        0%, 100% { filter: brightness(1) drop-shadow(0 0 30px rgba(0, 200, 255, 0.9)) drop-shadow(0 0 60px rgba(255, 0, 255, 0.6)); }
-        50% { filter: brightness(1.3) drop-shadow(0 0 50px rgba(0, 255, 255, 1)) drop-shadow(0 0 100px rgba(255, 0, 200, 0.8)); }
+        0%, 100% {
+            filter: brightness(1)
+                    drop-shadow(0 0 35px rgba(0, 150, 255, 1))
+                    drop-shadow(0 0 70px rgba(100, 0, 255, 0.8))
+                    drop-shadow(0 0 105px rgba(255, 0, 255, 0.6));
+        }
+        50% {
+            filter: brightness(1.4)
+                    drop-shadow(0 0 50px rgba(0, 200, 255, 1))
+                    drop-shadow(0 0 100px rgba(150, 0, 255, 1))
+                    drop-shadow(0 0 150px rgba(255, 0, 200, 0.9));
+        }
     }
 
     @keyframes gradientShift {
@@ -71,19 +86,26 @@
         top: -10px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, transparent, #00ffff, #ff00ff, transparent);
-        border-radius: 2px;
+        width: 100px;
+        height: 5px;
+        background: linear-gradient(90deg, transparent, #00ffff, #0066ff, #cc00ff, #ff00ff, transparent);
+        border-radius: 3px;
         box-shadow:
-            0 0 20px rgba(0, 255, 255, 1),
-            0 0 40px rgba(255, 0, 255, 0.8);
-        animation: lineGlow 2s ease-in-out infinite;
+            0 0 25px rgba(0, 200, 255, 1),
+            0 0 50px rgba(100, 0, 255, 0.9),
+            0 0 75px rgba(255, 0, 255, 0.7);
+        animation: lineGlow 2.5s ease-in-out infinite;
     }
 
     @keyframes lineGlow {
-        0%, 100% { opacity: 0.8; }
-        50% { opacity: 1; box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 60px rgba(255, 0, 255, 1); }
+        0%, 100% {
+            opacity: 0.8;
+            box-shadow: 0 0 30px rgba(0, 200, 255, 1), 0 0 60px rgba(100, 0, 255, 0.9), 0 0 90px rgba(255, 0, 255, 0.7);
+        }
+        50% {
+            opacity: 1;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 1), 0 0 80px rgba(150, 0, 255, 1), 0 0 120px rgba(255, 0, 255, 1);
+        }
     }
 
     /* GRADE GRID WITH STAGGER ANIMATION */
@@ -100,28 +122,30 @@
 
     /* GRADE BOX WITH ELECTRIC GLOW */
     .grade-box {
-        background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(100,0,255,0.1));
-        border: 2px solid rgba(0,200,255,0.5);
+        background: linear-gradient(135deg, rgba(0,150,255,0.18), rgba(100,0,255,0.12), rgba(0,200,255,0.1));
+        border: 2px solid rgba(0,150,255,0.6);
         padding: 28px 20px;
         border-radius: 20px;
         font-size: 1.9rem;
         font-weight: 800;
-        color: #00ffff;
+        color: #00ccff;
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(15px);
         text-shadow:
-            0 0 20px rgba(0,255,255,0.9),
-            0 0 40px rgba(255,0,255,0.5),
+            0 0 25px rgba(0,200,255,1),
+            0 0 50px rgba(100,0,255,0.7),
+            0 0 75px rgba(255,0,255,0.5),
             0 2px 4px rgba(0,0,0,0.5);
         user-select: none;
         position: relative;
         overflow: hidden;
         animation: fadeInUp 0.6s ease-out backwards;
         box-shadow:
-            0 4px 20px rgba(0,200,255,0.4),
-            0 0 40px rgba(100,0,255,0.2),
-            inset 0 1px 0 rgba(0,255,255,0.2);
+            0 6px 25px rgba(0,150,255,0.5),
+            0 0 50px rgba(100,0,255,0.3),
+            0 0 75px rgba(0,200,255,0.2),
+            inset 0 1px 0 rgba(0,255,255,0.25);
     }
 
     .grade-box::before {
@@ -131,7 +155,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(255,0,255,0.2) 50%, transparent 70%);
+        background: radial-gradient(circle, rgba(0,200,255,0.4) 0%, rgba(100,0,255,0.3) 30%, rgba(255,0,255,0.2) 60%, transparent 75%);
         opacity: 0;
         transition: opacity 0.4s ease;
     }
@@ -142,24 +166,26 @@
     }
 
     @keyframes shimmer {
-        0%, 100% { transform: translate(-50%, -50%) scale(1); }
-        50% { transform: translate(-30%, -30%) scale(1.1); }
+        0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        50% { transform: translate(-30%, -30%) scale(1.15) rotate(5deg); }
     }
 
     .grade-box:hover {
         transform: translateY(-12px) scale(1.1);
         box-shadow:
-            0 0 40px rgba(0,255,255,1),
-            0 0 80px rgba(255,0,255,0.8),
-            0 0 120px rgba(0,200,255,0.6),
+            0 0 50px rgba(0,200,255,1),
+            0 0 100px rgba(100,0,255,1),
+            0 0 150px rgba(255,0,255,0.8),
+            0 0 200px rgba(0,150,255,0.6),
             0 15px 50px rgba(0,0,0,0.5),
-            inset 0 1px 0 rgba(0,255,255,0.4);
-        border-color: rgba(0,255,255,1);
-        background: linear-gradient(135deg, rgba(0,255,255,0.3), rgba(255,0,255,0.25));
+            inset 0 1px 0 rgba(0,255,255,0.5);
+        border-color: rgba(0,200,255,1);
+        background: linear-gradient(135deg, rgba(0,255,255,0.35), rgba(100,0,255,0.3), rgba(255,0,255,0.25));
         color: #ffffff;
         text-shadow:
-            0 0 30px rgba(0,255,255,1),
-            0 0 60px rgba(255,0,255,0.8);
+            0 0 35px rgba(0,255,255,1),
+            0 0 70px rgba(100,0,255,1),
+            0 0 105px rgba(255,0,255,0.9);
     }
 
     .grade-box:active {

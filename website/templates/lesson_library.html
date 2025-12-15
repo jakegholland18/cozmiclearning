@@ -17,19 +17,23 @@
         background:
             radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.08) 1px, transparent 1px),
             radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.08) 1px, transparent 1px),
-            radial-gradient(circle at 40% 40%, rgba(0, 255, 200, 0.1) 2px, transparent 2px),
-            radial-gradient(circle at 15% 15%, rgba(0, 200, 255, 0.2), transparent 50%),
-            radial-gradient(circle at 85% 85%, rgba(255, 0, 200, 0.15), transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(100, 0, 255, 0.12), transparent 60%);
-        background-size: 200px 200px, 300px 300px, 400px 400px, 800px 800px, 800px 800px, 1000px 1000px;
-        opacity: 0.7;
-        animation: drift 70s linear infinite, colorShift 15s ease-in-out infinite;
+            radial-gradient(circle at 40% 40%, rgba(0, 100, 255, 0.1) 2px, transparent 2px),
+            radial-gradient(circle at 15% 15%, rgba(0, 150, 255, 0.25), transparent 50%),
+            radial-gradient(circle at 85% 85%, rgba(255, 0, 200, 0.18), transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(100, 0, 255, 0.15), transparent 60%),
+            radial-gradient(circle at 30% 60%, rgba(0, 200, 255, 0.2), transparent 55%),
+            radial-gradient(circle at 70% 30%, rgba(0, 255, 150, 0.12), transparent 60%);
+        background-size: 200px 200px, 300px 300px, 400px 400px, 800px 800px, 800px 800px, 1000px 1000px, 900px 900px, 850px 850px;
+        opacity: 0.8;
+        animation: drift 70s linear infinite, colorShift 20s ease-in-out infinite;
         z-index: -1;
     }
 
     @keyframes colorShift {
-        0%, 100% { filter: hue-rotate(0deg); }
-        50% { filter: hue-rotate(30deg); }
+        0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+        25% { filter: hue-rotate(20deg) brightness(1.1); }
+        50% { filter: hue-rotate(40deg) brightness(1.2); }
+        75% { filter: hue-rotate(20deg) brightness(1.1); }
     }
 
     @keyframes drift {
@@ -53,23 +57,34 @@
     .library-title {
         font-size: 3rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #00ffff 0%, #00d4ff 25%, #0080ff 50%, #8000ff 75%, #ff00ff 100%);
+        background: linear-gradient(135deg, #00ffff 0%, #0099ff 20%, #0066ff 40%, #6600ff 60%, #cc00ff 80%, #ff00ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        background-size: 200% 200%;
+        background-size: 300% 300%;
         margin-bottom: 12px;
         position: relative;
         display: inline-block;
-        animation: titlePulse 3s ease-in-out infinite, gradientShift 8s ease infinite;
-        filter: drop-shadow(0 0 25px rgba(0, 200, 255, 0.8))
-                drop-shadow(0 0 50px rgba(255, 0, 255, 0.5));
+        animation: titlePulse 3s ease-in-out infinite, gradientShift 10s ease infinite;
+        filter: drop-shadow(0 0 30px rgba(0, 150, 255, 1))
+                drop-shadow(0 0 60px rgba(100, 0, 255, 0.7))
+                drop-shadow(0 0 90px rgba(255, 0, 255, 0.5));
         letter-spacing: 2px;
     }
 
     @keyframes titlePulse {
-        0%, 100% { filter: brightness(1) drop-shadow(0 0 30px rgba(0, 200, 255, 0.9)) drop-shadow(0 0 60px rgba(255, 0, 255, 0.6)); }
-        50% { filter: brightness(1.3) drop-shadow(0 0 50px rgba(0, 255, 255, 1)) drop-shadow(0 0 100px rgba(255, 0, 200, 0.8)); }
+        0%, 100% {
+            filter: brightness(1)
+                    drop-shadow(0 0 35px rgba(0, 150, 255, 1))
+                    drop-shadow(0 0 70px rgba(100, 0, 255, 0.8))
+                    drop-shadow(0 0 105px rgba(255, 0, 255, 0.6));
+        }
+        50% {
+            filter: brightness(1.4)
+                    drop-shadow(0 0 50px rgba(0, 200, 255, 1))
+                    drop-shadow(0 0 100px rgba(150, 0, 255, 1))
+                    drop-shadow(0 0 150px rgba(255, 0, 200, 0.9));
+        }
     }
 
     @keyframes gradientShift {
@@ -83,27 +98,34 @@
         bottom: -8px;
         left: 50%;
         transform: translateX(-50%);
-        width: 60%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, #00ffff, #ff00ff, transparent);
-        border-radius: 2px;
+        width: 70%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #00ffff, #0066ff, #cc00ff, #ff00ff, transparent);
+        border-radius: 3px;
         box-shadow:
-            0 0 20px rgba(0, 255, 255, 1),
-            0 0 40px rgba(255, 0, 255, 0.8);
-        animation: lineGlow 2s ease-in-out infinite;
+            0 0 25px rgba(0, 200, 255, 1),
+            0 0 50px rgba(100, 0, 255, 0.9),
+            0 0 75px rgba(255, 0, 255, 0.7);
+        animation: lineGlow 2.5s ease-in-out infinite;
     }
 
     @keyframes lineGlow {
-        0%, 100% { opacity: 0.8; }
-        50% { opacity: 1; box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 60px rgba(255, 0, 255, 1); }
+        0%, 100% {
+            opacity: 0.8;
+            box-shadow: 0 0 30px rgba(0, 200, 255, 1), 0 0 60px rgba(100, 0, 255, 0.9), 0 0 90px rgba(255, 0, 255, 0.7);
+        }
+        50% {
+            opacity: 1;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 1), 0 0 80px rgba(150, 0, 255, 1), 0 0 120px rgba(255, 0, 255, 1);
+        }
     }
 
     .library-subtitle {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #00d4ff;
+        color: #0099ff;
         margin-bottom: 18px;
-        text-shadow: 0 0 20px rgba(0, 200, 255, 0.7);
+        text-shadow: 0 0 25px rgba(0, 150, 255, 0.9), 0 0 50px rgba(100, 0, 255, 0.6);
         letter-spacing: 1px;
     }
 
@@ -134,8 +156,8 @@
 
     /* LESSON CARD WITH ELECTRIC GLOW */
     .lesson-card {
-        background: linear-gradient(135deg, rgba(0,200,255,0.15), rgba(100,0,255,0.1));
-        border: 2px solid rgba(0,200,255,0.5);
+        background: linear-gradient(135deg, rgba(0,150,255,0.18), rgba(100,0,255,0.12), rgba(0,200,255,0.1));
+        border: 2px solid rgba(0,150,255,0.6);
         border-radius: 20px;
         padding: 30px 25px;
         cursor: pointer;
@@ -147,9 +169,10 @@
         overflow: hidden;
         animation: cardFadeIn 0.6s ease-out backwards;
         box-shadow:
-            0 8px 25px rgba(0,200,255,0.3),
-            0 0 40px rgba(100,0,255,0.2),
-            inset 0 1px 0 rgba(0,255,255,0.2);
+            0 8px 30px rgba(0,150,255,0.4),
+            0 0 50px rgba(100,0,255,0.3),
+            0 0 75px rgba(0,200,255,0.2),
+            inset 0 1px 0 rgba(0,255,255,0.25);
     }
 
     .lesson-card::before {
@@ -159,7 +182,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(255,0,255,0.2) 50%, transparent 70%);
+        background: radial-gradient(circle, rgba(0,200,255,0.4) 0%, rgba(100,0,255,0.3) 30%, rgba(255,0,255,0.2) 60%, transparent 75%);
         opacity: 0;
         transition: opacity 0.4s ease;
     }
@@ -170,8 +193,8 @@
     }
 
     @keyframes shimmer {
-        0%, 100% { transform: translate(-50%, -50%) scale(1); }
-        50% { transform: translate(-30%, -30%) scale(1.1); }
+        0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        50% { transform: translate(-30%, -30%) scale(1.15) rotate(5deg); }
     }
 
     .lesson-card::after {
@@ -180,7 +203,7 @@
         inset: 0;
         border-radius: 20px;
         padding: 2px;
-        background: linear-gradient(135deg, rgba(0,255,255,0.5), rgba(255,0,255,0.3));
+        background: linear-gradient(135deg, rgba(0,200,255,0.6), rgba(100,0,255,0.5), rgba(255,0,255,0.4));
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
@@ -213,13 +236,14 @@
     .lesson-card-link:hover .lesson-card {
         transform: translateY(-15px) scale(1.08) rotateX(5deg);
         box-shadow:
-            0 0 40px rgba(0,255,255,1),
-            0 0 80px rgba(255,0,255,0.8),
-            0 0 120px rgba(0,200,255,0.6),
+            0 0 50px rgba(0,200,255,1),
+            0 0 100px rgba(100,0,255,1),
+            0 0 150px rgba(255,0,255,0.8),
+            0 0 200px rgba(0,150,255,0.6),
             0 20px 50px rgba(0,0,0,0.4),
-            inset 0 1px 0 rgba(0,255,255,0.4);
-        border-color: rgba(0,255,255,1);
-        background: linear-gradient(135deg, rgba(0,255,255,0.3), rgba(255,0,255,0.25));
+            inset 0 1px 0 rgba(0,255,255,0.5);
+        border-color: rgba(0,200,255,1);
+        background: linear-gradient(135deg, rgba(0,255,255,0.35), rgba(100,0,255,0.3), rgba(255,0,255,0.25));
     }
 
     .lesson-card-link:active .lesson-card {
@@ -233,14 +257,14 @@
         right: 18px;
         font-size: 0.9rem;
         font-weight: 700;
-        color: #00ffff;
-        background: rgba(0,200,255,0.25);
+        color: #00ccff;
+        background: rgba(0,150,255,0.3);
         padding: 4px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(0,255,255,0.5);
-        box-shadow: 0 2px 8px rgba(0,200,255,0.5);
+        border: 1px solid rgba(0,200,255,0.6);
+        box-shadow: 0 2px 10px rgba(0,150,255,0.6), 0 0 20px rgba(100,0,255,0.4);
         backdrop-filter: blur(8px);
-        text-shadow: 0 0 10px rgba(0,255,255,0.8);
+        text-shadow: 0 0 15px rgba(0,200,255,1), 0 0 30px rgba(100,0,255,0.7);
     }
 
     .lesson-icon {
@@ -276,8 +300,9 @@
         color: #e0f5ff;
         margin-bottom: 10px;
         text-shadow:
-            0 0 25px rgba(0,200,255,0.9),
-            0 0 45px rgba(255,0,255,0.5),
+            0 0 30px rgba(0,200,255,1),
+            0 0 60px rgba(100,0,255,0.7),
+            0 0 90px rgba(255,0,255,0.5),
             0 2px 4px rgba(0,0,0,0.4);
         line-height: 1.4;
         letter-spacing: 0.5px;
