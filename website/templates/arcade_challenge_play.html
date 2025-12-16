@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-play-page">
+    <div class="challenge-intro">
+        <h1>⚔️ Challenge Accepted!</h1>
+        <div class="challenger-info">
+            <p><strong>{{ challenger.name }}</strong> challenges you to beat their score!</p>
+            <div class="target-score">
+                <span class="label">Score to Beat:</span>
+                <span class="score">{{ challenge.challenger_score }}</span>
+                <span class="label">Time:</span>
+                <span class="time">{{ "%.1f"|format(challenge.challenger_time) }}s</span>
+            </div>
+        </div>
+
+        <div class="game-info">
+            <h2>{{ game.name }}</h2>
+            <p>{{ game.description }}</p>
+            <span class="difficulty-badge {{ challenge.difficulty }}">
+                {{ challenge.difficulty.title() }}
+            </span>
+        </div>
+
+        <button id="start-challenge-btn" class="btn btn-primary btn-large">
+            🎯 Start Challenge
+        </button>
+    </div>
+
+    <!-- Game Container (hidden until started) -->
+    <div id="game-container" class="game-container" style="display: none;">
+        <div class="game-header">
+            <div class="timer">
+                <span class="label">Time:</span>
+                <span id="timer-display">0.0s</span>
+            </div>
+            <div class="score">
+                <span class="label">Score:</span>
+                <span id="score-display">0</span>
+            </div>
+            <div class="progress">
+                <span class="label">Question:</span>
+                <span id="question-number">1</span> / <span id="total-questions">{{ questions|length }}</span>
+            </div>
+        </div>
+
+        <div id="question-area" class="question-area">
+            <!-- Questions will be loaded here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Results (hidden until complete) -->
+    <div id="results-container" class="results-container" style="display: none;">
+        <div class="results-card">
+            <h2 id="result-title"></h2>
+            <div class="score-comparison">
+                <div class="your-score">
+                    <p class="label">Your Score</p>
+                    <p class="value" id="your-score">-</p>
+                    <p class="time">Time: <span id="your-time">-</span>s</p>
+                </div>
+                <div class="vs">VS</div>
+                <div class="their-score">
+                    <p class="label">{{ challenger.name }}'s Score</p>
+                    <p class="value">{{ challenge.challenger_score }}</p>
+                    <p class="time">Time: {{ "%.1f"|format(challenge.challenger_time) }}s</p>
+                </div>
+            </div>
+            <a href="/arcade/challenge/{{ challenge.id }}/results" class="btn btn-primary">
+                View Full Results
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Game data
+const questions = {{ questions|tojson }};
+const challengeId = {{ challenge.id }};
+const targetScore = {{ challenge.challenger_score }};
+const targetTime = {{ challenge.challenger_time }};
+
+let currentQuestion = 0;
+let score = 0;
+let startTime = null;
+let timerInterval = null;
+
+// Start challenge
+document.getElementById('start-challenge-btn').addEventListener('click', () => {
+    document.querySelector('.challenge-intro').style.display = 'none';
+    document.getElementById('game-container').style.display = 'block';
+    startGame();
+});
+
+function startGame() {
+    startTime = Date.now();
+    score = 0;
+    currentQuestion = 0;
+
+    // Start timer
+    timerInterval = setInterval(updateTimer, 100);
+
+    // Load first question
+    loadQuestion();
+}
+
+function updateTimer() {
+    const elapsed = (Date.now() - startTime) / 1000;
+    document.getElementById('timer-display').textContent = elapsed.toFixed(1) + 's';
+}
+
+function loadQuestion() {
+    if (currentQuestion >= questions.length) {
+        endGame();
+        return;
+    }
+
+    const question = questions[currentQuestion];
+    document.getElementById('question-number').textContent = currentQuestion + 1;
+    document.getElementById('total-questions').textContent = questions.length;
+
+    const questionHtml = `
+        <div class="question">
+            <h3>${question.question}</h3>
+            <div class="options">
+                ${question.options.map((opt, i) => `
+                    <button class="option-btn" data-answer="${opt}">
+                        ${opt}
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    const questionArea = document.getElementById('question-area');
+    questionArea.innerHTML = questionHtml;
+
+    // Add click handlers
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => checkAnswer(btn.dataset.answer, question.answer));
+    });
+}
+
+function checkAnswer(selected, correct) {
+    const isCorrect = (selected == correct);
+
+    if (isCorrect) {
+        score += 10; // 10 points per correct answer
+        document.getElementById('score-display').textContent = score;
+    }
+
+    // Show feedback
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(btn => {
+        btn.disabled = true;
+        if (btn.dataset.answer == correct) {
+            btn.classList.add('correct');
+        } else if (btn.dataset.answer == selected && !isCorrect) {
+            btn.classList.add('wrong');
+        }
+    });
+
+    // Next question after 1.5s
+    setTimeout(() => {
+        currentQuestion++;
+        loadQuestion();
+    }, 1500);
+}
+
+function endGame() {
+    clearInterval(timerInterval);
+    const timeTaken = (Date.now() - startTime) / 1000;
+
+    // Hide game
+    document.getElementById('game-container').style.display = 'none';
+
+    // Submit results
+    submitResults(score, timeTaken);
+}
+
+async function submitResults(finalScore, timeTaken) {
+    try {
+        const response = await fetch(`/arcade/challenge/${challengeId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                score: finalScore,
+                time_taken: timeTaken
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showResults(finalScore, timeTaken);
+        }
+    } catch (error) {
+        console.error('Error submitting results:', error);
+        alert('Error submitting results. Please try again.');
+    }
+}
+
+function showResults(finalScore, timeTaken) {
+    // Determine if won
+    const won = (finalScore > targetScore) || (finalScore === targetScore && timeTaken < targetTime);
+
+    document.getElementById('result-title').textContent = won ? '🎉 You Won!' : '💪 Good Try!';
+    document.getElementById('your-score').textContent = finalScore;
+    document.getElementById('your-time').textContent = timeTaken.toFixed(1);
+
+    document.getElementById('results-container').style.display = 'block';
+}
+</script>
+
+<style>
+    .challenge-play-page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .challenge-intro {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .challenge-intro h1 {
+        font-size: 2.5rem;
+        color: #00f2ff;
+        margin-bottom: 20px;
+    }
+
+    .challenger-info {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .challenger-info p {
+        font-size: 1.2rem;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    .target-score {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        font-size: 1.1rem;
+    }
+
+    .target-score .label {
+        color: #c5daf5;
+    }
+
+    .target-score .score,
+    .target-score .time {
+        color: #00f2ff;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+
+    .game-info {
+        margin-bottom: 30px;
+    }
+
+    .game-info h2 {
+        color: #fff;
+        margin-bottom: 10px;
+    }
+
+    .difficulty-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .difficulty-badge.easy {
+        background: #00ff00;
+        color: #000;
+    }
+
+    .difficulty-badge.medium {
+        background: #ffa500;
+        color: #000;
+    }
+
+    .difficulty-badge.hard {
+        background: #ff0000;
+        color: #fff;
+    }
+
+    .game-container {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+    }
+
+    .game-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+    }
+
+    .game-header .label {
+        color: #c5daf5;
+        margin-right: 10px;
+    }
+
+    .game-header span:not(.label) {
+        color: #00f2ff;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .question-area {
+        min-height: 300px;
+    }
+
+    .question h3 {
+        color: #fff;
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .option-btn {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+        background: rgba(0, 242, 255, 0.2);
+        border-color: #00f2ff;
+        transform: scale(1.05);
+    }
+
+    .option-btn.correct {
+        background: rgba(0, 255, 0, 0.3);
+        border-color: #00ff00;
+    }
+
+    .option-btn.wrong {
+        background: rgba(255, 0, 0, 0.3);
+        border-color: #ff0000;
+    }
+
+    .results-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .results-card {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 40px;
+    }
+
+    .results-card h2 {
+        font-size: 2.5rem;
+        color: #00f2ff;
+        margin-bottom: 30px;
+    }
+
+    .score-comparison {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        margin-bottom: 30px;
+    }
+
+    .your-score, .their-score {
+        flex: 1;
+        max-width: 250px;
+    }
+
+    .your-score .label, .their-score .label {
+        color: #c5daf5;
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .your-score .value, .their-score .value {
+        color: #00f2ff;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .your-score .time, .their-score .time {
+        color: #c5daf5;
+        font-size: 0.9rem;
+    }
+
+    .vs {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .btn {
+        padding: 15px 40px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00f2ff, #4facfe);
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(0, 242, 255, 0.5);
+    }
+
+    .btn-large {
+        padding: 20px 60px;
+        font-size: 1.3rem;
+    }
+
+    @media (max-width: 768px) {
+        .score-comparison {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .vs {
+            transform: rotate(90deg);
+        }
+    }
+</style>
+{% endblock %}

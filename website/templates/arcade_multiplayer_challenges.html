@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="arcade-challenges-page">
+    <div class="page-header">
+        <h1>🎮 Arcade Challenges</h1>
+        <p>Challenge friends and compete for the highest score!</p>
+    </div>
+
+    <!-- Challenges Received -->
+    <section class="challenges-section">
+        <h2>⚔️ Challenges for You</h2>
+
+        {% if challenges_received %}
+            <div class="challenges-grid">
+                {% for participation in challenges_received %}
+                    {% set challenge = participation.challenge %}
+                    {% set challenger = challenge.challenger %}
+                    <div class="challenge-card {% if not participation.viewed %}unread{% endif %}">
+                        <div class="challenge-header">
+                            <span class="game-icon">{{ game_map.get(challenge.game_key, '🎮') }}</span>
+                            <div class="challenge-info">
+                                <h3>{{ challenger.name }} challenges you!</h3>
+                                <p class="game-name">{{ game_map.get(challenge.game_key, challenge.game_key) }}</p>
+                            </div>
+                            {% if not participation.viewed %}
+                                <span class="new-badge">NEW</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="challenge-details">
+                            <div class="detail-item">
+                                <strong>Difficulty:</strong> {{ challenge.difficulty.title() }}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Challenger Score:</strong> {{ challenge.challenger_score }} points
+                            </div>
+                            <div class="detail-item">
+                                <strong>Time:</strong> {{ "%.1f"|format(challenge.challenger_time) }}s
+                            </div>
+                            <div class="detail-item">
+                                <strong>Expires:</strong> {{ challenge.expires_at.strftime('%b %d at %I:%M %p') }}
+                            </div>
+                        </div>
+
+                        {% if participation.completed %}
+                            <div class="challenge-completed">
+                                ✅ Completed - Your Score: {{ participation.score }}
+                            </div>
+                            <a href="/arcade/challenge/{{ challenge.id }}/results" class="btn btn-secondary">
+                                View Results
+                            </a>
+                        {% else %}
+                            <a href="/arcade/challenge/{{ challenge.id }}" class="btn btn-primary">
+                                🎯 Accept Challenge
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No pending challenges. Challenge a friend to get started!</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Challenges Sent -->
+    <section class="challenges-section">
+        <h2>📤 Challenges You Sent</h2>
+
+        {% if challenges_sent %}
+            <div class="challenges-grid">
+                {% for challenge in challenges_sent %}
+                    <div class="challenge-card sent">
+                        <div class="challenge-header">
+                            <span class="game-icon">{{ game_map.get(challenge.game_key, '🎮') }}</span>
+                            <div class="challenge-info">
+                                <h3>{{ game_map.get(challenge.game_key, challenge.game_key) }}</h3>
+                                <p class="game-name">{{ challenge.difficulty.title() }}</p>
+                            </div>
+                        </div>
+
+                        <div class="challenge-details">
+                            <div class="detail-item">
+                                <strong>Your Score:</strong> {{ challenge.challenger_score }} points
+                            </div>
+                            <div class="detail-item">
+                                <strong>Your Time:</strong> {{ "%.1f"|format(challenge.challenger_time) }}s
+                            </div>
+                            <div class="detail-item">
+                                <strong>Challenged:</strong> {{ challenge.participants|length }} friend(s)
+                            </div>
+                            <div class="detail-item">
+                                <strong>Completed:</strong>
+                                {{ challenge.participants|selectattr('completed')|list|length }} / {{ challenge.participants|length }}
+                            </div>
+                        </div>
+
+                        <a href="/arcade/challenge/{{ challenge.id }}/results" class="btn btn-secondary">
+                            View Status
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>You haven't sent any challenges yet. Play a game and challenge friends!</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+    .arcade-challenges-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: #00f2ff;
+        margin-bottom: 10px;
+    }
+
+    .challenges-section {
+        margin-bottom: 60px;
+    }
+
+    .challenges-section h2 {
+        font-size: 1.8rem;
+        color: #fff;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #00f2ff;
+    }
+
+    .challenges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+
+    .challenge-card {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .challenge-card:hover {
+        transform: translateY(-5px);
+        border-color: #00f2ff;
+        box-shadow: 0 8px 20px rgba(0, 242, 255, 0.3);
+    }
+
+    .challenge-card.unread {
+        border-color: #ffd700;
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(26, 31, 58, 0.8));
+    }
+
+    .challenge-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .game-icon {
+        font-size: 2.5rem;
+    }
+
+    .challenge-info h3 {
+        font-size: 1.2rem;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+
+    .game-name {
+        color: #c5daf5;
+        font-size: 0.9rem;
+    }
+
+    .new-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #ffd700;
+        color: #000;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .challenge-details {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .detail-item {
+        color: #c5daf5;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .detail-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-item strong {
+        color: #00f2ff;
+    }
+
+    .challenge-completed {
+        background: rgba(0, 255, 0, 0.1);
+        border: 1px solid #00ff00;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        color: #00ff00;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00f2ff, #4facfe);
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 242, 255, 0.4);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #c5daf5;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .challenges-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}

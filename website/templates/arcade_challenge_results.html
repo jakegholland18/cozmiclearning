@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-results-page">
+    <div class="results-header">
+        <h1>🏆 Challenge Results</h1>
+        <div class="game-info">
+            <h2>{{ game.name }}</h2>
+            <span class="difficulty-badge {{ challenge.difficulty }}">
+                {{ challenge.difficulty.title() }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Winner Announcement -->
+    {% if winner %}
+        <div class="winner-announcement">
+            <div class="trophy">🏆</div>
+            <h2>{{ winner.student.name }} Wins!</h2>
+            <div class="winning-score">
+                <span class="score">{{ winner.score }}</span> points
+                <span class="time">in {{ "%.1f"|format(winner.time_taken) }}s</span>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Pending Notice -->
+    {% if pending_count > 0 %}
+        <div class="pending-notice">
+            ⏳ {{ pending_count }} player(s) haven't completed the challenge yet
+        </div>
+    {% endif %}
+
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+        <h3>📊 Leaderboard</h3>
+        <div class="leaderboard-table">
+            {% for rank, result in results|enumerate(1) %}
+                <div class="leaderboard-row {% if result.student_id == student_id %}highlight{% endif %} {% if rank == 1 %}first-place{% elif rank == 2 %}second-place{% elif rank == 3 %}third-place{% endif %}">
+                    <div class="rank">
+                        {% if rank == 1 %}
+                            🥇
+                        {% elif rank == 2 %}
+                            🥈
+                        {% elif rank == 3 %}
+                            🥉
+                        {% else %}
+                            {{ rank }}
+                        {% endif %}
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">
+                            {{ result.student.name }}
+                            {% if result.student_id == student_id %}
+                                <span class="you-badge">YOU</span>
+                            {% endif %}
+                        </div>
+                        <div class="completion-time">
+                            Completed {{ result.completed_at.strftime('%b %d at %I:%M %p') }}
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div class="score">{{ result.score }} pts</div>
+                        <div class="time">{{ "%.1f"|format(result.time_taken) }}s</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Challenge Details -->
+    <div class="challenge-details">
+        <h3>Challenge Info</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="label">Created By</div>
+                <div class="value">{{ challenge.challenger.name }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">Created</div>
+                <div class="value">{{ challenge.created_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">Expires</div>
+                <div class="value">{{ challenge.expires_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">Participants</div>
+                <div class="value">{{ total_participants }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+        <a href="/arcade/challenges" class="btn btn-secondary">
+            ← Back to Challenges
+        </a>
+        <a href="/arcade/hub" class="btn btn-primary">
+            🎮 Play More Games
+        </a>
+    </div>
+</div>
+
+<style>
+    .challenge-results-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .results-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .results-header h1 {
+        font-size: 2.5rem;
+        color: #00f2ff;
+        margin-bottom: 20px;
+    }
+
+    .game-info h2 {
+        color: #fff;
+        margin-bottom: 10px;
+    }
+
+    .difficulty-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+
+    .difficulty-badge.easy {
+        background: #00ff00;
+        color: #000;
+    }
+
+    .difficulty-badge.medium {
+        background: #ffa500;
+        color: #000;
+    }
+
+    .difficulty-badge.hard {
+        background: #ff0000;
+        color: #fff;
+    }
+
+    .winner-announcement {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
+        border: 3px solid #ffd700;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 30px;
+        animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+        }
+    }
+
+    .trophy {
+        font-size: 5rem;
+        margin-bottom: 20px;
+        animation: bounce 1s ease infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .winner-announcement h2 {
+        font-size: 2.5rem;
+        color: #ffd700;
+        margin-bottom: 15px;
+    }
+
+    .winning-score {
+        font-size: 1.5rem;
+    }
+
+    .winning-score .score {
+        color: #00f2ff;
+        font-weight: bold;
+        font-size: 2rem;
+    }
+
+    .winning-score .time {
+        color: #c5daf5;
+        margin-left: 15px;
+    }
+
+    .pending-notice {
+        background: rgba(255, 165, 0, 0.2);
+        border: 2px solid #ffa500;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        color: #ffa500;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+
+    .leaderboard {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .leaderboard h3 {
+        color: #00f2ff;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .leaderboard-row {
+        display: grid;
+        grid-template-columns: 60px 1fr auto;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .leaderboard-row:hover {
+        background: rgba(0, 242, 255, 0.1);
+        transform: translateX(5px);
+    }
+
+    .leaderboard-row.highlight {
+        background: rgba(0, 242, 255, 0.2);
+        border: 2px solid #00f2ff;
+    }
+
+    .leaderboard-row.first-place {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(0, 0, 0, 0.3));
+        border-left: 4px solid #ffd700;
+    }
+
+    .leaderboard-row.second-place {
+        border-left: 4px solid #c0c0c0;
+    }
+
+    .leaderboard-row.third-place {
+        border-left: 4px solid #cd7f32;
+    }
+
+    .rank {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        color: #00f2ff;
+    }
+
+    .player-info {
+        flex: 1;
+    }
+
+    .player-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+
+    .you-badge {
+        background: #00f2ff;
+        color: #000;
+        padding: 3px 10px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        margin-left: 10px;
+    }
+
+    .completion-time {
+        font-size: 0.85rem;
+        color: #c5daf5;
+    }
+
+    .stats {
+        text-align: right;
+    }
+
+    .stats .score {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #00f2ff;
+        margin-bottom: 5px;
+    }
+
+    .stats .time {
+        font-size: 0.9rem;
+        color: #c5daf5;
+    }
+
+    .challenge-details {
+        background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.9));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    .challenge-details h3 {
+        color: #00f2ff;
+        margin-bottom: 20px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .detail-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .detail-item .label {
+        color: #c5daf5;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .detail-item .value {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #00f2ff, #4facfe);
+        color: #000;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(0, 242, 255, 0.5);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .leaderboard-row {
+            grid-template-columns: 50px 1fr;
+            gap: 15px;
+        }
+
+        .stats {
+            grid-column: 2;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
