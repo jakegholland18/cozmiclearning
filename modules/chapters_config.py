@@ -2804,6 +2804,316 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+
+    # ============================================================================
+    # TERRA NOVA (GEOGRAPHY)
+    # ============================================================================
+
+    "terra_nova": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "my_home_neighborhood_k",
+                    "title": "My Home and Neighborhood",
+                    "description": "Exploring where you live",
+                    "icon": "🏡",
+                    "color": "green",
+                    "lessons": [
+                        "My Address",
+                        "My Neighborhood",
+                        "Community Places",
+                        "Getting Around"
+                    ]
+                },
+                {
+                    "id": "land_water_k",
+                    "title": "Land and Water",
+                    "description": "Earth's natural features",
+                    "icon": "🌊",
+                    "color": "blue",
+                    "lessons": [
+                        "Mountains and Hills",
+                        "Rivers and Lakes",
+                        "Oceans and Beaches",
+                        "Deserts and Forests"
+                    ]
+                },
+                {
+                    "id": "weather_seasons_k",
+                    "title": "Weather and Seasons",
+                    "description": "Changes in our world",
+                    "icon": "☀️",
+                    "color": "yellow",
+                    "lessons": [
+                        "Sunny and Rainy Days",
+                        "The Four Seasons",
+                        "Hot and Cold",
+                        "What to Wear"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "maps_globes_1",
+                    "title": "Maps and Globes",
+                    "description": "Understanding maps",
+                    "icon": "🗺️",
+                    "color": "orange",
+                    "lessons": [
+                        "What is a Map?",
+                        "Reading Simple Maps",
+                        "The Globe",
+                        "Following Directions"
+                    ]
+                },
+                {
+                    "id": "my_town_city_1",
+                    "title": "My Town or City",
+                    "description": "Exploring your community",
+                    "icon": "🏙️",
+                    "color": "gray",
+                    "lessons": [
+                        "City vs. Country",
+                        "Important Places in Town",
+                        "How Cities Grow",
+                        "My State"
+                    ]
+                },
+                {
+                    "id": "earth_features_1",
+                    "title": "Earth's Features",
+                    "description": "Landforms and bodies of water",
+                    "icon": "⛰️",
+                    "color": "brown",
+                    "lessons": [
+                        "Valleys and Plains",
+                        "Islands and Peninsulas",
+                        "Rivers Flow to the Sea",
+                        "Natural Resources"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "continents_oceans_2",
+                    "title": "Continents and Oceans",
+                    "description": "Earth's major land and water",
+                    "icon": "🌍",
+                    "color": "blue",
+                    "lessons": [
+                        "The Seven Continents",
+                        "The Five Oceans",
+                        "Where We Live",
+                        "People Around the World"
+                    ]
+                },
+                {
+                    "id": "usa_geography_2",
+                    "title": "United States Geography",
+                    "description": "Our country's geography",
+                    "icon": "🇺🇸",
+                    "color": "red",
+                    "lessons": [
+                        "50 States",
+                        "Mountains and Rivers of USA",
+                        "Different Regions",
+                        "Famous Landmarks"
+                    ]
+                },
+                {
+                    "id": "communities_differ_2",
+                    "title": "Communities Differ",
+                    "description": "How places are different",
+                    "icon": "🏘️",
+                    "color": "teal",
+                    "lessons": [
+                        "Urban, Suburban, Rural",
+                        "Climate Zones",
+                        "Different Jobs in Different Places",
+                        "How People Adapt"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "north_america_3",
+                    "title": "North America",
+                    "description": "Our continent in detail",
+                    "icon": "🗽",
+                    "color": "green",
+                    "lessons": [
+                        "Countries of North America",
+                        "Major Landforms",
+                        "Climate Zones",
+                        "Natural Resources"
+                    ]
+                },
+                {
+                    "id": "us_regions_3",
+                    "title": "U.S. Regions",
+                    "description": "Five regions of America",
+                    "icon": "🗺️",
+                    "color": "orange",
+                    "lessons": [
+                        "The Northeast",
+                        "The Southeast",
+                        "The Midwest",
+                        "The Southwest",
+                        "The West"
+                    ]
+                },
+                {
+                    "id": "map_skills_3",
+                    "title": "Map Skills",
+                    "description": "Reading and using maps",
+                    "icon": "🧭",
+                    "color": "red",
+                    "lessons": [
+                        "Cardinal Directions",
+                        "Map Keys and Symbols",
+                        "Scale and Distance",
+                        "Latitude and Longitude Basics"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "physical_geography_4",
+                    "title": "Physical Geography",
+                    "description": "Earth's physical features",
+                    "icon": "🏔️",
+                    "color": "brown",
+                    "lessons": [
+                        "How Mountains Form",
+                        "River Systems",
+                        "Erosion and Weathering",
+                        "Plate Tectonics Basics"
+                    ]
+                },
+                {
+                    "id": "world_regions_4",
+                    "title": "World Regions",
+                    "description": "Major world regions",
+                    "icon": "🌏",
+                    "color": "blue",
+                    "lessons": [
+                        "Latin America",
+                        "Europe",
+                        "Africa",
+                        "Asia",
+                        "Australia and Oceania"
+                    ]
+                },
+                {
+                    "id": "climate_biomes_4",
+                    "title": "Climate and Biomes",
+                    "description": "Earth's climate zones",
+                    "icon": "🌡️",
+                    "color": "red",
+                    "lessons": [
+                        "What is Climate?",
+                        "Tropical Rainforests",
+                        "Deserts",
+                        "Grasslands and Tundra"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "western_hemisphere_5",
+                    "title": "Western Hemisphere",
+                    "description": "Americas in depth",
+                    "icon": "🌎",
+                    "color": "green",
+                    "lessons": [
+                        "Physical Geography of the Americas",
+                        "Cultural Regions",
+                        "Economic Geography",
+                        "Environmental Issues"
+                    ]
+                },
+                {
+                    "id": "usa_detail_5",
+                    "title": "United States in Detail",
+                    "description": "Deep dive into U.S. geography",
+                    "icon": "🗺️",
+                    "color": "red",
+                    "lessons": [
+                        "Major Geographic Features",
+                        "State Comparisons",
+                        "Population Distribution",
+                        "Economic Regions"
+                    ]
+                },
+                {
+                    "id": "human_geography_5",
+                    "title": "Human Geography",
+                    "description": "How humans shape the Earth",
+                    "icon": "👥",
+                    "color": "purple",
+                    "lessons": [
+                        "Population and Migration",
+                        "Cities and Urbanization",
+                        "Transportation Networks",
+                        "Human Impact on Environment"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "eastern_hemisphere_6",
+                    "title": "Eastern Hemisphere",
+                    "description": "Europe, Asia, Africa, Australia",
+                    "icon": "🌍",
+                    "color": "blue",
+                    "lessons": [
+                        "Physical Geography Overview",
+                        "Major Rivers and Mountains",
+                        "Climate Patterns",
+                        "Natural Resources and Trade"
+                    ]
+                },
+                {
+                    "id": "cultural_geography_6",
+                    "title": "Cultural Geography",
+                    "description": "World cultures and regions",
+                    "icon": "🎭",
+                    "color": "rainbow",
+                    "lessons": [
+                        "World Religions Geography",
+                        "Language Families",
+                        "Cultural Regions",
+                        "Global Connections"
+                    ]
+                },
+                {
+                    "id": "environmental_geography_6",
+                    "title": "Environmental Geography",
+                    "description": "Earth's environment and conservation",
+                    "icon": "♻️",
+                    "color": "green",
+                    "lessons": [
+                        "Ecosystems and Biodiversity",
+                        "Climate Change",
+                        "Conservation Efforts",
+                        "Sustainable Development"
+                    ]
+                }
+            ]
+        }
     }
 }
 
