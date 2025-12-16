@@ -9845,43 +9845,74 @@ def view_lesson():
 
     grade = str(validate_grade(grade))
 
-    # Build chapter context if coming from a chapter
-    chapter_context = None
+    # Check lesson cache first to avoid regenerating
+    cache_key = f"lesson_cache_{subject}_{grade}_{topic}_{chapter_id or 'none'}"
+
+    # Initialize lesson cache in session if not exists
+    if "lesson_cache" not in session:
+        session["lesson_cache"] = {}
+
+    # Try to get cached lesson
+    cached_lesson = session["lesson_cache"].get(cache_key)
+
+    # Get chapter info (needed for both cached and fresh lessons)
+    chapter = None
     if chapter_id:
         from modules.student_lessons import get_chapter_by_id
         chapter = get_chapter_by_id(subject, int(grade), chapter_id)
 
-        if chapter:
-            lessons = chapter.get("lessons", [])
-            try:
-                lesson_index = lessons.index(topic)
-                chapter_context = {
-                    "chapter_title": chapter.get("title"),
-                    "chapter_description": chapter.get("description"),
-                    "lesson_number": lesson_index + 1,
-                    "total_lessons": len(lessons),
-                    "previous_lessons": lessons[:lesson_index] if lesson_index > 0 else []
-                }
-            except ValueError:
-                # Topic not in this chapter's lessons
-                pass
+    if cached_lesson:
+        # Use cached lesson
+        result = {"success": True, "lesson": cached_lesson}
+    else:
+        # Build chapter context if coming from a chapter
+        chapter_context = None
+        if chapter_id:
+            from modules.student_lessons import get_chapter_by_id
+            chapter = get_chapter_by_id(subject, int(grade), chapter_id)
 
-    # Generate the lesson
-    from modules.student_lessons import generate_student_lesson
-    character = session.get("character", "nova")
+            if chapter:
+                lessons = chapter.get("lessons", [])
+                try:
+                    lesson_index = lessons.index(topic)
+                    chapter_context = {
+                        "chapter_title": chapter.get("title"),
+                        "chapter_description": chapter.get("description"),
+                        "lesson_number": lesson_index + 1,
+                        "total_lessons": len(lessons),
+                        "previous_lessons": lessons[:lesson_index] if lesson_index > 0 else []
+                    }
+                except ValueError:
+                    # Topic not in this chapter's lessons
+                    pass
 
-    result = generate_student_lesson(
-        subject,
-        int(grade),
-        topic,
-        character,
-        chapter_id=chapter_id,
-        chapter_context=chapter_context
-    )
+        # Generate the lesson
+        from modules.student_lessons import generate_student_lesson
+        character = session.get("character", "nova")
 
-    if not result.get("success"):
-        flash(f"Error generating lesson: {result.get('error', 'Unknown error')}", "error")
-        return redirect(f"/lesson-library?subject={subject}&grade={grade}")
+        result = generate_student_lesson(
+            subject,
+            int(grade),
+            topic,
+            character,
+            chapter_id=chapter_id,
+            chapter_context=chapter_context
+        )
+
+        if not result.get("success"):
+            flash(f"Error generating lesson: {result.get('error', 'Unknown error')}", "error")
+            return redirect(f"/lesson-library?subject={subject}&grade={grade}")
+
+        # Cache the generated lesson
+        session["lesson_cache"][cache_key] = result["lesson"]
+        session.modified = True
+
+        # Limit cache size to prevent session bloat (keep last 20 lessons)
+        if len(session["lesson_cache"]) > 20:
+            # Remove oldest entries
+            keys = list(session["lesson_cache"].keys())
+            for old_key in keys[:-20]:
+                del session["lesson_cache"][old_key]
 
     subject_config = get_subject(subject)
 
