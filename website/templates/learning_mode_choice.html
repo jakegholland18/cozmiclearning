@@ -257,8 +257,8 @@ function chooseMode(mode) {
     showLoadingMessage();
 
     if (mode === 'lesson') {
-        // Go to lesson library
-        window.location.href = `/lesson-library?subject=${subject}&grade=${grade}`;
+        // Go to chapter library (hierarchical lesson structure)
+        window.location.href = `/chapter-library?subject=${subject}&grade=${grade}`;
     } else {
         // Go to free exploration (existing ask-question page)
         window.location.href = `/ask-question?subject=${subject}&grade=${grade}`;

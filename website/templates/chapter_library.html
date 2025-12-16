@@ -1,0 +1,507 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    body {
+        background: var(--bg-gradient-main);
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        color: white;
+    }
+
+    /* STARFIELD WITH ELECTRIC NEBULA */
+    .stars {
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.08) 1px, transparent 1px),
+            radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.08) 1px, transparent 1px),
+            radial-gradient(circle at 40% 40%, rgba(0, 100, 255, 0.1) 2px, transparent 2px),
+            radial-gradient(circle at 15% 15%, rgba(0, 150, 255, 0.25), transparent 50%),
+            radial-gradient(circle at 85% 85%, rgba(255, 0, 200, 0.18), transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(100, 0, 255, 0.15), transparent 60%),
+            radial-gradient(circle at 30% 60%, rgba(0, 200, 255, 0.2), transparent 55%),
+            radial-gradient(circle at 70% 30%, rgba(0, 255, 150, 0.12), transparent 60%);
+        background-size: 200px 200px, 300px 300px, 400px 400px, 800px 800px, 800px 800px, 1000px 1000px, 900px 900px, 850px 850px;
+        opacity: 0.8;
+        animation: drift 70s linear infinite, colorShift 20s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    @keyframes colorShift {
+        0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+        25% { filter: hue-rotate(20deg) brightness(1.1); }
+        50% { filter: hue-rotate(40deg) brightness(1.2); }
+        75% { filter: hue-rotate(20deg) brightness(1.1); }
+    }
+
+    @keyframes drift {
+        from { transform: translateY(0) rotate(0deg); }
+        to { transform: translateY(-1400px) rotate(5deg); }
+    }
+
+    .library-header {
+        text-align: center;
+        margin-top: 50px;
+        padding: 0 20px;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .library-title {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00ffff 0%, #0099ff 20%, #0066ff 40%, #6600ff 60%, #cc00ff 80%, #ff00ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        background-size: 300% 300%;
+        margin-bottom: 12px;
+        animation: titlePulse 3s ease-in-out infinite, gradientShift 10s ease infinite;
+        filter: drop-shadow(0 0 30px rgba(0, 150, 255, 1))
+                drop-shadow(0 0 60px rgba(100, 0, 255, 0.7))
+                drop-shadow(0 0 90px rgba(255, 0, 255, 0.5));
+        letter-spacing: 2px;
+    }
+
+    @keyframes titlePulse {
+        0%, 100% {
+            filter: brightness(1)
+                    drop-shadow(0 0 35px rgba(0, 150, 255, 1))
+                    drop-shadow(0 0 70px rgba(100, 0, 255, 0.8))
+                    drop-shadow(0 0 105px rgba(255, 0, 255, 0.6));
+        }
+        50% {
+            filter: brightness(1.4)
+                    drop-shadow(0 0 50px rgba(0, 200, 255, 1))
+                    drop-shadow(0 0 100px rgba(150, 0, 255, 1))
+                    drop-shadow(0 0 150px rgba(255, 0, 200, 0.9));
+        }
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    .library-subtitle {
+        font-size: 1.2rem;
+        color: #00d4ff;
+        margin-top: 8px;
+        margin-bottom: 12px;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        font-weight: 600;
+    }
+
+    .library-instructions {
+        font-size: 1rem;
+        color: #c5daf5;
+        max-width: 600px;
+        margin: 0 auto 40px;
+        line-height: 1.6;
+        opacity: 0.9;
+    }
+
+    /* CHAPTER GRID */
+    .chapters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto 60px;
+        padding: 0 20px;
+    }
+
+    /* CHAPTER CARD */
+    .chapter-card {
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.08), rgba(79, 172, 254, 0.05));
+        border: 2px solid rgba(0, 242, 255, 0.3);
+        border-radius: 20px;
+        padding: 30px 25px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 242, 255, 0.2);
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .chapter-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0, 242, 255, 0.15), transparent 70%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .chapter-card:hover::before {
+        opacity: 1;
+        animation: rotatePulse 3s linear infinite;
+    }
+
+    @keyframes rotatePulse {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.1); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+
+    .chapter-card:hover {
+        transform: translateY(-12px) scale(1.03);
+        border-color: rgba(0, 242, 255, 0.8);
+        box-shadow:
+            0 0 40px rgba(0, 242, 255, 0.6),
+            0 20px 60px rgba(0, 242, 255, 0.4);
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.15), rgba(79, 172, 254, 0.1));
+    }
+
+    /* CHAPTER ICON */
+    .chapter-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        display: inline-block;
+        filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.8));
+        transition: all 0.4s ease;
+    }
+
+    .chapter-card:hover .chapter-icon {
+        transform: scale(1.2) rotate(5deg);
+        filter: drop-shadow(0 0 30px rgba(0, 242, 255, 1));
+    }
+
+    /* CHAPTER TITLE */
+    .chapter-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #00f2ff;
+        margin-bottom: 12px;
+        text-shadow: 0 0 20px rgba(0, 242, 255, 0.7);
+        transition: all 0.3s ease;
+    }
+
+    .chapter-card:hover .chapter-title {
+        color: #ffffff;
+        text-shadow: 0 0 30px rgba(0, 242, 255, 1);
+    }
+
+    /* CHAPTER DESCRIPTION */
+    .chapter-description {
+        font-size: 1rem;
+        color: #c5daf5;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+
+    /* CHAPTER META INFO */
+    .chapter-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 242, 255, 0.2);
+    }
+
+    .chapter-lessons-count {
+        font-size: 0.9rem;
+        color: #00d4ff;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chapter-lessons-count::before {
+        content: "📚";
+        font-size: 1.2rem;
+    }
+
+    /* PROGRESS BAR */
+    .chapter-progress {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(0, 242, 255, 0.2);
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #c5daf5;
+        margin-bottom: 8px;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 242, 255, 0.2);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00f2ff, #4facfe);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.6);
+    }
+
+    .progress-complete {
+        background: linear-gradient(90deg, #00ff88, #00f2ff) !important;
+    }
+
+    /* CHAPTER STATUS BADGES */
+    .chapter-status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-complete {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 242, 255, 0.2));
+        border: 1px solid rgba(0, 255, 136, 0.5);
+        color: #00ff88;
+    }
+
+    .badge-in-progress {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
+        border: 1px solid rgba(255, 193, 7, 0.5);
+        color: #ffc107;
+    }
+
+    .badge-locked {
+        background: linear-gradient(135deg, rgba(255, 64, 129, 0.2), rgba(139, 92, 246, 0.2));
+        border: 1px solid rgba(255, 64, 129, 0.5);
+        color: #ff4081;
+    }
+
+    /* LOCKED CHAPTER STATE */
+    .chapter-card.locked {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .chapter-card.locked .chapter-title,
+    .chapter-card.locked .chapter-icon {
+        filter: grayscale(50%);
+    }
+
+    .lock-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        opacity: 0.7;
+    }
+
+    .chapter-start-btn {
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.3), rgba(79, 172, 254, 0.2));
+        border: 2px solid rgba(0, 242, 255, 0.5);
+        color: #00f2ff;
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 242, 255, 0.3);
+    }
+
+    .chapter-card:not(.locked):hover .chapter-start-btn {
+        background: linear-gradient(135deg, #00f2ff, #4facfe);
+        color: #0a0e27;
+        transform: translateX(5px);
+        box-shadow: 0 6px 25px rgba(0, 242, 255, 0.6);
+    }
+
+    /* BACK BUTTON */
+    .back-button {
+        display: inline-block;
+        margin: 0 auto 40px;
+        text-align: center;
+        width: 100%;
+        color: #00d4ff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+    }
+
+    .back-button:hover {
+        color: #00ffff;
+        text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+        transform: translateX(-5px);
+    }
+
+    /* MOBILE RESPONSIVE */
+    @media (max-width: 768px) {
+        .library-title {
+            font-size: 2rem;
+        }
+
+        .library-subtitle {
+            font-size: 1rem;
+        }
+
+        .chapters-grid {
+            grid-template-columns: 1fr;
+            padding: 0 15px;
+            gap: 20px;
+        }
+
+        .chapter-card {
+            padding: 25px 20px;
+        }
+
+        .chapter-icon {
+            font-size: 3rem;
+        }
+
+        .chapter-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* LOADING MESSAGE */
+    #loading-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(79, 172, 254, 0.15));
+        border: 2px solid rgba(0, 242, 255, 0.5);
+        border-radius: 16px;
+        padding: 25px 40px;
+        color: #00f2ff;
+        font-size: 1.3rem;
+        font-weight: 600;
+        text-align: center;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    #loading-message.show {
+        opacity: 1;
+        animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: translate(-50%, -50%) scale(1); }
+        50% { transform: translate(-50%, -50%) scale(1.05); }
+    }
+</style>
+
+<div class="stars"></div>
+
+<div id="loading-message"></div>
+
+<div class="library-header">
+    <h1 class="library-title">{{ subject_config['name'] }} Chapters</h1>
+    <p class="library-subtitle">Grade {{ grade }}</p>
+    <p class="library-instructions">
+        Choose a chapter to explore! Each chapter contains multiple lessons that build on each other.
+    </p>
+</div>
+
+<div class="chapters-grid">
+    {% for chapter in chapters %}
+    <a href="{% if chapter.is_unlocked %}/lesson-library?subject={{ subject }}&grade={{ grade }}&chapter={{ chapter.id }}{% else %}javascript:void(0){% endif %}"
+       class="chapter-card {% if not chapter.is_unlocked %}locked{% endif %}">
+
+        {% if not chapter.is_unlocked %}
+        <div class="lock-icon">🔒</div>
+        {% endif %}
+
+        <div class="chapter-icon">{{ chapter.icon }}</div>
+        <h2 class="chapter-title">
+            Chapter {{ chapter.chapter_number }}: {{ chapter.title }}
+        </h2>
+        <p class="chapter-description">{{ chapter.description }}</p>
+
+        <!-- Progress Bar (if started) -->
+        {% if chapter.is_started %}
+        <div class="chapter-progress">
+            <div class="progress-label">
+                <span>Progress</span>
+                <span>{{ chapter.completed_lessons }}/{{ chapter.total_lessons }}</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill {% if chapter.is_complete %}progress-complete{% endif %}"
+                     style="width: {{ chapter.progress_percent }}%"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="chapter-meta">
+            <span class="chapter-lessons-count">{{ chapter.total_lessons }} Lessons</span>
+
+            {% if not chapter.is_unlocked %}
+                <span class="chapter-status-badge badge-locked">🔒 Locked</span>
+            {% elif chapter.is_complete %}
+                <span class="chapter-status-badge badge-complete">✓ Complete</span>
+            {% elif chapter.is_started %}
+                <span class="chapter-status-badge badge-in-progress">▶ In Progress</span>
+            {% else %}
+                <span class="chapter-start-btn">Start Chapter →</span>
+            {% endif %}
+        </div>
+
+        {% if not chapter.is_unlocked and chapter.prerequisite %}
+        <p style="font-size: 0.8rem; color: #ff4081; margin-top: 10px; text-align: center;">
+            Complete "{{ chapters[loop.index0 - 1].title if loop.index0 > 0 else 'previous chapter' }}" first
+        </p>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+
+<a href="/learning-mode?subject={{ subject }}&grade={{ grade }}" class="back-button">
+    ← Back to Learning Mode
+</a>
+
+<script>
+const loadingMessages = [
+    "📚 Opening chapter...",
+    "✨ Preparing lessons...",
+    "🌟 Loading learning path...",
+    "🔮 Accessing cosmic knowledge...",
+    "🚀 Starting your chapter journey...",
+    "⚡ Activating learning mode...",
+    "🌌 Entering the knowledge vault..."
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const chapterCards = document.querySelectorAll('.chapter-card');
+    chapterCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            const loadingDiv = document.getElementById('loading-message');
+            const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+            loadingDiv.textContent = randomMessage;
+            loadingDiv.classList.add('show');
+        });
+    });
+});
+</script>
+
+{% endblock %}

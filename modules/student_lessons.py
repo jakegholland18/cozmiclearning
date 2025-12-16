@@ -165,6 +165,150 @@ LESSON_TOPICS = {
 }
 
 
+# NEW: Hierarchical Chapter Structure for Structured Lesson Mode
+LESSON_CHAPTERS = {
+    "num_forge": {
+        1: {
+            "chapters": [
+                {
+                    "id": "counting_basics",
+                    "title": "Counting & Number Sense",
+                    "description": "Master counting, number recognition, and understanding quantities",
+                    "icon": "🔢",
+                    "color": "purple",
+                    "lessons": [
+                        "Numbers 1-20",
+                        "Counting to 100",
+                        "Comparing Numbers (Greater/Less)",
+                        "Number Patterns"
+                    ]
+                },
+                {
+                    "id": "addition_intro",
+                    "title": "Beginning Addition",
+                    "description": "Learn to add numbers together and solve simple problems",
+                    "icon": "➕",
+                    "color": "blue",
+                    "lessons": [
+                        "What is Addition?",
+                        "Adding Within 10",
+                        "Adding Within 20",
+                        "Addition Word Problems"
+                    ]
+                },
+                {
+                    "id": "subtraction_intro",
+                    "title": "Beginning Subtraction",
+                    "description": "Understand taking away and finding the difference",
+                    "icon": "➖",
+                    "color": "green",
+                    "lessons": [
+                        "What is Subtraction?",
+                        "Subtracting Within 10",
+                        "Subtracting Within 20",
+                        "Subtraction Word Problems"
+                    ]
+                },
+                {
+                    "id": "shapes_patterns",
+                    "title": "Shapes & Patterns",
+                    "description": "Explore 2D shapes and create patterns",
+                    "icon": "🔷",
+                    "color": "orange",
+                    "lessons": [
+                        "Basic 2D Shapes",
+                        "Comparing Shapes",
+                        "Creating Patterns",
+                        "Extending Patterns"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "mult_mastery",
+                    "title": "Multiplication Mastery",
+                    "description": "Learn multiplication fundamentals and master times tables",
+                    "icon": "✖️",
+                    "color": "purple",
+                    "lessons": [
+                        "What is Multiplication?",
+                        "Multiplication by 2s and 5s",
+                        "Multiplication by 3s and 4s",
+                        "Multiplication by 10s and 100s",
+                        "Multiplication Tables (6-9)",
+                        "Multiplication Word Problems"
+                    ]
+                },
+                {
+                    "id": "division_intro",
+                    "title": "Understanding Division",
+                    "description": "Discover division and learn to share equally",
+                    "icon": "➗",
+                    "color": "blue",
+                    "prerequisite": "mult_mastery",
+                    "lessons": [
+                        "Division as Sharing",
+                        "Division and Multiplication Connection",
+                        "Division Facts (÷2, ÷5, ÷10)",
+                        "Division with Remainders",
+                        "Division Word Problems"
+                    ]
+                },
+                {
+                    "id": "fractions_begin",
+                    "title": "Fraction Foundations",
+                    "description": "Explore fractions and parts of a whole",
+                    "icon": "🍕",
+                    "color": "orange",
+                    "lessons": [
+                        "What Are Fractions?",
+                        "Fractions on a Number Line",
+                        "Comparing Fractions",
+                        "Equivalent Fractions",
+                        "Adding Like Fractions",
+                        "Subtracting Like Fractions"
+                    ]
+                },
+                {
+                    "id": "measurement_geo",
+                    "title": "Measurement & Geometry",
+                    "description": "Learn about area, perimeter, and shapes",
+                    "icon": "📏",
+                    "color": "green",
+                    "lessons": [
+                        "Understanding Perimeter",
+                        "Calculating Perimeter",
+                        "Introduction to Area",
+                        "Finding Area of Rectangles",
+                        "Real-World Measurement"
+                    ]
+                }
+            ]
+        }
+    }
+}
+
+
+def get_chapters_for_subject_grade(subject: str, grade: int) -> List[Dict]:
+    """Get list of chapters for a subject and grade"""
+    if subject not in LESSON_CHAPTERS:
+        return []
+    if grade not in LESSON_CHAPTERS[subject]:
+        return []
+    return LESSON_CHAPTERS[subject][grade].get("chapters", [])
+
+
+def get_chapter_by_id(subject: str, grade: int, chapter_id: str) -> Optional[Dict]:
+    """Get a specific chapter by its ID"""
+    chapters = get_chapters_for_subject_grade(subject, grade)
+    for chapter in chapters:
+        if chapter.get("id") == chapter_id:
+            return chapter
+    return None
+
+
 def get_lessons_for_subject_grade(subject: str, grade: int) -> List[str]:
     """Get list of lesson topics for a subject and grade"""
     if subject not in LESSON_TOPICS:

@@ -397,6 +397,176 @@ class QuestionLog(db.Model):
 
 
 # ============================================================
+# CHAPTER & LESSON PROGRESS TRACKING
+# ============================================================
+
+class ChapterProgress(db.Model):
+    """
+    Tracks student progress through structured lesson chapters.
+    Stores completion status, quiz scores, and unlocking prerequisites.
+    """
+    __tablename__ = "chapter_progress"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+
+    # Chapter identification
+    subject = db.Column(db.String(50), nullable=False)  # num_forge, atom_sphere, etc.
+    grade = db.Column(db.String(10), nullable=False)    # K, 1, 2, 3, ... 12
+    chapter_id = db.Column(db.String(100), nullable=False)  # counting_basics, mult_mastery, etc.
+
+    # Progress tracking
+    lessons_completed = db.Column(db.Integer, default=0)
+    total_lessons = db.Column(db.Integer, nullable=False)
+    is_complete = db.Column(db.Boolean, default=False)
+
+    # Quiz tracking (for chapter completion)
+    quiz_score = db.Column(db.Float, nullable=True)  # Percentage (0-100)
+    quiz_attempts = db.Column(db.Integer, default=0)
+    quiz_passed = db.Column(db.Boolean, default=False)  # True if score >= 80%
+
+    # Timestamps
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    last_accessed = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    student = db.relationship("Student", backref="chapter_progress")
+
+    # Composite unique constraint - one progress record per student/subject/grade/chapter
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'subject', 'grade', 'chapter_id',
+                          name='uix_student_chapter'),
+    )
+
+
+class LessonProgress(db.Model):
+    """
+    Tracks individual lesson completion and time spent.
+    Enables detailed analytics and progress visualization.
+    """
+    __tablename__ = "lesson_progress"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+
+    # Lesson identification
+    subject = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(10), nullable=False)
+    chapter_id = db.Column(db.String(100), nullable=False)
+    lesson_title = db.Column(db.String(200), nullable=False)
+
+    # Completion tracking
+    is_complete = db.Column(db.Boolean, default=False)
+    time_spent_minutes = db.Column(db.Integer, default=0)  # Total time spent
+
+    # Practice tracking
+    practice_score = db.Column(db.Float, nullable=True)  # Last practice score (0-100)
+    practice_attempts = db.Column(db.Integer, default=0)
+
+    # Timestamps
+    first_viewed = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    last_accessed = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    student = db.relationship("Student", backref="lesson_progress")
+
+    # Composite unique constraint
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'subject', 'grade', 'chapter_id', 'lesson_title',
+                          name='uix_student_lesson'),
+    )
+
+
+class ChapterQuiz(db.Model):
+    """
+    Stores quiz questions for chapter completion assessments.
+    Each chapter can have multiple quiz questions.
+    """
+    __tablename__ = "chapter_quizzes"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Quiz identification
+    subject = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(10), nullable=False)
+    chapter_id = db.Column(db.String(100), nullable=False)
+
+    # Question data
+    question_text = db.Column(db.Text, nullable=False)
+    question_type = db.Column(db.String(20), default="multiple_choice")  # multiple_choice, true_false, free_response
+
+    # Answer choices (for MC questions)
+    choice_a = db.Column(db.String(255), nullable=True)
+    choice_b = db.Column(db.String(255), nullable=True)
+    choice_c = db.Column(db.String(255), nullable=True)
+    choice_d = db.Column(db.String(255), nullable=True)
+
+    correct_answer = db.Column(db.String(255), nullable=False)
+    explanation = db.Column(db.Text, nullable=True)
+
+    # Difficulty and ordering
+    difficulty = db.Column(db.String(20), default="medium")  # easy, medium, hard
+    question_order = db.Column(db.Integer, default=0)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ChapterBadge(db.Model):
+    """
+    Achievement badges awarded for completing chapters.
+    Provides motivation and visual progress indicators.
+    """
+    __tablename__ = "chapter_badges"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Badge identification
+    badge_key = db.Column(db.String(100), unique=True, nullable=False)  # e.g., "num_forge_1_counting_basics"
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255))
+    icon = db.Column(db.String(50))  # emoji or icon identifier
+
+    # Chapter association
+    subject = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(10), nullable=False)
+    chapter_id = db.Column(db.String(100), nullable=False)
+
+    # Badge tier/type
+    tier = db.Column(db.String(20), default="bronze")  # bronze, silver, gold, platinum
+    badge_type = db.Column(db.String(50), default="chapter_complete")  # chapter_complete, perfect_score, speed_master
+
+    # Requirements
+    requirement_type = db.Column(db.String(50), default="completion")  # completion, quiz_score, time_limit
+    requirement_value = db.Column(db.Integer, nullable=True)  # e.g., 100 for perfect score
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudentChapterBadge(db.Model):
+    """
+    Tracks which chapter badges students have earned.
+    Links students to their chapter achievements.
+    """
+    __tablename__ = "student_chapter_badges"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
+    badge_id = db.Column(db.Integer, db.ForeignKey("chapter_badges.id"), nullable=False)
+
+    # Context of earning
+    quiz_score = db.Column(db.Float, nullable=True)  # Score when badge was earned
+    completion_time_minutes = db.Column(db.Integer, nullable=True)  # How long it took
+
+    earned_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    student = db.relationship("Student", backref="chapter_badges")
+    badge = db.relationship("ChapterBadge")
+
+
+# ============================================================
 # ACHIEVEMENTS & BADGES
 # ============================================================
 
@@ -836,5 +1006,24 @@ db.Index('idx_assignment_template_parent_id', AssignmentTemplate.parent_id)
 db.Index('idx_assignment_template_subject', AssignmentTemplate.subject)
 db.Index('idx_assignment_template_is_public', AssignmentTemplate.is_public)
 db.Index('idx_assignment_template_created_at', AssignmentTemplate.created_at)
+
+# Chapter & Lesson Progress Indices
+db.Index('idx_chapter_progress_student_id', ChapterProgress.student_id)
+db.Index('idx_chapter_progress_subject_grade', ChapterProgress.subject, ChapterProgress.grade)
+db.Index('idx_chapter_progress_chapter_id', ChapterProgress.chapter_id)
+db.Index('idx_chapter_progress_student_chapter', ChapterProgress.student_id, ChapterProgress.subject, ChapterProgress.grade, ChapterProgress.chapter_id)
+
+db.Index('idx_lesson_progress_student_id', LessonProgress.student_id)
+db.Index('idx_lesson_progress_chapter_id', LessonProgress.chapter_id)
+db.Index('idx_lesson_progress_student_lesson', LessonProgress.student_id, LessonProgress.subject, LessonProgress.grade, LessonProgress.chapter_id)
+
+db.Index('idx_chapter_quiz_subject_grade_chapter', ChapterQuiz.subject, ChapterQuiz.grade, ChapterQuiz.chapter_id)
+db.Index('idx_chapter_quiz_question_order', ChapterQuiz.question_order)
+
+db.Index('idx_chapter_badge_badge_key', ChapterBadge.badge_key)
+db.Index('idx_chapter_badge_subject_grade_chapter', ChapterBadge.subject, ChapterBadge.grade, ChapterBadge.chapter_id)
+
+db.Index('idx_student_chapter_badge_student_id', StudentChapterBadge.student_id)
+db.Index('idx_student_chapter_badge_badge_id', StudentChapterBadge.badge_id)
 
 

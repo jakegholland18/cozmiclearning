@@ -1093,6 +1093,944 @@ def init_user():
 
 
 # ============================================================
+# CHAPTER & LESSON PROGRESS TRACKING (Database-backed)
+# ============================================================
+
+def get_lesson_progress(subject, grade, chapter_id=None, student_id=None):
+    """
+    Get progress for lessons (returns dict of completed lesson titles)
+
+    Args:
+        subject: Subject identifier (e.g., 'num_forge')
+        grade: Grade level
+        chapter_id: Optional chapter ID to filter by
+        student_id: Optional student ID (defaults to session student)
+
+    Returns:
+        Dictionary mapping lesson titles to completion status
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    # If no student logged in, return empty progress
+    if not student_id:
+        return {}
+
+    from models import LessonProgress
+
+    # Query lesson progress
+    query = LessonProgress.query.filter_by(
+        student_id=student_id,
+        subject=subject,
+        grade=str(grade)
+    )
+
+    if chapter_id:
+        query = query.filter_by(chapter_id=chapter_id)
+
+    lessons = query.all()
+
+    # Convert to dictionary format
+    progress = {}
+    for lesson in lessons:
+        progress[lesson.lesson_title] = lesson.is_complete
+
+    return progress
+
+
+def mark_lesson_complete(subject, grade, lesson_title, chapter_id=None, student_id=None):
+    """
+    Mark a lesson as completed in the database
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        lesson_title: Title of the lesson
+        chapter_id: Optional chapter ID
+        student_id: Optional student ID (defaults to session student)
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    # If no student logged in, do nothing
+    if not student_id:
+        return
+
+    from models import LessonProgress, ChapterProgress
+    from modules.student_lessons import get_chapters_for_subject_grade
+
+    try:
+        # Find or create lesson progress record
+        lesson_progress = LessonProgress.query.filter_by(
+            student_id=student_id,
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id or "",
+            lesson_title=lesson_title
+        ).first()
+
+        if lesson_progress:
+            # Update existing record
+            if not lesson_progress.is_complete:
+                lesson_progress.is_complete = True
+                lesson_progress.completed_at = datetime.utcnow()
+                lesson_progress.last_accessed = datetime.utcnow()
+        else:
+            # Create new record
+            lesson_progress = LessonProgress(
+                student_id=student_id,
+                subject=subject,
+                grade=str(grade),
+                chapter_id=chapter_id or "",
+                lesson_title=lesson_title,
+                is_complete=True,
+                completed_at=datetime.utcnow(),
+                last_accessed=datetime.utcnow()
+            )
+            db.session.add(lesson_progress)
+
+        db.session.commit()
+
+        # Update chapter progress if chapter_id is provided
+        if chapter_id:
+            update_chapter_progress(subject, grade, chapter_id, student_id)
+
+    except Exception as e:
+        print(f"Error marking lesson complete: {e}")
+        db.session.rollback()
+
+
+def update_chapter_progress(subject, grade, chapter_id, student_id=None):
+    """
+    Update chapter progress based on completed lessons
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        chapter_id: Chapter ID
+        student_id: Optional student ID (defaults to session student)
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    if not student_id:
+        return
+
+    from models import ChapterProgress, LessonProgress
+    from modules.student_lessons import get_chapter_by_id
+
+    try:
+        # Get chapter definition to find total lessons
+        chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+        if not chapter:
+            return
+
+        total_lessons = len(chapter.get("lessons", []))
+
+        # Count completed lessons
+        completed_count = LessonProgress.query.filter_by(
+            student_id=student_id,
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id,
+            is_complete=True
+        ).count()
+
+        # Find or create chapter progress record
+        chapter_progress = ChapterProgress.query.filter_by(
+            student_id=student_id,
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id
+        ).first()
+
+        if chapter_progress:
+            # Update existing record
+            chapter_progress.lessons_completed = completed_count
+            chapter_progress.total_lessons = total_lessons
+            chapter_progress.is_complete = (completed_count == total_lessons)
+            chapter_progress.last_accessed = datetime.utcnow()
+
+            if chapter_progress.is_complete and not chapter_progress.completed_at:
+                chapter_progress.completed_at = datetime.utcnow()
+        else:
+            # Create new record
+            chapter_progress = ChapterProgress(
+                student_id=student_id,
+                subject=subject,
+                grade=str(grade),
+                chapter_id=chapter_id,
+                lessons_completed=completed_count,
+                total_lessons=total_lessons,
+                is_complete=(completed_count == total_lessons),
+                started_at=datetime.utcnow() if completed_count > 0 else None,
+                completed_at=datetime.utcnow() if completed_count == total_lessons else None,
+                last_accessed=datetime.utcnow()
+            )
+            db.session.add(chapter_progress)
+
+        db.session.commit()
+
+    except Exception as e:
+        print(f"Error updating chapter progress: {e}")
+        db.session.rollback()
+
+
+def get_chapter_progress(subject, grade, student_id=None):
+    """
+    Get completion stats for all chapters in a subject/grade
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        student_id: Optional student ID (defaults to session student)
+
+    Returns:
+        List of chapter statistics dictionaries
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    from modules.student_lessons import get_chapters_for_subject_grade
+    from models import ChapterProgress
+
+    chapters = get_chapters_for_subject_grade(subject, int(grade))
+    chapter_stats = []
+
+    for chapter in chapters:
+        chapter_id = chapter.get("id")
+        lessons = chapter.get("lessons", [])
+        total_lessons = len(lessons)
+
+        # Get completed lessons count from database
+        if student_id:
+            chapter_progress = ChapterProgress.query.filter_by(
+                student_id=student_id,
+                subject=subject,
+                grade=str(grade),
+                chapter_id=chapter_id
+            ).first()
+
+            if chapter_progress:
+                completed_count = chapter_progress.lessons_completed
+                is_complete = chapter_progress.is_complete
+            else:
+                completed_count = 0
+                is_complete = False
+        else:
+            completed_count = 0
+            is_complete = False
+
+        chapter_stats.append({
+            "id": chapter_id,
+            "title": chapter.get("title"),
+            "icon": chapter.get("icon"),
+            "description": chapter.get("description"),
+            "color": chapter.get("color"),
+            "prerequisite": chapter.get("prerequisite"),
+            "total_lessons": total_lessons,
+            "completed_lessons": completed_count,
+            "progress_percent": int((completed_count / total_lessons * 100)) if total_lessons > 0 else 0,
+            "is_complete": is_complete,
+            "is_started": completed_count > 0,
+            "lessons": lessons
+        })
+
+    return chapter_stats
+
+
+def is_chapter_unlocked(chapter, all_chapter_stats):
+    """
+    Check if a chapter is unlocked based on prerequisites
+
+    Args:
+        chapter: Chapter dictionary with potential prerequisite
+        all_chapter_stats: List of all chapter statistics
+
+    Returns:
+        Boolean indicating if chapter is unlocked
+    """
+    prerequisite = chapter.get("prerequisite")
+
+    # If no prerequisite, chapter is unlocked
+    if not prerequisite:
+        return True
+
+    # Find the prerequisite chapter and check if it's complete
+    for ch_stat in all_chapter_stats:
+        if ch_stat["id"] == prerequisite:
+            return ch_stat["is_complete"]
+
+    # If prerequisite chapter not found, unlock by default
+    return True
+
+
+# ============================================================
+# CHAPTER QUIZ SYSTEM
+# ============================================================
+
+def get_or_generate_chapter_quiz(subject, grade, chapter_id):
+    """
+    Get existing quiz or generate a new one for a chapter
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        chapter_id: Chapter ID
+
+    Returns:
+        List of quiz question dictionaries
+    """
+    from models import ChapterQuiz
+    from modules.student_lessons import get_chapter_by_id
+
+    # Check if quiz already exists in database
+    existing_quiz = ChapterQuiz.query.filter_by(
+        subject=subject,
+        grade=str(grade),
+        chapter_id=chapter_id
+    ).order_by(ChapterQuiz.question_order).all()
+
+    if existing_quiz:
+        # Return existing quiz
+        return [
+            {
+                "id": q.id,
+                "question_text": q.question_text,
+                "question_type": q.question_type,
+                "choices": {
+                    "a": q.choice_a,
+                    "b": q.choice_b,
+                    "c": q.choice_c,
+                    "d": q.choice_d
+                } if q.question_type == "multiple_choice" else None,
+                "correct_answer": q.correct_answer,
+                "explanation": q.explanation,
+                "difficulty": q.difficulty
+            }
+            for q in existing_quiz
+        ]
+
+    # Generate new quiz using AI
+    chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+    if not chapter:
+        return []
+
+    quiz_questions = generate_chapter_quiz_ai(subject, grade, chapter)
+
+    # Save quiz to database
+    try:
+        for idx, q_data in enumerate(quiz_questions):
+            quiz_question = ChapterQuiz(
+                subject=subject,
+                grade=str(grade),
+                chapter_id=chapter_id,
+                question_text=q_data["question_text"],
+                question_type=q_data.get("question_type", "multiple_choice"),
+                choice_a=q_data.get("choices", {}).get("a"),
+                choice_b=q_data.get("choices", {}).get("b"),
+                choice_c=q_data.get("choices", {}).get("c"),
+                choice_d=q_data.get("choices", {}).get("d"),
+                correct_answer=q_data["correct_answer"],
+                explanation=q_data.get("explanation", ""),
+                difficulty=q_data.get("difficulty", "medium"),
+                question_order=idx
+            )
+            db.session.add(quiz_question)
+
+        db.session.commit()
+    except Exception as e:
+        print(f"Error saving quiz to database: {e}")
+        db.session.rollback()
+
+    return quiz_questions
+
+
+def generate_chapter_quiz_ai(subject, grade, chapter):
+    """
+    Generate quiz questions using AI based on chapter content
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        chapter: Chapter dictionary with title, description, lessons
+
+    Returns:
+        List of quiz question dictionaries
+    """
+    chapter_title = chapter.get("title", "")
+    chapter_description = chapter.get("description", "")
+    lessons = chapter.get("lessons", [])
+
+    prompt = f"""Create a 5-question multiple choice quiz for a Grade {grade} student who just completed the chapter: "{chapter_title}".
+
+Chapter Description: {chapter_description}
+
+Lessons covered:
+{chr(10).join(f"- {lesson}" for lesson in lessons)}
+
+Requirements:
+- 5 multiple choice questions (A, B, C, D)
+- Mix of difficulty levels (2 easy, 2 medium, 1 hard)
+- Questions should test understanding, not just memorization
+- Include clear explanations for correct answers
+- Age-appropriate language for Grade {grade}
+
+Return ONLY a valid JSON array with this exact format:
+[
+  {{
+    "question_text": "What is...",
+    "question_type": "multiple_choice",
+    "choices": {{
+      "a": "Option A",
+      "b": "Option B",
+      "c": "Option C",
+      "d": "Option D"
+    }},
+    "correct_answer": "a",
+    "explanation": "The correct answer is A because...",
+    "difficulty": "easy"
+  }}
+]"""
+
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert educational content creator. Generate quiz questions in valid JSON format only."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+
+        quiz_json = response.choices[0].message.content.strip()
+
+        # Remove markdown code blocks if present
+        if quiz_json.startswith("```"):
+            quiz_json = quiz_json.split("```")[1]
+            if quiz_json.startswith("json"):
+                quiz_json = quiz_json[4:]
+            quiz_json = quiz_json.strip()
+
+        quiz_questions = json.loads(quiz_json)
+        return quiz_questions
+
+    except Exception as e:
+        print(f"Error generating quiz with AI: {e}")
+        # Return fallback quiz
+        return [
+            {
+                "question_text": f"What did you learn in the {chapter_title} chapter?",
+                "question_type": "multiple_choice",
+                "choices": {
+                    "a": "New concepts",
+                    "b": "Practice problems",
+                    "c": "Real-world examples",
+                    "d": "All of the above"
+                },
+                "correct_answer": "d",
+                "explanation": "The chapter covered new concepts, practice problems, and real-world examples.",
+                "difficulty": "easy"
+            }
+        ]
+
+
+def grade_chapter_quiz(subject, grade, chapter_id, student_answers, student_id=None):
+    """
+    Grade a student's quiz submission and update progress
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        chapter_id: Chapter ID
+        student_answers: Dictionary mapping question_id to student's answer
+        student_id: Optional student ID (defaults to session student)
+
+    Returns:
+        Dictionary with score, feedback, and updated progress
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    if not student_id:
+        return {"error": "No student logged in"}
+
+    from models import ChapterProgress, ChapterQuiz
+
+    try:
+        # Get quiz questions
+        quiz_questions = ChapterQuiz.query.filter_by(
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id
+        ).all()
+
+        if not quiz_questions:
+            return {"error": "Quiz not found"}
+
+        # Grade the quiz
+        total_questions = len(quiz_questions)
+        correct_count = 0
+        feedback = []
+
+        for question in quiz_questions:
+            student_answer = student_answers.get(str(question.id), "").lower()
+            correct_answer = question.correct_answer.lower()
+
+            is_correct = (student_answer == correct_answer)
+            if is_correct:
+                correct_count += 1
+
+            feedback.append({
+                "question_id": question.id,
+                "question_text": question.question_text,
+                "student_answer": student_answer,
+                "correct_answer": correct_answer,
+                "is_correct": is_correct,
+                "explanation": question.explanation
+            })
+
+        # Calculate score percentage
+        score_percent = (correct_count / total_questions * 100) if total_questions > 0 else 0
+        quiz_passed = score_percent >= 80  # 80% passing grade
+
+        # Update chapter progress with quiz score
+        chapter_progress = ChapterProgress.query.filter_by(
+            student_id=student_id,
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id
+        ).first()
+
+        if chapter_progress:
+            chapter_progress.quiz_score = score_percent
+            chapter_progress.quiz_attempts += 1
+            chapter_progress.quiz_passed = quiz_passed
+
+            if quiz_passed and not chapter_progress.completed_at:
+                chapter_progress.completed_at = datetime.utcnow()
+                chapter_progress.is_complete = True
+        else:
+            # Create new chapter progress if it doesn't exist
+            from modules.student_lessons import get_chapter_by_id
+            chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+            total_lessons = len(chapter.get("lessons", [])) if chapter else 0
+
+            chapter_progress = ChapterProgress(
+                student_id=student_id,
+                subject=subject,
+                grade=str(grade),
+                chapter_id=chapter_id,
+                total_lessons=total_lessons,
+                quiz_score=score_percent,
+                quiz_attempts=1,
+                quiz_passed=quiz_passed,
+                is_complete=quiz_passed,
+                completed_at=datetime.utcnow() if quiz_passed else None,
+                last_accessed=datetime.utcnow()
+            )
+            db.session.add(chapter_progress)
+
+        db.session.commit()
+
+        # Award badges for chapter completion
+        newly_awarded_badges = award_chapter_badges(subject, grade, chapter_id, score_percent, student_id)
+
+        return {
+            "score_percent": score_percent,
+            "correct_count": correct_count,
+            "total_questions": total_questions,
+            "quiz_passed": quiz_passed,
+            "feedback": feedback,
+            "badges_earned": newly_awarded_badges
+        }
+
+    except Exception as e:
+        print(f"Error grading quiz: {e}")
+        db.session.rollback()
+        return {"error": f"Failed to grade quiz: {str(e)}"}
+
+
+# ============================================================
+# BADGE & REWARD SYSTEM
+# ============================================================
+
+def initialize_chapter_badges():
+    """
+    Initialize default chapter completion badges in the database
+    This should be run once to populate the chapter_badges table
+    """
+    from models import ChapterBadge
+    from modules.student_lessons import LESSON_CHAPTERS
+
+    try:
+        # Check if badges already exist
+        existing_count = ChapterBadge.query.count()
+        if existing_count > 0:
+            print(f"Chapter badges already initialized ({existing_count} badges exist)")
+            return
+
+        badges_created = 0
+
+        # Create badges for each chapter in the system
+        for subject, grade_data in LESSON_CHAPTERS.items():
+            for grade, content in grade_data.items():
+                chapters = content.get("chapters", [])
+
+                for chapter in chapters:
+                    chapter_id = chapter.get("id")
+                    chapter_title = chapter.get("title")
+                    chapter_icon = chapter.get("icon", "🏆")
+
+                    # Create completion badge
+                    badge_key = f"{subject}_{grade}_{chapter_id}_complete"
+                    completion_badge = ChapterBadge(
+                        badge_key=badge_key,
+                        name=f"{chapter_title} Master",
+                        description=f"Completed all lessons and passed the quiz for {chapter_title}",
+                        icon=chapter_icon,
+                        subject=subject,
+                        grade=str(grade),
+                        chapter_id=chapter_id,
+                        tier="bronze",
+                        badge_type="chapter_complete",
+                        requirement_type="completion",
+                        requirement_value=100
+                    )
+                    db.session.add(completion_badge)
+                    badges_created += 1
+
+                    # Create perfect score badge
+                    perfect_badge_key = f"{subject}_{grade}_{chapter_id}_perfect"
+                    perfect_badge = ChapterBadge(
+                        badge_key=perfect_badge_key,
+                        name=f"{chapter_title} Perfection",
+                        description=f"Achieved 100% on the {chapter_title} quiz",
+                        icon="⭐",
+                        subject=subject,
+                        grade=str(grade),
+                        chapter_id=chapter_id,
+                        tier="gold",
+                        badge_type="perfect_score",
+                        requirement_type="quiz_score",
+                        requirement_value=100
+                    )
+                    db.session.add(perfect_badge)
+                    badges_created += 1
+
+        db.session.commit()
+        print(f"✅ Successfully created {badges_created} chapter badges")
+
+    except Exception as e:
+        print(f"Error initializing chapter badges: {e}")
+        db.session.rollback()
+
+
+def award_chapter_badges(subject, grade, chapter_id, quiz_score, student_id=None):
+    """
+    Award appropriate badges to student for chapter completion
+
+    Args:
+        subject: Subject identifier
+        grade: Grade level
+        chapter_id: Chapter ID
+        quiz_score: Student's quiz score (0-100)
+        student_id: Optional student ID (defaults to session student)
+
+    Returns:
+        List of newly awarded badge dictionaries
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    if not student_id:
+        return []
+
+    from models import ChapterBadge, StudentChapterBadge, ChapterProgress
+
+    newly_awarded = []
+
+    try:
+        # Find eligible badges for this chapter
+        badge_key_completion = f"{subject}_{grade}_{chapter_id}_complete"
+        badge_key_perfect = f"{subject}_{grade}_{chapter_id}_perfect"
+
+        # Check completion badge
+        completion_badge = ChapterBadge.query.filter_by(badge_key=badge_key_completion).first()
+        if completion_badge:
+            # Check if student already has this badge
+            existing = StudentChapterBadge.query.filter_by(
+                student_id=student_id,
+                badge_id=completion_badge.id
+            ).first()
+
+            if not existing and quiz_score >= 80:  # Passing score
+                # Award completion badge
+                student_badge = StudentChapterBadge(
+                    student_id=student_id,
+                    badge_id=completion_badge.id,
+                    quiz_score=quiz_score,
+                    earned_at=datetime.utcnow()
+                )
+                db.session.add(student_badge)
+                newly_awarded.append({
+                    "name": completion_badge.name,
+                    "description": completion_badge.description,
+                    "icon": completion_badge.icon,
+                    "tier": completion_badge.tier
+                })
+
+        # Check perfect score badge
+        if quiz_score == 100:
+            perfect_badge = ChapterBadge.query.filter_by(badge_key=badge_key_perfect).first()
+            if perfect_badge:
+                existing = StudentChapterBadge.query.filter_by(
+                    student_id=student_id,
+                    badge_id=perfect_badge.id
+                ).first()
+
+                if not existing:
+                    # Award perfect score badge
+                    student_badge = StudentChapterBadge(
+                        student_id=student_id,
+                        badge_id=perfect_badge.id,
+                        quiz_score=quiz_score,
+                        earned_at=datetime.utcnow()
+                    )
+                    db.session.add(student_badge)
+                    newly_awarded.append({
+                        "name": perfect_badge.name,
+                        "description": perfect_badge.description,
+                        "icon": perfect_badge.icon,
+                        "tier": perfect_badge.tier
+                    })
+
+        db.session.commit()
+
+    except Exception as e:
+        print(f"Error awarding badges: {e}")
+        db.session.rollback()
+
+    return newly_awarded
+
+
+def get_student_badges(subject=None, grade=None, student_id=None):
+    """
+    Get all badges earned by a student, optionally filtered by subject/grade
+
+    Args:
+        subject: Optional subject filter
+        grade: Optional grade filter
+        student_id: Optional student ID (defaults to session student)
+
+    Returns:
+        List of badge dictionaries with earned_at timestamp
+    """
+    # Use provided student_id or get from session
+    if student_id is None:
+        student_id = session.get("student_id")
+
+    if not student_id:
+        return []
+
+    from models import StudentChapterBadge, ChapterBadge
+
+    try:
+        # Query student's badges
+        query = db.session.query(StudentChapterBadge, ChapterBadge).join(
+            ChapterBadge, StudentChapterBadge.badge_id == ChapterBadge.id
+        ).filter(StudentChapterBadge.student_id == student_id)
+
+        if subject:
+            query = query.filter(ChapterBadge.subject == subject)
+        if grade:
+            query = query.filter(ChapterBadge.grade == str(grade))
+
+        results = query.all()
+
+        badges = []
+        for student_badge, badge in results:
+            badges.append({
+                "name": badge.name,
+                "description": badge.description,
+                "icon": badge.icon,
+                "tier": badge.tier,
+                "badge_type": badge.badge_type,
+                "subject": badge.subject,
+                "grade": badge.grade,
+                "earned_at": student_badge.earned_at,
+                "quiz_score": student_badge.quiz_score
+            })
+
+        return badges
+
+    except Exception as e:
+        print(f"Error retrieving student badges: {e}")
+        return []
+
+
+# ============================================================
+# PARENT/TEACHER ANALYTICS
+# ============================================================
+
+def get_student_chapter_analytics(student_id, subject=None, grade=None):
+    """
+    Get comprehensive chapter progress analytics for a student
+
+    Args:
+        student_id: Student ID
+        subject: Optional subject filter
+        grade: Optional grade filter
+
+    Returns:
+        Dictionary with analytics data
+    """
+    from models import ChapterProgress, LessonProgress, StudentChapterBadge, ChapterBadge
+
+    try:
+        # Build query for chapter progress
+        query = ChapterProgress.query.filter_by(student_id=student_id)
+
+        if subject:
+            query = query.filter_by(subject=subject)
+        if grade:
+            query = query.filter_by(grade=str(grade))
+
+        chapter_progress_list = query.all()
+
+        # Calculate summary statistics
+        total_chapters = len(chapter_progress_list)
+        completed_chapters = sum(1 for cp in chapter_progress_list if cp.is_complete)
+        in_progress_chapters = sum(1 for cp in chapter_progress_list if cp.is_started and not cp.is_complete)
+
+        # Calculate average quiz scores
+        quiz_scores = [cp.quiz_score for cp in chapter_progress_list if cp.quiz_score is not None]
+        average_quiz_score = sum(quiz_scores) / len(quiz_scores) if quiz_scores else 0
+
+        # Get badges earned
+        badges = get_student_badges(subject, grade, student_id)
+
+        # Get detailed chapter breakdown
+        chapters_detail = []
+        for cp in chapter_progress_list:
+            chapters_detail.append({
+                "subject": cp.subject,
+                "grade": cp.grade,
+                "chapter_id": cp.chapter_id,
+                "lessons_completed": cp.lessons_completed,
+                "total_lessons": cp.total_lessons,
+                "progress_percent": int((cp.lessons_completed / cp.total_lessons * 100)) if cp.total_lessons > 0 else 0,
+                "is_complete": cp.is_complete,
+                "quiz_score": cp.quiz_score,
+                "quiz_attempts": cp.quiz_attempts,
+                "quiz_passed": cp.quiz_passed,
+                "started_at": cp.started_at,
+                "completed_at": cp.completed_at,
+                "last_accessed": cp.last_accessed
+            })
+
+        return {
+            "summary": {
+                "total_chapters": total_chapters,
+                "completed_chapters": completed_chapters,
+                "in_progress_chapters": in_progress_chapters,
+                "average_quiz_score": round(average_quiz_score, 1),
+                "total_badges": len(badges)
+            },
+            "chapters": chapters_detail,
+            "badges": badges
+        }
+
+    except Exception as e:
+        print(f"Error getting student analytics: {e}")
+        return {
+            "summary": {
+                "total_chapters": 0,
+                "completed_chapters": 0,
+                "in_progress_chapters": 0,
+                "average_quiz_score": 0,
+                "total_badges": 0
+            },
+            "chapters": [],
+            "badges": []
+        }
+
+
+def get_lesson_time_analytics(student_id, subject=None, grade=None, days=30):
+    """
+    Get time spent analytics for lessons
+
+    Args:
+        student_id: Student ID
+        subject: Optional subject filter
+        grade: Optional grade filter
+        days: Number of days to include (default 30)
+
+    Returns:
+        Dictionary with time analytics
+    """
+    from models import LessonProgress
+    from datetime import timedelta
+
+    try:
+        # Build query
+        query = LessonProgress.query.filter_by(student_id=student_id)
+
+        if subject:
+            query = query.filter_by(subject=subject)
+        if grade:
+            query = query.filter_by(grade=str(grade))
+
+        # Filter by date range
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        query = query.filter(LessonProgress.last_accessed >= cutoff_date)
+
+        lessons = query.all()
+
+        # Calculate statistics
+        total_time_minutes = sum(lesson.time_spent_minutes for lesson in lessons)
+        total_lessons_accessed = len(lessons)
+        completed_lessons = sum(1 for lesson in lessons if lesson.is_complete)
+
+        # Average time per lesson
+        avg_time_per_lesson = total_time_minutes / total_lessons_accessed if total_lessons_accessed > 0 else 0
+
+        # Group by day for trend analysis
+        daily_time = {}
+        for lesson in lessons:
+            day_key = lesson.last_accessed.date().isoformat()
+            if day_key not in daily_time:
+                daily_time[day_key] = 0
+            daily_time[day_key] += lesson.time_spent_minutes
+
+        return {
+            "total_time_minutes": total_time_minutes,
+            "total_time_hours": round(total_time_minutes / 60, 1),
+            "total_lessons_accessed": total_lessons_accessed,
+            "completed_lessons": completed_lessons,
+            "avg_time_per_lesson": round(avg_time_per_lesson, 1),
+            "daily_breakdown": daily_time
+        }
+
+    except Exception as e:
+        print(f"Error getting time analytics: {e}")
+        return {
+            "total_time_minutes": 0,
+            "total_time_hours": 0,
+            "total_lessons_accessed": 0,
+            "completed_lessons": 0,
+            "avg_time_per_lesson": 0,
+            "daily_breakdown": {}
+        }
+
+
+# ============================================================
 # DAILY STREAK
 # ============================================================
 
@@ -8785,9 +9723,9 @@ def learning_mode():
     )
 
 
-@app.route("/lesson-library")
-def lesson_library():
-    """Show available lessons for subject and grade"""
+@app.route("/chapter-library")
+def chapter_library():
+    """Show available chapters for subject and grade with progress tracking"""
     init_user()
     subject = request.args.get("subject")
     grade = request.args.get("grade")
@@ -8802,13 +9740,79 @@ def lesson_library():
     if not validate_grade_for_subject(subject, grade):
         return redirect(f"/choose-grade?subject={subject}")
 
-    # Get lesson topics for this subject/grade
-    from modules.student_lessons import get_lessons_for_subject_grade
-    lesson_topics = get_lessons_for_subject_grade(subject, int(grade))
+    # Get chapters with progress stats
+    chapter_stats = get_chapter_progress(subject, grade)
+
+    if not chapter_stats:
+        # Fall back to flat lesson list if no chapters exist
+        flash(f"No chapters available yet. Showing all lessons.", "info")
+        return redirect(f"/lesson-library?subject={subject}&grade={grade}")
+
+    # Add unlock status to each chapter
+    for i, ch_stat in enumerate(chapter_stats):
+        ch_stat["is_unlocked"] = is_chapter_unlocked(ch_stat, chapter_stats)
+        ch_stat["chapter_number"] = i + 1
+
+    subject_config = get_subject(subject)
+
+    return render_template(
+        "chapter_library.html",
+        subject=subject,
+        grade=grade,
+        subject_config=subject_config,
+        chapters=chapter_stats,
+        character=session.get("character", "nova")
+    )
+
+
+@app.route("/lesson-library")
+def lesson_library():
+    """Show available lessons for subject and grade (optionally filtered by chapter)"""
+    init_user()
+    subject = request.args.get("subject")
+    grade = request.args.get("grade")
+    chapter_id = request.args.get("chapter")  # NEW: Optional chapter filter
+
+    # Validate
+    if not validate_subject(subject):
+        flash(f"Invalid subject selected.", "error")
+        return redirect("/subjects")
+
+    grade = str(validate_grade(grade))
+
+    if not validate_grade_for_subject(subject, grade):
+        return redirect(f"/choose-grade?subject={subject}")
+
+    # NEW: If chapter_id provided, get lessons from that chapter
+    chapter = None
+    if chapter_id:
+        from modules.student_lessons import get_chapter_by_id
+        chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+        if chapter:
+            lesson_topics = chapter.get("lessons", [])
+        else:
+            flash(f"Chapter not found.", "error")
+            return redirect(f"/chapter-library?subject={subject}&grade={grade}")
+    else:
+        # Get all lesson topics for this subject/grade (flat list fallback)
+        from modules.student_lessons import get_lessons_for_subject_grade
+        lesson_topics = get_lessons_for_subject_grade(subject, int(grade))
 
     if not lesson_topics:
         flash(f"No lessons available yet for this subject and grade.", "warning")
         return redirect(f"/learning-mode?subject={subject}&grade={grade}")
+
+    # Get lesson progress for completion tracking
+    lesson_progress = get_lesson_progress(subject, grade, chapter_id)
+
+    # Create lesson data with completion status
+    lessons_with_progress = []
+    for i, lesson_title in enumerate(lesson_topics):
+        lessons_with_progress.append({
+            "title": lesson_title,
+            "number": i + 1,
+            "is_complete": lesson_progress.get(lesson_title, False)
+        })
 
     subject_config = get_subject(subject)
 
@@ -8818,6 +9822,9 @@ def lesson_library():
         grade=grade,
         subject_config=subject_config,
         lesson_topics=lesson_topics,
+        lessons_with_progress=lessons_with_progress,  # NEW: Pass progress info
+        chapter=chapter,  # Pass chapter info for breadcrumbs
+        chapter_id=chapter_id,  # Pass chapter_id for marking complete
         character=session.get("character", "nova")
     )
 
@@ -8905,6 +9912,124 @@ def lesson_chat():
     except Exception as e:
         print(f"Error in lesson chat: {e}")
         return jsonify({"success": False, "error": "AI service error"})
+
+
+@app.route("/complete-lesson", methods=["POST"])
+def complete_lesson():
+    """Mark a lesson as completed"""
+    init_user()
+
+    data = request.get_json()
+    subject = data.get("subject")
+    grade = data.get("grade")
+    lesson_title = data.get("lesson_title")
+    chapter_id = data.get("chapter_id")  # Optional
+
+    if not subject or not grade or not lesson_title:
+        return jsonify({"success": False, "error": "Missing required fields"})
+
+    try:
+        mark_lesson_complete(subject, grade, lesson_title, chapter_id)
+        return jsonify({"success": True, "message": "Lesson marked as complete!"})
+    except Exception as e:
+        print(f"Error marking lesson complete: {e}")
+        return jsonify({"success": False, "error": "Failed to save progress"})
+
+
+@app.route("/chapter-quiz")
+def chapter_quiz():
+    """Display chapter completion quiz"""
+    init_user()
+
+    subject = request.args.get("subject")
+    grade = request.args.get("grade")
+    chapter_id = request.args.get("chapter")
+
+    # Validate
+    if not validate_subject(subject):
+        flash("Invalid subject selected.", "error")
+        return redirect("/subjects")
+
+    grade = str(validate_grade(grade))
+
+    if not chapter_id:
+        flash("Chapter ID required for quiz.", "error")
+        return redirect(f"/chapter-library?subject={subject}&grade={grade}")
+
+    # Get chapter info
+    from modules.student_lessons import get_chapter_by_id
+    chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+
+    if not chapter:
+        flash("Chapter not found.", "error")
+        return redirect(f"/chapter-library?subject={subject}&grade={grade}")
+
+    # Check if all lessons are completed before allowing quiz
+    from models import ChapterProgress
+    student_id = session.get("student_id")
+
+    if student_id:
+        chapter_progress = ChapterProgress.query.filter_by(
+            student_id=student_id,
+            subject=subject,
+            grade=str(grade),
+            chapter_id=chapter_id
+        ).first()
+
+        # Require all lessons to be completed before taking quiz
+        total_lessons = len(chapter.get("lessons", []))
+        completed_lessons = chapter_progress.lessons_completed if chapter_progress else 0
+
+        if completed_lessons < total_lessons:
+            flash(f"Please complete all {total_lessons} lessons before taking the chapter quiz. You've completed {completed_lessons}/{total_lessons}.", "warning")
+            return redirect(f"/lesson-library?subject={subject}&grade={grade}&chapter={chapter_id}")
+
+    # Get or generate quiz questions
+    quiz_questions = get_or_generate_chapter_quiz(subject, grade, chapter_id)
+
+    subject_config = get_subject(subject)
+
+    return render_template(
+        "chapter_quiz.html",
+        subject=subject,
+        grade=grade,
+        chapter=chapter,
+        chapter_id=chapter_id,
+        subject_config=subject_config,
+        quiz_questions=quiz_questions,
+        character=session.get("character", "nova")
+    )
+
+
+@app.route("/submit-chapter-quiz", methods=["POST"])
+def submit_chapter_quiz():
+    """Submit and grade chapter quiz"""
+    init_user()
+
+    data = request.get_json()
+    subject = data.get("subject")
+    grade = data.get("grade")
+    chapter_id = data.get("chapter_id")
+    student_answers = data.get("answers", {})
+
+    if not subject or not grade or not chapter_id:
+        return jsonify({"success": False, "error": "Missing required fields"})
+
+    # Grade the quiz
+    result = grade_chapter_quiz(subject, grade, chapter_id, student_answers)
+
+    if "error" in result:
+        return jsonify({"success": False, "error": result["error"]})
+
+    return jsonify({
+        "success": True,
+        "score_percent": result["score_percent"],
+        "correct_count": result["correct_count"],
+        "total_questions": result["total_questions"],
+        "quiz_passed": result["quiz_passed"],
+        "feedback": result["feedback"],
+        "badges_earned": result.get("badges_earned", [])
+    })
 
 
 @app.route("/ask-question")

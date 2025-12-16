@@ -314,6 +314,31 @@
         line-height: 1.5;
     }
 
+    /* LESSON COMPLETION STATUS */
+    .lesson-card.completed {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.12), rgba(0, 242, 255, 0.08));
+        border-color: rgba(0, 255, 136, 0.4);
+    }
+
+    .lesson-card.completed .lesson-number {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 242, 255, 0.2));
+        border-color: rgba(0, 255, 136, 0.6);
+        color: #00ff88;
+    }
+
+    .completion-checkmark {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 2rem;
+        filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.9));
+    }
+
+    .lesson-card.completed:hover {
+        border-color: rgba(0, 255, 136, 0.7);
+        box-shadow: 0 0 35px rgba(0, 255, 136, 0.5);
+    }
+
     .back-button {
         display: inline-block;
         margin: 30px auto 60px auto;
@@ -423,14 +448,111 @@
         0%, 100% { transform: translate(-50%, -50%) scale(1); }
         50% { transform: translate(-50%, -50%) scale(1.05); }
     }
+
+    /* BREADCRUMB NAVIGATION */
+    .breadcrumb {
+        max-width: 1400px;
+        margin: 30px auto 0;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        color: #00d4ff;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb a {
+        color: #00d4ff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .breadcrumb a:hover {
+        color: #00ffff;
+        text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    }
+
+    .breadcrumb-separator {
+        color: rgba(0, 212, 255, 0.4);
+        font-weight: 300;
+    }
+
+    .breadcrumb-current {
+        color: #ffffff;
+        font-weight: 600;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+    }
+
+    /* CHAPTER INFO BANNER (if viewing chapter lessons) */
+    .chapter-info-banner {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px 25px;
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.12), rgba(79, 172, 254, 0.08));
+        border: 2px solid rgba(0, 242, 255, 0.4);
+        border-radius: 15px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 24px rgba(0, 242, 255, 0.2);
+    }
+
+    .chapter-banner-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.7));
+    }
+
+    .chapter-banner-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #00f2ff;
+        margin-bottom: 8px;
+        text-shadow: 0 0 15px rgba(0, 242, 255, 0.6);
+    }
+
+    .chapter-banner-description {
+        font-size: 0.95rem;
+        color: #c5daf5;
+        line-height: 1.5;
+    }
 </style>
 
 <div class="stars"></div>
 
 <div id="loading-message"></div>
 
+<!-- BREADCRUMB NAVIGATION -->
+<nav class="breadcrumb">
+    <a href="/learning-mode?subject={{ subject }}&grade={{ grade }}">Learning Mode</a>
+    <span class="breadcrumb-separator">›</span>
+    {% if chapter %}
+        <a href="/chapter-library?subject={{ subject }}&grade={{ grade }}">{{ subject_config['name'] }} Chapters</a>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">{{ chapter.title }}</span>
+    {% else %}
+        <span class="breadcrumb-current">{{ subject_config['name'] }} Lessons</span>
+    {% endif %}
+</nav>
+
+<!-- CHAPTER INFO BANNER (if viewing lessons from a chapter) -->
+{% if chapter %}
+<div class="chapter-info-banner">
+    <div class="chapter-banner-icon">{{ chapter.icon }}</div>
+    <h2 class="chapter-banner-title">{{ chapter.title }}</h2>
+    <p class="chapter-banner-description">{{ chapter.description }}</p>
+</div>
+{% endif %}
+
 <div class="library-header">
-    <h1 class="library-title">{{ subject_config['name'] }} Lessons</h1>
+    <h1 class="library-title">
+        {% if chapter %}
+            {{ chapter.title }} - Lessons
+        {% else %}
+            {{ subject_config['name'] }} Lessons
+        {% endif %}
+    </h1>
     <p class="library-subtitle">Grade {{ grade }}</p>
     <p class="library-instructions">
         Choose a lesson to begin your learning journey! Each lesson includes explanations, examples, and a chance to chat with {{ character.title() }}.
@@ -438,10 +560,14 @@
 </div>
 
 <div class="lessons-grid">
-    {% for lesson_topic in lesson_topics %}
-    <a href="/view-lesson?subject={{ subject }}&grade={{ grade }}&topic={{ lesson_topic|urlencode }}" class="lesson-card-link">
-        <div class="lesson-card">
-            <span class="lesson-number">Lesson {{ loop.index }}</span>
+    {% for lesson in lessons_with_progress %}
+    <a href="/view-lesson?subject={{ subject }}&grade={{ grade }}&topic={{ lesson.title|urlencode }}{% if chapter_id %}&chapter={{ chapter_id }}{% endif %}" class="lesson-card-link">
+        <div class="lesson-card {% if lesson.is_complete %}completed{% endif %}">
+            {% if lesson.is_complete %}
+            <span class="completion-checkmark">✓</span>
+            {% endif %}
+
+            <span class="lesson-number">Lesson {{ lesson.number }}</span>
             <div class="lesson-icon">
                 {% if 'Math' in subject_config['name'] or 'NumForge' in subject_config['name'] %}🔢
                 {% elif 'Science' in subject_config['name'] or 'Atom' in subject_config['name'] %}🔬
@@ -458,15 +584,21 @@
                 {% else %}📚
                 {% endif %}
             </div>
-            <div class="lesson-title">{{ lesson_topic }}</div>
+            <div class="lesson-title">{{ lesson.title }}</div>
         </div>
     </a>
     {% endfor %}
 </div>
 
+{% if chapter %}
+<a href="/chapter-library?subject={{ subject }}&grade={{ grade }}" class="back-button">
+    ← Back to Chapters
+</a>
+{% else %}
 <a href="/learning-mode?subject={{ subject }}&grade={{ grade }}" class="back-button">
     ← Back to Learning Mode
 </a>
+{% endif %}
 
 <script>
 const loadingMessages = [
