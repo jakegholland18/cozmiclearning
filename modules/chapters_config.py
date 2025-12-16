@@ -1354,6 +1354,316 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "life_science_7",
+                    "title": "Life Science Foundations",
+                    "description": "Introduction to biology",
+                    "icon": "🧬",
+                    "color": "green",
+                    "lessons": [
+                        "Cells: The Building Blocks",
+                        "Cell Division and Growth",
+                        "Genetics Basics",
+                        "Classification of Life"
+                    ]
+                },
+                {
+                    "id": "human_body_systems_7",
+                    "title": "Human Body Systems",
+                    "description": "How our body works",
+                    "icon": "🫀",
+                    "color": "red",
+                    "lessons": [
+                        "Circulatory and Respiratory Systems",
+                        "Digestive and Excretory Systems",
+                        "Skeletal and Muscular Systems",
+                        "Nervous and Endocrine Systems"
+                    ]
+                },
+                {
+                    "id": "ecosystems_7",
+                    "title": "Ecosystems",
+                    "description": "Living systems and interactions",
+                    "icon": "🌲",
+                    "color": "green",
+                    "lessons": [
+                        "Food Chains and Webs",
+                        "Energy Flow in Ecosystems",
+                        "Biomes and Habitats",
+                        "Human Impact on Ecosystems"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "physical_science_8",
+                    "title": "Physical Science",
+                    "description": "Matter, energy, and forces",
+                    "icon": "⚛️",
+                    "color": "blue",
+                    "lessons": [
+                        "Properties of Matter",
+                        "Chemical vs. Physical Changes",
+                        "Energy Forms and Transfer",
+                        "Force, Motion, and Newton's Laws"
+                    ]
+                },
+                {
+                    "id": "chemistry_basics_8",
+                    "title": "Chemistry Basics",
+                    "description": "Elements and compounds",
+                    "icon": "🧪",
+                    "color": "purple",
+                    "lessons": [
+                        "Atoms and Elements",
+                        "The Periodic Table",
+                        "Chemical Bonds",
+                        "Chemical Reactions"
+                    ]
+                },
+                {
+                    "id": "earth_systems_8",
+                    "title": "Earth Systems",
+                    "description": "Earth's dynamic systems",
+                    "icon": "🌍",
+                    "color": "brown",
+                    "lessons": [
+                        "Plate Tectonics",
+                        "The Rock Cycle",
+                        "Weather and Climate Systems",
+                        "Ocean Currents"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "biology_intro_9",
+                    "title": "Biology Introduction",
+                    "description": "Comprehensive life science",
+                    "icon": "🔬",
+                    "color": "green",
+                    "lessons": [
+                        "Characteristics of Life",
+                        "Scientific Method in Biology",
+                        "Chemistry of Life",
+                        "Cell Structure and Function"
+                    ]
+                },
+                {
+                    "id": "cellular_processes_9",
+                    "title": "Cellular Processes",
+                    "description": "How cells work",
+                    "icon": "🧫",
+                    "color": "teal",
+                    "lessons": [
+                        "Photosynthesis",
+                        "Cellular Respiration",
+                        "Mitosis and Meiosis",
+                        "DNA and RNA"
+                    ]
+                },
+                {
+                    "id": "genetics_9",
+                    "title": "Genetics",
+                    "description": "Heredity and variation",
+                    "icon": "🧬",
+                    "color": "purple",
+                    "lessons": [
+                        "Mendel's Laws",
+                        "Punnett Squares",
+                        "Genetic Disorders",
+                        "Biotechnology Applications"
+                    ]
+                },
+                {
+                    "id": "evolution_9",
+                    "title": "Evolution and Adaptation",
+                    "description": "Change over time",
+                    "icon": "🦖",
+                    "color": "brown",
+                    "lessons": [
+                        "Natural Selection",
+                        "Evidence for Evolution",
+                        "Speciation",
+                        "Human Evolution"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "chemistry_intro_10",
+                    "title": "Chemistry Foundations",
+                    "description": "Principles of chemistry",
+                    "icon": "⚗️",
+                    "color": "blue",
+                    "lessons": [
+                        "Atomic Structure",
+                        "Electron Configuration",
+                        "Periodic Trends",
+                        "Chemical Bonding"
+                    ]
+                },
+                {
+                    "id": "stoichiometry_10",
+                    "title": "Stoichiometry",
+                    "description": "Quantitative chemistry",
+                    "icon": "⚖️",
+                    "color": "orange",
+                    "lessons": [
+                        "Molar Mass and Moles",
+                        "Balancing Equations",
+                        "Limiting Reactants",
+                        "Percent Yield"
+                    ]
+                },
+                {
+                    "id": "chemical_reactions_10",
+                    "title": "Chemical Reactions",
+                    "description": "Types and rates of reactions",
+                    "icon": "💥",
+                    "color": "red",
+                    "lessons": [
+                        "Reaction Types",
+                        "Reaction Rates",
+                        "Equilibrium",
+                        "Acids and Bases"
+                    ]
+                },
+                {
+                    "id": "matter_states_10",
+                    "title": "States of Matter",
+                    "description": "Gases, liquids, and solids",
+                    "icon": "🌡️",
+                    "color": "purple",
+                    "lessons": [
+                        "Gas Laws",
+                        "Phase Changes",
+                        "Solutions and Solubility",
+                        "Thermochemistry"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "physics_intro_11",
+                    "title": "Physics Foundations",
+                    "description": "Introduction to physics",
+                    "icon": "🔭",
+                    "color": "navy",
+                    "lessons": [
+                        "Measurement and Units",
+                        "Vectors and Scalars",
+                        "Kinematics Basics",
+                        "Graphing Motion"
+                    ]
+                },
+                {
+                    "id": "forces_motion_11",
+                    "title": "Forces and Motion",
+                    "description": "Newton's laws in action",
+                    "icon": "🚀",
+                    "color": "red",
+                    "lessons": [
+                        "Newton's Three Laws",
+                        "Friction and Air Resistance",
+                        "Circular Motion",
+                        "Universal Gravitation"
+                    ]
+                },
+                {
+                    "id": "energy_work_11",
+                    "title": "Energy and Work",
+                    "description": "Work, power, and energy",
+                    "icon": "⚡",
+                    "color": "yellow",
+                    "lessons": [
+                        "Work and Power",
+                        "Kinetic and Potential Energy",
+                        "Conservation of Energy",
+                        "Simple Machines"
+                    ]
+                },
+                {
+                    "id": "waves_light_11",
+                    "title": "Waves and Light",
+                    "description": "Wave properties and optics",
+                    "icon": "🌊",
+                    "color": "blue",
+                    "lessons": [
+                        "Wave Properties",
+                        "Sound Waves",
+                        "Light and Color",
+                        "Mirrors and Lenses"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "electricity_magnetism_12",
+                    "title": "Electricity and Magnetism",
+                    "description": "Electromagnetic principles",
+                    "icon": "🔌",
+                    "color": "yellow",
+                    "lessons": [
+                        "Electric Charge and Force",
+                        "Electric Circuits",
+                        "Magnetism",
+                        "Electromagnetic Induction"
+                    ]
+                },
+                {
+                    "id": "modern_physics_12",
+                    "title": "Modern Physics",
+                    "description": "20th century discoveries",
+                    "icon": "☢️",
+                    "color": "green",
+                    "lessons": [
+                        "Quantum Mechanics Basics",
+                        "Atomic and Nuclear Physics",
+                        "Relativity Introduction",
+                        "Particle Physics"
+                    ]
+                },
+                {
+                    "id": "astronomy_cosmology_12",
+                    "title": "Astronomy and Cosmology",
+                    "description": "The universe",
+                    "icon": "🌌",
+                    "color": "purple",
+                    "lessons": [
+                        "The Solar System",
+                        "Stars and Galaxies",
+                        "The Big Bang Theory",
+                        "The Future of the Universe"
+                    ]
+                },
+                {
+                    "id": "environmental_science_12",
+                    "title": "Environmental Science",
+                    "description": "Earth's systems and sustainability",
+                    "icon": "♻️",
+                    "color": "green",
+                    "lessons": [
+                        "Ecosystems and Biodiversity",
+                        "Climate Change Science",
+                        "Renewable Energy",
+                        "Sustainable Practices"
+                    ]
+                }
+            ]
         }
     },
 
