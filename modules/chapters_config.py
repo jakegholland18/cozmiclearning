@@ -1663,6 +1663,622 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+
+    # ============================================================================
+    # CHRONO CORE (HISTORY)
+    # ============================================================================
+
+    "chrono_core": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "me_and_my_family_k",
+                    "title": "Me and My Family",
+                    "description": "Learn about yourself and your family history",
+                    "icon": "👨‍👩‍👧‍👦",
+                    "color": "orange",
+                    "lessons": [
+                        "All About Me",
+                        "My Family Tree",
+                        "Family Traditions",
+                        "Then and Now"
+                    ]
+                },
+                {
+                    "id": "community_helpers_k",
+                    "title": "Community Helpers",
+                    "description": "People who help our community",
+                    "icon": "👮",
+                    "color": "blue",
+                    "lessons": [
+                        "Police Officers and Firefighters",
+                        "Doctors and Nurses",
+                        "Teachers and Librarians",
+                        "Mail Carriers and Store Workers"
+                    ]
+                },
+                {
+                    "id": "holidays_traditions_k",
+                    "title": "Holidays and Traditions",
+                    "description": "Special days we celebrate",
+                    "icon": "🎉",
+                    "color": "purple",
+                    "lessons": [
+                        "Thanksgiving and Gratitude",
+                        "Christmas and Giving",
+                        "Independence Day",
+                        "Birthday Traditions"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "my_school_community",
+                    "title": "My School and Community",
+                    "description": "Understanding our local community",
+                    "icon": "🏫",
+                    "color": "green",
+                    "lessons": [
+                        "Our School History",
+                        "Our Town or City",
+                        "Community Rules and Laws",
+                        "Being a Good Citizen"
+                    ]
+                },
+                {
+                    "id": "america_symbols",
+                    "title": "American Symbols",
+                    "description": "Important symbols of America",
+                    "icon": "🗽",
+                    "color": "red",
+                    "lessons": [
+                        "The American Flag",
+                        "The Statue of Liberty",
+                        "The Bald Eagle",
+                        "The Liberty Bell"
+                    ]
+                },
+                {
+                    "id": "famous_americans",
+                    "title": "Famous Americans",
+                    "description": "People who shaped our country",
+                    "icon": "⭐",
+                    "color": "blue",
+                    "lessons": [
+                        "George Washington",
+                        "Abraham Lincoln",
+                        "Martin Luther King Jr.",
+                        "Rosa Parks"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "early_america",
+                    "title": "Early America",
+                    "description": "How America began",
+                    "icon": "⛵",
+                    "color": "brown",
+                    "lessons": [
+                        "Native Americans",
+                        "Christopher Columbus",
+                        "The Pilgrims",
+                        "The First Thanksgiving"
+                    ]
+                },
+                {
+                    "id": "colonial_life",
+                    "title": "Colonial Life",
+                    "description": "Life in the 13 colonies",
+                    "icon": "🏘️",
+                    "color": "orange",
+                    "lessons": [
+                        "The 13 Colonies",
+                        "Colonial Jobs and Trades",
+                        "Colonial Schools",
+                        "Colonial Daily Life"
+                    ]
+                },
+                {
+                    "id": "american_revolution",
+                    "title": "American Revolution",
+                    "description": "America's fight for freedom",
+                    "icon": "🎺",
+                    "color": "red",
+                    "lessons": [
+                        "Why the Colonists Were Upset",
+                        "The Boston Tea Party",
+                        "The Revolutionary War",
+                        "Declaring Independence"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "building_new_nation",
+                    "title": "Building a New Nation",
+                    "description": "Creating the United States government",
+                    "icon": "🏛️",
+                    "color": "blue",
+                    "lessons": [
+                        "The Constitution",
+                        "The Bill of Rights",
+                        "Three Branches of Government",
+                        "Our First Presidents"
+                    ]
+                },
+                {
+                    "id": "westward_expansion",
+                    "title": "Westward Expansion",
+                    "description": "America grows west",
+                    "icon": "🤠",
+                    "color": "brown",
+                    "lessons": [
+                        "Lewis and Clark Expedition",
+                        "The Oregon Trail",
+                        "The Gold Rush",
+                        "Life on the Frontier"
+                    ]
+                },
+                {
+                    "id": "civil_war_era",
+                    "title": "Civil War Era",
+                    "description": "A nation divided and reunited",
+                    "icon": "⚔️",
+                    "color": "gray",
+                    "lessons": [
+                        "Slavery in America",
+                        "The Underground Railroad",
+                        "The Civil War",
+                        "Abraham Lincoln and Reconstruction"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "industrial_revolution",
+                    "title": "Industrial Revolution",
+                    "description": "America becomes industrial",
+                    "icon": "🏭",
+                    "color": "gray",
+                    "lessons": [
+                        "Inventions Change America",
+                        "Factories and Cities Grow",
+                        "Immigration to America",
+                        "Life in the Late 1800s"
+                    ]
+                },
+                {
+                    "id": "progressive_era",
+                    "title": "Progressive Era",
+                    "description": "Reforming America",
+                    "icon": "📰",
+                    "color": "green",
+                    "lessons": [
+                        "Women's Suffrage",
+                        "Child Labor Laws",
+                        "Theodore Roosevelt",
+                        "Conservation Movement"
+                    ]
+                },
+                {
+                    "id": "world_war_1",
+                    "title": "World War I",
+                    "description": "The Great War",
+                    "icon": "🪖",
+                    "color": "khaki",
+                    "lessons": [
+                        "Causes of World War I",
+                        "America Enters the War",
+                        "Life During Wartime",
+                        "The War Ends"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "roaring_twenties",
+                    "title": "The Roaring Twenties",
+                    "description": "A decade of change",
+                    "icon": "🎷",
+                    "color": "gold",
+                    "lessons": [
+                        "New Technology and Culture",
+                        "The Jazz Age",
+                        "Economic Boom",
+                        "Prohibition"
+                    ]
+                },
+                {
+                    "id": "great_depression",
+                    "title": "Great Depression",
+                    "description": "America's greatest economic crisis",
+                    "icon": "💼",
+                    "color": "brown",
+                    "lessons": [
+                        "The Stock Market Crash",
+                        "Life During the Depression",
+                        "The New Deal",
+                        "The Dust Bowl"
+                    ]
+                },
+                {
+                    "id": "world_war_2",
+                    "title": "World War II",
+                    "description": "The war that changed the world",
+                    "icon": "✈️",
+                    "color": "navy",
+                    "lessons": [
+                        "Causes of World War II",
+                        "America Joins the War",
+                        "The Home Front",
+                        "Victory and Peace"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "cold_war",
+                    "title": "The Cold War",
+                    "description": "Tension between superpowers",
+                    "icon": "❄️",
+                    "color": "blue",
+                    "lessons": [
+                        "The Iron Curtain",
+                        "The Space Race",
+                        "Korean and Vietnam Wars",
+                        "Nuclear Arms Race"
+                    ]
+                },
+                {
+                    "id": "civil_rights_movement",
+                    "title": "Civil Rights Movement",
+                    "description": "The fight for equality",
+                    "icon": "✊",
+                    "color": "purple",
+                    "lessons": [
+                        "Segregation and Jim Crow Laws",
+                        "Brown v. Board of Education",
+                        "Martin Luther King Jr. and Peaceful Protest",
+                        "The Civil Rights Act"
+                    ]
+                },
+                {
+                    "id": "modern_america",
+                    "title": "Modern America",
+                    "description": "Recent history and today",
+                    "icon": "🌐",
+                    "color": "teal",
+                    "lessons": [
+                        "The Fall of the Berlin Wall",
+                        "The Digital Revolution",
+                        "September 11, 2001",
+                        "America in the 21st Century"
+                    ]
+                }
+            ]
+        }
+    },
+
+    # ============================================================================
+    # STORY VERSE (LANGUAGE ARTS)
+    # ============================================================================
+
+    "story_verse": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "letters_sounds_k",
+                    "title": "Letters and Sounds",
+                    "description": "Learning the alphabet",
+                    "icon": "🔤",
+                    "color": "red",
+                    "lessons": [
+                        "Letter Recognition A-M",
+                        "Letter Recognition N-Z",
+                        "Letter Sounds Beginning",
+                        "Letter Sounds Practice"
+                    ]
+                },
+                {
+                    "id": "reading_readiness_k",
+                    "title": "Reading Readiness",
+                    "description": "Getting ready to read",
+                    "icon": "📖",
+                    "color": "blue",
+                    "lessons": [
+                        "Print Awareness",
+                        "Rhyming Words",
+                        "Simple Sight Words",
+                        "Picture Clues"
+                    ]
+                },
+                {
+                    "id": "storytelling_k",
+                    "title": "Storytelling",
+                    "description": "Sharing stories",
+                    "icon": "🗣️",
+                    "color": "purple",
+                    "lessons": [
+                        "Beginning, Middle, End",
+                        "Describing Pictures",
+                        "Retelling Stories",
+                        "Making Up Stories"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "phonics_foundations",
+                    "title": "Phonics Foundations",
+                    "description": "Sounding out words",
+                    "icon": "🎵",
+                    "color": "green",
+                    "lessons": [
+                        "Short Vowel Sounds",
+                        "CVC Words (cat, dog, sun)",
+                        "Consonant Blends (bl, tr, st)",
+                        "Digraphs (ch, sh, th)"
+                    ]
+                },
+                {
+                    "id": "reading_comprehension_1",
+                    "title": "Reading Comprehension",
+                    "description": "Understanding what we read",
+                    "icon": "💡",
+                    "color": "yellow",
+                    "lessons": [
+                        "Main Idea",
+                        "Story Details",
+                        "Making Predictions",
+                        "Answering Questions"
+                    ]
+                },
+                {
+                    "id": "writing_sentences",
+                    "title": "Writing Sentences",
+                    "description": "Creating complete sentences",
+                    "icon": "✏️",
+                    "color": "orange",
+                    "lessons": [
+                        "Capital Letters and Periods",
+                        "Spacing Between Words",
+                        "Complete Thoughts",
+                        "Describing Words"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "advanced_phonics",
+                    "title": "Advanced Phonics",
+                    "description": "Complex word patterns",
+                    "icon": "🔊",
+                    "color": "purple",
+                    "lessons": [
+                        "Long Vowel Patterns (ai, ee, oa)",
+                        "Silent E Words",
+                        "R-Controlled Vowels (ar, er, ir, or, ur)",
+                        "Multisyllabic Words"
+                    ]
+                },
+                {
+                    "id": "reading_fluency",
+                    "title": "Reading Fluency",
+                    "description": "Reading smoothly and expressively",
+                    "icon": "📚",
+                    "color": "teal",
+                    "lessons": [
+                        "Reading with Expression",
+                        "Punctuation Clues",
+                        "Reading Rate",
+                        "Partner Reading"
+                    ]
+                },
+                {
+                    "id": "paragraph_writing",
+                    "title": "Paragraph Writing",
+                    "description": "Writing connected ideas",
+                    "icon": "📝",
+                    "color": "blue",
+                    "lessons": [
+                        "Topic Sentences",
+                        "Supporting Details",
+                        "Transition Words",
+                        "Closing Sentences"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "vocabulary_building",
+                    "title": "Vocabulary Building",
+                    "description": "Expanding your word power",
+                    "icon": "📖",
+                    "color": "green",
+                    "lessons": [
+                        "Context Clues",
+                        "Prefixes and Suffixes",
+                        "Synonyms and Antonyms",
+                        "Multiple Meaning Words"
+                    ]
+                },
+                {
+                    "id": "literary_elements",
+                    "title": "Literary Elements",
+                    "description": "Parts of a story",
+                    "icon": "🎭",
+                    "color": "red",
+                    "lessons": [
+                        "Character Analysis",
+                        "Setting",
+                        "Plot (Problem and Solution)",
+                        "Theme and Message"
+                    ]
+                },
+                {
+                    "id": "narrative_writing",
+                    "title": "Narrative Writing",
+                    "description": "Writing stories",
+                    "icon": "📔",
+                    "color": "purple",
+                    "lessons": [
+                        "Story Planning",
+                        "Dialogue",
+                        "Descriptive Details",
+                        "Revising and Editing"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "reading_strategies",
+                    "title": "Reading Strategies",
+                    "description": "Tools for better comprehension",
+                    "icon": "🔍",
+                    "color": "blue",
+                    "lessons": [
+                        "Making Inferences",
+                        "Compare and Contrast",
+                        "Cause and Effect",
+                        "Summarizing"
+                    ]
+                },
+                {
+                    "id": "grammar_mechanics",
+                    "title": "Grammar and Mechanics",
+                    "description": "Rules of writing",
+                    "icon": "📐",
+                    "color": "orange",
+                    "lessons": [
+                        "Parts of Speech",
+                        "Subject-Verb Agreement",
+                        "Punctuation Rules",
+                        "Capitalization"
+                    ]
+                },
+                {
+                    "id": "informational_writing",
+                    "title": "Informational Writing",
+                    "description": "Writing to teach",
+                    "icon": "📰",
+                    "color": "teal",
+                    "lessons": [
+                        "Research and Note-Taking",
+                        "Organizing Information",
+                        "Facts vs. Opinions",
+                        "Writing How-To Guides"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "literary_analysis",
+                    "title": "Literary Analysis",
+                    "description": "Analyzing literature deeply",
+                    "icon": "🔬",
+                    "color": "purple",
+                    "lessons": [
+                        "Point of View",
+                        "Figurative Language",
+                        "Author's Purpose",
+                        "Text Structure"
+                    ]
+                },
+                {
+                    "id": "research_writing",
+                    "title": "Research Writing",
+                    "description": "Writing research papers",
+                    "icon": "🔎",
+                    "color": "brown",
+                    "lessons": [
+                        "Finding Reliable Sources",
+                        "Taking Effective Notes",
+                        "Citing Sources",
+                        "Writing a Research Report"
+                    ]
+                },
+                {
+                    "id": "persuasive_writing",
+                    "title": "Persuasive Writing",
+                    "description": "Writing to convince",
+                    "icon": "💬",
+                    "color": "red",
+                    "lessons": [
+                        "Forming Arguments",
+                        "Supporting with Evidence",
+                        "Addressing Counterarguments",
+                        "Persuasive Techniques"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "poetry_analysis",
+                    "title": "Poetry Analysis",
+                    "description": "Understanding and writing poetry",
+                    "icon": "🎨",
+                    "color": "pink",
+                    "lessons": [
+                        "Poetic Devices (Metaphor, Simile)",
+                        "Rhyme and Rhythm",
+                        "Types of Poetry",
+                        "Writing Original Poems"
+                    ]
+                },
+                {
+                    "id": "advanced_grammar",
+                    "title": "Advanced Grammar",
+                    "description": "Mastering complex grammar",
+                    "icon": "📏",
+                    "color": "navy",
+                    "lessons": [
+                        "Complex Sentences",
+                        "Verbals (Gerunds, Participles, Infinitives)",
+                        "Active vs. Passive Voice",
+                        "Common Grammar Mistakes"
+                    ]
+                },
+                {
+                    "id": "multimedia_literacy",
+                    "title": "Multimedia Literacy",
+                    "description": "Reading and creating across media",
+                    "icon": "🎬",
+                    "color": "teal",
+                    "lessons": [
+                        "Analyzing Visual Media",
+                        "Digital Research Skills",
+                        "Creating Presentations",
+                        "Media Literacy and Credibility"
+                    ]
+                }
+            ]
+        }
     }
 }
 
