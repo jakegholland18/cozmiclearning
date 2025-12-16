@@ -1972,6 +1972,271 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "old_testament_survey_7",
+                    "title": "Old Testament Survey",
+                    "description": "Deep dive into OT books",
+                    "icon": "📜",
+                    "color": "brown",
+                    "lessons": [
+                        "Torah (Law Books)",
+                        "Historical Books",
+                        "Wisdom Literature",
+                        "Major Prophets",
+                        "Minor Prophets"
+                    ]
+                },
+                {
+                    "id": "new_testament_survey_7",
+                    "title": "New Testament Survey",
+                    "description": "Exploring NT books",
+                    "icon": "✝️",
+                    "color": "red",
+                    "lessons": [
+                        "The Four Gospels",
+                        "Acts and Early Church",
+                        "Paul's Letters",
+                        "General Epistles",
+                        "Revelation"
+                    ]
+                },
+                {
+                    "id": "theology_basics_7",
+                    "title": "Theology Basics",
+                    "description": "Core Christian doctrines",
+                    "icon": "📖",
+                    "color": "blue",
+                    "lessons": [
+                        "Nature of God (Trinity)",
+                        "Humanity and Sin",
+                        "Salvation and Grace",
+                        "Church and Sacraments"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "life_of_christ_8",
+                    "title": "Life of Christ",
+                    "description": "Following Jesus' ministry",
+                    "icon": "✨",
+                    "color": "gold",
+                    "lessons": [
+                        "Birth and Early Years",
+                        "Baptism and Temptation",
+                        "Ministry and Miracles",
+                        "Passion Week",
+                        "Resurrection and Ascension"
+                    ]
+                },
+                {
+                    "id": "discipleship_8",
+                    "title": "Discipleship",
+                    "description": "Following Jesus today",
+                    "icon": "🚶",
+                    "color": "green",
+                    "lessons": [
+                        "What is a Disciple?",
+                        "Spiritual Disciplines",
+                        "Prayer Life",
+                        "Sharing Your Faith"
+                    ]
+                },
+                {
+                    "id": "church_history_8",
+                    "title": "Church History",
+                    "description": "Christianity through the ages",
+                    "icon": "⛪",
+                    "color": "purple",
+                    "lessons": [
+                        "Early Church (Acts)",
+                        "Church Fathers",
+                        "Medieval Church",
+                        "Reformation",
+                        "Modern Church"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "apologetics_intro_9",
+                    "title": "Introduction to Apologetics",
+                    "description": "Defending the faith",
+                    "icon": "🛡️",
+                    "color": "navy",
+                    "lessons": [
+                        "Why Apologetics Matters",
+                        "Evidence for God's Existence",
+                        "Reliability of Scripture",
+                        "Resurrection Evidence"
+                    ]
+                },
+                {
+                    "id": "biblical_interpretation_9",
+                    "title": "Biblical Interpretation",
+                    "description": "How to study the Bible",
+                    "icon": "🔍",
+                    "color": "orange",
+                    "lessons": [
+                        "Hermeneutics Basics",
+                        "Literary Context",
+                        "Historical Context",
+                        "Application Principles"
+                    ]
+                },
+                {
+                    "id": "wisdom_literature_9",
+                    "title": "Wisdom Literature",
+                    "description": "Proverbs, Job, Ecclesiastes",
+                    "icon": "💡",
+                    "color": "gold",
+                    "lessons": [
+                        "Book of Proverbs",
+                        "Book of Job (Suffering)",
+                        "Ecclesiastes (Meaning)",
+                        "Song of Solomon"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "pauline_theology_10",
+                    "title": "Pauline Theology",
+                    "description": "Paul's letters in depth",
+                    "icon": "📝",
+                    "color": "blue",
+                    "lessons": [
+                        "Romans (Justification)",
+                        "Corinthians (Church Issues)",
+                        "Galatians and Ephesians",
+                        "Prison Epistles",
+                        "Pastoral Epistles"
+                    ]
+                },
+                {
+                    "id": "christian_ethics_10",
+                    "title": "Christian Ethics",
+                    "description": "Living morally",
+                    "icon": "⚖️",
+                    "color": "purple",
+                    "lessons": [
+                        "Biblical Ethics Framework",
+                        "Sanctity of Life",
+                        "Sexual Ethics",
+                        "Social Justice"
+                    ]
+                },
+                {
+                    "id": "prophecy_eschatology_10",
+                    "title": "Prophecy and Eschatology",
+                    "description": "End times and prophecy",
+                    "icon": "🔮",
+                    "color": "red",
+                    "lessons": [
+                        "Understanding Prophecy",
+                        "Daniel and Revelation",
+                        "Second Coming",
+                        "End Times Views"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "systematic_theology_11",
+                    "title": "Systematic Theology",
+                    "description": "Organized Christian doctrine",
+                    "icon": "📚",
+                    "color": "navy",
+                    "lessons": [
+                        "Bibliology (Scripture)",
+                        "Theology Proper (God)",
+                        "Christology (Christ)",
+                        "Pneumatology (Holy Spirit)",
+                        "Soteriology (Salvation)"
+                    ]
+                },
+                {
+                    "id": "worldview_comparison_11",
+                    "title": "Worldview Comparison",
+                    "description": "Christianity vs other views",
+                    "icon": "🌐",
+                    "color": "teal",
+                    "lessons": [
+                        "Atheism and Materialism",
+                        "Eastern Religions",
+                        "Islam",
+                        "Postmodernism",
+                        "Christian Response"
+                    ]
+                },
+                {
+                    "id": "spiritual_warfare_11",
+                    "title": "Spiritual Warfare",
+                    "description": "The unseen battle",
+                    "icon": "⚔️",
+                    "color": "red",
+                    "lessons": [
+                        "Reality of Spiritual War",
+                        "Armor of God",
+                        "Recognizing Deception",
+                        "Victory in Christ"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "ministry_preparation_12",
+                    "title": "Ministry Preparation",
+                    "description": "Serving in the church",
+                    "icon": "🙌",
+                    "color": "gold",
+                    "lessons": [
+                        "Discovering Your Gifts",
+                        "Teaching and Preaching",
+                        "Pastoral Care",
+                        "Ministry Leadership"
+                    ]
+                },
+                {
+                    "id": "theology_integration_12",
+                    "title": "Theology Integration",
+                    "description": "Faith and all of life",
+                    "icon": "🌟",
+                    "color": "purple",
+                    "lessons": [
+                        "Faith and Science",
+                        "Faith and Culture",
+                        "Vocation as Calling",
+                        "Redemptive Mission"
+                    ]
+                },
+                {
+                    "id": "advanced_apologetics_12",
+                    "title": "Advanced Apologetics",
+                    "description": "Deep defense of faith",
+                    "icon": "🎓",
+                    "color": "navy",
+                    "lessons": [
+                        "Philosophical Arguments",
+                        "Historical Evidence",
+                        "Cultural Apologetics",
+                        "Engaging Skeptics"
+                    ]
+                }
+            ]
         }
     },
 
@@ -3807,6 +4072,270 @@ LESSON_CHAPTERS = {
                         "Admitting You Don't Know",
                         "Celebrating Others",
                         "Staying Grounded"
+                    ]
+                }
+            ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "moral_courage_7",
+                    "title": "Moral Courage",
+                    "description": "Standing for what's right despite pressure",
+                    "icon": "🛡️",
+                    "color": "red",
+                    "lessons": [
+                        "What is Moral Courage?",
+                        "Peer Pressure and Integrity",
+                        "Speaking Up Against Injustice",
+                        "Heroes of Moral Courage",
+                        "When to Take a Stand"
+                    ]
+                },
+                {
+                    "id": "emotional_intelligence_7",
+                    "title": "Emotional Intelligence",
+                    "description": "Understanding and managing emotions",
+                    "icon": "💭",
+                    "color": "teal",
+                    "lessons": [
+                        "Self-Awareness",
+                        "Self-Regulation",
+                        "Empathy and Social Skills",
+                        "Motivation and Resilience"
+                    ]
+                },
+                {
+                    "id": "digital_citizenship_7",
+                    "title": "Digital Citizenship",
+                    "description": "Responsible online behavior",
+                    "icon": "💻",
+                    "color": "blue",
+                    "lessons": [
+                        "Online Etiquette and Respect",
+                        "Digital Footprint",
+                        "Cyberbullying Prevention",
+                        "Privacy and Safety Online"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "ethical_decision_making_8",
+                    "title": "Ethical Decision Making",
+                    "description": "Framework for moral choices",
+                    "icon": "🤔",
+                    "color": "purple",
+                    "lessons": [
+                        "Ethical Frameworks and Principles",
+                        "Analyzing Moral Dilemmas",
+                        "Consequences vs. Principles",
+                        "Personal Values and Ethics",
+                        "Case Studies in Ethics"
+                    ]
+                },
+                {
+                    "id": "global_citizenship_8",
+                    "title": "Global Citizenship",
+                    "description": "Responsibility to the world community",
+                    "icon": "🌍",
+                    "color": "green",
+                    "lessons": [
+                        "Cultural Awareness and Sensitivity",
+                        "Global Issues and Responsibility",
+                        "Human Rights",
+                        "Environmental Stewardship"
+                    ]
+                },
+                {
+                    "id": "conflict_resolution_8",
+                    "title": "Conflict Resolution",
+                    "description": "Peaceful problem-solving skills",
+                    "icon": "🤝",
+                    "color": "orange",
+                    "lessons": [
+                        "Active Listening",
+                        "Negotiation Skills",
+                        "Mediation and Compromise",
+                        "Forgiveness and Reconciliation"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "leadership_character_9",
+                    "title": "Leadership and Character",
+                    "description": "Leading with integrity",
+                    "icon": "👑",
+                    "color": "gold",
+                    "lessons": [
+                        "Servant Leadership",
+                        "Leading by Example",
+                        "Inspiring Others",
+                        "Accountability in Leadership",
+                        "Ethical Leadership Challenges"
+                    ]
+                },
+                {
+                    "id": "social_justice_9",
+                    "title": "Social Justice",
+                    "description": "Advocating for fairness and equality",
+                    "icon": "✊",
+                    "color": "purple",
+                    "lessons": [
+                        "Understanding Social Justice",
+                        "Systemic Inequality",
+                        "Advocacy and Activism",
+                        "Service and Compassion"
+                    ]
+                },
+                {
+                    "id": "personal_responsibility_9",
+                    "title": "Personal Responsibility",
+                    "description": "Taking ownership of choices",
+                    "icon": "📋",
+                    "color": "blue",
+                    "lessons": [
+                        "Accountability for Actions",
+                        "Time Management and Discipline",
+                        "Financial Responsibility",
+                        "Academic Integrity"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "virtue_ethics_10",
+                    "title": "Virtue Ethics",
+                    "description": "Character-based moral philosophy",
+                    "icon": "⭐",
+                    "color": "yellow",
+                    "lessons": [
+                        "Classical Virtues (Courage, Wisdom, Justice, Temperance)",
+                        "Aristotle's Golden Mean",
+                        "Character Development Theory",
+                        "Habits and Virtue Formation",
+                        "Modern Applications"
+                    ]
+                },
+                {
+                    "id": "cultural_competence_10",
+                    "title": "Cultural Competence",
+                    "description": "Navigating diverse perspectives",
+                    "icon": "🌐",
+                    "color": "rainbow",
+                    "lessons": [
+                        "Understanding Cultural Differences",
+                        "Overcoming Bias and Stereotypes",
+                        "Cross-Cultural Communication",
+                        "Celebrating Diversity"
+                    ]
+                },
+                {
+                    "id": "resilience_perseverance_10",
+                    "title": "Resilience and Perseverance",
+                    "description": "Overcoming adversity with strength",
+                    "icon": "💪",
+                    "color": "red",
+                    "lessons": [
+                        "Growth Mindset",
+                        "Coping with Failure",
+                        "Mental Toughness",
+                        "Long-term Goal Setting"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "professional_ethics_11",
+                    "title": "Professional Ethics",
+                    "description": "Workplace integrity and conduct",
+                    "icon": "💼",
+                    "color": "navy",
+                    "lessons": [
+                        "Business Ethics Principles",
+                        "Workplace Integrity",
+                        "Professional Codes of Conduct",
+                        "Ethical Dilemmas in Careers",
+                        "Whistleblowing and Accountability"
+                    ]
+                },
+                {
+                    "id": "civic_engagement_11",
+                    "title": "Civic Engagement",
+                    "description": "Active citizenship and responsibility",
+                    "icon": "🗳️",
+                    "color": "blue",
+                    "lessons": [
+                        "Democratic Participation",
+                        "Community Service",
+                        "Understanding Government Systems",
+                        "Advocacy and Policy Change"
+                    ]
+                },
+                {
+                    "id": "environmental_ethics_11",
+                    "title": "Environmental Ethics",
+                    "description": "Moral responsibility to creation",
+                    "icon": "🌱",
+                    "color": "green",
+                    "lessons": [
+                        "Stewardship of Creation",
+                        "Sustainable Living",
+                        "Conservation Ethics",
+                        "Climate Change Responsibility"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "applied_ethics_12",
+                    "title": "Applied Ethics",
+                    "description": "Real-world ethical challenges",
+                    "icon": "🔬",
+                    "color": "purple",
+                    "lessons": [
+                        "Bioethics and Medical Decisions",
+                        "Technology and AI Ethics",
+                        "Media Ethics and Truth",
+                        "Business and Economic Justice",
+                        "Legal Ethics and Justice Systems"
+                    ]
+                },
+                {
+                    "id": "legacy_impact_12",
+                    "title": "Legacy and Impact",
+                    "description": "Building a life of significance",
+                    "icon": "🏆",
+                    "color": "gold",
+                    "lessons": [
+                        "Defining Your Values and Mission",
+                        "Making a Lasting Impact",
+                        "Mentoring and Influencing Others",
+                        "Character as Legacy"
+                    ]
+                },
+                {
+                    "id": "transition_readiness_12",
+                    "title": "Transition to Adulthood",
+                    "description": "Preparing for life after high school",
+                    "icon": "🎓",
+                    "color": "blue",
+                    "lessons": [
+                        "Personal Finance and Responsibility",
+                        "Healthy Relationships",
+                        "Career and College Ethics",
+                        "Independent Decision Making"
                     ]
                 }
             ]
