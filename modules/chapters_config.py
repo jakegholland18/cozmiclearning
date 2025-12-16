@@ -1355,6 +1355,314 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+
+    "faith_realm": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "gods_love_k",
+                    "title": "God's Love",
+                    "description": "Discover how much God loves you",
+                    "icon": "💖",
+                    "color": "purple",
+                    "lessons": [
+                        "God Made You Special",
+                        "God Loves You Always",
+                        "Jesus is Your Friend",
+                        "Prayer is Talking to God"
+                    ]
+                },
+                {
+                    "id": "bible_stories_k",
+                    "title": "Bible Story Time",
+                    "description": "Learn favorite Bible stories",
+                    "icon": "📖",
+                    "color": "blue",
+                    "lessons": [
+                        "Noah's Ark",
+                        "Baby Moses",
+                        "David and Goliath",
+                        "Jesus Loves Children"
+                    ]
+                },
+                {
+                    "id": "being_kind",
+                    "title": "Being Kind Like Jesus",
+                    "description": "Learn to show love to others",
+                    "icon": "❤️",
+                    "color": "green",
+                    "lessons": [
+                        "Sharing with Others",
+                        "Helping Friends",
+                        "Being Thankful",
+                        "Obeying Parents"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "creation",
+                    "title": "God's Amazing Creation",
+                    "description": "Learn how God created everything",
+                    "icon": "🌍",
+                    "color": "purple",
+                    "lessons": [
+                        "In the Beginning",
+                        "Day and Night",
+                        "Animals and Plants",
+                        "God Made People",
+                        "Rest and Worship"
+                    ]
+                },
+                {
+                    "id": "jesus_birth",
+                    "title": "Jesus Comes to Earth",
+                    "description": "The Christmas story",
+                    "icon": "⭐",
+                    "color": "blue",
+                    "lessons": [
+                        "Mary and the Angel",
+                        "Journey to Bethlehem",
+                        "Jesus is Born",
+                        "Shepherds and Wise Men"
+                    ]
+                },
+                {
+                    "id": "prayer_basics",
+                    "title": "Talking to God",
+                    "description": "Learn how to pray",
+                    "icon": "🙏",
+                    "color": "green",
+                    "lessons": [
+                        "What is Prayer?",
+                        "Thanking God",
+                        "Asking God for Help",
+                        "Praying for Others"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "old_testament_heroes",
+                    "title": "Heroes of Faith",
+                    "description": "Meet brave people who followed God",
+                    "icon": "🦁",
+                    "color": "purple",
+                    "lessons": [
+                        "Abraham's Journey",
+                        "Joseph's Colorful Coat",
+                        "Moses and the Red Sea",
+                        "Joshua and Jericho"
+                    ]
+                },
+                {
+                    "id": "ten_commandments",
+                    "title": "God's Special Rules",
+                    "description": "Learn the Ten Commandments",
+                    "icon": "📜",
+                    "color": "blue",
+                    "lessons": [
+                        "Love God First",
+                        "Honor Your Parents",
+                        "Be Truthful",
+                        "Be Content"
+                    ]
+                },
+                {
+                    "id": "fruits_spirit",
+                    "title": "Fruits of the Spirit",
+                    "description": "Growing good character",
+                    "icon": "🍎",
+                    "color": "green",
+                    "lessons": [
+                        "Love, Joy, Peace",
+                        "Patience and Kindness",
+                        "Goodness and Faithfulness",
+                        "Gentleness and Self-Control"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "jesus_miracles",
+                    "title": "Jesus' Amazing Miracles",
+                    "description": "See Jesus' power and compassion",
+                    "icon": "✨",
+                    "color": "purple",
+                    "lessons": [
+                        "Feeding 5000 People",
+                        "Walking on Water",
+                        "Healing the Sick",
+                        "Calming the Storm",
+                        "Raising Lazarus"
+                    ]
+                },
+                {
+                    "id": "parables",
+                    "title": "Stories Jesus Told",
+                    "description": "Learn from Jesus' parables",
+                    "icon": "🌱",
+                    "color": "blue",
+                    "lessons": [
+                        "The Good Samaritan",
+                        "The Lost Sheep",
+                        "The Prodigal Son",
+                        "The Sower and the Seed"
+                    ]
+                },
+                {
+                    "id": "christian_character",
+                    "title": "Living Like Jesus",
+                    "description": "Following Jesus' example",
+                    "icon": "⭐",
+                    "color": "green",
+                    "lessons": [
+                        "Being Humble",
+                        "Showing Forgiveness",
+                        "Serving Others",
+                        "Speaking Truth"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "life_of_jesus",
+                    "title": "The Life of Jesus",
+                    "description": "Follow Jesus' ministry on Earth",
+                    "icon": "✝️",
+                    "color": "purple",
+                    "lessons": [
+                        "Jesus' Baptism",
+                        "Calling the Disciples",
+                        "Teaching and Healing",
+                        "The Last Supper",
+                        "Crucifixion and Resurrection"
+                    ]
+                },
+                {
+                    "id": "new_testament_stories",
+                    "title": "The Early Church",
+                    "description": "How Christianity spread",
+                    "icon": "📖",
+                    "color": "blue",
+                    "lessons": [
+                        "Pentecost and the Holy Spirit",
+                        "Peter's Ministry",
+                        "Paul's Conversion",
+                        "The Church Grows"
+                    ]
+                },
+                {
+                    "id": "bible_study_skills",
+                    "title": "Studying God's Word",
+                    "description": "Learn to read and understand the Bible",
+                    "icon": "📚",
+                    "color": "green",
+                    "lessons": [
+                        "Parts of the Bible",
+                        "Finding Bible Verses",
+                        "Understanding Context",
+                        "Applying Scripture"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "books_bible",
+                    "title": "Books of the Bible",
+                    "description": "Navigate through Scripture",
+                    "icon": "📚",
+                    "color": "purple",
+                    "lessons": [
+                        "Old Testament Overview",
+                        "The Gospels",
+                        "Acts and Letters",
+                        "Revelation and Prophecy"
+                    ]
+                },
+                {
+                    "id": "gospels_overview",
+                    "title": "The Four Gospels",
+                    "description": "Compare Gospel accounts",
+                    "icon": "✝️",
+                    "color": "blue",
+                    "lessons": [
+                        "Matthew's Gospel",
+                        "Mark's Gospel",
+                        "Luke's Gospel",
+                        "John's Gospel"
+                    ]
+                },
+                {
+                    "id": "worship_praise",
+                    "title": "Worship & Praise",
+                    "description": "Honoring God",
+                    "icon": "🎵",
+                    "color": "green",
+                    "lessons": [
+                        "What is Worship?",
+                        "Psalms of Praise",
+                        "Prayer and Worship",
+                        "Living in Worship"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "bible_timeline",
+                    "title": "Bible Timeline",
+                    "description": "Understanding biblical history",
+                    "icon": "⏳",
+                    "color": "purple",
+                    "lessons": [
+                        "Creation to Abraham",
+                        "Exodus to Judges",
+                        "Kings and Prophets",
+                        "Jesus to Revelation",
+                        "Putting It All Together"
+                    ]
+                },
+                {
+                    "id": "covenant_theology",
+                    "title": "God's Covenants",
+                    "description": "God's promises through history",
+                    "icon": "🤝",
+                    "color": "blue",
+                    "lessons": [
+                        "Covenant with Noah",
+                        "Covenant with Abraham",
+                        "Mosaic Covenant",
+                        "New Covenant in Christ"
+                    ]
+                },
+                {
+                    "id": "christian_worldview",
+                    "title": "Christian Worldview",
+                    "description": "Seeing the world through faith",
+                    "icon": "👁️",
+                    "color": "green",
+                    "lessons": [
+                        "Creation and Purpose",
+                        "Sin and Redemption",
+                        "Truth and Morality",
+                        "Eternal Perspective"
+                    ]
+                }
+            ]
+        }
     }
 }
 
