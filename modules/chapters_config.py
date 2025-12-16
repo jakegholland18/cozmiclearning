@@ -4121,6 +4121,657 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+
+    # ============================================================================
+    # STOCK STAR (STOCK MARKET & INVESTING)
+    # ============================================================================
+
+    "stock_star": {
+        6: {
+            "chapters": [
+                {
+                    "id": "money_basics_stock_6",
+                    "title": "Money and Economics Basics",
+                    "description": "Understanding how money works",
+                    "icon": "💵",
+                    "color": "green",
+                    "lessons": [
+                        "What is Money?",
+                        "Supply and Demand",
+                        "Basic Economics",
+                        "Financial Decisions"
+                    ]
+                },
+                {
+                    "id": "intro_stocks_6",
+                    "title": "Introduction to Stocks",
+                    "description": "What are stocks?",
+                    "icon": "📈",
+                    "color": "blue",
+                    "lessons": [
+                        "What Companies Do",
+                        "Owning a Piece of a Company",
+                        "Stock Market Basics",
+                        "Famous Companies"
+                    ]
+                }
+            ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "stock_market_101_7",
+                    "title": "Stock Market 101",
+                    "description": "How the market works",
+                    "icon": "🏛️",
+                    "color": "navy",
+                    "lessons": [
+                        "NYSE and NASDAQ",
+                        "Bull vs Bear Markets",
+                        "Stock Prices",
+                        "Market Hours"
+                    ]
+                },
+                {
+                    "id": "reading_stocks_7",
+                    "title": "Reading Stock Information",
+                    "description": "Understanding stock symbols and prices",
+                    "icon": "📊",
+                    "color": "teal",
+                    "lessons": [
+                        "Ticker Symbols",
+                        "Stock Charts",
+                        "Market Cap",
+                        "Dividends Intro"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "investment_basics_8",
+                    "title": "Investment Basics",
+                    "description": "Starting to invest",
+                    "icon": "💰",
+                    "color": "gold",
+                    "lessons": [
+                        "Why People Invest",
+                        "Risk vs Reward",
+                        "Diversification",
+                        "Long-term vs Short-term"
+                    ]
+                },
+                {
+                    "id": "stock_analysis_intro_8",
+                    "title": "Stock Analysis Introduction",
+                    "description": "Evaluating companies",
+                    "icon": "🔍",
+                    "color": "purple",
+                    "lessons": [
+                        "Company Research",
+                        "Financial Statements Basics",
+                        "PE Ratio Introduction",
+                        "Good vs Bad Investments"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "portfolio_building_9",
+                    "title": "Building a Portfolio",
+                    "description": "Creating balanced investments",
+                    "icon": "📁",
+                    "color": "blue",
+                    "lessons": [
+                        "Asset Allocation",
+                        "Stocks vs Bonds",
+                        "Index Funds",
+                        "Portfolio Rebalancing"
+                    ]
+                },
+                {
+                    "id": "market_trends_9",
+                    "title": "Market Trends",
+                    "description": "Understanding market movements",
+                    "icon": "📉",
+                    "color": "red",
+                    "lessons": [
+                        "Technical Analysis Basics",
+                        "Chart Patterns",
+                        "Moving Averages",
+                        "Volume and Momentum"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "fundamental_analysis_10",
+                    "title": "Fundamental Analysis",
+                    "description": "Deep company evaluation",
+                    "icon": "📑",
+                    "color": "navy",
+                    "lessons": [
+                        "Balance Sheets",
+                        "Income Statements",
+                        "Cash Flow",
+                        "Financial Ratios"
+                    ]
+                },
+                {
+                    "id": "investment_strategies_10",
+                    "title": "Investment Strategies",
+                    "description": "Different approaches",
+                    "icon": "🎯",
+                    "color": "orange",
+                    "lessons": [
+                        "Value Investing",
+                        "Growth Investing",
+                        "Dividend Investing",
+                        "Dollar-Cost Averaging"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "advanced_investing_11",
+                    "title": "Advanced Investing",
+                    "description": "Complex investment topics",
+                    "icon": "🚀",
+                    "color": "purple",
+                    "lessons": [
+                        "Options Basics",
+                        "ETFs and Mutual Funds",
+                        "Real Estate Investment Trusts",
+                        "Alternative Investments"
+                    ]
+                },
+                {
+                    "id": "market_psychology_11",
+                    "title": "Market Psychology",
+                    "description": "Emotions and investing",
+                    "icon": "🧠",
+                    "color": "pink",
+                    "lessons": [
+                        "Investor Behavior",
+                        "Fear and Greed",
+                        "Market Bubbles",
+                        "Avoiding Common Mistakes"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "retirement_planning_12",
+                    "title": "Retirement Planning",
+                    "description": "Long-term financial planning",
+                    "icon": "🏖️",
+                    "color": "gold",
+                    "lessons": [
+                        "401(k) and IRA",
+                        "Compound Interest Power",
+                        "Retirement Calculators",
+                        "Tax-Advantaged Accounts"
+                    ]
+                },
+                {
+                    "id": "financial_independence_12",
+                    "title": "Financial Independence",
+                    "description": "Building wealth",
+                    "icon": "💎",
+                    "color": "green",
+                    "lessons": [
+                        "Passive Income Streams",
+                        "FIRE Movement",
+                        "Wealth Building Principles",
+                        "Financial Freedom Goals"
+                    ]
+                }
+            ]
+        }
+    },
+
+    # ============================================================================
+    # POWER GRID (LIFE SKILLS)
+    # ============================================================================
+
+    "power_grid": {
+        6: {
+            "chapters": [
+                {
+                    "id": "time_management_6",
+                    "title": "Time Management",
+                    "description": "Using time wisely",
+                    "icon": "⏰",
+                    "color": "blue",
+                    "lessons": [
+                        "Planning Your Day",
+                        "Prioritizing Tasks",
+                        "Avoiding Procrastination",
+                        "Balancing School and Fun"
+                    ]
+                },
+                {
+                    "id": "study_skills_6",
+                    "title": "Study Skills",
+                    "description": "Learning how to learn",
+                    "icon": "📚",
+                    "color": "purple",
+                    "lessons": [
+                        "Taking Good Notes",
+                        "Active Reading",
+                        "Test Preparation",
+                        "Memory Techniques"
+                    ]
+                }
+            ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "organization_7",
+                    "title": "Organization Skills",
+                    "description": "Staying organized",
+                    "icon": "📋",
+                    "color": "green",
+                    "lessons": [
+                        "Organizing Your Space",
+                        "Digital Organization",
+                        "School Supplies Management",
+                        "Creating Systems"
+                    ]
+                },
+                {
+                    "id": "goal_setting_7",
+                    "title": "Goal Setting",
+                    "description": "Planning for success",
+                    "icon": "🎯",
+                    "color": "orange",
+                    "lessons": [
+                        "SMART Goals",
+                        "Short vs Long Term Goals",
+                        "Action Planning",
+                        "Tracking Progress"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "communication_8",
+                    "title": "Communication Skills",
+                    "description": "Expressing yourself effectively",
+                    "icon": "💬",
+                    "color": "teal",
+                    "lessons": [
+                        "Active Listening",
+                        "Clear Speaking",
+                        "Written Communication",
+                        "Nonverbal Communication"
+                    ]
+                },
+                {
+                    "id": "conflict_resolution_8",
+                    "title": "Conflict Resolution",
+                    "description": "Handling disagreements",
+                    "icon": "🤝",
+                    "color": "blue",
+                    "lessons": [
+                        "Understanding Conflict",
+                        "Negotiation Skills",
+                        "Compromise",
+                        "Mediation Basics"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "financial_literacy_9",
+                    "title": "Financial Literacy",
+                    "description": "Managing personal finances",
+                    "icon": "💰",
+                    "color": "green",
+                    "lessons": [
+                        "Creating a Budget",
+                        "Banking Basics",
+                        "Credit Cards",
+                        "Avoiding Debt"
+                    ]
+                },
+                {
+                    "id": "decision_making_9",
+                    "title": "Decision Making",
+                    "description": "Making wise choices",
+                    "icon": "🧭",
+                    "color": "navy",
+                    "lessons": [
+                        "Problem Solving Process",
+                        "Weighing Options",
+                        "Consequences Analysis",
+                        "Learning from Mistakes"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "career_exploration_10",
+                    "title": "Career Exploration",
+                    "description": "Finding your path",
+                    "icon": "💼",
+                    "color": "purple",
+                    "lessons": [
+                        "Interests and Strengths",
+                        "Career Research",
+                        "Job Shadowing",
+                        "Internships and Volunteering"
+                    ]
+                },
+                {
+                    "id": "digital_citizenship_10",
+                    "title": "Digital Citizenship",
+                    "description": "Online responsibility",
+                    "icon": "💻",
+                    "color": "blue",
+                    "lessons": [
+                        "Online Safety",
+                        "Digital Footprint",
+                        "Social Media Etiquette",
+                        "Cyberbullying Prevention"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "college_prep_11",
+                    "title": "College Preparation",
+                    "description": "Getting ready for college",
+                    "icon": "🎓",
+                    "color": "gold",
+                    "lessons": [
+                        "College Research",
+                        "Application Process",
+                        "Financial Aid and Scholarships",
+                        "SAT/ACT Prep Strategies"
+                    ]
+                },
+                {
+                    "id": "health_wellness_11",
+                    "title": "Health and Wellness",
+                    "description": "Taking care of yourself",
+                    "icon": "🏃",
+                    "color": "red",
+                    "lessons": [
+                        "Nutrition Basics",
+                        "Exercise and Fitness",
+                        "Mental Health",
+                        "Stress Management"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "life_transitions_12",
+                    "title": "Life Transitions",
+                    "description": "Preparing for adulthood",
+                    "icon": "🚪",
+                    "color": "teal",
+                    "lessons": [
+                        "Moving Out",
+                        "Living Independently",
+                        "Roommate Skills",
+                        "Home Maintenance Basics"
+                    ]
+                },
+                {
+                    "id": "professional_skills_12",
+                    "title": "Professional Skills",
+                    "description": "Entering the workforce",
+                    "icon": "👔",
+                    "color": "navy",
+                    "lessons": [
+                        "Resume Writing",
+                        "Interview Skills",
+                        "Networking",
+                        "Workplace Etiquette"
+                    ]
+                }
+            ]
+        }
+    },
+
+    # ============================================================================
+    # TRUTH FORGE (CRITICAL THINKING)
+    # ============================================================================
+
+    "truth_forge": {
+        6: {
+            "chapters": [
+                {
+                    "id": "asking_questions_6",
+                    "title": "Asking Good Questions",
+                    "description": "Curiosity and inquiry",
+                    "icon": "❓",
+                    "color": "purple",
+                    "lessons": [
+                        "Why Questions Matter",
+                        "Open vs Closed Questions",
+                        "Socratic Method Intro",
+                        "Research Questions"
+                    ]
+                },
+                {
+                    "id": "fact_vs_opinion_6",
+                    "title": "Fact vs Opinion",
+                    "description": "Distinguishing truth from belief",
+                    "icon": "🔍",
+                    "color": "blue",
+                    "lessons": [
+                        "What is a Fact?",
+                        "What is an Opinion?",
+                        "Identifying Each",
+                        "Supporting Opinions with Facts"
+                    ]
+                }
+            ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "logical_thinking_7",
+                    "title": "Logical Thinking",
+                    "description": "Reasoning skills",
+                    "icon": "🧩",
+                    "color": "green",
+                    "lessons": [
+                        "Deductive Reasoning",
+                        "Inductive Reasoning",
+                        "Cause and Effect",
+                        "Logical Fallacies Intro"
+                    ]
+                },
+                {
+                    "id": "source_evaluation_7",
+                    "title": "Evaluating Sources",
+                    "description": "Finding reliable information",
+                    "icon": "📚",
+                    "color": "orange",
+                    "lessons": [
+                        "Credible vs Non-credible",
+                        "Author Expertise",
+                        "Publication Dates",
+                        "Bias Detection"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "argument_analysis_8",
+                    "title": "Argument Analysis",
+                    "description": "Breaking down arguments",
+                    "icon": "⚖️",
+                    "color": "navy",
+                    "lessons": [
+                        "Claims and Evidence",
+                        "Strong vs Weak Arguments",
+                        "Assumptions",
+                        "Counterarguments"
+                    ]
+                },
+                {
+                    "id": "media_literacy_8",
+                    "title": "Media Literacy",
+                    "description": "Understanding media messages",
+                    "icon": "📺",
+                    "color": "red",
+                    "lessons": [
+                        "Media Types",
+                        "Persuasive Techniques",
+                        "Advertising Tactics",
+                        "Propaganda Recognition"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "scientific_thinking_9",
+                    "title": "Scientific Thinking",
+                    "description": "The scientific method",
+                    "icon": "🔬",
+                    "color": "teal",
+                    "lessons": [
+                        "Hypothesis Formation",
+                        "Experimental Design",
+                        "Correlation vs Causation",
+                        "Peer Review"
+                    ]
+                },
+                {
+                    "id": "cognitive_biases_9",
+                    "title": "Cognitive Biases",
+                    "description": "How our minds trick us",
+                    "icon": "🧠",
+                    "color": "pink",
+                    "lessons": [
+                        "Confirmation Bias",
+                        "Availability Heuristic",
+                        "Anchoring Effect",
+                        "Overcoming Biases"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "formal_logic_10",
+                    "title": "Formal Logic",
+                    "description": "Symbolic logic",
+                    "icon": "∴",
+                    "color": "purple",
+                    "lessons": [
+                        "Syllogisms",
+                        "Valid vs Sound Arguments",
+                        "Truth Tables",
+                        "Symbolic Notation"
+                    ]
+                },
+                {
+                    "id": "fallacies_deep_10",
+                    "title": "Logical Fallacies Deep Dive",
+                    "description": "Common reasoning errors",
+                    "icon": "🚫",
+                    "color": "red",
+                    "lessons": [
+                        "Ad Hominem",
+                        "Straw Man",
+                        "Slippery Slope",
+                        "False Dilemma"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "epistemology_11",
+                    "title": "Epistemology",
+                    "description": "Theory of knowledge",
+                    "icon": "💡",
+                    "color": "gold",
+                    "lessons": [
+                        "What Can We Know?",
+                        "Empiricism vs Rationalism",
+                        "Skepticism",
+                        "Justified True Belief"
+                    ]
+                },
+                {
+                    "id": "ethical_reasoning_11",
+                    "title": "Ethical Reasoning",
+                    "description": "Moral philosophy",
+                    "icon": "⚖️",
+                    "color": "blue",
+                    "lessons": [
+                        "Utilitarianism",
+                        "Deontological Ethics",
+                        "Virtue Ethics",
+                        "Moral Dilemmas"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "advanced_argumentation_12",
+                    "title": "Advanced Argumentation",
+                    "description": "Sophisticated reasoning",
+                    "icon": "🎓",
+                    "color": "navy",
+                    "lessons": [
+                        "Rhetorical Analysis",
+                        "Toulmin Method",
+                        "Rogerian Argument",
+                        "Classical Oration"
+                    ]
+                },
+                {
+                    "id": "metacognition_12",
+                    "title": "Metacognition",
+                    "description": "Thinking about thinking",
+                    "icon": "🤔",
+                    "color": "purple",
+                    "lessons": [
+                        "Self-Reflection",
+                        "Learning Strategies",
+                        "Intellectual Humility",
+                        "Lifelong Learning"
+                    ]
+                }
+            ]
+        }
     }
 }
 
