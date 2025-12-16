@@ -9836,6 +9836,7 @@ def view_lesson():
     subject = request.args.get("subject")
     grade = request.args.get("grade")
     topic = request.args.get("topic")
+    chapter_id = request.args.get("chapter")  # Optional chapter context
 
     # Validate
     if not validate_subject(subject) or not topic:
@@ -9844,11 +9845,39 @@ def view_lesson():
 
     grade = str(validate_grade(grade))
 
+    # Build chapter context if coming from a chapter
+    chapter_context = None
+    if chapter_id:
+        from modules.student_lessons import get_chapter_by_id
+        chapter = get_chapter_by_id(subject, int(grade), chapter_id)
+
+        if chapter:
+            lessons = chapter.get("lessons", [])
+            try:
+                lesson_index = lessons.index(topic)
+                chapter_context = {
+                    "chapter_title": chapter.get("title"),
+                    "chapter_description": chapter.get("description"),
+                    "lesson_number": lesson_index + 1,
+                    "total_lessons": len(lessons),
+                    "previous_lessons": lessons[:lesson_index] if lesson_index > 0 else []
+                }
+            except ValueError:
+                # Topic not in this chapter's lessons
+                pass
+
     # Generate the lesson
     from modules.student_lessons import generate_student_lesson
     character = session.get("character", "nova")
 
-    result = generate_student_lesson(subject, int(grade), topic, character)
+    result = generate_student_lesson(
+        subject,
+        int(grade),
+        topic,
+        character,
+        chapter_id=chapter_id,
+        chapter_context=chapter_context
+    )
 
     if not result.get("success"):
         flash(f"Error generating lesson: {result.get('error', 'Unknown error')}", "error")
@@ -9865,7 +9894,9 @@ def view_lesson():
         grade=grade,
         subject_config=subject_config,
         lesson=result["lesson"],
-        character=character
+        character=character,
+        chapter_id=chapter_id,
+        chapter=chapter if chapter_id else None
     )
 
 

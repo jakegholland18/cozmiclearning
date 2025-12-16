@@ -322,7 +322,9 @@ def generate_student_lesson(
     subject: str,
     grade: int,
     topic: str,
-    character: str = "everly"
+    character: str = "everly",
+    chapter_id: str = None,
+    chapter_context: Dict = None
 ) -> Dict:
     """
     Generate an engaging, interactive lesson for a student.
@@ -332,6 +334,8 @@ def generate_student_lesson(
         grade: Grade level (1-12)
         topic: Lesson topic/title
         character: AI mentor character
+        chapter_id: Optional chapter ID for context
+        chapter_context: Optional dict with chapter title, description, and lesson position
 
     Returns:
         Dictionary containing lesson content and structure
@@ -354,10 +358,33 @@ def generate_student_lesson(
 
     client = get_client()
 
+    # Build chapter context string if provided
+    chapter_info = ""
+    if chapter_context:
+        chapter_title = chapter_context.get("chapter_title", "")
+        chapter_desc = chapter_context.get("chapter_description", "")
+        lesson_number = chapter_context.get("lesson_number", 1)
+        total_lessons = chapter_context.get("total_lessons", 1)
+        previous_lessons = chapter_context.get("previous_lessons", [])
+
+        chapter_info = f"""
+CHAPTER CONTEXT:
+- This lesson is part of the chapter: "{chapter_title}"
+- Chapter goal: {chapter_desc}
+- This is lesson {lesson_number} of {total_lessons} in this chapter
+"""
+        if previous_lessons:
+            chapter_info += f"- Previous lessons in this chapter: {', '.join(previous_lessons)}\n"
+
+        chapter_info += """
+IMPORTANT: Build on the chapter's overall theme and connect this lesson to the chapter's learning progression.
+Make sure content is appropriate for lesson {lesson_number} in this sequence.
+"""
+
     prompt = f"""You are {character.title()}, a {character_style}, teaching a Grade {grade} student.
 
 Create an engaging, interactive lesson on "{topic}" for {subject_name}.
-
+{chapter_info}
 IMPORTANT GUIDELINES:
 - Make it FUN and ENGAGING (use stories, examples, analogies)
 - Grade {grade} appropriate language and complexity
@@ -365,6 +392,7 @@ IMPORTANT GUIDELINES:
 - Include real-world examples students can relate to
 - Use encouraging, supportive tone
 - End with thought-provoking questions for discussion
+{"- Connect to the chapter theme and build on previous lessons" if chapter_info else ""}
 
 Generate the lesson in this EXACT JSON format (valid JSON only, no markdown):
 
