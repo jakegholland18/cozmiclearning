@@ -2847,6 +2847,264 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "literature_analysis_7",
+                    "title": "Literature Analysis",
+                    "description": "Reading critically",
+                    "icon": "📚",
+                    "color": "purple",
+                    "lessons": [
+                        "Theme and Central Ideas",
+                        "Character Development",
+                        "Plot Structure and Conflict",
+                        "Setting and Mood"
+                    ]
+                },
+                {
+                    "id": "informative_writing_7",
+                    "title": "Informative Writing",
+                    "description": "Explaining and teaching",
+                    "icon": "📝",
+                    "color": "blue",
+                    "lessons": [
+                        "Thesis Statements",
+                        "Organizing Information",
+                        "Using Evidence",
+                        "Conclusions That Synthesize"
+                    ]
+                },
+                {
+                    "id": "grammar_usage_7",
+                    "title": "Grammar and Usage",
+                    "description": "Refining language skills",
+                    "icon": "✍️",
+                    "color": "green",
+                    "lessons": [
+                        "Sentence Variety",
+                        "Modifier Placement",
+                        "Pronoun-Antecedent Agreement",
+                        "Commonly Confused Words"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "argument_writing_8",
+                    "title": "Argument Writing",
+                    "description": "Making persuasive claims",
+                    "icon": "⚖️",
+                    "color": "red",
+                    "lessons": [
+                        "Claims and Evidence",
+                        "Reasoning and Logic",
+                        "Counterarguments",
+                        "Persuasive Appeals (Ethos, Pathos, Logos)"
+                    ]
+                },
+                {
+                    "id": "literary_devices_8",
+                    "title": "Literary Devices",
+                    "description": "Tools authors use",
+                    "icon": "🎭",
+                    "color": "orange",
+                    "lessons": [
+                        "Symbolism and Allegory",
+                        "Irony and Satire",
+                        "Foreshadowing and Flashback",
+                        "Tone and Voice"
+                    ]
+                },
+                {
+                    "id": "research_skills_8",
+                    "title": "Research Skills",
+                    "description": "Finding and using sources",
+                    "icon": "🔍",
+                    "color": "teal",
+                    "lessons": [
+                        "Evaluating Sources",
+                        "Taking Research Notes",
+                        "MLA Citations",
+                        "Avoiding Plagiarism"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "literary_genres_9",
+                    "title": "Literary Genres",
+                    "description": "Exploring different forms",
+                    "icon": "📖",
+                    "color": "purple",
+                    "lessons": [
+                        "Fiction vs. Nonfiction",
+                        "Drama and Theater",
+                        "Poetry Forms",
+                        "Short Stories and Novels"
+                    ]
+                },
+                {
+                    "id": "rhetoric_analysis_9",
+                    "title": "Rhetorical Analysis",
+                    "description": "Analyzing persuasive texts",
+                    "icon": "💬",
+                    "color": "blue",
+                    "lessons": [
+                        "Rhetorical Situation",
+                        "Appeals and Strategies",
+                        "Analyzing Speeches",
+                        "Visual Rhetoric"
+                    ]
+                },
+                {
+                    "id": "essay_writing_9",
+                    "title": "Essay Writing",
+                    "description": "Crafting academic essays",
+                    "icon": "📄",
+                    "color": "green",
+                    "lessons": [
+                        "Essay Structure",
+                        "Introductions and Hooks",
+                        "Body Paragraph Development",
+                        "Strong Conclusions"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "world_literature_10",
+                    "title": "World Literature",
+                    "description": "Global perspectives",
+                    "icon": "🌍",
+                    "color": "teal",
+                    "lessons": [
+                        "Greek and Roman Classics",
+                        "Eastern Literature",
+                        "European Literature",
+                        "Latin American Voices"
+                    ]
+                },
+                {
+                    "id": "critical_reading_10",
+                    "title": "Critical Reading",
+                    "description": "Deep analysis skills",
+                    "icon": "🔬",
+                    "color": "purple",
+                    "lessons": [
+                        "Close Reading Techniques",
+                        "Textual Evidence",
+                        "Interpreting Meaning",
+                        "Literary Criticism"
+                    ]
+                },
+                {
+                    "id": "advanced_composition_10",
+                    "title": "Advanced Composition",
+                    "description": "Sophisticated writing",
+                    "icon": "✒️",
+                    "color": "navy",
+                    "lessons": [
+                        "Style and Diction",
+                        "Syntax Variation",
+                        "Coherence and Flow",
+                        "Editing and Revision"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "american_literature_11",
+                    "title": "American Literature",
+                    "description": "US literary tradition",
+                    "icon": "🇺🇸",
+                    "color": "red",
+                    "lessons": [
+                        "Colonial and Revolutionary Period",
+                        "Romanticism and Transcendentalism",
+                        "Realism and Naturalism",
+                        "Modernism and Postmodernism"
+                    ]
+                },
+                {
+                    "id": "argument_synthesis_11",
+                    "title": "Argument and Synthesis",
+                    "description": "Complex argumentation",
+                    "icon": "🧩",
+                    "color": "orange",
+                    "lessons": [
+                        "Synthesizing Multiple Sources",
+                        "Complex Thesis Statements",
+                        "Sophisticated Evidence",
+                        "Nuanced Arguments"
+                    ]
+                },
+                {
+                    "id": "literary_movements_11",
+                    "title": "Literary Movements",
+                    "description": "Historical contexts",
+                    "icon": "📚",
+                    "color": "brown",
+                    "lessons": [
+                        "Historical Context",
+                        "Social and Cultural Influences",
+                        "Author Biography and Work",
+                        "Comparative Analysis"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "ap_literature_12",
+                    "title": "AP Literature",
+                    "description": "College-level analysis",
+                    "icon": "🎓",
+                    "color": "gold",
+                    "lessons": [
+                        "Poetry Analysis",
+                        "Prose Analysis",
+                        "Free Response Essays",
+                        "Literary Argumentation"
+                    ]
+                },
+                {
+                    "id": "college_writing_12",
+                    "title": "College Writing",
+                    "description": "Academic preparation",
+                    "icon": "🏛️",
+                    "color": "blue",
+                    "lessons": [
+                        "Research Papers",
+                        "Academic Voice",
+                        "Advanced Citations (MLA, APA)",
+                        "Peer Review Process"
+                    ]
+                },
+                {
+                    "id": "contemporary_literature_12",
+                    "title": "Contemporary Literature",
+                    "description": "Modern voices",
+                    "icon": "📱",
+                    "color": "purple",
+                    "lessons": [
+                        "21st Century Themes",
+                        "Diverse Voices",
+                        "Genre Bending",
+                        "Digital Literature"
+                    ]
+                }
+            ]
         }
     },
 
