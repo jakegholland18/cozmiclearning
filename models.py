@@ -1027,3 +1027,143 @@ db.Index('idx_student_chapter_badge_student_id', StudentChapterBadge.student_id)
 db.Index('idx_student_chapter_badge_badge_id', StudentChapterBadge.badge_id)
 
 
+# ============================================================
+# ASYNCHRONOUS MULTIPLAYER MODELS
+# ============================================================
+
+class AsyncChallenge(db.Model):
+    """
+    Asynchronous multiplayer challenges.
+    Challenger plays first, friends attempt later with same questions.
+    """
+    __tablename__ = 'async_challenges'
+
+    id = db.Column(db.Integer, primary_key=True)
+    challenger_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    game_key = db.Column(db.String(100), nullable=False)  # Which game
+    difficulty = db.Column(db.String(20), nullable=False)  # easy/medium/hard
+    questions_json = db.Column(db.Text, nullable=False)  # Exact questions as JSON
+    challenger_score = db.Column(db.Integer, nullable=False)
+    challenger_time = db.Column(db.Float, nullable=False)  # Time in seconds
+    expires_at = db.Column(db.DateTime, nullable=False)  # 24-48 hour expiry
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(db.String(20), default='active')  # active, completed, expired
+
+    # Relationships
+    challenger = db.relationship('Student', backref='challenges_created')
+    participants = db.relationship('ChallengeParticipant', backref='challenge', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<AsyncChallenge {self.id} by student {self.challenger_id}>'
+
+
+class ChallengeParticipant(db.Model):
+    """
+    Tracks who's been challenged and their results
+    """
+    __tablename__ = 'challenge_participants'
+
+    id = db.Column(db.Integer, primary_key=True)
+    challenge_id = db.Column(db.Integer, db.ForeignKey('async_challenges.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    score = db.Column(db.Integer)  # NULL until they complete
+    time_taken = db.Column(db.Float)  # Time in seconds
+    completed = db.Column(db.Boolean, default=False)
+    completed_at = db.Column(db.DateTime)
+    viewed = db.Column(db.Boolean, default=False)  # Have they seen the challenge?
+    viewed_at = db.Column(db.DateTime)
+
+    # Relationships
+    student = db.relationship('Student', backref='challenges_received')
+
+    def __repr__(self):
+        return f'<ChallengeParticipant student={self.student_id} challenge={self.challenge_id}>'
+
+
+class ArcadeTeam(db.Model):
+    """
+    Teams for team battles (2v2, 3v3, etc.)
+    """
+    __tablename__ = 'arcade_teams'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    team_code = db.Column(db.String(10), unique=True, nullable=False)  # Join code
+    captain_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    team_type = db.Column(db.String(50), default='custom')  # family, coop, classroom, custom
+    max_members = db.Column(db.Integer, default=4)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    active = db.Column(db.Boolean, default=True)
+
+    # Relationships
+    captain = db.relationship('Student', backref='teams_led')
+    members = db.relationship('TeamMember', backref='team', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<ArcadeTeam {self.name}>'
+
+
+class TeamMember(db.Model):
+    """
+    Members of arcade teams
+    """
+    __tablename__ = 'team_members'
+
+    id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('arcade_teams.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    role = db.Column(db.String(20), default='member')  # captain, member
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    student = db.relationship('Student', backref='team_memberships')
+
+    def __repr__(self):
+        return f'<TeamMember student={self.student_id} team={self.team_id}>'
+
+
+class TeamMatch(db.Model):
+    """
+    Team vs Team battles
+    """
+    __tablename__ = 'team_matches'
+
+    id = db.Column(db.Integer, primary_key=True)
+    team_a_id = db.Column(db.Integer, db.ForeignKey('arcade_teams.id'), nullable=False)
+    team_b_id = db.Column(db.Integer, db.ForeignKey('arcade_teams.id'), nullable=False)
+    game_key = db.Column(db.String(100), nullable=False)
+    difficulty = db.Column(db.String(20), nullable=False)
+    team_a_score = db.Column(db.Integer, default=0)
+    team_b_score = db.Column(db.Integer, default=0)
+    winner_team_id = db.Column(db.Integer, db.ForeignKey('arcade_teams.id'))
+    match_status = db.Column(db.String(20), default='waiting')  # waiting, active, completed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    completed_at = db.Column(db.DateTime)
+
+    # Relationships
+    team_a = db.relationship('ArcadeTeam', foreign_keys=[team_a_id])
+    team_b = db.relationship('ArcadeTeam', foreign_keys=[team_b_id])
+    winner_team = db.relationship('ArcadeTeam', foreign_keys=[winner_team_id])
+
+    def __repr__(self):
+        return f'<TeamMatch {self.team_a_id} vs {self.team_b_id}>'
+
+
+# Indexes for async multiplayer
+db.Index('idx_async_challenge_challenger', AsyncChallenge.challenger_id)
+db.Index('idx_async_challenge_status', AsyncChallenge.status)
+db.Index('idx_async_challenge_expires', AsyncChallenge.expires_at)
+
+db.Index('idx_challenge_participant_student', ChallengeParticipant.student_id)
+db.Index('idx_challenge_participant_challenge', ChallengeParticipant.challenge_id)
+db.Index('idx_challenge_participant_completed', ChallengeParticipant.completed)
+
+db.Index('idx_arcade_team_code', ArcadeTeam.team_code)
+db.Index('idx_arcade_team_captain', ArcadeTeam.captain_id)
+
+db.Index('idx_team_member_student', TeamMember.student_id)
+db.Index('idx_team_member_team', TeamMember.team_id)
+
+db.Index('idx_team_match_status', TeamMatch.match_status)
+
+

@@ -3,7 +3,8 @@ Arcade Mode - Learning Games & Competitions
 Generates interactive games for students across all subjects
 
 UPDATED: December 2024
-- Added 4 new games (16 total including Bible Trivia)
+- Added 10 new games (26 total games across all subjects)
+- New categories: Geography (4), Financial Literacy (2), Character Education (2), Critical Thinking (2)
 - Implemented 3-tier difficulty system (Easy/Medium/Hard)
 - Replaced grade-level system with difficulty tiers
 """
@@ -52,7 +53,7 @@ def is_duplicate_question(question, seen_questions):
 
 
 # ============================================================
-# GAME CATALOG - 16 GAMES TOTAL (Phase 1+2 + Bible Trivia)
+# GAME CATALOG - 26 GAMES TOTAL
 # ============================================================
 
 ARCADE_GAMES = [
@@ -197,6 +198,104 @@ ARCADE_GAMES = [
         "description": "Test your knowledge of Bible stories and verses",
         "subject": "bible",
         "icon": "✝️",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== NEW MAPVERSE GEOGRAPHY GAMES (4 total) ==========
+    {
+        "game_key": "country_spotter",
+        "name": "Country Spotter 🌎",
+        "description": "Identify countries by their outline and shape",
+        "subject": "geography",
+        "icon": "🌎",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "capital_quest",
+        "name": "Capital Quest 🏛️",
+        "description": "Match countries to their capitals in a race against time",
+        "subject": "geography",
+        "icon": "🏛️",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "flag_frenzy",
+        "name": "Flag Frenzy 🚩",
+        "description": "Identify countries by their flags",
+        "subject": "geography",
+        "icon": "🚩",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "landmark_locator",
+        "name": "Landmark Locator 🗼",
+        "description": "Match famous landmarks to countries and cities",
+        "subject": "geography",
+        "icon": "🗼",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== FINANCIAL LITERACY GAMES (2 total) ==========
+    {
+        "game_key": "money_marathon",
+        "name": "Money Marathon 💰",
+        "description": "Make smart financial decisions under time pressure",
+        "subject": "money",
+        "icon": "💰",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "investment_simulator",
+        "name": "Investment Simulator 📈",
+        "description": "Build your portfolio and watch your wealth grow",
+        "subject": "investing",
+        "icon": "📈",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== CHARACTER EDUCATION GAMES (2 total) ==========
+    {
+        "game_key": "etiquette_expert",
+        "name": "Etiquette Expert 🎩",
+        "description": "Choose the polite and respectful response in social situations",
+        "subject": "manners",
+        "icon": "🎩",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "virtue_quest",
+        "name": "Virtue Quest ⚔️",
+        "description": "Identify virtues and character traits in action",
+        "subject": "manners",
+        "icon": "⚔️",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+
+    # ========== CRITICAL THINKING GAMES (2 total) ==========
+    {
+        "game_key": "logic_lock",
+        "name": "Logic Lock 🧩",
+        "description": "Spot logical fallacies and test your reasoning skills",
+        "subject": "apologetics",
+        "icon": "🧩",
+        "difficulties": ["easy", "medium", "hard"],
+        "is_new": True
+    },
+    {
+        "game_key": "worldview_warriors",
+        "name": "Worldview Warriors 🛡️",
+        "description": "Compare worldviews and defend biblical truth",
+        "subject": "apologetics",
+        "icon": "🛡️",
         "difficulties": ["easy", "medium", "hard"],
         "is_new": True
     },

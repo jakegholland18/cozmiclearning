@@ -32,7 +32,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "science_helper",
         "handler_function": "explain_science",
-        "features": ["practice", "deep_study", "chat"],
+        "features": ["practice", "deep_study", "arcade", "chat"],
         "order": 3,
     },
     "ink_haven": {
@@ -47,7 +47,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "writing_helper",
         "handler_function": "help_write",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 5,
     },
     "faith_realm": {
@@ -62,7 +62,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "bible_helper",
         "handler_function": "bible_lesson",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 6,
     },
     "chrono_core": {
@@ -77,7 +77,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "history_helper",
         "handler_function": "explain_history",
-        "features": ["practice", "deep_study", "chat"],
+        "features": ["practice", "deep_study", "arcade", "chat"],
         "order": 1,
     },
     "story_verse": {
@@ -92,7 +92,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "text_helper",
         "handler_function": "explain_text",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 4,
     },
     "coin_quest": {
@@ -107,7 +107,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "money_helper",
         "handler_function": "explain_money",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 7,
     },
     "stock_star": {
@@ -122,7 +122,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "investment_helper",
         "handler_function": "explain_investing",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 8,
     },
     "truth_forge": {
@@ -137,7 +137,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "apologetics_helper",
         "handler_function": "apologetics_answer",
-        "features": ["chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 11,
     },
     "terra_nova": {
@@ -152,7 +152,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "geography_helper",
         "handler_function": "explain_geography",
-        "features": ["practice", "deep_study", "chat"],
+        "features": ["practice", "deep_study", "arcade", "chat"],
         "order": 9,
     },
     "power_grid": {
@@ -182,7 +182,7 @@ SUBJECTS = {
         "max_grade": 12,
         "handler_module": "manners_helper",
         "handler_function": "teach_manners",
-        "features": ["practice", "chat"],
+        "features": ["practice", "arcade", "chat"],
         "order": 12,
     },
 }
