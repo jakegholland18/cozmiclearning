@@ -4649,6 +4649,270 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "world_regions_intro_7",
+                    "title": "World Regions Introduction",
+                    "description": "Overview of global geographic regions",
+                    "icon": "🗺️",
+                    "color": "blue",
+                    "lessons": [
+                        "Regional Geography Framework",
+                        "Physical vs Human Geography",
+                        "Geographic Tools and Technology",
+                        "Spatial Patterns and Analysis",
+                        "Map Projections and Distortions"
+                    ]
+                },
+                {
+                    "id": "europe_geography_7",
+                    "title": "Europe",
+                    "description": "Physical and cultural geography of Europe",
+                    "icon": "🏰",
+                    "color": "purple",
+                    "lessons": [
+                        "European Physical Features",
+                        "Climate and Vegetation Zones",
+                        "Countries and Capitals",
+                        "European Union and Integration"
+                    ]
+                },
+                {
+                    "id": "russia_central_asia_7",
+                    "title": "Russia and Central Asia",
+                    "description": "Geography of the former Soviet region",
+                    "icon": "🏔️",
+                    "color": "red",
+                    "lessons": [
+                        "Russian Landforms and Climate",
+                        "Natural Resources",
+                        "Central Asian Republics",
+                        "Economic Geography"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "africa_geography_8",
+                    "title": "Africa",
+                    "description": "Physical and cultural geography of Africa",
+                    "icon": "🦁",
+                    "color": "orange",
+                    "lessons": [
+                        "African Physical Regions",
+                        "Sahara and Sub-Saharan Africa",
+                        "Natural Resources and Economies",
+                        "Cultural Diversity",
+                        "Development Challenges"
+                    ]
+                },
+                {
+                    "id": "middle_east_north_africa_8",
+                    "title": "Middle East and North Africa",
+                    "description": "MENA region geography",
+                    "icon": "🕌",
+                    "color": "gold",
+                    "lessons": [
+                        "Desert Geography",
+                        "Oil and Natural Resources",
+                        "Religion and Culture",
+                        "Water Resources and Conflict"
+                    ]
+                },
+                {
+                    "id": "south_asia_8",
+                    "title": "South Asia",
+                    "description": "Indian subcontinent geography",
+                    "icon": "🏛️",
+                    "color": "teal",
+                    "lessons": [
+                        "Himalayas and Monsoons",
+                        "River Systems",
+                        "Population and Urbanization",
+                        "Economic Development"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "east_asia_9",
+                    "title": "East Asia",
+                    "description": "China, Japan, Korea geography",
+                    "icon": "🏯",
+                    "color": "red",
+                    "lessons": [
+                        "China's Diverse Regions",
+                        "Japanese Archipelago",
+                        "Korean Peninsula",
+                        "Pacific Rim Economics",
+                        "Environmental Challenges"
+                    ]
+                },
+                {
+                    "id": "southeast_asia_oceania_9",
+                    "title": "Southeast Asia and Oceania",
+                    "description": "Island nations and Pacific region",
+                    "icon": "🏝️",
+                    "color": "blue",
+                    "lessons": [
+                        "Island Geography",
+                        "Australia and New Zealand",
+                        "Pacific Islands",
+                        "Tropical Climates and Resources"
+                    ]
+                },
+                {
+                    "id": "latin_america_9",
+                    "title": "Latin America",
+                    "description": "Central and South America geography",
+                    "icon": "🌎",
+                    "color": "green",
+                    "lessons": [
+                        "Andes and Amazon",
+                        "Climate Zones",
+                        "Cultural Regions",
+                        "Economic Patterns"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "physical_geography_systems_10",
+                    "title": "Physical Geography Systems",
+                    "description": "Earth systems and processes",
+                    "icon": "🌋",
+                    "color": "orange",
+                    "lessons": [
+                        "Plate Tectonics and Landforms",
+                        "Weather and Climate Systems",
+                        "Water Cycle and Hydrology",
+                        "Soil Formation and Types",
+                        "Biogeography and Ecosystems"
+                    ]
+                },
+                {
+                    "id": "urban_geography_10",
+                    "title": "Urban Geography",
+                    "description": "Cities and urbanization patterns",
+                    "icon": "🏙️",
+                    "color": "gray",
+                    "lessons": [
+                        "Urbanization Trends",
+                        "City Planning and Structure",
+                        "Megacities and Urban Challenges",
+                        "Suburbanization and Sprawl"
+                    ]
+                },
+                {
+                    "id": "economic_geography_10",
+                    "title": "Economic Geography",
+                    "description": "Global economic patterns and trade",
+                    "icon": "💼",
+                    "color": "navy",
+                    "lessons": [
+                        "Primary, Secondary, Tertiary Industries",
+                        "Global Trade Patterns",
+                        "Development Economics",
+                        "Resource Distribution"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "geopolitics_11",
+                    "title": "Geopolitics",
+                    "description": "Political geography and international relations",
+                    "icon": "🌐",
+                    "color": "purple",
+                    "lessons": [
+                        "Borders and Boundaries",
+                        "Territorial Disputes",
+                        "Nation-States and Sovereignty",
+                        "International Organizations",
+                        "Geopolitical Strategy"
+                    ]
+                },
+                {
+                    "id": "cultural_political_geography_11",
+                    "title": "Cultural and Political Geography",
+                    "description": "Cultural regions and political systems",
+                    "icon": "🗳️",
+                    "color": "blue",
+                    "lessons": [
+                        "Cultural Diffusion",
+                        "Language Geography",
+                        "Religion and Politics",
+                        "Migration and Demographics"
+                    ]
+                },
+                {
+                    "id": "environmental_issues_11",
+                    "title": "Environmental Issues",
+                    "description": "Global environmental challenges",
+                    "icon": "🌱",
+                    "color": "green",
+                    "lessons": [
+                        "Climate Change Impacts",
+                        "Deforestation and Biodiversity Loss",
+                        "Water Scarcity",
+                        "Sustainable Solutions"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "advanced_geographic_analysis_12",
+                    "title": "Advanced Geographic Analysis",
+                    "description": "GIS and spatial analysis techniques",
+                    "icon": "🛰️",
+                    "color": "navy",
+                    "lessons": [
+                        "Geographic Information Systems (GIS)",
+                        "Remote Sensing and Satellite Imagery",
+                        "Spatial Data Analysis",
+                        "Cartography and Map Design",
+                        "Geographic Research Methods"
+                    ]
+                },
+                {
+                    "id": "globalization_12",
+                    "title": "Globalization",
+                    "description": "Global interconnectedness and its impacts",
+                    "icon": "🌍",
+                    "color": "teal",
+                    "lessons": [
+                        "Economic Globalization",
+                        "Cultural Globalization",
+                        "Technology and Communication",
+                        "Global Challenges and Cooperation"
+                    ]
+                },
+                {
+                    "id": "regional_synthesis_12",
+                    "title": "Regional Synthesis and Comparison",
+                    "description": "Comparative regional geography",
+                    "icon": "📊",
+                    "color": "purple",
+                    "lessons": [
+                        "Comparative Development",
+                        "Regional Integration Projects",
+                        "Cross-Regional Issues",
+                        "Future Geographic Trends"
+                    ]
+                }
+            ]
         }
     },
 
