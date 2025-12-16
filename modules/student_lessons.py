@@ -1130,6 +1130,391 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+    "atom_sphere": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "five_senses_k",
+                    "title": "Five Senses",
+                    "description": "Explore how we learn about the world",
+                    "icon": "👁️",
+                    "color": "purple",
+                    "lessons": [
+                        "Sight - Using Our Eyes",
+                        "Hearing - Using Our Ears",
+                        "Touch - Using Our Hands",
+                        "Taste and Smell"
+                    ]
+                },
+                {
+                    "id": "living_nonliving_k",
+                    "title": "Living vs Non-Living",
+                    "description": "Discover what makes something alive",
+                    "icon": "🌱",
+                    "color": "blue",
+                    "lessons": [
+                        "What is Living?",
+                        "What is Non-Living?",
+                        "Animals Are Living",
+                        "Plants Are Living"
+                    ]
+                },
+                {
+                    "id": "weather_basics_k",
+                    "title": "Weather Basics",
+                    "description": "Learn about sun, rain, and seasons",
+                    "icon": "☀️",
+                    "color": "green",
+                    "lessons": [
+                        "Sunny Weather",
+                        "Rainy Weather",
+                        "The Four Seasons",
+                        "Weather Patterns"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "five_senses",
+                    "title": "Exploring Our Senses",
+                    "description": "Deep dive into the five senses",
+                    "icon": "👂",
+                    "color": "purple",
+                    "lessons": [
+                        "How Sight Works",
+                        "How Hearing Works",
+                        "Touch and Textures",
+                        "Taste and Smell Exploration"
+                    ]
+                },
+                {
+                    "id": "living_nonliving",
+                    "title": "Living Things",
+                    "description": "Characteristics of living organisms",
+                    "icon": "🐛",
+                    "color": "blue",
+                    "lessons": [
+                        "Needs of Living Things",
+                        "Growth and Change",
+                        "Animal Classification Basics",
+                        "Plant Classification Basics"
+                    ]
+                },
+                {
+                    "id": "weather_seasons",
+                    "title": "Weather & Seasons",
+                    "description": "Understand weather patterns",
+                    "icon": "🌦️",
+                    "color": "green",
+                    "lessons": [
+                        "Temperature and Thermometers",
+                        "Clouds and Rain",
+                        "Seasonal Changes",
+                        "Weather Safety"
+                    ]
+                },
+                {
+                    "id": "animal_habitats",
+                    "title": "Animal Habitats",
+                    "description": "Where animals live",
+                    "icon": "🏔️",
+                    "color": "orange",
+                    "lessons": [
+                        "Forest Habitats",
+                        "Ocean Habitats",
+                        "Desert Habitats",
+                        "Arctic Habitats"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "plant_life_cycle",
+                    "title": "Plant Life Cycles",
+                    "description": "How plants grow and reproduce",
+                    "icon": "🌻",
+                    "color": "purple",
+                    "lessons": [
+                        "Seed to Sprout",
+                        "Growing and Flowering",
+                        "Making New Seeds",
+                        "Plant Needs: Sun, Water, Air"
+                    ]
+                },
+                {
+                    "id": "states_matter",
+                    "title": "States of Matter",
+                    "description": "Solids, liquids, and gases",
+                    "icon": "💧",
+                    "color": "blue",
+                    "lessons": [
+                        "What Are Solids?",
+                        "What Are Liquids?",
+                        "What Are Gases?",
+                        "Changing States"
+                    ]
+                },
+                {
+                    "id": "earth_sky",
+                    "title": "Earth & Sky",
+                    "description": "Learn about our planet and space",
+                    "icon": "🌍",
+                    "color": "green",
+                    "lessons": [
+                        "Earth's Land and Water",
+                        "Day and Night",
+                        "The Moon",
+                        "Stars and Constellations"
+                    ]
+                },
+                {
+                    "id": "simple_machines_2",
+                    "title": "Simple Machines",
+                    "description": "Tools that help us work",
+                    "icon": "⚙️",
+                    "color": "orange",
+                    "lessons": [
+                        "Levers",
+                        "Wheels and Axles",
+                        "Ramps (Inclined Planes)",
+                        "Pulleys"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "ecosystems",
+                    "title": "Ecosystems",
+                    "description": "How living things interact",
+                    "icon": "🌳",
+                    "color": "purple",
+                    "lessons": [
+                        "What is an Ecosystem?",
+                        "Food Chains",
+                        "Food Webs",
+                        "Producers and Consumers",
+                        "Decomposers"
+                    ]
+                },
+                {
+                    "id": "rocks_minerals",
+                    "title": "Rocks & Minerals",
+                    "description": "Earth's building blocks",
+                    "icon": "⛰️",
+                    "color": "blue",
+                    "lessons": [
+                        "Types of Rocks",
+                        "The Rock Cycle",
+                        "Minerals and Crystals",
+                        "Soil Formation"
+                    ]
+                },
+                {
+                    "id": "force_motion",
+                    "title": "Force & Motion",
+                    "description": "How things move",
+                    "icon": "🚀",
+                    "color": "green",
+                    "lessons": [
+                        "Push and Pull",
+                        "Gravity",
+                        "Friction",
+                        "Magnetism"
+                    ]
+                },
+                {
+                    "id": "human_body",
+                    "title": "Human Body Systems",
+                    "description": "How our body works",
+                    "icon": "🫀",
+                    "color": "orange",
+                    "lessons": [
+                        "Skeletal System",
+                        "Muscular System",
+                        "Digestive System",
+                        "Circulatory System"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "energy_forms",
+                    "title": "Forms of Energy",
+                    "description": "Different types of energy",
+                    "icon": "⚡",
+                    "color": "purple",
+                    "lessons": [
+                        "What is Energy?",
+                        "Heat Energy",
+                        "Light Energy",
+                        "Sound Energy",
+                        "Energy Transfer"
+                    ]
+                },
+                {
+                    "id": "water_cycle",
+                    "title": "The Water Cycle",
+                    "description": "How water moves on Earth",
+                    "icon": "💧",
+                    "color": "blue",
+                    "lessons": [
+                        "Evaporation",
+                        "Condensation",
+                        "Precipitation",
+                        "Collection and the Cycle"
+                    ]
+                },
+                {
+                    "id": "solar_system",
+                    "title": "Our Solar System",
+                    "description": "Planets and space",
+                    "icon": "🪐",
+                    "color": "green",
+                    "lessons": [
+                        "The Sun",
+                        "Inner Planets",
+                        "Outer Planets",
+                        "Moons and Asteroids"
+                    ]
+                },
+                {
+                    "id": "sound_light",
+                    "title": "Sound & Light",
+                    "description": "Waves and properties",
+                    "icon": "🌈",
+                    "color": "orange",
+                    "lessons": [
+                        "Sound Waves",
+                        "Volume and Pitch",
+                        "Light Waves",
+                        "Color and Reflection"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "cells_organisms",
+                    "title": "Cells & Organisms",
+                    "description": "Building blocks of life",
+                    "icon": "🔬",
+                    "color": "purple",
+                    "lessons": [
+                        "What Are Cells?",
+                        "Plant vs Animal Cells",
+                        "Single-Celled Organisms",
+                        "Multi-Cellular Organisms",
+                        "Cell Functions"
+                    ]
+                },
+                {
+                    "id": "chemical_physical",
+                    "title": "Chemical vs Physical Changes",
+                    "description": "Matter transformations",
+                    "icon": "🧪",
+                    "color": "blue",
+                    "lessons": [
+                        "Physical Changes",
+                        "Chemical Changes",
+                        "Signs of Chemical Reactions",
+                        "Conservation of Mass"
+                    ]
+                },
+                {
+                    "id": "space_exploration",
+                    "title": "Space Exploration",
+                    "description": "Journey beyond Earth",
+                    "icon": "🛸",
+                    "color": "green",
+                    "lessons": [
+                        "History of Space Travel",
+                        "Satellites and Probes",
+                        "The ISS",
+                        "Future of Space Exploration"
+                    ]
+                },
+                {
+                    "id": "electricity",
+                    "title": "Electricity",
+                    "description": "Electrical energy and circuits",
+                    "icon": "💡",
+                    "color": "orange",
+                    "lessons": [
+                        "What is Electricity?",
+                        "Circuits",
+                        "Conductors and Insulators",
+                        "Static Electricity"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "photosynthesis",
+                    "title": "Photosynthesis",
+                    "description": "How plants make food",
+                    "icon": "🌿",
+                    "color": "purple",
+                    "lessons": [
+                        "Chloroplasts and Chlorophyll",
+                        "The Photosynthesis Equation",
+                        "Light and Dark Reactions",
+                        "Importance to Life"
+                    ]
+                },
+                {
+                    "id": "periodic_table",
+                    "title": "Periodic Table Intro",
+                    "description": "Elements and their organization",
+                    "icon": "🧬",
+                    "color": "blue",
+                    "lessons": [
+                        "What Are Elements?",
+                        "Reading the Periodic Table",
+                        "Groups and Periods",
+                        "Common Elements",
+                        "Compounds vs Elements"
+                    ]
+                },
+                {
+                    "id": "plate_tectonics",
+                    "title": "Plate Tectonics",
+                    "description": "Earth's moving crust",
+                    "icon": "🌋",
+                    "color": "green",
+                    "lessons": [
+                        "Earth's Layers",
+                        "Tectonic Plates",
+                        "Earthquakes",
+                        "Volcanoes"
+                    ]
+                },
+                {
+                    "id": "scientific_method",
+                    "title": "Scientific Method",
+                    "description": "How scientists investigate",
+                    "icon": "🔬",
+                    "color": "orange",
+                    "lessons": [
+                        "Ask Questions",
+                        "Form Hypotheses",
+                        "Design Experiments",
+                        "Analyze Data and Conclude"
+                    ]
+                }
+            ]
+        }
     }
 }
 
