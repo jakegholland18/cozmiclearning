@@ -2280,6 +2280,265 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "ancient_civilizations_7",
+                    "title": "Ancient Civilizations",
+                    "description": "Early human societies",
+                    "icon": "🏛️",
+                    "color": "brown",
+                    "lessons": [
+                        "Mesopotamia and Fertile Crescent",
+                        "Ancient Egypt",
+                        "Ancient India and China",
+                        "Classical Greece",
+                        "Roman Empire"
+                    ]
+                },
+                {
+                    "id": "middle_ages_7",
+                    "title": "Middle Ages",
+                    "description": "Medieval Europe and beyond",
+                    "icon": "🏰",
+                    "color": "gray",
+                    "lessons": [
+                        "Fall of Rome and Rise of Christianity",
+                        "Feudalism and Manor Life",
+                        "The Crusades",
+                        "Islamic Golden Age"
+                    ]
+                },
+                {
+                    "id": "renaissance_reformation_7",
+                    "title": "Renaissance and Reformation",
+                    "description": "Rebirth of learning",
+                    "icon": "🎨",
+                    "color": "gold",
+                    "lessons": [
+                        "Italian Renaissance",
+                        "Protestant Reformation",
+                        "Scientific Revolution",
+                        "Age of Exploration"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "american_revolution_8",
+                    "title": "American Revolution",
+                    "description": "Birth of a nation",
+                    "icon": "🗽",
+                    "color": "red",
+                    "lessons": [
+                        "Colonial Tensions Rise",
+                        "Revolutionary War",
+                        "Declaration of Independence",
+                        "Articles of Confederation"
+                    ]
+                },
+                {
+                    "id": "constitution_8",
+                    "title": "The Constitution",
+                    "description": "Creating our government",
+                    "icon": "📜",
+                    "color": "blue",
+                    "lessons": [
+                        "Constitutional Convention",
+                        "Federalists vs Anti-Federalists",
+                        "Bill of Rights",
+                        "Three Branches of Government"
+                    ]
+                },
+                {
+                    "id": "early_republic_8",
+                    "title": "Early Republic",
+                    "description": "Young nation grows",
+                    "icon": "🦅",
+                    "color": "navy",
+                    "lessons": [
+                        "Washington and Adams",
+                        "Jefferson and Louisiana Purchase",
+                        "War of 1812",
+                        "Monroe Doctrine and Westward Expansion"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "world_history_foundations_9",
+                    "title": "World History Foundations",
+                    "description": "Global perspective",
+                    "icon": "🌍",
+                    "color": "blue",
+                    "lessons": [
+                        "Geography and Early Humans",
+                        "River Valley Civilizations",
+                        "Classical Civilizations Compared",
+                        "Trade Routes and Cultural Exchange"
+                    ]
+                },
+                {
+                    "id": "empires_kingdoms_9",
+                    "title": "Empires and Kingdoms",
+                    "description": "Global powers rise and fall",
+                    "icon": "👑",
+                    "color": "purple",
+                    "lessons": [
+                        "Byzantine and Islamic Empires",
+                        "African Kingdoms",
+                        "Asian Dynasties",
+                        "Mesoamerican Civilizations"
+                    ]
+                },
+                {
+                    "id": "age_revolution_9",
+                    "title": "Age of Revolution",
+                    "description": "Global changes",
+                    "icon": "⚡",
+                    "color": "red",
+                    "lessons": [
+                        "Enlightenment Ideas",
+                        "French Revolution",
+                        "Latin American Independence",
+                        "Industrial Revolution"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "imperialism_10",
+                    "title": "Imperialism",
+                    "description": "European colonization",
+                    "icon": "🗺️",
+                    "color": "brown",
+                    "lessons": [
+                        "Scramble for Africa",
+                        "British Empire",
+                        "Colonial Impact",
+                        "Resistance Movements"
+                    ]
+                },
+                {
+                    "id": "world_war_one_10",
+                    "title": "World War I",
+                    "description": "The Great War",
+                    "icon": "🪖",
+                    "color": "khaki",
+                    "lessons": [
+                        "Causes: MAIN",
+                        "Trench Warfare",
+                        "Russian Revolution",
+                        "Treaty of Versailles"
+                    ]
+                },
+                {
+                    "id": "interwar_period_10",
+                    "title": "Interwar Period",
+                    "description": "Between the wars",
+                    "icon": "📰",
+                    "color": "gray",
+                    "lessons": [
+                        "League of Nations",
+                        "Rise of Totalitarianism",
+                        "Great Depression Global Impact",
+                        "Road to World War II"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "world_war_two_11",
+                    "title": "World War II",
+                    "description": "Global conflict",
+                    "icon": "✈️",
+                    "color": "navy",
+                    "lessons": [
+                        "Axis Aggression",
+                        "Holocaust",
+                        "Allied Strategy",
+                        "Atomic Age Begins"
+                    ]
+                },
+                {
+                    "id": "cold_war_11",
+                    "title": "Cold War Era",
+                    "description": "Ideological struggle",
+                    "icon": "❄️",
+                    "color": "blue",
+                    "lessons": [
+                        "Containment Policy",
+                        "Korean and Vietnam Wars",
+                        "Cuban Missile Crisis",
+                        "Détente and Collapse of USSR"
+                    ]
+                },
+                {
+                    "id": "us_modern_history_11",
+                    "title": "Modern American History",
+                    "description": "Post-war America",
+                    "icon": "🇺🇸",
+                    "color": "red",
+                    "lessons": [
+                        "Post-War Prosperity",
+                        "Civil Rights Movement",
+                        "Vietnam and Social Change",
+                        "Reagan Era to 9/11"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "contemporary_world_12",
+                    "title": "Contemporary World",
+                    "description": "Modern global issues",
+                    "icon": "🌐",
+                    "color": "teal",
+                    "lessons": [
+                        "Globalization",
+                        "Middle East Conflicts",
+                        "Rise of China and India",
+                        "Climate and Migration"
+                    ]
+                },
+                {
+                    "id": "government_civics_12",
+                    "title": "Government and Civics",
+                    "description": "How government works",
+                    "icon": "⚖️",
+                    "color": "blue",
+                    "lessons": [
+                        "Constitutional Principles",
+                        "Federal vs State Powers",
+                        "Political Parties and Elections",
+                        "Civic Participation"
+                    ]
+                },
+                {
+                    "id": "economics_history_12",
+                    "title": "Economic History",
+                    "description": "Economic systems and trends",
+                    "icon": "💰",
+                    "color": "green",
+                    "lessons": [
+                        "Capitalism vs Socialism",
+                        "Economic Cycles and Crises",
+                        "Global Trade",
+                        "Future Economic Challenges"
+                    ]
+                }
+            ]
         }
     },
 
