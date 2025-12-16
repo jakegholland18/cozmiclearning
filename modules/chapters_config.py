@@ -2279,6 +2279,531 @@ LESSON_CHAPTERS = {
                 }
             ]
         }
+    },
+
+    # ============================================================================
+    # INK HAVEN (CREATIVE WRITING)
+    # ============================================================================
+
+    "ink_haven": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "drawing_stories_k",
+                    "title": "Drawing Stories",
+                    "description": "Tell stories through pictures",
+                    "icon": "🖍️",
+                    "color": "rainbow",
+                    "lessons": [
+                        "Drawing Simple Pictures",
+                        "Picture Sequences",
+                        "Adding Labels",
+                        "Sharing Your Drawings"
+                    ]
+                },
+                {
+                    "id": "imagination_play_k",
+                    "title": "Imagination Play",
+                    "description": "Using your imagination",
+                    "icon": "🌈",
+                    "color": "pink",
+                    "lessons": [
+                        "Pretend Play Stories",
+                        "What If Questions",
+                        "Making Believe",
+                        "Creative Thinking"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "personal_narratives_1",
+                    "title": "Personal Narratives",
+                    "description": "Writing about your life",
+                    "icon": "📓",
+                    "color": "blue",
+                    "lessons": [
+                        "My Favorite Day",
+                        "Something I Learned",
+                        "A Special Memory",
+                        "Someone Important to Me"
+                    ]
+                },
+                {
+                    "id": "creative_sentences",
+                    "title": "Creative Sentences",
+                    "description": "Making sentences interesting",
+                    "icon": "✨",
+                    "color": "purple",
+                    "lessons": [
+                        "Action Words",
+                        "Describing Words",
+                        "Silly Sentences",
+                        "Sentence Variety"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "story_starters",
+                    "title": "Story Starters",
+                    "description": "Beginning creative stories",
+                    "icon": "🚀",
+                    "color": "orange",
+                    "lessons": [
+                        "Once Upon a Time",
+                        "Creating Characters",
+                        "Story Settings",
+                        "Problem and Solution"
+                    ]
+                },
+                {
+                    "id": "poetry_fun",
+                    "title": "Poetry Fun",
+                    "description": "Writing simple poems",
+                    "icon": "🎵",
+                    "color": "pink",
+                    "lessons": [
+                        "Rhyming Poems",
+                        "Acrostic Poems",
+                        "Shape Poems",
+                        "Color and Sensory Poems"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "fantasy_writing",
+                    "title": "Fantasy Writing",
+                    "description": "Creating magical worlds",
+                    "icon": "🧙",
+                    "color": "purple",
+                    "lessons": [
+                        "Magic and Magical Creatures",
+                        "Building Fantasy Worlds",
+                        "Fantasy Characters",
+                        "Writing a Fantasy Story"
+                    ]
+                },
+                {
+                    "id": "descriptive_writing_3",
+                    "title": "Descriptive Writing",
+                    "description": "Painting pictures with words",
+                    "icon": "🎨",
+                    "color": "teal",
+                    "lessons": [
+                        "Show, Don't Tell",
+                        "Five Senses Description",
+                        "Metaphors and Similes",
+                        "Vivid Vocabulary"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "adventure_stories",
+                    "title": "Adventure Stories",
+                    "description": "Writing exciting adventures",
+                    "icon": "⚡",
+                    "color": "red",
+                    "lessons": [
+                        "Creating Exciting Plots",
+                        "Brave Characters",
+                        "Dangerous Settings",
+                        "Cliffhangers and Tension"
+                    ]
+                },
+                {
+                    "id": "character_development",
+                    "title": "Character Development",
+                    "description": "Creating believable characters",
+                    "icon": "👤",
+                    "color": "green",
+                    "lessons": [
+                        "Character Traits and Personality",
+                        "Character Goals and Motivations",
+                        "Character Flaws",
+                        "Character Growth"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "mystery_writing",
+                    "title": "Mystery Writing",
+                    "description": "Crafting suspenseful mysteries",
+                    "icon": "🔍",
+                    "color": "navy",
+                    "lessons": [
+                        "Mystery Story Structure",
+                        "Clues and Red Herrings",
+                        "Creating Suspects",
+                        "The Big Reveal"
+                    ]
+                },
+                {
+                    "id": "dialogue_craft",
+                    "title": "Dialogue Craft",
+                    "description": "Writing natural conversations",
+                    "icon": "💬",
+                    "color": "orange",
+                    "lessons": [
+                        "Dialogue Tags",
+                        "Character Voice",
+                        "Subtext and Meaning",
+                        "Formatting Dialogue"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "world_building",
+                    "title": "World Building",
+                    "description": "Creating complete story worlds",
+                    "icon": "🌍",
+                    "color": "green",
+                    "lessons": [
+                        "Geography and Environment",
+                        "Culture and Society",
+                        "History and Backstory",
+                        "Rules and Magic Systems"
+                    ]
+                },
+                {
+                    "id": "revision_editing",
+                    "title": "Revision and Editing",
+                    "description": "Improving your writing",
+                    "icon": "✍️",
+                    "color": "brown",
+                    "lessons": [
+                        "Self-Editing Techniques",
+                        "Strengthening Weak Verbs",
+                        "Cutting Unnecessary Words",
+                        "Polishing Your Story"
+                    ]
+                }
+            ]
+        }
+    },
+
+    # ============================================================================
+    # RESPECT REALM (CHARACTER EDUCATION)
+    # ============================================================================
+
+    "respect_realm": {
+        "K": {
+            "chapters": [
+                {
+                    "id": "kindness_k",
+                    "title": "Kindness",
+                    "description": "Being kind to others",
+                    "icon": "💝",
+                    "color": "pink",
+                    "lessons": [
+                        "What is Kindness?",
+                        "Kind Words",
+                        "Helping Others",
+                        "Acts of Kindness"
+                    ]
+                },
+                {
+                    "id": "sharing_caring_k",
+                    "title": "Sharing and Caring",
+                    "description": "Learning to share",
+                    "icon": "🤝",
+                    "color": "blue",
+                    "lessons": [
+                        "Taking Turns",
+                        "Sharing Toys",
+                        "Caring for Friends",
+                        "Being Fair"
+                    ]
+                },
+                {
+                    "id": "good_manners_k",
+                    "title": "Good Manners",
+                    "description": "Using polite words",
+                    "icon": "🎩",
+                    "color": "purple",
+                    "lessons": [
+                        "Please and Thank You",
+                        "Excuse Me and Sorry",
+                        "Good Listening",
+                        "Table Manners"
+                    ]
+                }
+            ]
+        },
+        1: {
+            "chapters": [
+                {
+                    "id": "honesty_1",
+                    "title": "Honesty",
+                    "description": "Telling the truth",
+                    "icon": "💎",
+                    "color": "blue",
+                    "lessons": [
+                        "What is Honesty?",
+                        "Telling the Truth",
+                        "Admitting Mistakes",
+                        "Why Honesty Matters"
+                    ]
+                },
+                {
+                    "id": "responsibility_1",
+                    "title": "Responsibility",
+                    "description": "Doing your part",
+                    "icon": "⭐",
+                    "color": "gold",
+                    "lessons": [
+                        "Following Through",
+                        "Taking Care of Your Things",
+                        "Doing Chores",
+                        "Being Reliable"
+                    ]
+                },
+                {
+                    "id": "respect_others_1",
+                    "title": "Respecting Others",
+                    "description": "Treating people with respect",
+                    "icon": "🙏",
+                    "color": "green",
+                    "lessons": [
+                        "Listening to Others",
+                        "Different is Good",
+                        "Personal Space",
+                        "Respecting Elders"
+                    ]
+                }
+            ]
+        },
+        2: {
+            "chapters": [
+                {
+                    "id": "courage_2",
+                    "title": "Courage",
+                    "description": "Being brave",
+                    "icon": "🦁",
+                    "color": "orange",
+                    "lessons": [
+                        "What is Courage?",
+                        "Trying New Things",
+                        "Standing Up for What's Right",
+                        "Facing Fears"
+                    ]
+                },
+                {
+                    "id": "perseverance_2",
+                    "title": "Perseverance",
+                    "description": "Never giving up",
+                    "icon": "💪",
+                    "color": "red",
+                    "lessons": [
+                        "Keep Trying",
+                        "Learning from Mistakes",
+                        "Hard Work Pays Off",
+                        "Finishing What You Start"
+                    ]
+                },
+                {
+                    "id": "empathy_2",
+                    "title": "Empathy",
+                    "description": "Understanding others' feelings",
+                    "icon": "❤️",
+                    "color": "pink",
+                    "lessons": [
+                        "How Others Feel",
+                        "Putting Yourself in Their Shoes",
+                        "Showing Compassion",
+                        "Being a Good Friend"
+                    ]
+                }
+            ]
+        },
+        3: {
+            "chapters": [
+                {
+                    "id": "integrity_3",
+                    "title": "Integrity",
+                    "description": "Doing the right thing",
+                    "icon": "⚖️",
+                    "color": "blue",
+                    "lessons": [
+                        "What is Integrity?",
+                        "Doing Right When No One's Watching",
+                        "Keeping Your Word",
+                        "Standing By Your Values"
+                    ]
+                },
+                {
+                    "id": "self_control_3",
+                    "title": "Self-Control",
+                    "description": "Managing yourself",
+                    "icon": "🧘",
+                    "color": "teal",
+                    "lessons": [
+                        "Controlling Your Temper",
+                        "Waiting Your Turn",
+                        "Making Good Choices",
+                        "Thinking Before Acting"
+                    ]
+                },
+                {
+                    "id": "gratitude_3",
+                    "title": "Gratitude",
+                    "description": "Being thankful",
+                    "icon": "🙌",
+                    "color": "yellow",
+                    "lessons": [
+                        "Counting Your Blessings",
+                        "Expressing Thanks",
+                        "Appreciating What You Have",
+                        "Gratitude Changes Attitude"
+                    ]
+                }
+            ]
+        },
+        4: {
+            "chapters": [
+                {
+                    "id": "cooperation_4",
+                    "title": "Cooperation",
+                    "description": "Working together",
+                    "icon": "🤝",
+                    "color": "green",
+                    "lessons": [
+                        "Teamwork",
+                        "Compromise",
+                        "Supporting Others",
+                        "Group Success"
+                    ]
+                },
+                {
+                    "id": "citizenship_4",
+                    "title": "Citizenship",
+                    "description": "Being a good citizen",
+                    "icon": "🏛️",
+                    "color": "navy",
+                    "lessons": [
+                        "Community Service",
+                        "Following Laws and Rules",
+                        "Voting and Participation",
+                        "Making a Difference"
+                    ]
+                },
+                {
+                    "id": "trustworthiness_4",
+                    "title": "Trustworthiness",
+                    "description": "Being someone people can trust",
+                    "icon": "🤞",
+                    "color": "blue",
+                    "lessons": [
+                        "Building Trust",
+                        "Keeping Promises",
+                        "Being Dependable",
+                        "Earning Trust Back"
+                    ]
+                }
+            ]
+        },
+        5: {
+            "chapters": [
+                {
+                    "id": "leadership_5",
+                    "title": "Leadership",
+                    "description": "Leading with character",
+                    "icon": "👑",
+                    "color": "gold",
+                    "lessons": [
+                        "What Makes a Good Leader?",
+                        "Inspiring Others",
+                        "Serving Others",
+                        "Leading by Example"
+                    ]
+                },
+                {
+                    "id": "forgiveness_5",
+                    "title": "Forgiveness",
+                    "description": "Letting go of hurt",
+                    "icon": "🕊️",
+                    "color": "white",
+                    "lessons": [
+                        "Why Forgiveness Matters",
+                        "Forgiving Others",
+                        "Asking for Forgiveness",
+                        "Moving Forward"
+                    ]
+                },
+                {
+                    "id": "resilience_5",
+                    "title": "Resilience",
+                    "description": "Bouncing back from challenges",
+                    "icon": "🌱",
+                    "color": "green",
+                    "lessons": [
+                        "Overcoming Obstacles",
+                        "Growth Mindset",
+                        "Learning from Failure",
+                        "Building Inner Strength"
+                    ]
+                }
+            ]
+        },
+        6: {
+            "chapters": [
+                {
+                    "id": "justice_fairness_6",
+                    "title": "Justice and Fairness",
+                    "description": "Treating everyone fairly",
+                    "icon": "⚖️",
+                    "color": "purple",
+                    "lessons": [
+                        "What is Justice?",
+                        "Fairness in Action",
+                        "Standing Against Injustice",
+                        "Equality and Equity"
+                    ]
+                },
+                {
+                    "id": "wisdom_6",
+                    "title": "Wisdom",
+                    "description": "Making wise decisions",
+                    "icon": "🦉",
+                    "color": "brown",
+                    "lessons": [
+                        "Knowledge vs. Wisdom",
+                        "Seeking Good Advice",
+                        "Thinking Long-Term",
+                        "Learning from Experience"
+                    ]
+                },
+                {
+                    "id": "humility_6",
+                    "title": "Humility",
+                    "description": "Staying humble",
+                    "icon": "🙇",
+                    "color": "gray",
+                    "lessons": [
+                        "Pride vs. Humility",
+                        "Admitting You Don't Know",
+                        "Celebrating Others",
+                        "Staying Grounded"
+                    ]
+                }
+            ]
+        }
     }
 }
 
