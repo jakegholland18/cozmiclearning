@@ -3322,6 +3322,186 @@ LESSON_CHAPTERS = {
                     ]
                 }
             ]
+        },
+        7: {
+            "chapters": [
+                {
+                    "id": "short_story_craft_7",
+                    "title": "Short Story Craft",
+                    "description": "Writing complete short stories",
+                    "icon": "📖",
+                    "color": "blue",
+                    "lessons": [
+                        "Story Arc Structure",
+                        "Exposition and Setup",
+                        "Rising Action and Climax",
+                        "Resolution and Denouement"
+                    ]
+                },
+                {
+                    "id": "creative_nonfiction_7",
+                    "title": "Creative Nonfiction",
+                    "description": "True stories with flair",
+                    "icon": "📰",
+                    "color": "orange",
+                    "lessons": [
+                        "Personal Essays",
+                        "Memoir Writing",
+                        "Literary Journalism",
+                        "Narrative Truth vs Facts"
+                    ]
+                }
+            ]
+        },
+        8: {
+            "chapters": [
+                {
+                    "id": "genre_writing_8",
+                    "title": "Genre Writing",
+                    "description": "Exploring different genres",
+                    "icon": "🎭",
+                    "color": "purple",
+                    "lessons": [
+                        "Science Fiction Basics",
+                        "Horror and Suspense",
+                        "Historical Fiction",
+                        "Contemporary Realism"
+                    ]
+                },
+                {
+                    "id": "poetry_craft_8",
+                    "title": "Poetry Craft",
+                    "description": "Advanced poetry writing",
+                    "icon": "✒️",
+                    "color": "pink",
+                    "lessons": [
+                        "Free Verse",
+                        "Sonnets and Forms",
+                        "Imagery and Symbolism",
+                        "Voice in Poetry"
+                    ]
+                }
+            ]
+        },
+        9: {
+            "chapters": [
+                {
+                    "id": "novel_writing_9",
+                    "title": "Novel Writing Basics",
+                    "description": "Starting your first novel",
+                    "icon": "📚",
+                    "color": "green",
+                    "lessons": [
+                        "Novel Structure",
+                        "Plotting vs Pantsing",
+                        "Chapter Organization",
+                        "Maintaining Momentum"
+                    ]
+                },
+                {
+                    "id": "advanced_character_9",
+                    "title": "Advanced Character",
+                    "description": "Creating complex characters",
+                    "icon": "👤",
+                    "color": "teal",
+                    "lessons": [
+                        "Character Arcs",
+                        "Internal vs External Conflict",
+                        "Character Relationships",
+                        "Backstory Integration"
+                    ]
+                }
+            ]
+        },
+        10: {
+            "chapters": [
+                {
+                    "id": "screenplay_writing_10",
+                    "title": "Screenplay Writing",
+                    "description": "Writing for film and TV",
+                    "icon": "🎬",
+                    "color": "red",
+                    "lessons": [
+                        "Screenplay Format",
+                        "Visual Storytelling",
+                        "Action Lines and Dialogue",
+                        "Three-Act Structure for Film"
+                    ]
+                },
+                {
+                    "id": "publishing_process_10",
+                    "title": "Publishing Process",
+                    "description": "From draft to publication",
+                    "icon": "📤",
+                    "color": "navy",
+                    "lessons": [
+                        "Traditional vs Self-Publishing",
+                        "Query Letters",
+                        "Working with Editors",
+                        "Building an Author Platform"
+                    ]
+                }
+            ]
+        },
+        11: {
+            "chapters": [
+                {
+                    "id": "literary_fiction_11",
+                    "title": "Literary Fiction",
+                    "description": "Writing with depth",
+                    "icon": "🎨",
+                    "color": "purple",
+                    "lessons": [
+                        "Theme and Meaning",
+                        "Experimental Narrative",
+                        "Literary Devices in Fiction",
+                        "Voice and Style"
+                    ]
+                },
+                {
+                    "id": "workshop_critique_11",
+                    "title": "Workshop and Critique",
+                    "description": "Giving and receiving feedback",
+                    "icon": "💬",
+                    "color": "orange",
+                    "lessons": [
+                        "Constructive Criticism",
+                        "Analyzing Others' Work",
+                        "Incorporating Feedback",
+                        "Defending Creative Choices"
+                    ]
+                }
+            ]
+        },
+        12: {
+            "chapters": [
+                {
+                    "id": "professional_writing_12",
+                    "title": "Professional Writing",
+                    "description": "Writing as a career",
+                    "icon": "💼",
+                    "color": "navy",
+                    "lessons": [
+                        "Freelance Writing",
+                        "Content Writing and Copywriting",
+                        "Technical Writing",
+                        "Writing for Business"
+                    ]
+                },
+                {
+                    "id": "portfolio_development_12",
+                    "title": "Portfolio Development",
+                    "description": "Showcasing your best work",
+                    "icon": "📁",
+                    "color": "gold",
+                    "lessons": [
+                        "Selecting Your Best Pieces",
+                        "Portfolio Presentation",
+                        "Personal Brand",
+                        "Preparing for College/Career"
+                    ]
+                }
+            ]
         }
     },
 
