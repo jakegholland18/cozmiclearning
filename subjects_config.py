@@ -142,17 +142,17 @@ SUBJECTS = {
     },
     "terra_nova": {
         "key": "terra_nova",
-        "name": "TerraNova",
-        "label": "TerraNova (General)",
-        "description": "Ask anything and explore all topics",
-        "subtitle": "General Knowledge",
+        "name": "Geography",
+        "label": "Geography (World)",
+        "description": "Explore world geography, cultures, regions, and spatial understanding",
+        "subtitle": "Geography",
         "icon": "terra_nova.png",
-        "category": "general",
+        "category": "core",
         "min_grade": 1,
         "max_grade": 12,
-        "handler_module": "question_helper",
-        "handler_function": "answer_question",
-        "features": ["chat"],
+        "handler_module": "geography_helper",
+        "handler_function": "explain_geography",
+        "features": ["practice", "deep_study", "chat"],
         "order": 9,
     },
     "power_grid": {
@@ -282,6 +282,7 @@ def get_subject_map():
         question_helper,
         text_helper,
         manners_helper,
+        geography_helper,
     )
 
     handler_modules = {
@@ -296,6 +297,7 @@ def get_subject_map():
         "question_helper": question_helper,
         "text_helper": text_helper,
         "manners_helper": manners_helper,
+        "geography_helper": geography_helper,
     }
 
     for key, config in SUBJECTS.items():

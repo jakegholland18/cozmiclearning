@@ -3197,6 +3197,12 @@ def plans():
     return render_template("plans.html")
 
 
+@app.route("/pricing")
+def pricing():
+    """Public pricing page with anchoring strategy"""
+    return render_template("pricing.html")
+
+
 @app.route("/trial_expired")
 @csrf.exempt
 def trial_expired():
@@ -8880,7 +8886,7 @@ RESPONSE STYLE - CRITICAL:
 • Save long explanations only for complex "how-to" questions
 
 CozmicLearning Quick Reference:
-- 11 planets: NumForge (math), AtomSphere (science), FaithRealm (Bible), ChronoCore (history), InkHaven (writing), TruthForge (apologetics), StockStar (investing), CoinQuest (money), TerraNova (general), StoryVerse (reading), PowerGrid (study guide)
+- 12 planets: NumForge (math), AtomSphere (science), FaithRealm (Bible), ChronoCore (history), InkHaven (writing), TruthForge (apologetics), StockStar (investing), CoinQuest (money), Geography (world geography), StoryVerse (reading), PowerGrid (study guide), RespectRealm (character & manners)
 - Differentiation: adaptive, gap_fill, mastery, scaffold
 - Six-section format includes Christian View in every lesson
 - Tools: assign questions, lesson plans, analytics, progress reports
@@ -8897,7 +8903,7 @@ Q: "How do I use differentiation modes?"
 A: "Choose based on student needs: scaffold for struggling students (simpler steps), adaptive for on-level (adjusts difficulty), mastery for advanced (harder challenges). Set it when creating assignments. God gave each child unique gifts - differentiation honors that! (Psalm 139:14)"
 
 Q: "Student won't engage in lessons"
-A: "Try these 3 quick wins: 1) Use gamification (tokens/XP motivate!), 2) Let them pick their character, 3) Start with TerraNova for confidence. Pray for them - teaching is spiritual warfare too! Need specific subject ideas?"
+A: "Try these 3 quick wins: 1) Use gamification (tokens/XP motivate!), 2) Let them pick their character, 3) Start with Geography for confidence-building. Pray for them - teaching is spiritual warfare too! Need specific subject ideas?"
 
 Keep it SHORT, HELPFUL, and HOPEFUL."""
 
@@ -11653,21 +11659,9 @@ def parent_dashboard():
         for s, data in session["progress"].items()
     }
     
-    # Get all planets for subject explorer
-    planets = [
-        ("chrono_core", "chrono_core.png", "ChronoCore", "History"),
-        ("num_forge", "num_forge.png", "NumForge", "Math"),
-        ("atom_sphere", "atom_sphere.png", "AtomSphere", "Science"),
-        ("story_verse", "story_verse.png", "StoryVerse", "Reading"),
-        ("ink_haven", "ink_haven.png", "InkHaven", "Writing"),
-        ("faith_realm", "faith_realm.png", "FaithRealm", "Bible"),
-        ("coin_quest", "coin_quest.png", "CoinQuest", "Money"),
-        ("stock_star", "stock_star.png", "StockStar", "Investing"),
-        ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
-        ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
-        ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
-        ("respect_realm", "respect_realm.png", "RespectRealm", "Character & Manners"),
-    ]
+    # Get all planets for subject explorer from centralized config
+    from subjects_config import get_subjects_for_display
+    planets = get_subjects_for_display()
 
     return render_template(
         "parent_dashboard.html",
@@ -11872,21 +11866,9 @@ def homeschool_dashboard():
         for s, data in session["progress"].items()
     }
     
-    # Get all planets for subject explorer
-    planets = [
-        ("chrono_core", "chrono_core.png", "ChronoCore", "History"),
-        ("num_forge", "num_forge.png", "NumForge", "Math"),
-        ("atom_sphere", "atom_sphere.png", "AtomSphere", "Science"),
-        ("story_verse", "story_verse.png", "StoryVerse", "Reading"),
-        ("ink_haven", "ink_haven.png", "InkHaven", "Writing"),
-        ("faith_realm", "faith_realm.png", "FaithRealm", "Bible"),
-        ("coin_quest", "coin_quest.png", "CoinQuest", "Money"),
-        ("stock_star", "stock_star.png", "StockStar", "Investing"),
-        ("terra_nova", "terra_nova.png", "TerraNova", "General Knowledge"),
-        ("power_grid", "power_grid.png", "PowerGrid", "Deep Study"),
-        ("truth_forge", "truth_forge.png", "TruthForge", "Apologetics"),
-        ("respect_realm", "respect_realm.png", "RespectRealm", "Character & Manners"),
-    ]
+    # Get all planets for subject explorer from centralized config
+    from subjects_config import get_subjects_for_display
+    planets = get_subjects_for_display()
 
     return render_template(
         "homeschool_dashboard.html",
