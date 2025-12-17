@@ -1092,6 +1092,34 @@ def init_user():
     check_monthly_reset()
 
 
+def get_student_id_from_session():
+    """
+    Convert session user_id to integer student_id.
+    Handles both UUID strings (anonymous users) and integer IDs (logged-in students).
+    Returns None if no valid student found or if user is anonymous.
+    """
+    session_user_id = session.get("user_id")
+
+    if not session_user_id:
+        return None
+
+    # If it's already an integer, return it
+    if isinstance(session_user_id, int):
+        return session_user_id
+
+    # If it's a UUID string (anonymous user), try to look up by email if logged in
+    if isinstance(session_user_id, str) and len(session_user_id) > 10:
+        # Check if user is actually logged in (has email in session)
+        email = session.get("email")
+        if email and session.get("user_role") == "student":
+            student = Student.query.filter_by(student_email=email).first()
+            if student:
+                return student.id
+
+    # Return None for anonymous users (UUID sessions without student account)
+    return None
+
+
 # ============================================================
 # CHAPTER & LESSON PROGRESS TRACKING (Database-backed)
 # ============================================================
@@ -2691,6 +2719,7 @@ def arcade_play(game_key):
         generate_virtue_quest,
         generate_logic_lock,
         generate_worldview_warriors,
+        reseed_random,
         ARCADE_GAMES
     )
     
@@ -2745,8 +2774,14 @@ def arcade_play(game_key):
 
     # Get the appropriate generator for this game
     generator = game_generators.get(game_key, generate_speed_math)
+
+    # Reseed random number generator to ensure truly different questions each time
+    reseed_random()
+
+    # ALWAYS generate fresh questions - don't reuse from session
+    # This ensures students get different questions each time they play
     questions = generator(difficulty)
-    
+
     # Store questions in session along with selected difficulty
     session["current_game"] = {
         "game_key": game_key,
@@ -10218,7 +10253,7 @@ def subject_answer():
     session["grade"] = grade
     
     # CONTENT MODERATION - Check question safety
-    student_id = session.get("user_id")
+    student_id = get_student_id_from_session()
     moderation_result = moderate_content(question, student_id=student_id, context="question")
 
     # Initialize log_entry as None (will be created if student_id exists)
@@ -10389,12 +10424,13 @@ def followup_message():
     message = data.get("message", "")
     
     # CONTENT MODERATION
-    student_id = session.get("user_id")
+    student_id = get_student_id_from_session()
     moderation_result = moderate_content(message, student_id=student_id, context="chat")
-    
-    # Log the message
-    log_entry = QuestionLog(
-        student_id=student_id,
+
+    # Log the message (only if student_id exists)
+    if student_id:
+        log_entry = QuestionLog(
+            student_id=student_id,
         question_text=message,
         sanitized_text=moderation_result.get("sanitized_text"),
         context="deep_study_chat",
@@ -10460,24 +10496,25 @@ def deep_study_message():
     character = session.get("character", "nova")
     
     # CONTENT MODERATION
-    student_id = session.get("user_id")
+    student_id = get_student_id_from_session()
     moderation_result = moderate_content(message, student_id=student_id, context="deep_study_chat")
-    
-    # Log the message
-    log_entry = QuestionLog(
-        student_id=student_id,
-        question_text=message,
-        sanitized_text=moderation_result.get("sanitized_text"),
-        context="deep_study_message",
-        grade_level=grade,
-        flagged=moderation_result.get("flagged", False),
-        allowed=moderation_result.get("allowed", True),
-        moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {})),
-        severity=moderation_result.get("severity", "low")
-    )
-    db.session.add(log_entry)
-    db.session.commit()
+
+    # Log the message (only if student_id exists)
+    if student_id:
+        log_entry = QuestionLog(
+            student_id=student_id,
+            question_text=message,
+            sanitized_text=moderation_result.get("sanitized_text"),
+            context="deep_study_message",
+            grade_level=grade,
+            flagged=moderation_result.get("flagged", False),
+            allowed=moderation_result.get("allowed", True),
+            moderation_reason=moderation_result.get("reason"),
+            moderation_data_json=str(moderation_result.get("moderation_data", {})),
+            severity=moderation_result.get("severity", "low")
+        )
+        db.session.add(log_entry)
+        db.session.commit()
     
     # If blocked, return error
     if not moderation_result["allowed"]:
@@ -10636,33 +10673,26 @@ def powergrid_submit():
     # Add manual topic if provided
     if topic:
         # CONTENT MODERATION for topic
-        user_id = session.get("user_id")
-        moderation_result = moderate_content(topic, student_id=user_id, context="powergrid")
+        student_id = get_student_id_from_session()
+        moderation_result = moderate_content(topic, student_id=student_id, context="powergrid")
 
-        # Log the topic request (only if user has a real Student record, not anonymous session)
-        # Check if user_id is an integer (real student) vs UUID string (anonymous session)
-        try:
-            student_id_int = int(user_id) if user_id else None
-            if student_id_int:
-                log_entry = QuestionLog(
-                    student_id=student_id_int,
-                    question_text=topic,
-                    sanitized_text=moderation_result.get("sanitized_text"),
-                    subject="power_grid",
-                    context="powergrid",
-                    grade_level=grade,
-                    flagged=moderation_result.get("flagged", False),
-                    allowed=moderation_result.get("allowed", True),
-                    moderation_reason=moderation_result.get("reason"),
-                    moderation_data_json=str(moderation_result.get("moderation_data", {})),
-                    severity=moderation_result.get("severity", "low")
-                )
-                db.session.add(log_entry)
-                db.session.commit()
-        except (ValueError, TypeError):
-            # user_id is a UUID string (anonymous session), skip logging to database
-            app.logger.info(f"Skipping question log for anonymous user: {user_id}")
-            log_entry = None
+        # Log the topic request (only if student_id exists)
+        if student_id:
+            log_entry = QuestionLog(
+                student_id=student_id,
+                question_text=topic,
+                sanitized_text=moderation_result.get("sanitized_text"),
+                subject="power_grid",
+                context="powergrid",
+                grade_level=grade,
+                flagged=moderation_result.get("flagged", False),
+                allowed=moderation_result.get("allowed", True),
+                moderation_reason=moderation_result.get("reason"),
+                moderation_data_json=str(moderation_result.get("moderation_data", {})),
+                severity=moderation_result.get("severity", "low")
+            )
+            db.session.add(log_entry)
+            db.session.commit()
         
         # If blocked, redirect with error
         if not moderation_result["allowed"]:
@@ -13405,6 +13435,66 @@ Respond to the student's most recent question in a friendly, helpful way.
             "success": False,
             "error": "Failed to generate response"
         })
+
+
+# ============================================================
+# TUTORIAL SYSTEM & AI HELP
+# ============================================================
+
+from modules.tutorial_content import get_tutorial, search_tutorials
+
+@app.route("/tutorials")
+def tutorials_page():
+    """Main tutorials page"""
+    init_user()
+    return render_template("tutorials.html")
+
+
+@app.route("/api/tutorial/<tutorial_id>")
+def get_tutorial_api(tutorial_id):
+    """Get specific tutorial content"""
+    tutorial = get_tutorial(tutorial_id)
+    return jsonify(tutorial)
+
+
+@app.route("/api/tutorial-help", methods=["POST"])
+@csrf.exempt
+def tutorial_help_ai():
+    """AI assistant for tutorial help"""
+    try:
+        data = request.get_json()
+        question = data.get("question", "")
+
+        if not question:
+            return jsonify({"answer": "Please ask a question!"})
+
+        # Use OpenAI to answer tutorial questions
+        from modules.openai_helper import get_completion
+
+        system_prompt = """You are a helpful AI assistant for CozmicLearning, an educational platform.
+
+        Answer user questions about how to use the platform. Be friendly, clear, and concise.
+
+        Key platform features:
+        - Teachers can create classes, add students, create assignments, view gradebook, see analytics
+        - Students can complete assignments, explore 12 learning planets, play 26 arcade games, earn achievements
+        - Parents can monitor child progress
+        - Automatic differentiation adjusts difficulty for each student (below/on-level/advanced)
+        - All content integrates Christian worldview
+        - 12 subjects: NumForge (Math), AtomSphere (Science), InkHaven (Writing), ChronoCore (History), StoryVerse (Reading), FaithRealm (Bible), CoinQuest (Finance), StockStar (Investing), TerraNova (General), PowerGrid (Research), TruthForge (Worldview), RespectRealm (Character)
+        - 26 arcade games across all subjects
+        - 5 character mentors: Everly, Jasmine, Lio, Theo, Nova
+
+        Format your response in HTML with <p> tags, <strong> for emphasis, and <ul><li> for lists.
+        Keep responses under 200 words."""
+
+        response = get_completion(question, system_prompt=system_prompt)
+
+        return jsonify({"answer": response})
+
+    except Exception as e:
+        print(f"Tutorial AI error: {e}")
+        return jsonify({"answer": "I'm having trouble right now. Try asking in a different way, or check our written tutorials below!"})
 
 
 # ============================================================
