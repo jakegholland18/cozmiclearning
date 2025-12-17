@@ -2681,6 +2681,16 @@ def arcade_play(game_key):
         generate_reading_racer,
         generate_map_master,
         generate_bible_trivia,
+        generate_country_spotter,
+        generate_capital_quest,
+        generate_flag_frenzy,
+        generate_landmark_locator,
+        generate_money_marathon,
+        generate_investment_simulator,
+        generate_etiquette_expert,
+        generate_virtue_quest,
+        generate_logic_lock,
+        generate_worldview_warriors,
         ARCADE_GAMES
     )
     
@@ -2721,6 +2731,16 @@ def arcade_play(game_key):
         "reading_racer": generate_reading_racer,
         "map_master": generate_map_master,
         "bible_trivia": generate_bible_trivia,
+        "country_spotter": generate_country_spotter,
+        "capital_quest": generate_capital_quest,
+        "flag_frenzy": generate_flag_frenzy,
+        "landmark_locator": generate_landmark_locator,
+        "money_marathon": generate_money_marathon,
+        "investment_simulator": generate_investment_simulator,
+        "etiquette_expert": generate_etiquette_expert,
+        "virtue_quest": generate_virtue_quest,
+        "logic_lock": generate_logic_lock,
+        "worldview_warriors": generate_worldview_warriors,
     }
 
     # Get the appropriate generator for this game

@@ -1399,6 +1399,340 @@ def generate_bible_trivia(difficulty='medium'):
 
 
 # ============================================================
+# NEW GEOGRAPHY GAMES (MapVerse)
+# ============================================================
+
+def generate_country_spotter(difficulty='medium'):
+    """Identify countries by their outline/shape"""
+    # Country data with descriptions of their shapes
+    countries_by_difficulty = {
+        'easy': [
+            {"country": "Italy", "shape_hint": "Boot-shaped", "answer": "Italy", "options": ["Italy", "Greece", "Spain", "Portugal"]},
+            {"country": "United Kingdom", "shape_hint": "Island nation west of Europe", "answer": "United Kingdom", "options": ["United Kingdom", "Ireland", "Iceland", "Denmark"]},
+            {"country": "Japan", "shape_hint": "Crescent-shaped island chain", "answer": "Japan", "options": ["Japan", "Philippines", "Indonesia", "Taiwan"]},
+            {"country": "Australia", "shape_hint": "Large island continent", "answer": "Australia", "options": ["Australia", "Greenland", "Madagascar", "New Zealand"]},
+            {"country": "Chile", "shape_hint": "Long, narrow country along coast", "answer": "Chile", "options": ["Chile", "Argentina", "Peru", "Colombia"]},
+        ],
+        'medium': [
+            {"country": "Norway", "shape_hint": "Scandinavian with many fjords", "answer": "Norway", "options": ["Norway", "Sweden", "Finland", "Denmark"]},
+            {"country": "Thailand", "shape_hint": "Southeast Asian, elephant-head shaped", "answer": "Thailand", "options": ["Thailand", "Vietnam", "Cambodia", "Myanmar"]},
+            {"country": "Croatia", "shape_hint": "Crescent along Adriatic Sea", "answer": "Croatia", "options": ["Croatia", "Slovenia", "Bosnia", "Serbia"]},
+            {"country": "Somalia", "shape_hint": "Horn of Africa", "answer": "Somalia", "options": ["Somalia", "Ethiopia", "Kenya", "Eritrea"]},
+            {"country": "Panama", "shape_hint": "S-shaped connecting continents", "answer": "Panama", "options": ["Panama", "Costa Rica", "Nicaragua", "Honduras"]},
+        ],
+        'hard': [
+            {"country": "Lesotho", "shape_hint": "Completely surrounded by South Africa", "answer": "Lesotho", "options": ["Lesotho", "Swaziland", "Botswana", "Zimbabwe"]},
+            {"country": "Moldova", "shape_hint": "Between Romania and Ukraine", "answer": "Moldova", "options": ["Moldova", "Belarus", "Latvia", "Estonia"]},
+            {"country": "Bhutan", "shape_hint": "Himalayan kingdom between giants", "answer": "Bhutan", "options": ["Bhutan", "Nepal", "Laos", "Cambodia"]},
+            {"country": "Burundi", "shape_hint": "Small African Great Lakes country", "answer": "Burundi", "options": ["Burundi", "Rwanda", "Uganda", "Malawi"]},
+            {"country": "Timor-Leste", "shape_hint": "Half of an island in Southeast Asia", "answer": "Timor-Leste", "options": ["Timor-Leste", "Brunei", "Papua New Guinea", "Solomon Islands"]},
+        ]
+    }
+
+    questions = countries_by_difficulty.get(difficulty, countries_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+
+    # Format as standard questions
+    formatted = []
+    for q in questions:
+        formatted.append({
+            "question": f"Which country is {q['shape_hint']}?",
+            "answer": q["answer"],
+            "options": q["options"]
+        })
+
+    return formatted[:15]
+
+
+def generate_capital_quest(difficulty='medium'):
+    """Match countries to their capitals"""
+    capitals_by_difficulty = {
+        'easy': [
+            {"question": "What is the capital of France?", "answer": "Paris", "options": ["Paris", "London", "Rome", "Berlin"]},
+            {"question": "What is the capital of Japan?", "answer": "Tokyo", "options": ["Tokyo", "Seoul", "Beijing", "Bangkok"]},
+            {"question": "What is the capital of Canada?", "answer": "Ottawa", "options": ["Ottawa", "Toronto", "Montreal", "Vancouver"]},
+            {"question": "What is the capital of Egypt?", "answer": "Cairo", "options": ["Cairo", "Alexandria", "Giza", "Luxor"]},
+            {"question": "What is the capital of Australia?", "answer": "Canberra", "options": ["Canberra", "Sydney", "Melbourne", "Brisbane"]},
+            {"question": "What is the capital of Brazil?", "answer": "Brasília", "options": ["Brasília", "Rio de Janeiro", "São Paulo", "Salvador"]},
+            {"question": "What is the capital of India?", "answer": "New Delhi", "options": ["New Delhi", "Mumbai", "Bangalore", "Kolkata"]},
+            {"question": "What is the capital of Germany?", "answer": "Berlin", "options": ["Berlin", "Munich", "Hamburg", "Frankfurt"]},
+            {"question": "What is the capital of Mexico?", "answer": "Mexico City", "options": ["Mexico City", "Guadalajara", "Monterrey", "Cancun"]},
+            {"question": "What is the capital of United Kingdom?", "answer": "London", "options": ["London", "Manchester", "Edinburgh", "Birmingham"]},
+        ],
+        'medium': [
+            {"question": "What is the capital of Switzerland?", "answer": "Bern", "options": ["Bern", "Zurich", "Geneva", "Basel"]},
+            {"question": "What is the capital of Vietnam?", "answer": "Hanoi", "options": ["Hanoi", "Ho Chi Minh City", "Da Nang", "Hue"]},
+            {"question": "What is the capital of Morocco?", "answer": "Rabat", "options": ["Rabat", "Casablanca", "Marrakech", "Fez"]},
+            {"question": "What is the capital of Pakistan?", "answer": "Islamabad", "options": ["Islamabad", "Karachi", "Lahore", "Rawalpindi"]},
+            {"question": "What is the capital of New Zealand?", "answer": "Wellington", "options": ["Wellington", "Auckland", "Christchurch", "Hamilton"]},
+            {"question": "What is the capital of Nigeria?", "answer": "Abuja", "options": ["Abuja", "Lagos", "Kano", "Ibadan"]},
+            {"question": "What is the capital of Peru?", "answer": "Lima", "options": ["Lima", "Cusco", "Arequipa", "Trujillo"]},
+            {"question": "What is the capital of South Africa?", "answer": "Pretoria", "options": ["Pretoria", "Cape Town", "Johannesburg", "Durban"]},
+        ],
+        'hard': [
+            {"question": "What is the capital of Kazakhstan?", "answer": "Astana", "options": ["Astana", "Almaty", "Shymkent", "Karaganda"]},
+            {"question": "What is the capital of Myanmar?", "answer": "Naypyidaw", "options": ["Naypyidaw", "Yangon", "Mandalay", "Bagan"]},
+            {"question": "What is the capital of Côte d'Ivoire?", "answer": "Yamoussoukro", "options": ["Yamoussoukro", "Abidjan", "Bouaké", "Daloa"]},
+            {"question": "What is the capital of Bhutan?", "answer": "Thimphu", "options": ["Thimphu", "Paro", "Punakha", "Phuentsholing"]},
+            {"question": "What is the capital of Turkmenistan?", "answer": "Ashgabat", "options": ["Ashgabat", "Turkmenabat", "Dashoguz", "Mary"]},
+            {"question": "What is the capital of Palau?", "answer": "Ngerulmud", "options": ["Ngerulmud", "Koror", "Melekeok", "Airai"]},
+        ]
+    }
+
+    questions = capitals_by_difficulty.get(difficulty, capitals_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
+
+
+def generate_flag_frenzy(difficulty='medium'):
+    """Identify countries by their flags"""
+    flags_by_difficulty = {
+        'easy': [
+            {"question": "Which country has a red maple leaf on its flag?", "answer": "Canada", "options": ["Canada", "USA", "Mexico", "Australia"]},
+            {"question": "Which country has a blue, white, and red tricolor with vertical stripes?", "answer": "France", "options": ["France", "Netherlands", "Russia", "USA"]},
+            {"question": "Which country has a red circle on a white background?", "answer": "Japan", "options": ["Japan", "Bangladesh", "Palau", "South Korea"]},
+            {"question": "Which country has 50 stars and 13 stripes?", "answer": "USA", "options": ["USA", "Liberia", "Malaysia", "Chile"]},
+            {"question": "Which country has a Union Jack in the corner and stars?", "answer": "Australia", "options": ["Australia", "New Zealand", "Fiji", "Tuvalu"]},
+        ],
+        'medium': [
+            {"question": "Which country has a green cedar tree in the center?", "answer": "Lebanon", "options": ["Lebanon", "Cyprus", "Jordan", "Syria"]},
+            {"question": "Which country has a dragon on its flag?", "answer": "Bhutan", "options": ["Bhutan", "Wales", "China", "Mongolia"]},
+            {"question": "Which Nordic country has a white cross on blue?", "answer": "Finland", "options": ["Finland", "Sweden", "Norway", "Iceland"]},
+            {"question": "Which country has a sun with 32 rays?", "answer": "Uruguay", "options": ["Uruguay", "Argentina", "Paraguay", "Bolivia"]},
+        ],
+        'hard': [
+            {"question": "Which country has the only non-rectangular flag?", "answer": "Nepal", "options": ["Nepal", "Bhutan", "Vatican City", "Switzerland"]},
+            {"question": "Which country has a machete and cog wheel?", "answer": "Angola", "options": ["Angola", "Mozambique", "Congo", "Zambia"]},
+            {"question": "Which country has a two-headed eagle?", "answer": "Albania", "options": ["Albania", "Serbia", "Montenegro", "Russia"]},
+        ]
+    }
+
+    questions = flags_by_difficulty.get(difficulty, flags_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+def generate_landmark_locator(difficulty='medium'):
+    """Match famous landmarks to countries/cities"""
+    landmarks_by_difficulty = {
+        'easy': [
+            {"question": "Where is the Eiffel Tower located?", "answer": "Paris, France", "options": ["Paris, France", "London, UK", "Rome, Italy", "Berlin, Germany"]},
+            {"question": "Where is the Statue of Liberty?", "answer": "New York, USA", "options": ["New York, USA", "Philadelphia, USA", "Boston, USA", "Washington DC, USA"]},
+            {"question": "Where are the Pyramids of Giza?", "answer": "Cairo, Egypt", "options": ["Cairo, Egypt", "Alexandria, Egypt", "Luxor, Egypt", "Athens, Greece"]},
+            {"question": "Where is the Taj Mahal?", "answer": "Agra, India", "options": ["Agra, India", "Delhi, India", "Mumbai, India", "Jaipur, India"]},
+            {"question": "Where is Big Ben?", "answer": "London, UK", "options": ["London, UK", "Edinburgh, UK", "Dublin, Ireland", "Paris, France"]},
+        ],
+        'medium': [
+            {"question": "Where is Machu Picchu?", "answer": "Peru", "options": ["Peru", "Bolivia", "Ecuador", "Colombia"]},
+            {"question": "Where is the Sagrada Familia?", "answer": "Barcelona, Spain", "options": ["Barcelona, Spain", "Madrid, Spain", "Seville, Spain", "Valencia, Spain"]},
+            {"question": "Where is Christ the Redeemer statue?", "answer": "Rio de Janeiro, Brazil", "options": ["Rio de Janeiro, Brazil", "São Paulo, Brazil", "Buenos Aires, Argentina", "Santiago, Chile"]},
+            {"question": "Where is Angkor Wat?", "answer": "Cambodia", "options": ["Cambodia", "Thailand", "Vietnam", "Laos"]},
+        ],
+        'hard': [
+            {"question": "Where is Petra (the rock city)?", "answer": "Jordan", "options": ["Jordan", "Israel", "Egypt", "Lebanon"]},
+            {"question": "Where is Borobudur Temple?", "answer": "Indonesia", "options": ["Indonesia", "Thailand", "Myanmar", "Cambodia"]},
+            {"question": "Where is the Blue Mosque?", "answer": "Istanbul, Turkey", "options": ["Istanbul, Turkey", "Ankara, Turkey", "Cairo, Egypt", "Tehran, Iran"]},
+        ]
+    }
+
+    questions = landmarks_by_difficulty.get(difficulty, landmarks_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+# ============================================================
+# FINANCIAL LITERACY GAMES
+# ============================================================
+
+def generate_money_marathon(difficulty='medium'):
+    """Make smart financial decisions under time pressure"""
+    questions_by_difficulty = {
+        'easy': [
+            {"question": "You have $20. A toy costs $12. How much change will you get?", "answer": "$8", "options": ["$8", "$12", "$6", "$10"]},
+            {"question": "What is 10% of $50?", "answer": "$5", "options": ["$5", "$10", "$15", "$20"]},
+            {"question": "A shirt is $30 with a 20% discount. What's the sale price?", "answer": "$24", "options": ["$24", "$25", "$26", "$28"]},
+            {"question": "You earn $10/hour. How much for 5 hours?", "answer": "$50", "options": ["$50", "$40", "$60", "$45"]},
+            {"question": "Which is MORE money?", "answer": "4 quarters", "options": ["4 quarters", "9 dimes", "15 nickels", "50 pennies"]},
+            {"question": "A pizza costs $18. Split between 3 people. How much each?", "answer": "$6", "options": ["$6", "$9", "$5", "$7"]},
+            {"question": "Sales tax is 5%. What's tax on $100?", "answer": "$5", "options": ["$5", "$10", "$15", "$20"]},
+        ],
+        'medium': [
+            {"question": "You buy 3 items: $12.50, $8.75, and $15.25. What's the total?", "answer": "$36.50", "options": ["$36.50", "$35.50", "$37.50", "$38.00"]},
+            {"question": "A $500 bike is 30% off. What do you pay?", "answer": "$350", "options": ["$350", "$300", "$400", "$375"]},
+            {"question": "You have a $100 budget. Items cost $45, $38, $22. Can you buy all?", "answer": "No, over budget", "options": ["No, over budget", "Yes, under budget", "Exactly $100", "Need $5 more"]},
+            {"question": "Interest on $1000 at 5% for 1 year?", "answer": "$50", "options": ["$50", "$100", "$25", "$75"]},
+            {"question": "Best deal: 5 pencils for $2 OR 12 pencils for $4?", "answer": "12 for $4", "options": ["12 for $4", "5 for $2", "Same price", "Can't tell"]},
+        ],
+        'hard': [
+            {"question": "Investment of $5000 at 8% annual return for 2 years (simple interest)?", "answer": "$5800", "options": ["$5800", "$5400", "$6000", "$5600"]},
+            {"question": "Monthly payment on $300 if you pay it off in 6 months (no interest)?", "answer": "$50", "options": ["$50", "$60", "$40", "$45"]},
+            {"question": "Your budget is $2000/month. Rent=$800, Food=$400, Transport=$200. How much left?", "answer": "$600", "options": ["$600", "$500", "$700", "$400"]},
+            {"question": "Stock bought at $25, sold at $35. What's the percent gain?", "answer": "40%", "options": ["40%", "25%", "50%", "35%"]},
+        ]
+    }
+
+    questions = questions_by_difficulty.get(difficulty, questions_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
+
+
+def generate_investment_simulator(difficulty='medium'):
+    """Build your portfolio and understand investing"""
+    questions_by_difficulty = {
+        'easy': [
+            {"question": "What is a stock?", "answer": "Ownership in a company", "options": ["Ownership in a company", "A loan to a company", "A savings account", "A type of bond"]},
+            {"question": "What does diversification mean?", "answer": "Spreading money across investments", "options": ["Spreading money across investments", "Buying one stock only", "Selling everything", "Keeping cash"]},
+            {"question": "Which is generally safer?", "answer": "Savings account", "options": ["Savings account", "Individual stocks", "Cryptocurrency", "Futures trading"]},
+            {"question": "What is a dividend?", "answer": "Company profit paid to shareholders", "options": ["Company profit paid to shareholders", "Stock price increase", "Investment fee", "Tax payment"]},
+            {"question": "What's the benefit of starting to invest early?", "answer": "More time for compound growth", "options": ["More time for compound growth", "Lower taxes", "Guaranteed returns", "No risk"]},
+        ],
+        'medium': [
+            {"question": "What is an index fund?", "answer": "Fund tracking a market index", "options": ["Fund tracking a market index", "Single company stock", "Real estate fund", "Bond only fund"]},
+            {"question": "What is compound interest?", "answer": "Interest on interest", "options": ["Interest on interest", "One-time interest", "Monthly fees", "Tax penalty"]},
+            {"question": "Which has higher potential returns and risk?", "answer": "Stocks", "options": ["Stocks", "Bonds", "Savings accounts", "CDs"]},
+            {"question": "What is asset allocation?", "answer": "How you divide investments", "options": ["How you divide investments", "Buying stocks only", "Selling everything", "Day trading"]},
+            {"question": "What's a 401(k)?", "answer": "Retirement investment account", "options": ["Retirement investment account", "Type of stock", "Savings account", "Credit card"]},
+        ],
+        'hard': [
+            {"question": "What is a PE ratio?", "answer": "Price to Earnings ratio", "options": ["Price to Earnings ratio", "Profit Estimate ratio", "Public Exchange ratio", "Portfolio Equity ratio"]},
+            {"question": "What is dollar-cost averaging?", "answer": "Investing same amount regularly", "options": ["Investing same amount regularly", "Buying low selling high", "One large investment", "Only buying dips"]},
+            {"question": "What are capital gains?", "answer": "Profit from selling investments", "options": ["Profit from selling investments", "Dividend payments", "Interest earned", "Initial investment"]},
+            {"question": "What is market volatility?", "answer": "Price fluctuation rate", "options": ["Price fluctuation rate", "Company bankruptcy", "High returns", "Low risk"]},
+        ]
+    }
+
+    questions = questions_by_difficulty.get(difficulty, questions_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:20]
+
+
+# ============================================================
+# CHARACTER EDUCATION GAMES (RespectRealm)
+# ============================================================
+
+def generate_etiquette_expert(difficulty='medium'):
+    """Choose the polite and respectful response"""
+    scenarios_by_difficulty = {
+        'easy': [
+            {"question": "Someone holds the door open for you. What should you say?", "answer": "Thank you", "options": ["Thank you", "Nothing", "You're welcome", "Excuse me"]},
+            {"question": "You need to interrupt a conversation. What should you say?", "answer": "Excuse me", "options": ["Excuse me", "Hey!", "Listen!", "Move"]},
+            {"question": "When should you say 'please'?", "answer": "When asking for something", "options": ["When asking for something", "When angry", "Never", "Only with strangers"]},
+            {"question": "At dinner, when should you start eating?", "answer": "After everyone is served", "options": ["After everyone is served", "Immediately", "When you want", "Last"]},
+            {"question": "You bump into someone. What do you say?", "answer": "I'm sorry/Excuse me", "options": ["I'm sorry/Excuse me", "Watch out", "Your fault", "Nothing"]},
+            {"question": "Someone gives you a gift. What's the first thing to say?", "answer": "Thank you", "options": ["Thank you", "I don't like it", "How much was it?", "I have one"]},
+        ],
+        'medium': [
+            {"question": "You're invited to dinner at 6pm. When should you arrive?", "answer": "5-10 minutes early or on time", "options": ["5-10 minutes early or on time", "30 minutes early", "30 minutes late", "Whenever you want"]},
+            {"question": "At a restaurant, who should order first?", "answer": "Guests/older people first", "options": ["Guests/older people first", "Youngest first", "Whoever is hungriest", "Doesn't matter"]},
+            {"question": "Someone's phone is ringing in a movie. They should:", "answer": "Silence it immediately", "options": ["Silence it immediately", "Answer quietly", "Let it ring", "Leave it"]},
+            {"question": "You disagree with an adult. How should you express it?", "answer": "Respectfully state your view", "options": ["Respectfully state your view", "Argue loudly", "Say they're wrong", "Stay silent even if important"]},
+            {"question": "Meeting someone new, what's appropriate?", "answer": "Handshake and eye contact", "options": ["Handshake and eye contact", "Hug immediately", "Wave from far away", "Look at phone"]},
+        ],
+        'hard': [
+            {"question": "At a formal dinner, which fork do you use first?", "answer": "Outermost fork", "options": ["Outermost fork", "Biggest fork", "Smallest fork", "Doesn't matter"]},
+            {"question": "Someone makes a mistake in public. The polite response is:", "answer": "Ignore it or help privately", "options": ["Ignore it or help privately", "Point it out loudly", "Laugh", "Tell everyone"]},
+            {"question": "You receive a gift you don't like. You should:", "answer": "Thank them graciously anyway", "options": ["Thank them graciously anyway", "Say you don't like it", "Don't say anything", "Ask for receipt"]},
+            {"question": "In a disagreement, you should:", "answer": "Listen first, then respond calmly", "options": ["Listen first, then respond calmly", "Interrupt to correct them", "Raise your voice", "Walk away immediately"]},
+        ]
+    }
+
+    questions = scenarios_by_difficulty.get(difficulty, scenarios_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+def generate_virtue_quest(difficulty='medium'):
+    """Identify virtues and character traits in action"""
+    scenarios_by_difficulty = {
+        'easy': [
+            {"question": "Sarah finds $20 and returns it to the owner. What virtue is this?", "answer": "Honesty", "options": ["Honesty", "Kindness", "Courage", "Patience"]},
+            {"question": "Tom helps an elderly neighbor carry groceries. What is this?", "answer": "Kindness", "options": ["Kindness", "Justice", "Wisdom", "Faith"]},
+            {"question": "Emma tells the truth even though she'll get in trouble. What is this?", "answer": "Honesty", "options": ["Honesty", "Foolishness", "Meanness", "Pride"]},
+            {"question": "David waits his turn without complaining. What virtue?", "answer": "Patience", "options": ["Patience", "Laziness", "Fear", "Anger"]},
+            {"question": "Maria stands up to a bully. What does this show?", "answer": "Courage", "options": ["Courage", "Anger", "Meanness", "Pride"]},
+        ],
+        'medium': [
+            {"question": "John apologizes after making a mistake. This shows:", "answer": "Humility", "options": ["Humility", "Weakness", "Pride", "Fear"]},
+            {"question": "Lisa resists cheating even when others do. This is:", "answer": "Integrity", "options": ["Integrity", "Foolishness", "Pride", "Weakness"]},
+            {"question": "Mike forgives his friend who hurt him. This shows:", "answer": "Forgiveness/Mercy", "options": ["Forgiveness/Mercy", "Weakness", "Forgetfulness", "Fear"]},
+            {"question": "Anna works hard even when no one is watching. This is:", "answer": "Diligence/Integrity", "options": ["Diligence/Integrity", "Showing off", "Wasting time", "Pride"]},
+            {"question": "Bible verse: 'Love is patient, love is kind' describes:", "answer": "True love/Charity", "options": ["True love/Charity", "Weakness", "Foolishness", "Romance only"]},
+        ],
+        'hard': [
+            {"question": "Joseph chose prison over sin (Genesis 39). This shows:", "answer": "Integrity/Purity", "options": ["Integrity/Purity", "Foolishness", "Fear", "Pride"]},
+            {"question": "Daniel prayed publicly despite the law. This is:", "answer": "Faithfulness/Courage", "options": ["Faithfulness/Courage", "Rebellion", "Stupidity", "Showing off"]},
+            {"question": "Opposite of humility is:", "answer": "Pride", "options": ["Pride", "Confidence", "Courage", "Honesty"]},
+            {"question": "'Whatever is true, noble, right...' (Phil 4:8) teaches:", "answer": "Guard your thoughts", "options": ["Guard your thoughts", "Think positive only", "Ignore problems", "Be judgmental"]},
+        ]
+    }
+
+    questions = scenarios_by_difficulty.get(difficulty, scenarios_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+# ============================================================
+# CRITICAL THINKING GAMES (TruthForge)
+# ============================================================
+
+def generate_logic_lock(difficulty='medium'):
+    """Spot logical fallacies and test reasoning"""
+    fallacies_by_difficulty = {
+        'easy': [
+            {"question": "'Everyone's doing it, so it must be okay.' What fallacy is this?", "answer": "Bandwagon/Appeal to popularity", "options": ["Bandwagon/Appeal to popularity", "Ad hominem", "Straw man", "False cause"]},
+            {"question": "'You're wrong because you're a bad person.' What fallacy?", "answer": "Ad hominem", "options": ["Ad hominem", "Straw man", "Slippery slope", "Red herring"]},
+            {"question": "'If we allow A, then Z will definitely happen!' What fallacy?", "answer": "Slippery slope", "options": ["Slippery slope", "False dilemma", "Straw man", "Circular reasoning"]},
+            {"question": "'You either agree with me or you hate freedom.' What fallacy?", "answer": "False dilemma", "options": ["False dilemma", "Ad hominem", "Bandwagon", "Straw man"]},
+            {"question": "'It happened after X, so X must have caused it.' What fallacy?", "answer": "False cause", "options": ["False cause", "Straw man", "Ad hominem", "Circular reasoning"]},
+        ],
+        'medium': [
+            {"question": "'You can't prove it's NOT true, so it must be true.' What fallacy?", "answer": "Appeal to ignorance", "options": ["Appeal to ignorance", "Burden of proof", "Straw man", "Red herring"]},
+            {"question": "'The Bible is true because the Bible says it's true.' What fallacy?", "answer": "Circular reasoning", "options": ["Circular reasoning", "Valid argument", "Straw man", "False dilemma"]},
+            {"question": "'You don't have a PhD, so your argument is wrong.' What fallacy?", "answer": "Appeal to authority/credentials", "options": ["Appeal to authority/credentials", "Ad hominem", "Valid reasoning", "Straw man"]},
+            {"question": "'Let's talk about something else instead.' What fallacy?", "answer": "Red herring", "options": ["Red herring", "Straw man", "Ad hominem", "False dilemma"]},
+        ],
+        'hard': [
+            {"question": "'No true Christian would ever doubt.' What fallacy?", "answer": "No true Scotsman", "options": ["No true Scotsman", "Appeal to purity", "Straw man", "Ad hominem"]},
+            {"question": "'Science can't explain X, therefore God.' What fallacy?", "answer": "God of the gaps", "options": ["God of the gaps", "Valid argument", "Appeal to ignorance", "False cause"]},
+            {"question": "'I'm a good person, so God owes me.' What fallacy?", "answer": "Works righteousness", "options": ["Works righteousness", "Valid theology", "Humility", "Faith"]},
+        ]
+    }
+
+    questions = fallacies_by_difficulty.get(difficulty, fallacies_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+def generate_worldview_warriors(difficulty='medium'):
+    """Compare worldviews and defend biblical truth"""
+    questions_by_difficulty = {
+        'easy': [
+            {"question": "What is a worldview?", "answer": "How you see/interpret reality", "options": ["How you see/interpret reality", "Your favorite view", "Just opinions", "Scientific facts"]},
+            {"question": "Christianity teaches that truth is:", "answer": "Absolute and from God", "options": ["Absolute and from God", "Relative to each person", "Unknowable", "Created by society"]},
+            {"question": "The Bible says all humans have:", "answer": "Value because made in God's image", "options": ["Value because made in God's image", "Value only if successful", "No inherent value", "Value from society"]},
+            {"question": "Who determines right and wrong in Christianity?", "answer": "God", "options": ["God", "Each person decides", "Society decides", "No one, it's relative"]},
+            {"question": "The Bible's view of the universe's origin is:", "answer": "Created by God", "options": ["Created by God", "Random chance", "Always existed", "Unknown"]},
+        ],
+        'medium': [
+            {"question": "Relativism claims that:", "answer": "Truth is different for everyone", "options": ["Truth is different for everyone", "Truth is absolute", "Truth comes from God", "Truth is knowable"]},
+            {"question": "Secular humanism places ultimate authority in:", "answer": "Human reason", "options": ["Human reason", "God's revelation", "Nature", "Tradition"]},
+            {"question": "The problem with 'your truth vs my truth' is:", "answer": "Contradictions can't both be true", "options": ["Contradictions can't both be true", "It's perfectly logical", "It respects everyone", "It's scientifically proven"]},
+            {"question": "Christianity's basis for morality is:", "answer": "God's unchanging character", "options": ["God's unchanging character", "Human opinion", "Cultural norms", "Evolutionary benefit"]},
+        ],
+        'hard': [
+            {"question": "Naturalism claims that:", "answer": "Only physical/material exists", "options": ["Only physical/material exists", "Spiritual realm exists", "God created nature", "Miracles are possible"]},
+            {"question": "The cosmological argument states:", "answer": "Everything caused needs a Cause", "options": ["Everything caused needs a Cause", "Universe created itself", "No explanation needed", "Science disproves God"]},
+            {"question": "If atheism is true, then:", "answer": "No objective morality exists", "options": ["No objective morality exists", "Morality still objective", "We create meaning", "All views are invalid"]},
+            {"question": "The moral argument for God says:", "answer": "Objective morality needs a Moral Lawgiver", "options": ["Objective morality needs a Moral Lawgiver", "Morality evolved", "Morality is cultural", "Morality doesn't exist"]},
+        ]
+    }
+
+    questions = questions_by_difficulty.get(difficulty, questions_by_difficulty["medium"]).copy()
+    random.shuffle(questions)
+    return questions[:15]
+
+
+# ============================================================
 # GAME SESSION MANAGEMENT - UPDATED FOR DIFFICULTY
 # ============================================================
 
