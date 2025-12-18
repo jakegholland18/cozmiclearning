@@ -3334,71 +3334,38 @@ def admin_portal():
 
 @app.route("/admin_mode/<mode>")
 def admin_set_mode(mode):
-    """Quick access to different user modes - auto-selects first available user"""
+    """Quick access to DEMO user modes - SECURITY: Only uses dedicated demo accounts"""
     if not session.get("admin_authenticated"):
         flash("Admin authentication required.", "error")
         return redirect("/secret_admin_login")
 
-    # Handle different modes
+    # Handle different modes - SECURITY: Only use demo accounts
     if mode == "student":
-        # Find first student and switch to their view
-        student = Student.query.first()
+        # SECURITY: Only find demo student account
+        student = Student.query.filter_by(student_email="demo.student@cozmiclearning.admin").first()
         if not student:
-            # Auto-create demo student for admin testing
-            demo_parent = Parent.query.first()
-            if not demo_parent:
-                demo_parent = Parent(
-                    email="demo_parent@cozmiclearning.com",
-                    name="Demo Parent",
-                    plan="premium",
-                    password_hash=generate_password_hash("demo123"),
-                    access_code=generate_parent_access_code()
-                )
-                db.session.add(demo_parent)
-                db.session.flush()
-
-            student = Student(
-                parent_id=demo_parent.id,
-                student_name="Demo Student",
-                student_email="demo_student@cozmiclearning.com"
-            )
-            db.session.add(student)
-            db.session.commit()
-            flash("Created demo student for admin testing.", "info")
+            flash("❌ Demo student account not found. Run create_demo_accounts.py first.", "error")
+            return redirect("/admin")
         return redirect(f"/admin/switch_to_student/{student.id}")
 
     elif mode == "parent":
-        # Find first parent (non-homeschool) and switch to their view
-        parent = Parent.query.filter(
-            ~Parent.plan.in_(["homeschool_essential", "homeschool_complete"])
-        ).first()
+        # SECURITY: Only find demo parent account
+        parent = Parent.query.filter_by(email="demo.parent@cozmiclearning.admin").first()
         if not parent:
-            # If no regular parent, try any parent
-            parent = Parent.query.first()
-        if not parent:
-            # Auto-create demo parent for admin testing
-            parent = Parent(
-                email="demo_parent@cozmiclearning.com",
-                name="Demo Parent",
-                plan="premium",
-                password_hash=generate_password_hash("demo123"),
-                access_code=generate_parent_access_code()
-            )
-            db.session.add(parent)
-            db.session.commit()
-            flash("Created demo parent for admin testing.", "info")
+            flash("❌ Demo parent account not found. Run create_demo_accounts.py first.", "error")
+            return redirect("/admin")
         return redirect(f"/admin/switch_to_parent/{parent.id}")
 
     elif mode == "teacher":
-        # Find first teacher and switch to their view
-        teacher = Teacher.query.first()
+        # SECURITY: Only find demo teacher account
+        teacher = Teacher.query.filter_by(email="demo.teacher@cozmiclearning.admin").first()
         if not teacher:
-            flash("No teachers found in database. Create a teacher first.", "error")
+            flash("❌ Demo teacher account not found. Run create_demo_accounts.py first.", "error")
             return redirect("/admin")
         return redirect(f"/admin/switch_to_teacher/{teacher.id}")
 
     elif mode == "homeschool":
-        # Redirect to homeschool switch (which auto-selects homeschool parent)
+        # Redirect to homeschool switch (which uses demo homeschool parent)
         return redirect("/admin/switch_to_homeschool")
 
     else:
@@ -3416,7 +3383,7 @@ def admin_logout():
 
 @app.route("/admin/switch_to_student/<int:student_id>")
 def admin_switch_to_student(student_id):
-    """Admin: switch to student view"""
+    """Admin: switch to DEMO student view only (security-safe preview mode)"""
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
@@ -3426,11 +3393,16 @@ def admin_switch_to_student(student_id):
         flash("Student not found.", "error")
         return redirect("/admin")
 
+    # SECURITY: Only allow switching to demo accounts
+    if student.student_email not in ["demo.student@cozmiclearning.admin", "demo.homeschool.student@cozmiclearning.admin"]:
+        flash("❌ Security Error: Can only switch to demo accounts. Real student accounts cannot be accessed by admin.", "error")
+        return redirect("/admin")
+
     # Save admin flags before clearing
     admin_authenticated = session.get("admin_authenticated")
     is_owner_flag = session.get("is_owner")
 
-    # Clear session and log in as this student
+    # Clear session and log in as this DEMO student
     session.clear()
     session["student_id"] = student.id
 
@@ -3442,13 +3414,13 @@ def admin_switch_to_student(student_id):
 
     init_user()
 
-    flash(f"🔧 Admin mode: Viewing as student {student.student_name}", "success")
+    flash(f"🔧 Admin Preview Mode: Viewing as DEMO student {student.student_name}", "success")
     return redirect("/dashboard")
 
 
 @app.route("/admin/switch_to_parent/<int:parent_id>")
 def admin_switch_to_parent(parent_id):
-    """Admin: switch to parent view"""
+    """Admin: switch to DEMO parent view only (security-safe preview mode)"""
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
@@ -3458,11 +3430,16 @@ def admin_switch_to_parent(parent_id):
         flash("Parent not found.", "error")
         return redirect("/admin")
 
+    # SECURITY: Only allow switching to demo accounts
+    if parent.email not in ["demo.parent@cozmiclearning.admin", "demo.homeschool@cozmiclearning.admin"]:
+        flash("❌ Security Error: Can only switch to demo accounts. Real parent accounts cannot be accessed by admin.", "error")
+        return redirect("/admin")
+
     # Save admin flags before clearing
     admin_authenticated = session.get("admin_authenticated")
     is_owner_flag = session.get("is_owner")
 
-    # Clear session and log in as this parent
+    # Clear session and log in as this DEMO parent
     session.clear()
     session["parent_id"] = parent.id
 
@@ -3472,13 +3449,13 @@ def admin_switch_to_parent(parent_id):
     if is_owner_flag:
         session["is_owner"] = True
 
-    flash(f"🔧 Admin mode: Viewing as parent {parent.name}", "success")
+    flash(f"🔧 Admin Preview Mode: Viewing as DEMO parent {parent.name}", "success")
     return redirect("/parent_dashboard")
 
 
 @app.route("/admin/switch_to_teacher/<int:teacher_id>")
 def admin_switch_to_teacher(teacher_id):
-    """Admin: switch to teacher view"""
+    """Admin: switch to DEMO teacher view only (security-safe preview mode)"""
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
@@ -3488,11 +3465,16 @@ def admin_switch_to_teacher(teacher_id):
         flash("Teacher not found.", "error")
         return redirect("/admin")
 
+    # SECURITY: Only allow switching to demo accounts
+    if teacher.email != "demo.teacher@cozmiclearning.admin":
+        flash("❌ Security Error: Can only switch to demo accounts. Real teacher accounts cannot be accessed by admin.", "error")
+        return redirect("/admin")
+
     # Save admin flags before clearing
     admin_authenticated = session.get("admin_authenticated")
     is_owner_flag = session.get("is_owner")
 
-    # Clear session and log in as this teacher
+    # Clear session and log in as this DEMO teacher
     session.clear()
     session["teacher_id"] = teacher.id
 
@@ -3502,40 +3484,29 @@ def admin_switch_to_teacher(teacher_id):
     if is_owner_flag:
         session["is_owner"] = True
 
-    flash(f"🔧 Admin mode: Viewing as teacher {teacher.name}", "success")
+    flash(f"🔧 Admin Preview Mode: Viewing as DEMO teacher {teacher.name}", "success")
     return redirect("/teacher/dashboard")
 
 
 @app.route("/admin/switch_to_homeschool")
 def admin_switch_to_homeschool():
-    """Admin: switch to homeschool view using a demo homeschool parent account"""
+    """Admin: switch to DEMO homeschool view only (security-safe preview mode)"""
     if not is_admin():
         flash("Access denied.", "error")
         return redirect("/")
 
-    # Find any homeschool parent (one with homeschool plan)
-    homeschool_parent = Parent.query.filter(
-        (Parent.plan == "homeschool_essential") | (Parent.plan == "homeschool_complete")
-    ).first()
+    # SECURITY: Only use the dedicated demo homeschool parent account
+    homeschool_parent = Parent.query.filter_by(email="demo.homeschool@cozmiclearning.admin").first()
 
     if not homeschool_parent:
-        # Auto-create demo homeschool parent for admin testing
-        homeschool_parent = Parent(
-            email="demo_homeschool@cozmiclearning.com",
-            name="Demo Homeschool Parent",
-            plan="homeschool_complete",
-            password_hash=generate_password_hash("demo123"),
-            access_code=generate_parent_access_code()
-        )
-        db.session.add(homeschool_parent)
-        db.session.commit()
-        flash("Created demo homeschool parent for admin testing.", "info")
+        flash("❌ Demo homeschool account not found. Run create_demo_accounts.py first.", "error")
+        return redirect("/admin")
 
     # Save admin flags before clearing
     admin_authenticated = session.get("admin_authenticated")
     is_owner_flag = session.get("is_owner")
 
-    # Clear session and log in as this homeschool parent
+    # Clear session and log in as this DEMO homeschool parent
     session.clear()
     session["parent_id"] = homeschool_parent.id
     session["user_role"] = "homeschool"
@@ -3549,7 +3520,7 @@ def admin_switch_to_homeschool():
 
     init_user()
 
-    flash(f"🔧 Admin mode: Viewing as homeschool parent {homeschool_parent.name}", "success")
+    flash(f"🔧 Admin Preview Mode: Viewing as DEMO homeschool parent {homeschool_parent.name}", "success")
     return redirect("/homeschool/dashboard")
 
 
