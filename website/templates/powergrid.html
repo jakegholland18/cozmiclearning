@@ -559,14 +559,29 @@ body {
         </div>
     </div>
 
-    <!-- Study Mode Selector -->
+    <!-- Study Mode Selector - Regenerate Guide -->
     <div class="mode-selector">
-        <button class="mode-btn active" data-mode="standard">📚 Standard</button>
-        <button class="mode-btn" data-mode="quick">⚡ Quick Summary</button>
-        <button class="mode-btn" data-mode="deep">🔬 Deep Dive</button>
-        <button class="mode-btn" data-mode="socratic">💭 Socratic Mode</button>
-        <button class="mode-btn" data-mode="flashcards">🎴 Flashcards</button>
-        <button class="mode-btn" data-mode="quiz">🎯 Quiz Me</button>
+        <form id="modeForm" action="/powergrid_regenerate" method="POST" style="display: contents;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="study_mode" id="selectedMode" value="standard">
+            <input type="hidden" name="learning_style" value="balanced">
+
+            <button type="button" class="mode-btn active" data-mode="standard" onclick="regenerateWithMode('standard')">📚 Standard</button>
+            <button type="button" class="mode-btn" data-mode="quick" onclick="regenerateWithMode('quick')">⚡ Quick Summary</button>
+            <button type="button" class="mode-btn" data-mode="deep" onclick="regenerateWithMode('deep')">🔬 Deep Dive</button>
+            <button type="button" class="mode-btn" data-mode="socratic" onclick="regenerateWithMode('socratic')">💭 Socratic Mode</button>
+            <button type="button" class="mode-btn" data-mode="flashcards">🎴 Flashcards</button>
+            <button type="button" class="mode-btn" data-mode="quiz">🎯 Quiz Me</button>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="regenerateOverlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+            <div style="font-size: 4rem; animation: spin 1s linear infinite;">⚡</div>
+            <div style="color: #00f2ff; font-size: 1.5rem; font-weight: 700; margin-top: 20px;">Regenerating Study Guide...</div>
+            <div style="color: #6dd5ed; font-size: 1rem; margin-top: 10px;">This may take a few moments</div>
+        </div>
     </div>
 
     <!-- Action Bar -->
@@ -626,6 +641,20 @@ let currentMode = 'standard';
 let highlightMode = false;
 const studyText = {{ answer|tojson }};
 
+// Regenerate study guide with selected mode
+function regenerateWithMode(mode) {
+    // Show loading overlay
+    document.getElementById('regenerateOverlay').style.display = 'block';
+
+    // Update active button
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+    // Set mode and submit form
+    document.getElementById('selectedMode').value = mode;
+    document.getElementById('modeForm').submit();
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     formatStudyGuide();
@@ -633,15 +662,15 @@ document.addEventListener('DOMContentLoaded', () => {
     trackProgress();
     animatePowerBattery();
     calculateReadingTime();
-    
-    // Mode selector
+
+    // Mode selector for non-regenerating modes (flashcards, quiz)
     document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentMode = btn.dataset.mode;
-            handleModeChange(currentMode);
-        });
+        if(btn.dataset.mode === 'flashcards' || btn.dataset.mode === 'quiz') {
+            btn.addEventListener('click', () => {
+                currentMode = btn.dataset.mode;
+                handleModeChange(currentMode);
+            });
+        }
     });
 });
 

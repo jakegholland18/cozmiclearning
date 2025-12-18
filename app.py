@@ -10684,6 +10684,11 @@ def powergrid_submit():
     else:
         combined_text = "No content provided."
 
+    # Store source data in session for regeneration with different modes
+    session["powergrid_source"] = combined_text
+    session["powergrid_topic"] = topic or "Multi-source study guide"
+    session.modified = True
+
     # Generate study guide with mode and style
     try:
         study_guide = study_helper.generate_powergrid_master_guide(
@@ -10766,6 +10771,93 @@ def download_study_guide():
     if not pdf or not os.path.exists(pdf):
         return "PDF not found."
     return send_file(pdf, as_attachment=True)
+
+
+@app.route("/powergrid_regenerate", methods=["POST"])
+@csrf.exempt
+def powergrid_regenerate():
+    """Regenerate PowerGrid study guide with different mode"""
+    init_user()
+
+    # Get new mode from form
+    study_mode = request.form.get("study_mode", "standard")
+    learning_style = request.form.get("learning_style", "balanced")
+
+    # Get stored source data from session
+    combined_text = session.get("powergrid_source")
+    topic = session.get("powergrid_topic", "Multi-source study guide")
+    grade = session.get("grade", "8")
+
+    if not combined_text:
+        flash("Session expired. Please submit your content again.", "error")
+        return redirect("/powergrid")
+
+    # Regenerate study guide with new mode
+    try:
+        study_guide = study_helper.generate_powergrid_master_guide(
+            combined_text, grade, session.get("character", "nova"),
+            mode=study_mode, learning_style=learning_style
+        )
+    except Exception as e:
+        app.logger.error(f"PowerGrid regeneration failed: {e}")
+        flash("Sorry, there was an error regenerating your study guide. Please try again.", "error")
+        return redirect("/powergrid")
+
+    # Generate PDF
+    import uuid
+    from textwrap import wrap
+
+    pdf_path = f"/tmp/study_guide_{uuid.uuid4().hex}.pdf"
+
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.units import inch
+
+        c = canvas.Canvas(pdf_path, pagesize=letter)
+        width, height = letter
+        y = height - 50
+
+        # Header
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(40, y, f"PowerGrid Study Guide ({study_mode.title()} Mode)")
+        y -= 30
+        c.setFont("Helvetica", 10)
+        c.drawString(40, y, f"Generated: {datetime.now().strftime('%B %d, %Y')}")
+        y -= 30
+
+        # Content
+        c.setFont("Helvetica", 11)
+        for line in study_guide.split("\n"):
+            for wrapped in wrap(line if line else " ", 95):
+                if y < 40:
+                    c.showPage()
+                    y = height - 50
+                    c.setFont("Helvetica", 11)
+                c.drawString(40, y, wrapped)
+                y -= 15
+
+        c.save()
+        session["study_pdf"] = pdf_path
+        pdf_url = "/download_study_guide"
+    except Exception as e:
+        app.logger.error(f"PDF generation error: {e}")
+        pdf_url = None
+
+    session["conversation"] = []
+    session["deep_study_chat"] = []
+    session.modified = True
+
+    return render_template(
+        "powergrid.html",
+        subject="power_grid",
+        grade=grade,
+        question=topic,
+        answer=study_guide,
+        character=session.get("character", "nova"),
+        conversation=session["conversation"],
+        pdf_url=pdf_url,
+    )
 
 
 # ============================================================

@@ -367,28 +367,8 @@
             <p>Upload files, paste URLs, or enter a topic. PowerGrid will create your perfect study guide.</p>
 
             <input type="hidden" name="grade" value="{{ grade }}">
-
-            <!-- Study Mode Selection -->
-            <div style="margin-bottom: 15px;">
-                <label><strong>Study Mode:</strong></label>
-                <select name="study_mode" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
-                    <option value="standard">📚 Standard (Balanced)</option>
-                    <option value="quick">⚡ Quick Summary</option>
-                    <option value="deep">🔬 Deep Dive (Maximum Detail)</option>
-                    <option value="socratic">💭 Socratic (Question-Based)</option>
-                </select>
-            </div>
-
-            <!-- Learning Style Selection -->
-            <div style="margin-bottom: 15px;">
-                <label><strong>Learning Style:</strong></label>
-                <select name="learning_style" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(118,131,255,0.3); background: rgba(0,0,0,0.3); color: #f7fbff;">
-                    <option value="balanced">🎯 Balanced (Mix of All)</option>
-                    <option value="visual">👁️ Visual (Diagrams & Charts)</option>
-                    <option value="auditory">👂 Auditory (Verbal Patterns)</option>
-                    <option value="kinesthetic">✋ Kinesthetic (Hands-On)</option>
-                </select>
-            </div>
+            <input type="hidden" name="study_mode" value="standard">
+            <input type="hidden" name="learning_style" value="balanced">
 
             <!-- Multiple File Upload -->
             <div class="upload-box">
