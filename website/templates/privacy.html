@@ -1,104 +1,405 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block content %}
 
-<div class="page-wrapper" style="max-width:900px; margin:40px auto; color:white;">
+<style>
+  .legal-wrapper {
+      max-width: 900px;
+      margin: 40px auto 60px;
+      padding: 30px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 18px;
+      color: #f5f7ff;
+      line-height: 1.7;
+      box-shadow: 0 0 30px rgba(0,0,0,0.65);
+  }
 
-<h1>Privacy Policy</h1>
-<p>Last updated: {{ now }}</p>
+  .legal-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #bfe6ff;
+      text-align: center;
+      text-shadow: 0 0 12px #5ecbff;
+  }
 
-<h2>1. Information We Collect</h2>
-<p><strong>Account Information:</strong> We collect name, email address, password (stored securely as a hash), and date of birth for all users.</p>
-<p><strong>Student Learning Data:</strong> We collect questions asked, AI-generated responses, assessment results, scores, time spent learning, subject and topic selections, character preferences, and progress tracking data.</p>
-<p><strong>Parent/Teacher Data:</strong> For parents and teachers, we collect name, email, and account linking information.</p>
-<p><strong>Subscription Details:</strong> Plan type, billing frequency, trial dates, and subscription status.</p>
-<p><strong>Session Data:</strong> Login times, session duration, and activity logs.</p>
+  .legal-subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      color: #cbd6ff;
+      opacity: 0.8;
+  }
 
-<h2>2. Use of Information</h2>
-<p>We use collected data to:</p>
-<ul>
-    <li>Personalize learning experiences and adapt difficulty levels</li>
-    <li>Track student progress and generate reports for parents and teachers</li>
-    <li>Manage subscriptions and process payments</li>
-    <li>Improve our AI tutoring algorithms and educational content</li>
-    <li>Monitor for inappropriate content and ensure child safety</li>
-    <li>Comply with legal requirements and COPPA regulations</li>
-</ul>
+  .legal-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: #ffd86b;
+      text-shadow: 0 0 8px rgba(255,216,107,0.4);
+  }
 
-<h2>3. Cookies and Session Management</h2>
-<p>We use secure session cookies to maintain user login state, track XP and tokens, store character preferences, and manage authentication. Cookies are HTTPOnly and Secure to prevent unauthorized access.</p>
+  .legal-section p {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 0.98rem;
+  }
 
-<h2>4. Payment Information</h2>
-<p>All payment processing is handled securely by Stripe, a PCI DSS compliant payment processor. We do not store credit card numbers, CVV codes, or other sensitive payment information on our servers.</p>
+  .legal-section ul {
+      margin: 10px 0;
+      padding-left: 25px;
+  }
 
-<h2>5. Children's Privacy (COPPA Compliance)</h2>
-<p><strong>Important:</strong> CozmicLearning is subject to the Children's Online Privacy Protection Act (COPPA).</p>
+  .legal-section li {
+      margin-bottom: 8px;
+      color: #c4d1ff;
+  }
 
-<p><strong>Age Verification:</strong> We require all users to provide their date of birth during signup.</p>
+  .legal-highlight {
+      font-weight: 600;
+      color: #ffeb9a;
+  }
 
-<p><strong>Parental Consent for Children Under 13:</strong> Children under 13 years of age are <strong>required</strong> to sign up using a parent access code. This ensures verifiable parental consent before we collect any personal information from children under 13.</p>
+  .legal-warning {
+      background: rgba(0, 242, 255, 0.1);
+      border-left: 4px solid #00f2ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+  }
+</style>
 
-<p><strong>Data We Collect from Children:</strong> For children under 13 with parental consent, we collect:</p>
-<ul>
-    <li>Name and email address (for account creation)</li>
-    <li>Date of birth (for age verification)</li>
-    <li>Learning questions and AI-generated educational responses</li>
-    <li>Progress data, scores, and time spent learning</li>
-    <li>Character and subject preferences</li>
-</ul>
+<div class="legal-wrapper fade-in">
 
-<p><strong>Content Moderation:</strong> All questions asked by students are automatically moderated for inappropriate content using AI filtering and keyword detection. Parents are notified of any flagged content.</p>
+    <h1 class="legal-title">CozmicLearning — Privacy Policy</h1>
+    <div class="legal-subtitle">
+        Last Updated: <span class="legal-highlight">December 18, 2024</span>
+    </div>
 
-<p><strong>Parental Rights:</strong> Parents have the right to:</p>
-<ul>
-    <li>Review all personal information collected from their child</li>
-    <li>Request deletion of their child's personal information</li>
-    <li>Revoke consent and refuse further collection of their child's data</li>
-    <li>View all questions their child has asked and responses received</li>
-</ul>
+    <div class="legal-warning">
+        <p style="margin: 0; font-weight: 600; color: #00f2ff;">
+            🔒 Your privacy matters to us. This Privacy Policy explains how we collect, use, protect,
+            and share your information when you use CozmicLearning.
+        </p>
+    </div>
 
-<p>To exercise these rights, parents should contact us at <strong>jakegholland18@gmail.com</strong>.</p>
+    <div class="legal-section">
+        <div class="legal-section-title">1. Information We Collect</div>
 
-<h2>6. Data Sharing and Third Parties</h2>
-<p>We do not sell, rent, or share student personal information with third parties for marketing purposes.</p>
-<p>We share limited data with:</p>
-<ul>
-    <li><strong>OpenAI:</strong> Student questions are sent to OpenAI's API for generating educational responses. Questions are moderated before sending.</li>
-    <li><strong>Stripe:</strong> For payment processing (parents/teachers only, never student payment data).</li>
-    <li><strong>Email Service Provider:</strong> For sending notifications and reports to parents and teachers.</li>
-</ul>
+        <p><strong class="legal-highlight">Account Information:</strong></p>
+        <p>When you create an account, we collect:</p>
+        <ul>
+            <li>Name (first and last name)</li>
+            <li>Email address</li>
+            <li>Password (stored securely as a bcrypt hash, never in plain text)</li>
+            <li>Date of birth (for age verification and COPPA compliance)</li>
+            <li>Account type (student, parent/guardian, teacher)</li>
+        </ul>
 
-<h2>7. Data Retention</h2>
-<p>We retain student learning data for as long as the account remains active. When an account is deleted, all personal information is permanently removed within 30 days, except as required by law.</p>
+        <p><strong class="legal-highlight">Student Learning Data:</strong></p>
+        <p>For students using the platform, we collect:</p>
+        <ul>
+            <li>Questions asked to the AI tutor</li>
+            <li>AI-generated responses and explanations</li>
+            <li>Assessment results, quiz scores, and practice problem performance</li>
+            <li>Time spent learning on each subject and topic</li>
+            <li>Subject and topic selections</li>
+            <li>Character preferences (Everly, Nova, Lio, Jasmine, Theo)</li>
+            <li>Progress tracking data (XP, levels, achievements, streaks)</li>
+            <li>Study guides and notes created</li>
+        </ul>
 
-<h2>8. Data Protection and Security</h2>
-<p>We implement security measures including:</p>
-<ul>
-    <li>Password hashing using industry-standard bcrypt</li>
-    <li>Secure HTTPS connections for all data transmission</li>
-    <li>HTTPOnly and Secure session cookies to prevent XSS attacks</li>
-    <li>Input validation and sanitization to prevent SQL injection</li>
-    <li>Content moderation to filter inappropriate content</li>
-    <li>Regular security audits and updates</li>
-</ul>
-<p>However, no system is completely secure. We cannot guarantee absolute security of data transmitted over the internet.</p>
+        <p><strong class="legal-highlight">Parent/Teacher Data:</strong></p>
+        <p>For parents and teachers, we collect:</p>
+        <ul>
+            <li>Name and email address</li>
+            <li>Access codes and student linking information</li>
+            <li>Class and student management data (teachers only)</li>
+            <li>Parent dashboard settings and preferences</li>
+        </ul>
 
-<h2>9. Your Rights</h2>
-<p>All users (or parents on behalf of children under 13) have the right to:</p>
-<ul>
-    <li>Access their personal information</li>
-    <li>Request correction of inaccurate data</li>
-    <li>Request deletion of their account and data</li>
-    <li>Export their learning data</li>
-    <li>Opt out of non-essential communications</li>
-</ul>
+        <p><strong class="legal-highlight">Subscription & Payment Information:</strong></p>
+        <ul>
+            <li>Plan type (Basic, Premium, or Trial)</li>
+            <li>Billing frequency (monthly or yearly)</li>
+            <li>Trial start and end dates</li>
+            <li>Subscription status (active, cancelled, expired)</li>
+            <li><strong>Note:</strong> Credit card information is handled directly by Stripe and never stored on our servers</li>
+        </ul>
 
-<h2>10. Changes to This Policy</h2>
-<p>We may update this Privacy Policy periodically. We will notify users of significant changes via email and update the "Last updated" date at the top of this page.</p>
+        <p><strong class="legal-highlight">Usage & Session Data:</strong></p>
+        <ul>
+            <li>Login and logout times</li>
+            <li>Session duration and activity patterns</li>
+            <li>Pages visited and features used</li>
+            <li>Device type and browser information</li>
+            <li>IP address (for security and fraud prevention)</li>
+        </ul>
+    </div>
 
-<h2>11. Contact Information</h2>
-<p>For privacy-related questions, COPPA inquiries, or to exercise your data rights, please contact us at:</p>
-<p><strong>Email:</strong> jakegholland18@gmail.com</p>
-<p><strong>Subject Line:</strong> Privacy Request - CozmicLearning</p>
+    <div class="legal-section">
+        <div class="legal-section-title">2. How We Use Your Information</div>
+        <p>We use the collected information to:</p>
+        <ul>
+            <li><strong>Personalize Learning:</strong> Adapt AI responses, difficulty levels, and content recommendations to each student's needs</li>
+            <li><strong>Track Progress:</strong> Monitor learning progress, generate reports, and provide insights to students, parents, and teachers</li>
+            <li><strong>Manage Subscriptions:</strong> Process payments, handle billing, manage trials, and send account-related communications</li>
+            <li><strong>Improve Our Service:</strong> Analyze usage patterns to enhance AI tutoring quality, fix bugs, and develop new features</li>
+            <li><strong>Ensure Safety:</strong> Moderate content for inappropriate material, detect misuse, and maintain a safe learning environment</li>
+            <li><strong>Comply with Laws:</strong> Meet legal obligations including COPPA requirements and data protection regulations</li>
+            <li><strong>Communicate:</strong> Send important updates, notifications, and educational content (with opt-out options)</li>
+        </ul>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">3. Cookies & Session Management</div>
+        <p>
+            We use <span class="legal-highlight">secure session cookies</span> to maintain your login state and
+            provide a seamless experience across the platform.
+        </p>
+        <p><strong>What We Store in Cookies:</strong></p>
+        <ul>
+            <li>Login session identifier (encrypted)</li>
+            <li>Character selection preferences</li>
+            <li>Current XP, tokens, and level (for students)</li>
+            <li>Learning progress tracking</li>
+        </ul>
+        <p>
+            <strong>Cookie Security:</strong> All cookies are marked as <code>HTTPOnly</code> and <code>Secure</code>
+            to prevent unauthorized access and cross-site scripting (XSS) attacks. Session cookies expire when you
+            log out or after a period of inactivity.
+        </p>
+        <p>
+            We do <span class="legal-highlight">not use tracking cookies</span> for advertising or sell your data
+            to third-party advertisers.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">4. Payment Processing & Security</div>
+        <p>
+            All payment transactions are processed through <span class="legal-highlight">Stripe</span>, a
+            PCI DSS Level 1 certified payment processor that meets the highest security standards.
+        </p>
+        <p><strong>What This Means:</strong></p>
+        <ul>
+            <li>Credit card numbers, CVV codes, and payment details are handled <strong>directly by Stripe</strong></li>
+            <li>We <strong>never see or store</strong> your full credit card information</li>
+            <li>Payment data is encrypted in transit and at rest</li>
+            <li>Stripe's security measures exceed industry requirements</li>
+        </ul>
+        <p>
+            We only store non-sensitive payment metadata like subscription type, billing frequency, and payment status.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">5. Children's Privacy (COPPA Compliance)</div>
+
+        <div class="legal-warning">
+            <p style="margin: 0; font-weight: 600; color: #00f2ff;">
+                CozmicLearning takes children's privacy very seriously and fully complies with the Children's
+                Online Privacy Protection Act (COPPA).
+            </p>
+        </div>
+
+        <p><strong class="legal-highlight">Age Verification:</strong></p>
+        <p>
+            All users must provide their date of birth during signup. This allows us to verify age and apply
+            appropriate privacy protections.
+        </p>
+
+        <p><strong class="legal-highlight">Parental Consent for Children Under 13:</strong></p>
+        <p>
+            Children under 13 years of age are <strong>required to sign up using a parent access code</strong>.
+            This ensures we obtain verifiable parental consent before collecting any personal information from
+            children under 13.
+        </p>
+        <p>
+            The parent must first create a parent account, receive a unique access code, and provide that code
+            to their child during signup. This mechanism ensures we have documented parental consent.
+        </p>
+
+        <p><strong class="legal-highlight">Information Collected from Children Under 13:</strong></p>
+        <p>With parental consent, we collect:</p>
+        <ul>
+            <li>Name and email address (for account creation and communication)</li>
+            <li>Date of birth (for age verification)</li>
+            <li>Learning questions and AI-generated educational responses</li>
+            <li>Progress data, assessment scores, and time spent learning</li>
+            <li>Character and subject preferences</li>
+            <li>Study guides and educational content created</li>
+        </ul>
+
+        <p><strong class="legal-highlight">Content Moderation & Safety:</strong></p>
+        <p>
+            All questions asked by students (regardless of age) are automatically moderated for inappropriate
+            content using:
+        </p>
+        <ul>
+            <li>AI-powered content filtering</li>
+            <li>Keyword detection for prohibited topics</li>
+            <li>Pattern recognition for potential safety concerns</li>
+        </ul>
+        <p>
+            Parents are <span class="legal-highlight">immediately notified</span> via email if any flagged
+            content is detected from their child's account.
+        </p>
+
+        <p><strong class="legal-highlight">Parental Rights:</strong></p>
+        <p>Parents have the right to:</p>
+        <ul>
+            <li><strong>Review:</strong> Access all personal information collected from their child</li>
+            <li><strong>Delete:</strong> Request permanent deletion of their child's data at any time</li>
+            <li><strong>Revoke Consent:</strong> Withdraw consent and prevent further collection</li>
+            <li><strong>View Activity:</strong> See all questions their child has asked and responses received</li>
+            <li><strong>Control Access:</strong> Manage their child's account, set time limits, and restrict features</li>
+        </ul>
+        <p>
+            To exercise these rights, parents can use the parent dashboard or contact us at
+            <span class="legal-highlight">jakegholland18@gmail.com</span>.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">6. Data Sharing & Third Parties</div>
+
+        <p class="legal-highlight" style="font-size: 1.05rem;">
+            We do NOT sell, rent, or share student personal information with third parties for marketing purposes.
+        </p>
+
+        <p><strong>Limited Data Sharing:</strong></p>
+        <p>We share data only with trusted service providers necessary to operate the platform:</p>
+
+        <p><strong>OpenAI (AI Provider):</strong></p>
+        <ul>
+            <li>Student questions are sent to OpenAI's API to generate educational responses</li>
+            <li>Questions are moderated before sending to filter inappropriate content</li>
+            <li>OpenAI processes data according to their API data usage policy</li>
+            <li>Student names and personally identifiable information are NOT sent to OpenAI</li>
+        </ul>
+
+        <p><strong>Stripe (Payment Processing):</strong></p>
+        <ul>
+            <li>Payment information for subscriptions (parents/teachers only)</li>
+            <li>Student payment data is NEVER collected or shared</li>
+        </ul>
+
+        <p><strong>Email Service Provider:</strong></p>
+        <ul>
+            <li>Email addresses for sending account notifications, progress reports, and platform updates</li>
+            <li>Parents can opt out of non-essential communications</li>
+        </ul>
+
+        <p><strong>Legal Requirements:</strong></p>
+        <p>
+            We may disclose information if required by law, court order, or to protect the rights,
+            property, or safety of CozmicLearning, our users, or the public.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">7. Data Retention & Deletion</div>
+        <p>
+            We retain student learning data for as long as the account remains active to provide continuous
+            progress tracking and personalized learning experiences.
+        </p>
+        <p><strong>Account Deletion:</strong></p>
+        <ul>
+            <li>Users can request account deletion at any time through account settings or by contacting us</li>
+            <li>Upon deletion, all personal information is <span class="legal-highlight">permanently removed within 30 days</span></li>
+            <li>Some data may be retained longer if required by law (e.g., billing records for tax purposes)</li>
+            <li>Anonymized usage data (with no personal identifiers) may be retained for analytics</li>
+        </ul>
+        <p><strong>Inactive Accounts:</strong></p>
+        <p>
+            Accounts inactive for more than 2 years may be automatically deleted after email notification
+            to the registered email address.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">8. Data Security Measures</div>
+        <p>We implement multiple layers of security to protect your data:</p>
+        <ul>
+            <li><strong>Password Protection:</strong> All passwords are hashed using bcrypt (industry-standard one-way encryption)</li>
+            <li><strong>HTTPS Encryption:</strong> All data transmitted between your device and our servers is encrypted using TLS</li>
+            <li><strong>Secure Cookies:</strong> HTTPOnly and Secure flags prevent unauthorized cookie access</li>
+            <li><strong>Input Validation:</strong> All user input is validated and sanitized to prevent SQL injection and XSS attacks</li>
+            <li><strong>Content Moderation:</strong> AI filtering and keyword detection prevent inappropriate content</li>
+            <li><strong>Access Controls:</strong> Role-based permissions ensure users only access their own data</li>
+            <li><strong>Regular Audits:</strong> Security reviews and updates to address emerging threats</li>
+            <li><strong>Database Security:</strong> Encrypted databases with restricted access</li>
+        </ul>
+        <p>
+            <strong>Important:</strong> While we implement strong security measures, no system is completely secure.
+            We cannot guarantee absolute security of data transmitted over the internet.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">9. Your Privacy Rights</div>
+        <p>All users (or parents on behalf of children under 13) have the right to:</p>
+        <ul>
+            <li><strong>Access:</strong> Request a copy of all personal information we have collected</li>
+            <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
+            <li><strong>Deletion:</strong> Request permanent deletion of your account and all associated data</li>
+            <li><strong>Export:</strong> Download your learning data in a portable format</li>
+            <li><strong>Opt-Out:</strong> Unsubscribe from non-essential email communications</li>
+            <li><strong>Restrict Processing:</strong> Limit how we use your data in certain circumstances</li>
+        </ul>
+        <p>
+            To exercise these rights, contact us at <span class="legal-highlight">jakegholland18@gmail.com</span>
+            with subject line <span class="legal-highlight">"Privacy Request - CozmicLearning"</span>.
+            We will respond within 30 days.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">10. International Data Transfers</div>
+        <p>
+            CozmicLearning is based in the United States. If you access the platform from outside the U.S.,
+            your information will be transferred to, stored, and processed in the United States.
+        </p>
+        <p>
+            By using CozmicLearning, you consent to the transfer of your information to the United States
+            and our handling of it in accordance with this Privacy Policy.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">11. Updates to This Privacy Policy</div>
+        <p>
+            We may update this Privacy Policy periodically to reflect changes in our practices, technology,
+            legal requirements, or other factors.
+        </p>
+        <p><strong>How We Notify You:</strong></p>
+        <ul>
+            <li>Update the "Last Updated" date at the top of this page</li>
+            <li>Email notification for significant changes</li>
+            <li>In-platform notification upon next login</li>
+        </ul>
+        <p>
+            Continued use of CozmicLearning after updates constitutes acceptance of the revised Privacy Policy.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">12. Contact Us</div>
+        <p>
+            If you have questions about this Privacy Policy, COPPA compliance, data rights, or privacy practices,
+            please contact us:
+        </p>
+        <p><strong class="legal-highlight">Email:</strong> jakegholland18@gmail.com</p>
+        <p><strong class="legal-highlight">Subject Line:</strong> Privacy Request - CozmicLearning</p>
+        <p>
+            <strong>Response Time:</strong> We will respond to all privacy inquiries within 30 days.
+        </p>
+        <p>
+            <strong>For COPPA-related parental requests</strong> (review, delete, or revoke consent for child data),
+            please include your child's name and account email in your request for verification.
+        </p>
+    </div>
 
 </div>
 

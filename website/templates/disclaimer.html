@@ -1,22 +1,271 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block content %}
 
-<div class="page-wrapper" style="max-width:900px; margin:40px auto; color:white;">
+<style>
+  .legal-wrapper {
+      max-width: 900px;
+      margin: 40px auto 60px;
+      padding: 30px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 18px;
+      color: #f5f7ff;
+      line-height: 1.7;
+      box-shadow: 0 0 30px rgba(0,0,0,0.65);
+  }
 
-<h1>Disclaimer</h1>
-<p>Last updated: {{ now }}</p>
+  .legal-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #bfe6ff;
+      text-align: center;
+      text-shadow: 0 0 12px #5ecbff;
+  }
 
-<h2>Educational Purpose Only</h2>
-<p>CozmicLearning provides general educational content powered by AI. While we aim for accuracy, the information is not guaranteed to be correct, complete, or up-to-date.</p>
+  .legal-subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      color: #cbd6ff;
+      opacity: 0.8;
+  }
 
-<h2>No Professional Advice</h2>
-<p>The platform does not provide professional academic, legal, medical, psychological, financial, or safety advice.</p>
+  .legal-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: #ffd86b;
+      text-shadow: 0 0 8px rgba(255,216,107,0.4);
+  }
 
-<h2>Parent Responsibility</h2>
-<p>Parents are responsible for supervising their child’s use of CozmicLearning and verifying all information if accuracy is critical.</p>
+  .legal-section p {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 0.98rem;
+  }
 
-<h2>AI Limitations</h2>
-<p>AI-generated content may occasionally be incorrect, outdated, or misinterpreted. Do not rely on CozmicLearning as your sole source of information.</p>
+  .legal-highlight {
+      font-weight: 600;
+      color: #ffeb9a;
+  }
+
+  .legal-warning {
+      background: rgba(255, 159, 28, 0.15);
+      border-left: 4px solid #ff9f1c;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+  }
+</style>
+
+<div class="legal-wrapper fade-in">
+
+    <h1 class="legal-title">CozmicLearning — Disclaimer</h1>
+    <div class="legal-subtitle">
+        Last Updated: <span class="legal-highlight">December 18, 2024</span>
+    </div>
+
+    <div class="legal-warning">
+        <p style="margin: 0; font-weight: 600; color: #ffd86b;">
+            ⚠️ Important: Please read this disclaimer carefully before using CozmicLearning.
+            By accessing and using our platform, you acknowledge and accept these terms.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">1. Educational Purpose Only</div>
+        <p>
+            CozmicLearning is an <span class="legal-highlight">educational enrichment platform</span> designed to
+            supplement traditional learning. Our AI-powered tutoring system provides explanations, practice problems,
+            study guides, and learning support across various subjects.
+        </p>
+        <p>
+            <strong>CozmicLearning is NOT a replacement for:</strong>
+        </p>
+        <p>
+            • Formal school instruction or certified teachers<br>
+            • Professional academic tutoring services<br>
+            • Standardized test preparation courses<br>
+            • Specialized educational therapy or intervention<br>
+            • Accredited curricula or degree programs
+        </p>
+        <p>
+            The platform is intended as a <span class="legal-highlight">study aid and learning companion</span>,
+            not as a sole source of education.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">2. AI-Generated Content Limitations</div>
+        <p>
+            CozmicLearning uses advanced artificial intelligence (AI) to generate educational content. While we
+            strive for accuracy and quality, <span class="legal-highlight">AI-generated content may occasionally
+            contain errors, inaccuracies, or outdated information</span>.
+        </p>
+        <p>
+            <strong>Known AI Limitations:</strong>
+        </p>
+        <p>
+            • <span class="legal-highlight">Factual Errors:</span> AI may provide incorrect information, especially for complex or nuanced topics<br>
+            • <span class="legal-highlight">Outdated Information:</span> AI knowledge has a cutoff date and may not reflect the most current information<br>
+            • <span class="legal-highlight">Misinterpretation:</span> AI may misunderstand questions or provide answers that don't fully address the intent<br>
+            • <span class="legal-highlight">Bias:</span> AI models can reflect biases present in their training data<br>
+            • <span class="legal-highlight">Hallucinations:</span> AI may generate plausible-sounding but entirely fabricated information
+        </p>
+        <p>
+            <strong>User Responsibility:</strong> Always verify important information with authoritative sources,
+            textbooks, teachers, or subject matter experts. Do not rely solely on CozmicLearning for critical
+            academic decisions, homework answers, or exam preparation.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">3. No Professional Advice</div>
+        <p>
+            CozmicLearning does NOT provide professional advice of any kind. Information provided through our
+            platform should not be construed as:
+        </p>
+        <p>
+            • <span class="legal-highlight">Academic Advice:</span> Course selection, career guidance, or college admissions counseling<br>
+            • <span class="legal-highlight">Medical Advice:</span> Health, mental health, or wellness recommendations<br>
+            • <span class="legal-highlight">Legal Advice:</span> Legal rights, obligations, or interpretations<br>
+            • <span class="legal-highlight">Financial Advice:</span> Investment, budgeting, or financial planning guidance<br>
+            • <span class="legal-highlight">Safety Advice:</span> Emergency procedures or safety protocols<br>
+            • <span class="legal-highlight">Psychological Advice:</span> Mental health diagnosis, therapy, or counseling
+        </p>
+        <p>
+            For professional guidance in any of these areas, please consult qualified professionals.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">4. Parent & Guardian Responsibility</div>
+        <p>
+            Parents and guardians are responsible for:
+        </p>
+        <p>
+            • <span class="legal-highlight">Supervision:</span> Monitoring their child's use of CozmicLearning<br>
+            • <span class="legal-highlight">Verification:</span> Reviewing and verifying AI-generated content for accuracy<br>
+            • <span class="legal-highlight">Academic Integrity:</span> Ensuring their child uses the platform appropriately and doesn't misuse it for cheating<br>
+            • <span class="legal-highlight">Screen Time:</span> Managing time spent on the platform according to their family's guidelines<br>
+            • <span class="legal-highlight">Content Review:</span> Checking questions and answers to ensure age-appropriateness
+        </p>
+        <p>
+            CozmicLearning provides tools for parental oversight, including content moderation alerts and usage
+            tracking, but <span class="legal-highlight">ultimate responsibility rests with parents and guardians</span>.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">5. Academic Integrity</div>
+        <p>
+            <strong>CozmicLearning is designed to HELP students learn, NOT to complete their work for them.</strong>
+        </p>
+        <p>
+            Students must:
+        </p>
+        <p>
+            • Use the platform as a learning aid, not a shortcut<br>
+            • Understand and follow their school's academic integrity policies<br>
+            • Not submit AI-generated content as their own work<br>
+            • Use explanations to develop understanding, not copy answers
+        </p>
+        <p>
+            We are <span class="legal-highlight">not responsible</span> for academic consequences resulting from
+            misuse of the platform, including plagiarism, cheating, or violations of school policies.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">6. No Guarantees of Academic Improvement</div>
+        <p>
+            While CozmicLearning is designed to support learning and skill development, we make
+            <span class="legal-highlight">no guarantees regarding academic improvement, test scores, grades,
+            or educational outcomes</span>.
+        </p>
+        <p>
+            Results vary based on individual effort, learning style, prior knowledge, and many other factors
+            beyond our control.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">7. No Liability for Content Accuracy</div>
+        <p>
+            To the fullest extent permitted by law, CozmicLearning and its owners, employees, partners, and
+            AI providers (including OpenAI) are <span class="legal-highlight">not liable for</span>:
+        </p>
+        <p>
+            • Incorrect, incomplete, or misleading AI-generated information<br>
+            • Academic consequences from using the platform (poor grades, academic integrity violations, etc.)<br>
+            • Decisions made based on information provided by the platform<br>
+            • Technical issues, service interruptions, or data loss<br>
+            • Any direct, indirect, incidental, or consequential damages arising from use of the Service
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">8. Service Availability</div>
+        <p>
+            CozmicLearning is provided on an <span class="legal-highlight">"as is" and "as available" basis</span>.
+            We do not guarantee:
+        </p>
+        <p>
+            • Continuous, uninterrupted, or error-free service<br>
+            • Compatibility with all devices or browsers<br>
+            • Preservation of all data during technical issues<br>
+            • Specific response times or availability during peak usage
+        </p>
+        <p>
+            We reserve the right to modify, suspend, or discontinue any part of the Service at any time
+            without prior notice.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">9. Third-Party Content & Links</div>
+        <p>
+            CozmicLearning may reference or link to third-party resources, websites, or educational materials.
+            We are <span class="legal-highlight">not responsible for</span> the accuracy, availability, or
+            content of external sites.
+        </p>
+        <p>
+            Access to third-party content is at your own risk and subject to the terms and policies of those
+            third parties.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">10. Changes to This Disclaimer</div>
+        <p>
+            We may update this disclaimer from time to time. Continued use of CozmicLearning after updates
+            constitutes acceptance of the revised disclaimer.
+        </p>
+        <p>
+            Check the "Last Updated" date at the top of this page to see when changes were made.
+        </p>
+    </div>
+
+    <div class="legal-section">
+        <div class="legal-section-title">11. Questions or Concerns</div>
+        <p>
+            If you have questions about this disclaimer or concerns about content accuracy, please contact us at:
+        </p>
+        <p>
+            <span class="legal-highlight">jakegholland18@gmail.com</span>
+        </p>
+        <p>
+            Subject Line: <span class="legal-highlight">Disclaimer Inquiry - CozmicLearning</span>
+        </p>
+    </div>
+
+    <div class="legal-warning" style="margin-top: 30px;">
+        <p style="margin: 0; font-weight: 600; color: #ffd86b;">
+            By using CozmicLearning, you acknowledge that you have read, understood, and agree to this disclaimer.
+            If you do not agree, please discontinue use of the platform immediately.
+        </p>
+    </div>
 
 </div>
 
