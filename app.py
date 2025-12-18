@@ -10803,46 +10803,9 @@ def powergrid_regenerate():
         flash("Sorry, there was an error regenerating your study guide. Please try again.", "error")
         return redirect("/powergrid")
 
-    # Generate PDF
-    import uuid
-    from textwrap import wrap
-
-    pdf_path = f"/tmp/study_guide_{uuid.uuid4().hex}.pdf"
-
-    try:
-        from reportlab.pdfgen import canvas
-        from reportlab.lib.pagesizes import letter
-        from reportlab.lib.units import inch
-
-        c = canvas.Canvas(pdf_path, pagesize=letter)
-        width, height = letter
-        y = height - 50
-
-        # Header
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(40, y, f"PowerGrid Study Guide ({study_mode.title()} Mode)")
-        y -= 30
-        c.setFont("Helvetica", 10)
-        c.drawString(40, y, f"Generated: {datetime.now().strftime('%B %d, %Y')}")
-        y -= 30
-
-        # Content
-        c.setFont("Helvetica", 11)
-        for line in study_guide.split("\n"):
-            for wrapped in wrap(line if line else " ", 95):
-                if y < 40:
-                    c.showPage()
-                    y = height - 50
-                    c.setFont("Helvetica", 11)
-                c.drawString(40, y, wrapped)
-                y -= 15
-
-        c.save()
-        session["study_pdf"] = pdf_path
-        pdf_url = "/download_study_guide"
-    except Exception as e:
-        app.logger.error(f"PDF generation error: {e}")
-        pdf_url = None
+    # Skip PDF generation during regeneration to avoid timeout
+    # Users can use browser print or original PDF from first generation
+    pdf_url = None
 
     session["conversation"] = []
     session["deep_study_chat"] = []
