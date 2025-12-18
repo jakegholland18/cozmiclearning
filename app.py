@@ -7342,7 +7342,7 @@ def teacher_assign_questions():
 
         data = request.get_json() or {}
 
-        class_id = data.get("class_id", type=int)
+        class_id = int(data.get("class_id", 0)) if data.get("class_id") else None
         title = safe_text(data.get("title", ""), 120)
         subject = safe_text(data.get("subject", "terra_nova"), 50)
         topic = safe_text(data.get("topic", ""), 500)
@@ -7350,7 +7350,7 @@ def teacher_assign_questions():
         character = safe_text(data.get("character", "nova"), 50)
         differentiation_mode = data.get("differentiation_mode", "none")
         student_ability = data.get("student_ability", "on_level")
-        num_questions = data.get("num_questions", 10)
+        num_questions = int(data.get("num_questions", 10)) if data.get("num_questions") else 10
         open_str = data.get("open_date", "").strip()
         due_str = data.get("due_date", "").strip()
 
