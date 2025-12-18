@@ -347,6 +347,63 @@ function initializeEnterKeySubmission() {
 }
 
 // ================================================================
+// BACK TO DASHBOARD BUTTON
+// ================================================================
+
+function initializeDashboardButton() {
+    // Don't add button on dashboard pages themselves
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/dashboard') ||
+        currentPath === '/' ||
+        currentPath.includes('/login') ||
+        currentPath.includes('/signup')) {
+        return;
+    }
+
+    // Determine which dashboard URL to use based on user role
+    let dashboardUrl = null;
+    let dashboardLabel = null;
+
+    // Check navigation links to determine user type
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    if (navLinks.querySelector('a[href="/dashboard"]')) {
+        // Student
+        dashboardUrl = '/dashboard';
+        dashboardLabel = '🏠 Back to Student Dashboard';
+    } else if (navLinks.querySelector('a[href="/parent_dashboard"]')) {
+        // Parent
+        dashboardUrl = '/parent_dashboard';
+        dashboardLabel = '🏠 Back to Parent Dashboard';
+    } else if (navLinks.querySelector('a[href="/teacher/dashboard"]')) {
+        // Teacher
+        dashboardUrl = '/teacher/dashboard';
+        dashboardLabel = '🏠 Back to Teacher Dashboard';
+    }
+
+    if (!dashboardUrl) return;
+
+    // Create button container
+    const container = document.createElement('div');
+    container.className = 'dashboard-btn-container';
+
+    // Create button
+    const button = document.createElement('a');
+    button.href = dashboardUrl;
+    button.className = 'back-to-dashboard';
+    button.innerHTML = `<span>←</span><span>${dashboardLabel}</span>`;
+
+    container.appendChild(button);
+
+    // Insert at the beginning of the main content area
+    const contentContainer = document.querySelector('.container');
+    if (contentContainer && contentContainer.firstChild) {
+        contentContainer.insertBefore(container, contentContainer.firstChild);
+    }
+}
+
+// ================================================================
 // INIT & EXPORTS
 // ================================================================
 
@@ -354,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeHelpButton();
     makeButtonsFriendly();
     initializeEnterKeySubmission();
+    initializeDashboardButton();
 });
 
 // Export for use in inline scripts

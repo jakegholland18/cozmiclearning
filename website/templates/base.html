@@ -115,6 +115,51 @@
             position: relative;
             z-index: 1;
         }
+
+        /* Back to Dashboard Button */
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 16px var(--shadow-soft);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-to-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow-strong);
+            background: linear-gradient(135deg, var(--primary-2), var(--accent-2));
+        }
+
+        .dashboard-btn-container {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Make dashboard link in nav more prominent */
+        nav a[href*="dashboard"] {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.2), rgba(0, 242, 255, 0.1));
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+            font-weight: 600;
+        }
+
+        nav a[href*="dashboard"]:hover {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.3), rgba(0, 242, 255, 0.2));
+            border-color: var(--accent);
+        }
     </style>
 </head>
 
@@ -132,7 +177,7 @@
 
             <!-- Student Links -->
             {% if session.get('is_student') %}
-                <a href="/dashboard">Student Dashboard</a>
+                <a href="/dashboard">🏠 Dashboard</a>
                 <a href="/subjects">Subjects</a>
                 <a href="/student/assignments">Assignments</a>
                 <a href="/logout">Logout</a>
@@ -140,13 +185,13 @@
 
             <!-- Parent Links -->
             {% if session.get('is_parent') %}
-                <a href="/parent_dashboard">Parent Dashboard</a>
+                <a href="/parent_dashboard">🏠 Dashboard</a>
                 <a href="/logout">Logout</a>
             {% endif %}
 
             <!-- Teacher Links -->
             {% if session.get('teacher_id') %}
-                <a href="/teacher/dashboard">Teacher</a>
+                <a href="/teacher/dashboard">🏠 Dashboard</a>
                 <a href="/teacher/logout">Logout</a>
             {% endif %}
 
