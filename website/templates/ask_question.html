@@ -219,35 +219,90 @@
         font-size: 0.95rem;
     }
 
-    /* ⭐ THINKING BOX */
+    /* ⭐ THINKING BOX - Enhanced Visibility */
     #thinking-box {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         background: linear-gradient(135deg,
-            rgba(139, 92, 246, 0.15),
-            rgba(59, 130, 246, 0.08)
+            rgba(139, 92, 246, 0.95),
+            rgba(59, 130, 246, 0.90)
         );
-        border: 2px solid rgba(139, 92, 246, 0.35);
-        color: #c5daf5;
-        padding: 10px 14px;
-        border-radius: 10px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+        padding: 30px 50px;
+        border-radius: 20px;
         text-align: center;
-        margin: 8px auto 0;
-        font-size: 0.95rem;
-        font-weight: 600;
+        font-size: 1.4rem;
+        font-weight: 700;
         opacity: 0;
-        transition: all 0.25s ease;
-        width: fit-content;
-        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
-        backdrop-filter: blur(10px);
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 10000;
+        box-shadow:
+            0 20px 60px rgba(139, 92, 246, 0.6),
+            0 0 100px rgba(139, 92, 246, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(20px);
+        min-width: 400px;
     }
 
     .thinking-show {
         opacity: 1 !important;
-        animation: pulse 1.2s ease-in-out infinite;
+        pointer-events: all !important;
+        animation: thinkingPulse 1.5s ease-in-out infinite;
     }
 
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+    @keyframes thinkingPulse {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow:
+                0 20px 60px rgba(139, 92, 246, 0.6),
+                0 0 100px rgba(139, 92, 246, 0.4);
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow:
+                0 25px 70px rgba(139, 92, 246, 0.8),
+                0 0 120px rgba(139, 92, 246, 0.6);
+        }
+    }
+
+    /* Loading spinner */
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Overlay to prevent clicks during loading */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .loading-overlay.show {
+        opacity: 1;
+        pointer-events: all;
     }
 </style>
 
@@ -278,8 +333,14 @@
         </div>
     </div>
 
+    <!-- ⭐ LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading-overlay"></div>
+
     <!-- ⭐ THINKING MESSAGE -->
-    <div id="thinking-box" aria-live="polite" role="status">✨ Preparing your cosmic answer… ✨</div>
+    <div id="thinking-box" aria-live="polite" role="status">
+        ✨ Preparing your cosmic answer…
+        <span class="spinner"></span>
+    </div>
 
     <!-- MAIN FORM AREA -->
     {% if subject == "power_grid" %}
@@ -375,23 +436,28 @@
 
 </div>
 
-<!-- ⭐ FIXED JS: ENTER-TO-SUBMIT + THINKING -->
+<!-- ⭐ ENHANCED JS: ENTER-TO-SUBMIT + PROMINENT LOADING -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
     const box = document.getElementById("thinking-box");
+    const overlay = document.getElementById("loading-overlay");
 
     const messages = [
         "✨ Thinking at warp speed...",
         "🌌 Consulting stardust libraries...",
         "🔭 Looking through cosmic archives...",
         "🛸 Gathering interstellar wisdom...",
-        "🌠 Asking the Galaxy Council..."
+        "🌠 Asking the Galaxy Council...",
+        "💫 Processing your question...",
+        "🚀 AI engines activated..."
     ];
 
     function showThinking() {
-        box.textContent = messages[Math.floor(Math.random() * messages.length)];
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        box.innerHTML = randomMessage + ' <span class="spinner"></span>';
         box.classList.add("thinking-show");
+        overlay.classList.add("show");
     }
 
     // For both forms
@@ -408,7 +474,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Buttons also trigger thinking
-        field.closest("form").addEventListener("submit", showThinking);
+        field.closest("form").addEventListener("submit", (e) => {
+            showThinking();
+        });
     });
 
 });
