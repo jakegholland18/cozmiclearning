@@ -309,12 +309,51 @@ function showAchievementUnlock(icon, name, description) {
 }
 
 // ================================================================
+// GLOBAL ENTER KEY SUBMISSION
+// ================================================================
+
+function initializeEnterKeySubmission() {
+    // Add Enter key support for all textareas and text inputs
+    document.addEventListener('keydown', (e) => {
+        // Only handle Enter key
+        if (e.key !== 'Enter') return;
+
+        const target = e.target;
+
+        // Handle textareas (Enter without Shift submits)
+        if (target.tagName === 'TEXTAREA') {
+            // Skip if Shift is held (allow multi-line)
+            if (e.shiftKey) return;
+
+            // Find the closest form
+            const form = target.closest('form');
+            if (form) {
+                e.preventDefault();
+                form.submit();
+            }
+        }
+
+        // Handle text/email/url inputs (Enter always submits)
+        if (target.tagName === 'INPUT' &&
+            (target.type === 'text' || target.type === 'email' ||
+             target.type === 'url' || target.type === 'search')) {
+            const form = target.closest('form');
+            if (form) {
+                e.preventDefault();
+                form.submit();
+            }
+        }
+    });
+}
+
+// ================================================================
 // INIT & EXPORTS
 // ================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeHelpButton();
     makeButtonsFriendly();
+    initializeEnterKeySubmission();
 });
 
 // Export for use in inline scripts

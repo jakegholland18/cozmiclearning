@@ -10,8 +10,21 @@ UPDATED: December 2024
 """
 
 import random
+import time
 from datetime import datetime
 from models import db, GameSession, GameLeaderboard, ArcadeGame
+
+
+# ============================================================
+# RANDOM SEED HELPER
+# ============================================================
+
+def reseed_random():
+    """
+    Reseed the random number generator with current time.
+    Call this at the start of each game generation to ensure fresh questions.
+    """
+    random.seed(time.time() + random.random())
 
 
 # ============================================================
@@ -349,6 +362,8 @@ def generate_multiple_choice(correct_answer, wrong_range=20, count=3):
 
 def generate_speed_math(difficulty='medium'):
     """Generate math problems based on difficulty level"""
+    reseed_random()  # Ensure fresh questions every time
+
     questions = []
     seen_questions = set()
     max_attempts = 200  # Prevent infinite loops

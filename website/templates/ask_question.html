@@ -346,7 +346,7 @@
     {% if subject == "power_grid" %}
 
         <!-- PowerGrid Study Guide Generator -->
-        <form action="/powergrid_submit" method="POST" enctype="multipart/form-data" class="ask-form">
+        <form id="powergrid-form" action="/powergrid_submit" method="POST" enctype="multipart/form-data" class="ask-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <h3 style="margin-top:0;">📚 Build a Custom Study Guide</h3>
@@ -380,7 +380,7 @@
             <div class="divider">OR</div>
 
             <!-- Manual Topic -->
-            <textarea name="topic" placeholder="Type a topic you want turned into a study guide..."></textarea>
+            <textarea id="powergrid-topic" name="topic" placeholder="Type a topic you want turned into a study guide..."></textarea>
 
             <button type="submit">Generate Study Guide</button>
         </form>
@@ -426,8 +426,8 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.classList.add("show");
     }
 
-    // For both forms
-    ["question-1", "question-2"].forEach(id => {
+    // For all question/topic input fields
+    ["question-1", "question-2", "powergrid-topic"].forEach(id => {
         const field = document.getElementById(id);
         if (!field) return;
 
@@ -444,6 +444,14 @@ document.addEventListener("DOMContentLoaded", () => {
             showThinking();
         });
     });
+
+    // Also attach to PowerGrid form directly (for file uploads, URLs, etc.)
+    const powergridForm = document.getElementById("powergrid-form");
+    if (powergridForm) {
+        powergridForm.addEventListener("submit", (e) => {
+            showThinking();
+        });
+    }
 
 });
 

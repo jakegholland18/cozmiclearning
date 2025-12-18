@@ -1,0 +1,887 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .tutorials-container {
+        max-width: 1400px;
+        margin: 24px auto;
+        padding: 0 20px;
+    }
+
+    .tutorials-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, rgba(92,107,255,0.12), rgba(71,200,255,0.08));
+        border-radius: 20px;
+        border: 1px solid rgba(118,131,255,0.35);
+    }
+
+    .tutorials-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 16px;
+    }
+
+    .tutorials-header p {
+        font-size: 1.1rem;
+        color: var(--muted-2);
+        margin-bottom: 24px;
+    }
+
+    /* AI Chat Assistant */
+    .ai-help-section {
+        background: linear-gradient(135deg, rgba(0,242,255,0.1), rgba(92,107,255,0.1));
+        border: 2px solid rgba(0,242,255,0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 40px;
+    }
+
+    .ai-help-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .ai-help-header h2 {
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin: 0;
+    }
+
+    .ai-chat-container {
+        background: rgba(2,2,10,0.6);
+        border-radius: 12px;
+        padding: 20px;
+        min-height: 300px;
+        max-height: 500px;
+        overflow-y: auto;
+        margin-bottom: 16px;
+    }
+
+    .ai-message {
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        max-width: 80%;
+    }
+
+    .ai-message.user {
+        background: rgba(92,107,255,0.3);
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .ai-message.assistant {
+        background: rgba(0,242,255,0.2);
+        margin-right: auto;
+    }
+
+    .ai-message.assistant::before {
+        content: "🤖 AI Assistant: ";
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .ai-input-section {
+        display: flex;
+        gap: 12px;
+    }
+
+    .ai-input {
+        flex: 1;
+        padding: 12px 16px;
+        background: rgba(2,2,10,0.8);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .ai-send-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        border: none;
+        border-radius: 10px;
+        color: var(--text);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .ai-send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,242,255,0.4);
+    }
+
+    .ai-send-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Tutorial Categories */
+    .tutorial-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .tutorial-tab {
+        padding: 12px 24px;
+        background: rgba(92,107,255,0.2);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 10px;
+        color: var(--text);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tutorial-tab:hover {
+        background: rgba(92,107,255,0.3);
+        transform: translateY(-2px);
+    }
+
+    .tutorial-tab.active {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-color: var(--accent);
+    }
+
+    /* Tutorial Sections */
+    .tutorial-section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tutorial-section.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tutorial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .tutorial-card {
+        background: linear-gradient(135deg, rgba(92,107,255,0.08), rgba(71,200,255,0.05));
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 16px;
+        padding: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tutorial-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px var(--shadow-strong);
+        border-color: var(--accent);
+    }
+
+    .tutorial-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .tutorial-icon {
+        font-size: 2rem;
+    }
+
+    .tutorial-card h3 {
+        font-size: 1.3rem;
+        color: var(--accent);
+        margin: 0;
+    }
+
+    .tutorial-card p {
+        color: var(--muted-2);
+        margin-bottom: 16px;
+        line-height: 1.6;
+    }
+
+    .tutorial-meta {
+        display: flex;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: var(--muted-3);
+    }
+
+    .tutorial-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Tutorial Detail Modal */
+    .tutorial-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 9999;
+        overflow-y: auto;
+        padding: 20px;
+    }
+
+    .tutorial-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .tutorial-modal-content {
+        background: linear-gradient(135deg, rgba(2,2,10,0.98), rgba(10,10,30,0.98));
+        border: 1px solid rgba(118,131,255,0.4);
+        border-radius: 20px;
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 40px;
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,77,77,0.3);
+        transform: rotate(90deg);
+    }
+
+    .tutorial-detail h2 {
+        font-size: 2rem;
+        color: var(--accent);
+        margin-bottom: 24px;
+    }
+
+    .tutorial-steps {
+        margin-top: 30px;
+    }
+
+    .tutorial-step {
+        background: rgba(92,107,255,0.08);
+        border-left: 4px solid var(--accent);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+
+    .tutorial-step h4 {
+        color: var(--accent);
+        margin-bottom: 12px;
+        font-size: 1.2rem;
+    }
+
+    .tutorial-step p {
+        color: var(--muted-2);
+        line-height: 1.8;
+        margin-bottom: 12px;
+    }
+
+    .tutorial-step ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .tutorial-step li {
+        padding: 8px 0 8px 28px;
+        position: relative;
+        color: var(--muted-2);
+    }
+
+    .tutorial-step li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    .tutorial-tip {
+        background: rgba(0,242,160,0.1);
+        border-left: 4px solid #00f2a0;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 8px;
+    }
+
+    .tutorial-tip strong {
+        color: #00f2a0;
+    }
+
+    .tutorial-warning {
+        background: rgba(255,184,0,0.1);
+        border-left: 4px solid #ffb800;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 8px;
+    }
+
+    .tutorial-warning strong {
+        color: #ffb800;
+    }
+
+    .search-container {
+        margin-bottom: 30px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 16px 50px 16px 20px;
+        background: rgba(2,2,10,0.6);
+        border: 1px solid rgba(118,131,255,0.3);
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(0,242,255,0.3);
+    }
+</style>
+
+<div class="tutorials-container">
+    <!-- Header -->
+    <div class="tutorials-header">
+        <h1>📚 CozmicLearning Tutorials</h1>
+        <p>Learn how to use every feature of CozmicLearning with step-by-step guides</p>
+
+        <!-- Search -->
+        <div class="search-container">
+            <input
+                type="text"
+                id="tutorialSearch"
+                class="search-input"
+                placeholder="🔍 Search tutorials... (e.g., 'How do I create an assignment?')"
+            >
+        </div>
+    </div>
+
+    <!-- AI Help Assistant -->
+    <div class="ai-help-section">
+        <div class="ai-help-header">
+            <span style="font-size: 2rem;">🤖</span>
+            <h2>Ask AI Assistant</h2>
+        </div>
+        <p style="color: var(--muted-2); margin-bottom: 16px;">
+            Can't find what you need? Ask our AI assistant for personalized help!
+        </p>
+
+        <div class="ai-chat-container" id="aiChatContainer">
+            <div class="ai-message assistant">
+                Hi! I'm your CozmicLearning AI assistant. Ask me anything about how to use the platform!
+                <br><br>
+                <strong>Try asking:</strong>
+                <ul style="margin-top: 8px;">
+                    <li>"How do I create my first assignment?"</li>
+                    <li>"How do I add students to a class?"</li>
+                    <li>"How does the gradebook work?"</li>
+                    <li>"What are arcade games and how do students play them?"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ai-input-section">
+            <input
+                type="text"
+                id="aiInput"
+                class="ai-input"
+                placeholder="Ask a question..."
+                onkeypress="if(event.key === 'Enter') sendAIMessage()"
+            >
+            <button class="ai-send-btn" onclick="sendAIMessage()" id="aiSendBtn">
+                Send
+            </button>
+        </div>
+    </div>
+
+    <!-- Tutorial Tabs -->
+    <div class="tutorial-tabs">
+        <button class="tutorial-tab active" onclick="showTutorialTab('getting-started')">
+            🚀 Getting Started
+        </button>
+        <button class="tutorial-tab" onclick="showTutorialTab('teachers')">
+            👨‍🏫 For Teachers
+        </button>
+        <button class="tutorial-tab" onclick="showTutorialTab('students')">
+            👨‍🎓 For Students
+        </button>
+        <button class="tutorial-tab" onclick="showTutorialTab('parents')">
+            👪 For Parents
+        </button>
+        <button class="tutorial-tab" onclick="showTutorialTab('advanced')">
+            ⚙️ Advanced Features
+        </button>
+    </div>
+
+    <!-- Getting Started Tutorials -->
+    <div id="getting-started" class="tutorial-section active">
+        <div class="tutorial-grid">
+            <div class="tutorial-card" onclick="openTutorial('account-setup')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🎯</span>
+                    <h3>Account Setup</h3>
+                </div>
+                <p>Create your account and get started in 5 minutes</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 5 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('create-first-class')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🏫</span>
+                    <h3>Create Your First Class</h3>
+                </div>
+                <p>Set up a class and get organized for teaching</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 3 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('add-students')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">👥</span>
+                    <h3>Add Students</h3>
+                </div>
+                <p>Two ways to add students to your class</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 4 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('platform-overview')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🗺️</span>
+                    <h3>Platform Overview</h3>
+                </div>
+                <p>Tour of the dashboard and main features</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 10 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Tutorials -->
+    <div id="teachers" class="tutorial-section">
+        <div class="tutorial-grid">
+            <div class="tutorial-card" onclick="openTutorial('create-assignment')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📝</span>
+                    <h3>Create Assignments</h3>
+                </div>
+                <p>Generate and customize assignments with AI</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 6 min</span>
+                    <span>📊 Intermediate</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('use-gradebook')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📊</span>
+                    <h3>Use the Gradebook</h3>
+                </div>
+                <p>Track student progress and grades</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 8 min</span>
+                    <span>📊 Intermediate</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('analytics-reports')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📈</span>
+                    <h3>Analytics & Reports</h3>
+                </div>
+                <p>Understand student performance data</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 10 min</span>
+                    <span>📊 Intermediate</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('differentiation')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🎚️</span>
+                    <h3>Differentiation Settings</h3>
+                </div>
+                <p>Adjust difficulty for each student</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 7 min</span>
+                    <span>📊 Advanced</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('manual-grading')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">✅</span>
+                    <h3>Manual Grading</h3>
+                </div>
+                <p>Review and grade student work</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 5 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('export-grades')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📥</span>
+                    <h3>Export Grades</h3>
+                </div>
+                <p>Download gradebook data to CSV</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 3 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Tutorials -->
+    <div id="students" class="tutorial-section">
+        <div class="tutorial-grid">
+            <div class="tutorial-card" onclick="openTutorial('student-login')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🚪</span>
+                    <h3>Student Login</h3>
+                </div>
+                <p>How to log in and choose your character</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 2 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('complete-assignment')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">✏️</span>
+                    <h3>Complete Assignments</h3>
+                </div>
+                <p>How to answer questions and submit work</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 4 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('explore-planets')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🪐</span>
+                    <h3>Explore Learning Planets</h3>
+                </div>
+                <p>Discover all 12 subjects</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 6 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('arcade-games')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🎮</span>
+                    <h3>Play Arcade Games</h3>
+                </div>
+                <p>Learn through 26 educational games</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 5 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('earn-achievements')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🏆</span>
+                    <h3>Earn Achievements</h3>
+                </div>
+                <p>Level up and unlock badges</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 4 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('track-progress')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📈</span>
+                    <h3>Track Your Progress</h3>
+                </div>
+                <p>See your scores and improvements</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 3 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent Tutorials -->
+    <div id="parents" class="tutorial-section">
+        <div class="tutorial-grid">
+            <div class="tutorial-card" onclick="openTutorial('monitor-progress')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">👁️</span>
+                    <h3>Monitor Child Progress</h3>
+                </div>
+                <p>View your child's scores and activity</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 5 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('homeschool-setup')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🏠</span>
+                    <h3>Homeschool Setup</h3>
+                </div>
+                <p>Set up CozmicLearning for homeschooling</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 8 min</span>
+                    <span>📊 Beginner</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('parent-reports')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📋</span>
+                    <h3>Generate Reports</h3>
+                </div>
+                <p>Create progress reports for records</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 4 min</span>
+                    <span>📊 Intermediate</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('manage-multiple-kids')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">👨‍👩‍👧‍👦</span>
+                    <h3>Manage Multiple Children</h3>
+                </div>
+                <p>Handle several students at different levels</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 6 min</span>
+                    <span>📊 Intermediate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Features -->
+    <div id="advanced" class="tutorial-section">
+        <div class="tutorial-grid">
+            <div class="tutorial-card" onclick="openTutorial('custom-questions')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🔧</span>
+                    <h3>Create Custom Questions</h3>
+                </div>
+                <p>Write your own assignment questions</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 7 min</span>
+                    <span>📊 Advanced</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('bulk-operations')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">⚡</span>
+                    <h3>Bulk Operations</h3>
+                </div>
+                <p>Add multiple students or assignments at once</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 6 min</span>
+                    <span>📊 Advanced</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('api-integration')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">🔌</span>
+                    <h3>API Integration</h3>
+                </div>
+                <p>Connect CozmicLearning to other tools</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 15 min</span>
+                    <span>📊 Expert</span>
+                </div>
+            </div>
+
+            <div class="tutorial-card" onclick="openTutorial('advanced-analytics')">
+                <div class="tutorial-card-header">
+                    <span class="tutorial-icon">📊</span>
+                    <h3>Advanced Analytics</h3>
+                </div>
+                <p>Deep dive into performance metrics</p>
+                <div class="tutorial-meta">
+                    <span>⏱️ 12 min</span>
+                    <span>📊 Advanced</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tutorial Detail Modal -->
+<div id="tutorialModal" class="tutorial-modal">
+    <div class="tutorial-modal-content">
+        <button class="modal-close" onclick="closeTutorial()">✕</button>
+        <div id="tutorialDetail" class="tutorial-detail">
+            <!-- Content loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Tutorial Tab Switching
+function showTutorialTab(tabName) {
+    // Hide all sections
+    document.querySelectorAll('.tutorial-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Remove active class from tabs
+    document.querySelectorAll('.tutorial-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Show selected section
+    document.getElementById(tabName).classList.add('active');
+
+    // Add active class to clicked tab
+    event.target.classList.add('active');
+}
+
+// AI Chat Functionality
+async function sendAIMessage() {
+    const input = document.getElementById('aiInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    const chatContainer = document.getElementById('aiChatContainer');
+    const sendBtn = document.getElementById('aiSendBtn');
+
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'ai-message user';
+    userMsg.textContent = message;
+    chatContainer.appendChild(userMsg);
+
+    // Clear input
+    input.value = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Thinking...';
+
+    // Scroll to bottom
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    try {
+        // Send to backend
+        const response = await fetch('/api/tutorial-help', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: message })
+        });
+
+        const data = await response.json();
+
+        // Add assistant response
+        const assistantMsg = document.createElement('div');
+        assistantMsg.className = 'ai-message assistant';
+        assistantMsg.innerHTML = data.answer;
+        chatContainer.appendChild(assistantMsg);
+
+    } catch (error) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'ai-message assistant';
+        errorMsg.textContent = 'Sorry, I encountered an error. Please try again or contact support.';
+        chatContainer.appendChild(errorMsg);
+    }
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Search Functionality
+document.getElementById('tutorialSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.tutorial-card');
+
+    cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const desc = card.querySelector('p').textContent.toLowerCase();
+
+        if (title.includes(searchTerm) || desc.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Open Tutorial Detail
+function openTutorial(tutorialId) {
+    fetch(`/api/tutorial/${tutorialId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('tutorialDetail').innerHTML = data.content;
+            document.getElementById('tutorialModal').classList.add('active');
+        });
+}
+
+// Close Tutorial Modal
+function closeTutorial() {
+    document.getElementById('tutorialModal').classList.remove('active');
+}
+
+// Close modal on outside click
+document.getElementById('tutorialModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeTutorial();
+    }
+});
+</script>
+
+{% endblock %}

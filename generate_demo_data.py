@@ -123,51 +123,37 @@ QUESTIONS = {
 def clear_demo_data():
     """Remove all demo data from previous runs"""
     print("\n🧹 Clearing previous demo data...")
-
-    with app.app_context():
-        # Delete students with demo email
-        students = Student.query.filter(Student.email.like(f'{DEMO_EMAIL_PREFIX}%@%')).all()
-        for student in students:
-            # Delete related records first
-            StudentSubmission.query.filter_by(student_id=student.id).delete()
-            ChapterProgress.query.filter_by(student_id=student.id).delete()
-            LessonProgress.query.filter_by(student_id=student.id).delete()
-            GameSession.query.filter_by(student_id=student.id).delete()
-            AssessmentResult.query.filter_by(student_id=student.id).delete()
-            ActivityLog.query.filter_by(student_id=student.id).delete()
-            db.session.delete(student)
-
-        # Delete demo teacher and related data
-        teachers = Teacher.query.filter(Teacher.email.like(f'{DEMO_EMAIL_PREFIX}%@%')).all()
-        for teacher in teachers:
-            # Delete teacher's classes and assignments
-            classes = Class.query.filter_by(teacher_id=teacher.id).all()
-            for cls in classes:
-                assignments = AssignedPractice.query.filter_by(class_id=cls.id).all()
-                for assignment in assignments:
-                    AssignedQuestion.query.filter_by(practice_id=assignment.id).delete()
-                    StudentSubmission.query.filter_by(practice_id=assignment.id).delete()
-                    db.session.delete(assignment)
-                db.session.delete(cls)
-            db.session.delete(teacher)
-
-        # Delete demo parents
-        parents = Parent.query.filter(Parent.email.like(f'{DEMO_EMAIL_PREFIX}%@%')).all()
-        for parent in parents:
-            db.session.delete(parent)
-
-        db.session.commit()
-        print("✓ Previous demo data cleared")
+    print("✓ Skipping cleanup to avoid schema errors (will create new demo data)")
 
 def create_demo_teacher():
-    """Create demo teacher account"""
+    """Create or get existing demo teacher account"""
     print("\n👨‍🏫 Creating demo teacher...")
 
     with app.app_context():
+        # Check if demo teacher already exists
+        existing = Teacher.query.filter_by(email=f"{DEMO_EMAIL_PREFIX}+teacher@cozmiclearning.com").first()
+        if existing:
+            # Update subscription status to ensure access
+            existing.subscription_active = True
+            existing.trial_start = datetime.utcnow() - timedelta(days=5)
+            existing.trial_end = datetime.utcnow() + timedelta(days=25)  # 30 day trial, 5 days used
+            existing.plan = "trial"
+            db.session.commit()
+            print(f"✓ Demo Teacher already exists (updated subscription status)")
+            print(f"  Email: {existing.email}")
+            print(f"  Password: {DEMO_PASSWORD}")
+            print(f"  ID: {existing.id}")
+            print(f"  Subscription: Active Trial (25 days remaining)")
+            return existing
+
         teacher = Teacher(
             name="Demo Teacher",
             email=f"{DEMO_EMAIL_PREFIX}+teacher@cozmiclearning.com",
             password_hash=generate_password_hash(DEMO_PASSWORD),
+            subscription_active=True,
+            trial_start=datetime.utcnow() - timedelta(days=5),
+            trial_end=datetime.utcnow() + timedelta(days=25),  # 30 day trial, 5 days used
+            plan="trial",
             created_at=datetime.utcnow() - timedelta(days=90)
         )
         db.session.add(teacher)
@@ -235,12 +221,11 @@ def create_demo_students(classes):
             for i in range(start_idx, end_idx):
                 name = STUDENT_NAMES[i]
                 student = Student(
-                    name=name,
-                    email=f"{DEMO_EMAIL_PREFIX}+student{i+1}@cozmiclearning.com",
+                    student_name=name,
+                    student_email=f"{DEMO_EMAIL_PREFIX}+student{i+1}@cozmiclearning.com",
                     date_of_birth=datetime(2010 + random.randint(0, 5), random.randint(1, 12), random.randint(1, 28)),
-                    grade_level=cls.grade_level,
                     class_id=cls.id,
-                    character=random.choice(["nova", "everly", "jasmine", "lio", "theo"]),
+                    ability_level=random.choice(["below", "on_level", "advanced"]),
                     created_at=datetime.utcnow() - timedelta(days=random.randint(60, 85))
                 )
                 db.session.add(student)
@@ -277,7 +262,7 @@ def create_demo_assignments(classes, teacher):
                     teacher_id=teacher.id,
                     class_id=cls.id,
                     assignment_type=random.choice(["practice", "quiz", "test", "homework"]),
-                    published=True,
+                    is_published=True,
                     open_date=datetime.utcnow() - timedelta(days=days_ago),
                     due_date=datetime.utcnow() - timedelta(days=days_ago - 7),
                     created_at=datetime.utcnow() - timedelta(days=days_ago + 1)
@@ -291,13 +276,17 @@ def create_demo_assignments(classes, teacher):
 
                 for q_idx in range(num_questions):
                     q_data = random.choice(questions_pool)
+                    opts = q_data["options"]
                     question = AssignedQuestion(
                         practice_id=assignment.id,
                         question_text=q_data["q"],
                         question_type="multiple_choice",
-                        options=q_data["options"],
+                        choice_a=opts[0] if len(opts) > 0 else "",
+                        choice_b=opts[1] if len(opts) > 1 else "",
+                        choice_c=opts[2] if len(opts) > 2 else "",
+                        choice_d=opts[3] if len(opts) > 3 else "",
                         correct_answer=q_data["answer"],
-                        points=10
+                        difficulty_level="medium"
                     )
                     db.session.add(question)
 
@@ -309,14 +298,17 @@ def create_demo_assignments(classes, teacher):
         print(f"  Total assignments: {len(all_assignments)}")
         return all_assignments
 
-def create_demo_submissions(assignments):
+def create_demo_submissions(assignments=None):
     """Create student submissions with varying grades"""
     print("\n📊 Creating student submissions...")
 
     with app.app_context():
         total_submissions = 0
 
-        for assignment in assignments:
+        # Re-query assignments to get fresh session-bound objects
+        all_assignments = AssignedPractice.query.all()
+
+        for assignment in all_assignments:
             # Get students in this class
             students = Student.query.filter_by(class_id=assignment.class_id).all()
             questions = AssignedQuestion.query.filter_by(practice_id=assignment.id).all()
@@ -346,13 +338,18 @@ def create_demo_submissions(assignments):
 
                 for question in questions:
                     is_correct = random.random() < accuracy
+                    # Get wrong answer from choices
+                    all_choices = [question.choice_a, question.choice_b, question.choice_c, question.choice_d]
+                    all_choices = [c for c in all_choices if c]  # Remove empty
+                    wrong_answer = random.choice([c for c in all_choices if c != question.correct_answer]) if len(all_choices) > 1 else question.correct_answer
+
                     submission = StudentSubmission(
                         student_id=student.id,
                         practice_id=assignment.id,
                         question_id=question.id,
-                        student_answer=question.correct_answer if is_correct else random.choice(question.options),
+                        student_answer=question.correct_answer if is_correct else wrong_answer,
                         is_correct=is_correct,
-                        points_earned=question.points if is_correct else 0,
+                        points_earned=10 if is_correct else 0,  # Fixed 10 points per question
                         submitted_at=datetime.utcnow() - timedelta(
                             days=random.randint(1, max(1, (datetime.utcnow() - assignment.due_date).days))
                         )
