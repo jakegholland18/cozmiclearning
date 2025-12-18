@@ -674,13 +674,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Process markdown formatting (bold, italic, etc.)
+function processMarkdown(text) {
+    // Convert **bold** to <strong>
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong style="color: #00f2ff;">$1</strong>');
+    // Convert *italic* to <em>
+    text = text.replace(/\*(.+?)\*/g, '<em style="color: #6dd5ed;">$1</em>');
+    return text;
+}
+
 // Format Study Guide with proper HTML structure
 function formatStudyGuide() {
     const container = document.getElementById('formattedContent');
     const lines = studyText.split('\n');
     let html = '';
     let inBulletList = false;
-    
+
     lines.forEach(line => {
         line = line.trim();
         if (!line) {
@@ -701,16 +710,16 @@ function formatStudyGuide() {
             // Extract just the title part
             const titleMatch = line.match(/[✦◆⟡⌁✧⚠]\s*(.+?)\s*[✦◆⟡⌁✧⚠]/);
             const title = titleMatch ? titleMatch[1].trim() : line;
-            html += `<h2 class="section-title" style="margin-top: 40px; margin-bottom: 20px;">${title}</h2>`;
+            html += `<h2 class="section-title" style="margin-top: 40px; margin-bottom: 20px;">${processMarkdown(title)}</h2>`;
         }
         // Regular ALL CAPS headers or numbered sections
-        else if ((line === line.toUpperCase() && line.length > 3 && line.length < 100 && !line.includes('=')) || 
+        else if ((line === line.toUpperCase() && line.length > 3 && line.length < 100 && !line.includes('=')) ||
                  line.match(/^(SECTION\s+\d+|\d+\.)\s*—?\s*[A-Z]/)) {
             if (inBulletList) {
                 html += '</ul>';
                 inBulletList = false;
             }
-            html += `<h2 class="section-title" style="margin-top: 35px; margin-bottom: 18px;">${line}</h2>`;
+            html += `<h2 class="section-title" style="margin-top: 35px; margin-bottom: 18px;">${processMarkdown(line)}</h2>`;
         }
         // Bullet points
         else if (line.match(/^[•\-\*]\s+/)) {
@@ -718,11 +727,13 @@ function formatStudyGuide() {
                 html += '<ul style="margin: 15px 0; padding-left: 25px;">';
                 inBulletList = true;
             }
-            html += `<li style="margin-bottom: 10px; color: #c4d1ff; line-height: 1.7;"><span style="color: #00f2ff;">⚡</span> ${line.substring(1).trim()}</li>`;
+            const bulletText = processMarkdown(line.substring(1).trim());
+            html += `<li style="margin-bottom: 10px; color: #c4d1ff; line-height: 1.7;"><span style="color: #00f2ff;">⚡</span> ${bulletText}</li>`;
         }
         // Sub-bullets (indented)
         else if (line.match(/^\s{2,}[•\-\*]/)) {
-            html += `<li style="margin-left: 30px; margin-bottom: 8px; color: #a8b9ff; font-size: 0.95rem; list-style: none;">→ ${line.trim().substring(1).trim()}</li>`;
+            const subBulletText = processMarkdown(line.trim().substring(1).trim());
+            html += `<li style="margin-left: 30px; margin-bottom: 8px; color: #a8b9ff; font-size: 0.95rem; list-style: none;">→ ${subBulletText}</li>`;
         }
         // Questions (for Socratic mode)
         else if (line.endsWith('?') && line.length > 10) {
@@ -730,7 +741,7 @@ function formatStudyGuide() {
                 html += '</ul>';
                 inBulletList = false;
             }
-            html += `<div style="margin: 18px 0; padding: 14px; background: rgba(0,242,255,0.1); border-left: 4px solid #00f2ff; border-radius: 10px; color: #00f2ff; font-weight: 600; font-size: 1.05rem;">${line}</div>`;
+            html += `<div style="margin: 18px 0; padding: 14px; background: rgba(0,242,255,0.1); border-left: 4px solid #00f2ff; border-radius: 10px; color: #00f2ff; font-weight: 600; font-size: 1.05rem;">${processMarkdown(line)}</div>`;
         }
         // Decorative separators (skip them)
         else if (line.match(/^[═=\-]+$/)) {
@@ -751,7 +762,7 @@ function formatStudyGuide() {
                 html += '</ul>';
                 inBulletList = false;
             }
-            html += `<p style="margin-bottom: 16px; line-height: 1.9; color: #c4d1ff; font-size: 1.05rem;">${line}</p>`;
+            html += `<p style="margin-bottom: 16px; line-height: 1.9; color: #c4d1ff; font-size: 1.05rem;">${processMarkdown(line)}</p>`;
         }
     });
     

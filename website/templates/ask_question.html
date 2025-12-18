@@ -345,21 +345,7 @@
     <!-- MAIN FORM AREA -->
     {% if subject == "power_grid" %}
 
-        <!-- MODE 1 -->
-        <form id="ask-form-1" action="/subject" method="POST" class="ask-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <h3 style="margin-top:0;">🔎 Ask a Deep Question</h3>
-            <p>Get a 6-section in-depth explanation, then chat with your tutor.</p>
-
-            <input type="hidden" name="subject" value="{{ subject }}">
-            <input type="hidden" name="grade" value="{{ grade }}">
-
-            <textarea id="question-1" name="question" placeholder="Ask anything you want to learn deeply..." required></textarea>
-
-            <button type="submit">Ask CozmicLearning</button>
-        </form>
-
-        <!-- MODE 2 - Enhanced PowerGrid -->
+        <!-- PowerGrid Study Guide Generator -->
         <form action="/powergrid_submit" method="POST" enctype="multipart/form-data" class="ask-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
