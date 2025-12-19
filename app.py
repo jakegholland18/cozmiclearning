@@ -6797,6 +6797,7 @@ def student_save_assignment(assignment_id):
 
 
 @app.route("/student/assignments/<int:assignment_id>/submit", methods=["POST"])
+@csrf.exempt
 def student_submit_assignment(assignment_id):
     """Student submits an assignment for grading"""
     init_user()
