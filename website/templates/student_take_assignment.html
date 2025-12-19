@@ -276,13 +276,35 @@
         {% if submission.status == 'in_progress' %}
         <span class="status-badge status-in-progress">In Progress</span>
         {% elif submission.status == 'submitted' %}
-        <span class="status-badge status-submitted">Submitted - Awaiting Grading</span>
-        {% elif submission.status == 'graded' %}
-        <span class="status-badge status-graded">Graded</span>
+        <span class="status-badge status-submitted">Submitted - Awaiting Teacher Review</span>
+        {% elif submission.status == 'graded' and submission.grade_released %}
+        <span class="status-badge status-graded">Graded - Results Available</span>
+        {% elif submission.status == 'graded' and not submission.grade_released %}
+        <span class="status-badge status-submitted">Graded - Pending Release</span>
         {% endif %}
     </div>
 
-    {% if submission.status == 'graded' and submission.score is not none %}
+    {% if submission.status == 'submitted' and not submission.grade_released %}
+    <div class="submission-message">
+        <div style="background: rgba(74, 172, 254, 0.1); border: 2px solid rgba(74, 172, 254, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+            <h3 style="color: #4facfe; margin: 0 0 10px 0;">Assignment Submitted Successfully!</h3>
+            <p style="color: var(--muted-2); margin: 0;">Your teacher will review and release your grade soon. You can view your submitted answers below.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if submission.status == 'graded' and not submission.grade_released %}
+    <div class="submission-message">
+        <div style="background: rgba(255, 221, 85, 0.1); border: 2px solid rgba(255, 221, 85, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+            <h3 style="color: #ffdd55; margin: 0 0 10px 0;">Assignment Graded - Awaiting Release</h3>
+            <p style="color: var(--muted-2); margin: 0;">Your teacher has finished grading and will release your results soon!</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if submission.status == 'graded' and submission.grade_released and submission.score is not none %}
     <div class="score-display">
         <div class="score">{{ submission.score }}%</div>
         <div class="label">{{ submission.points_earned }} out of {{ submission.points_possible }} correct</div>
