@@ -7969,13 +7969,26 @@ def teacher_save_preview_assignment():
 
     # Save questions
     for idx, q in enumerate(questions):
-        question = PracticeQuestion(
+        # Parse choices if it's multiple choice
+        choices = q.get("choices", [])
+        choice_a = choices[0] if len(choices) > 0 else None
+        choice_b = choices[1] if len(choices) > 1 else None
+        choice_c = choices[2] if len(choices) > 2 else None
+        choice_d = choices[3] if len(choices) > 3 else None
+
+        # Get expected answer
+        expected = q.get("expected", [])
+        correct_answer = expected[0] if isinstance(expected, list) and len(expected) > 0 else str(expected) if expected else None
+
+        question = AssignedQuestion(
             practice_id=assignment.id,
-            question_order=idx + 1,
-            prompt=safe_text(q.get("prompt", ""), 1000),
-            question_type=q.get("type", "multiple_choice"),
-            choices=q.get("choices", []),
-            expected_answer=q.get("expected"),
+            question_text=safe_text(q.get("prompt", ""), 1000),
+            question_type=q.get("type", "free"),
+            choice_a=safe_text(choice_a, 255) if choice_a else None,
+            choice_b=safe_text(choice_b, 255) if choice_b else None,
+            choice_c=safe_text(choice_c, 255) if choice_c else None,
+            choice_d=safe_text(choice_d, 255) if choice_d else None,
+            correct_answer=safe_text(correct_answer, 255) if correct_answer else None,
             explanation=safe_text(q.get("explanation", ""), 2000),
         )
         db.session.add(question)
