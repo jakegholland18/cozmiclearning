@@ -7564,6 +7564,139 @@ def update_assignment_preview(assignment_id):
 # TEACHER - PUBLISH AI-GENERATED MISSION
 # ============================================================
 
+@app.route("/teacher/assignments/<int:assignment_id>/edit", methods=["GET", "POST"])
+def assignment_edit(assignment_id):
+    """Edit assignment details and questions"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Only teacher who created it can edit
+    if assignment.teacher_id != teacher_id:
+        flash("You can only edit your own assignments.", "error")
+        return redirect("/teacher/dashboard")
+
+    if request.method == "POST":
+        # Update basic details
+        assignment.title = request.form.get("title", assignment.title)
+        assignment.subject = request.form.get("subject", assignment.subject)
+        assignment.topic = request.form.get("topic", assignment.topic)
+        assignment.instructions = request.form.get("instructions", assignment.instructions)
+        assignment.differentiation_mode = request.form.get("differentiation_mode", assignment.differentiation_mode)
+
+        # Update dates
+        due_date_str = request.form.get("due_date")
+        if due_date_str:
+            try:
+                assignment.due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
+            except:
+                pass
+
+        open_date_str = request.form.get("open_date")
+        if open_date_str:
+            try:
+                assignment.open_date = datetime.strptime(open_date_str, "%Y-%m-%dT%H:%M")
+            except:
+                pass
+
+        db.session.commit()
+        flash("Assignment updated successfully!", "success")
+        return redirect(f"/teacher/assignments/{assignment.id}/preview")
+
+    # GET request - show edit form
+    # Parse questions if they exist
+    questions = []
+    if assignment.preview_json:
+        try:
+            mission = json.loads(assignment.preview_json)
+            questions = mission.get("steps", [])
+        except:
+            pass
+
+    # Get all classes for this teacher
+    classes = SchoolClass.query.filter_by(teacher_id=teacher_id).all()
+
+    return render_template(
+        "assignment_edit.html",
+        assignment=assignment,
+        questions=questions,
+        classes=classes
+    )
+
+
+@app.route("/teacher/assignments/<int:assignment_id>/delete", methods=["POST"])
+def assignment_delete(assignment_id):
+    """Delete an assignment"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Only teacher who created it can delete
+    if assignment.teacher_id != teacher_id:
+        return jsonify({"error": "You can only delete your own assignments"}), 403
+
+    # Delete related submissions first
+    StudentSubmission.query.filter_by(assignment_id=assignment_id).delete()
+
+    # Delete the assignment
+    title = assignment.title
+    db.session.delete(assignment)
+    db.session.commit()
+
+    print(f"🗑️ [DELETE] Teacher {teacher_id} deleted assignment '{title}' (ID: {assignment_id})")
+
+    return jsonify({"success": True, "message": f"Assignment '{title}' deleted successfully"})
+
+
+@app.route("/teacher/assignments/<int:assignment_id>/duplicate")
+def assignment_duplicate(assignment_id):
+    """Duplicate an assignment"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    original = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Only teacher who created it can duplicate (or allow all teachers?)
+    if original.teacher_id != teacher_id:
+        flash("You can only duplicate your own assignments.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Create duplicate
+    duplicate = AssignedPractice(
+        teacher_id=teacher_id,
+        class_id=original.class_id,
+        title=f"{original.title} (Copy)",
+        subject=original.subject,
+        topic=original.topic,
+        instructions=original.instructions,
+        differentiation_mode=original.differentiation_mode,
+        preview_json=original.preview_json,  # Copy questions
+        is_published=False,  # Don't auto-publish
+        created_at=datetime.utcnow()
+    )
+
+    db.session.add(duplicate)
+    db.session.commit()
+
+    print(f"📋 [DUPLICATE] Teacher {teacher_id} duplicated assignment '{original.title}' → ID {duplicate.id}")
+    flash(f"Assignment duplicated! You can now edit '{duplicate.title}'", "success")
+
+    return redirect(f"/teacher/assignments/{duplicate.id}/edit")
+
+
 @app.route("/teacher/assignments/<int:assignment_id>/regenerate")
 def assignment_regenerate_questions(assignment_id):
     """Force regenerate questions for an assignment"""

@@ -1,270 +1,330 @@
-{% extends "layout.html" %}
-{% block content %}
-<div class="container" style="max-width: 1000px; margin: 24px auto;">
-  <style>
-    .question-block label { display: block; margin-bottom: 6px; color: #c4d1ff; }
-    .question-block textarea,
-    .question-block input[type="text"],
-    .question-block select { width: 100%; box-sizing: border-box; }
-    .question-block { display: block; }
-    .question-block .row-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-    .question-block .row-flex { display: flex; gap: 8px; margin-top: 8px; align-items: flex-end; }
-    .actions-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
-  </style>
-  <h2 style="margin-bottom: 8px;">Edit Assignment: {{ assignment.title }}</h2>
-  <small style="color:#8a92b3;">Subject: {{ assignment.subject }} · Class: {{ assignment.class_ref.class_name }}</small>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Assignment – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-  <!-- Scheduling Info Display -->
-  <div style="margin: 12px 0; padding: 12px; background: rgba(0,242,255,0.08); border: 1px solid rgba(118,131,255,0.3); border-radius: 10px;">
-    <div style="font-size: 0.9rem; color: var(--muted-2); display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-      <div>
-        <strong style="color: var(--accent);">Opens:</strong>
-        {% if assignment.open_date %}
-          {{ assignment.open_date.strftime('%b %d, %Y at %I:%M %p') }}
-        {% else %}
-          <span style="color: var(--success);">Immediately (already open)</span>
-        {% endif %}
-      </div>
-      <div>
-        <strong style="color: var(--warning);">Closes:</strong>
-        {% if assignment.due_date %}
-          {{ assignment.due_date.strftime('%b %d, %Y at %I:%M %p') }}
-        {% else %}
-          <span style="color: var(--muted-3);">No deadline</span>
-        {% endif %}
-      </div>
+        .edit-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(71, 200, 255, 0.1));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #ff6fd8, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .form-section {
+            background: rgba(20, 20, 40, 0.7);
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            color: #4facfe;
+            font-size: 1.3rem;
+            margin: 0 0 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--muted-2);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6374ff;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .question-list {
+            margin-top: 20px;
+        }
+
+        .question-item {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(118, 131, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .question-number {
+            color: #4facfe;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .question-prompt {
+            color: #c4d1ff;
+            margin-bottom: 10px;
+        }
+
+        .question-meta {
+            color: var(--muted-2);
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 116, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+            border: 1px solid rgba(140, 140, 160, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .status-published {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.4);
+        }
+
+        .status-draft {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.4);
+        }
+
+        .warning-box {
+            background: rgba(255, 221, 85, 0.1);
+            border: 2px solid rgba(255, 221, 85, 0.4);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box h3 {
+            color: #ffdd55;
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+        }
+
+        .warning-box p {
+            color: var(--muted-2);
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<div class="edit-container">
+    <div class="header-box">
+        <h1>
+            ✏️ Edit Assignment
+            {% if assignment.is_published %}
+            <span class="status-badge status-published">Published</span>
+            {% else %}
+            <span class="status-badge status-draft">Draft</span>
+            {% endif %}
+        </h1>
+        <p style="color: var(--muted-2); font-size: 0.95rem; margin: 5px 0 0 0;">
+            Make changes to your assignment details and questions
+        </p>
     </div>
-  </div>
 
-  {% if assignment.preview_json %}
-  <div style="margin: 12px 0;">
-    <a href="/teacher/assignments/{{ assignment.id }}/preview" class="btn" style="display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); text-decoration: none; border-radius: 8px; font-size: 0.9rem;">
-      👁️ Preview AI Mission
-    </a>
-  </div>
-  {% endif %}
-
-  <!-- Edit Scheduling Settings -->
-  <div style="margin-bottom: 24px; padding: 16px; border: 1px solid rgba(118,131,255,0.3); border-radius: 12px; background: rgba(132,255,0,0.08);">
-    <h3 style="margin-bottom: 12px; color: var(--success);">⏰ Edit Schedule</h3>
-    <small style="color: var(--muted-3); display: block; margin-bottom: 12px;">Change when students can access this assignment</small>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-      <div>
-        <label style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Open Date & Time</label>
-        <input type="datetime-local" id="editOpenDate"
-               value="{% if assignment.open_date %}{{ assignment.open_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
-               style="width: 100%;">
-        <small style="color: var(--muted-3); font-size: 0.75rem; display: block; margin-top: 2px;">Clear to open immediately</small>
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.85rem; color: var(--muted-2); margin-bottom: 4px; font-weight: 500;">Close Date & Time</label>
-        <input type="datetime-local" id="editDueDate"
-               value="{% if assignment.due_date %}{{ assignment.due_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
-               style="width: 100%;">
-        <small style="color: var(--muted-3); font-size: 0.75rem; display: block; margin-top: 2px;">Clear for no deadline</small>
-      </div>
+    {% if assignment.is_published %}
+    <div class="warning-box">
+        <h3>⚠️ Assignment is Published</h3>
+        <p>This assignment is already visible to students. Changes you make will be reflected immediately. Consider unpublishing if you need to make major changes.</p>
     </div>
+    {% endif %}
 
-    <button type="button" class="btn" onclick="updateSchedule()" style="background: linear-gradient(135deg, var(--success), #6bff00);">
-      Update Schedule
-    </button>
-    <div id="scheduleUpdateResult" style="margin-top: 8px; font-size: 0.85rem; display: none;"></div>
-  </div>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  <h3 style="margin-bottom: 12px;">Questions</h3>
-  <form method="POST" style="margin-top: 16px;">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-section">
+            <h2>📝 Basic Information</h2>
 
-    {% for q in questions %}
-    <div class="question-block" data-qid="{{ q.id }}" style="margin-bottom: 18px; padding: 14px; border:1px solid rgba(118,131,255,0.3); border-radius: 12px; background: rgba(92,107,255,0.08);">
-      <input type="hidden" name="q_id" value="{{ q.id }}">
-      <label><strong>Question {{ loop.index }} Text</strong></label>
-      <textarea name="question_text_{{ q.id }}" rows="3" style="width:100%;">{{ q.question_text }}</textarea>
+            <div class="form-group">
+                <label for="title">Assignment Title *</label>
+                <input type="text" id="title" name="title" value="{{ assignment.title }}" required>
+            </div>
 
-      <div class="row-flex">
-        <div>
-          <label>Type</label>
-          <select name="question_type_{{ q.id }}" class="question-type">
-            <option value="free" {% if q.question_type == 'free' %}selected{% endif %}>Free Response</option>
-            <option value="multiple_choice" {% if q.question_type == 'multiple_choice' %}selected{% endif %}>Multiple Choice</option>
-          </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="subject">Subject *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="math" {% if assignment.subject == 'math' %}selected{% endif %}>Math</option>
+                        <option value="reading" {% if assignment.subject == 'reading' %}selected{% endif %}>Reading</option>
+                        <option value="writing" {% if assignment.subject == 'writing' %}selected{% endif %}>Writing</option>
+                        <option value="science" {% if assignment.subject == 'science' %}selected{% endif %}>Science</option>
+                        <option value="social_studies" {% if assignment.subject == 'social_studies' %}selected{% endif %}>Social Studies</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic">Topic *</label>
+                    <input type="text" id="topic" name="topic" value="{{ assignment.topic }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="instructions">Instructions (optional)</label>
+                <textarea id="instructions" name="instructions">{{ assignment.instructions or '' }}</textarea>
+            </div>
         </div>
-        <div>
-          <label>Difficulty</label>
-          <select name="difficulty_level_{{ q.id }}">
-            <option value="easy" {% if q.difficulty_level == 'easy' %}selected{% endif %}>Easy</option>
-            <option value="medium" {% if q.difficulty_level == 'medium' %}selected{% endif %}>Medium</option>
-            <option value="hard" {% if q.difficulty_level == 'hard' %}selected{% endif %}>Hard</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="mc-choices row-2" style="display:grid;">
-        <div>
-          <label>Choice A</label>
-          <input type="text" name="choice_a_{{ q.id }}" value="{{ q.choice_a or '' }}">
-        </div>
-        <div>
-          <label>Choice B</label>
-          <input type="text" name="choice_b_{{ q.id }}" value="{{ q.choice_b or '' }}">
-        </div>
-        <div>
-          <label>Choice C</label>
-          <input type="text" name="choice_c_{{ q.id }}" value="{{ q.choice_c or '' }}">
-        </div>
-        <div>
-          <label>Choice D</label>
-          <input type="text" name="choice_d_{{ q.id }}" value="{{ q.choice_d or '' }}">
-        </div>
-      </div>
+        <div class="form-section">
+            <h2>⚙️ Settings</h2>
 
-      <div class="row-2">
-        <div>
-          <label>Correct Answer(s)</label>
-          <input type="text" name="correct_answer_{{ q.id }}" value="{{ q.correct_answer or '' }}" placeholder="e.g., A or A,B" class="correct-answer">
+            <div class="form-group">
+                <label for="differentiation_mode">Differentiation Mode</label>
+                <select id="differentiation_mode" name="differentiation_mode">
+                    <option value="none" {% if assignment.differentiation_mode == 'none' %}selected{% endif %}>Standard (No Differentiation)</option>
+                    <option value="adaptive" {% if assignment.differentiation_mode == 'adaptive' %}selected{% endif %}>Adaptive (Recommended)</option>
+                    <option value="scaffold" {% if assignment.differentiation_mode == 'scaffold' %}selected{% endif %}>Scaffold</option>
+                    <option value="gap_fill" {% if assignment.differentiation_mode == 'gap_fill' %}selected{% endif %}>Gap Fill</option>
+                    <option value="mastery" {% if assignment.differentiation_mode == 'mastery' %}selected{% endif %}>Mastery</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="open_date">Open Date (optional)</label>
+                    <input type="datetime-local" id="open_date" name="open_date"
+                           value="{% if assignment.open_date %}{{ assignment.open_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+                </div>
+
+                <div class="form-group">
+                    <label for="due_date">Due Date (optional)</label>
+                    <input type="datetime-local" id="due_date" name="due_date"
+                           value="{% if assignment.due_date %}{{ assignment.due_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+                </div>
+            </div>
         </div>
-        <div>
-          <label>Explanation</label>
-          <input type="text" name="explanation_{{ q.id }}" value="{{ q.explanation or '' }}">
+
+        <div class="form-section">
+            <h2>❓ Questions ({{ questions|length }})</h2>
+
+            {% if questions|length == 0 %}
+            <p style="color: var(--muted-2);">
+                No questions generated yet.
+                <a href="/teacher/assignments/{{ assignment.id }}/regenerate" style="color: #4facfe;">Generate questions</a>
+            </p>
+            {% else %}
+            <div class="question-list">
+                {% for question in questions %}
+                <div class="question-item">
+                    <div class="question-number">Question {{ loop.index }}</div>
+                    <div class="question-prompt">{{ question.prompt }}</div>
+                    <div class="question-meta">
+                        Type: {{ question.type or 'Multiple Choice' }}
+                        {% if question.difficulty %} | Difficulty: {{ question.difficulty|title }}{% endif %}
+                        {% if question.choices %} | {{ question.choices|length }} choices{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 20px;">
+                <a href="/teacher/assignments/{{ assignment.id }}/regenerate" class="btn btn-secondary">
+                    🔄 Regenerate All Questions
+                </a>
+            </div>
+            {% endif %}
         </div>
-      </div>
-    </div>
-    {% endfor %}
 
-    <div class="actions-row">
-      <button class="btn" type="submit">Save Changes</button>
-      <a class="btn" href="/teacher/assignments/{{ assignment.id }}" style="background: transparent; border:1px solid rgba(118,131,255,0.4);">Back to Overview</a>
-    </div>
-  </form>
-
-  <!-- Generate More Questions -->
-  <div style="margin-top: 24px; padding: 16px; border:1px solid rgba(118,131,255,0.3); border-radius: 12px; background: rgba(0,242,255,0.08);">
-    <h3 style="margin-bottom: 8px;">Generate More Questions</h3>
-    <small style="color:#8a92b3;">Add AI-generated questions to this assignment using the same settings.</small>
-
-    <div class="actions-row">
-      <div>
-        <label style="font-size: 0.85rem;">Number of Questions</label>
-        <input type="number" id="moreQuestionsCount" value="5" min="1" max="20" style="width: 100px;">
-      </div>
-      <button class="btn" type="button" onclick="generateMoreQuestions()">Generate & Add</button>
-    </div>
-
-    <div id="moreQuestionsResult" style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.85rem; color: var(--muted); display: none;"></div>
-  </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            <a href="/teacher/assignments/{{ assignment.id}}/preview" class="btn btn-secondary">👁️ Preview</a>
+            <a href="/teacher/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
 
-<script>
-async function updateSchedule() {
-  const resultDiv = document.getElementById('scheduleUpdateResult');
-  resultDiv.style.display = 'block';
-  resultDiv.style.color = 'var(--muted)';
-  resultDiv.textContent = 'Updating schedule...';
-
-  const payload = {
-    open_date: document.getElementById('editOpenDate').value || null,
-    due_date: document.getElementById('editDueDate').value || null
-  };
-
-  try {
-    const res = await fetch('/teacher/assignments/{{ assignment.id }}/update_schedule', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      resultDiv.style.color = 'var(--success)';
-      resultDiv.innerHTML = '<strong>✓ Success!</strong> Schedule updated. Reloading...';
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else {
-      resultDiv.style.color = 'var(--warning)';
-      resultDiv.innerHTML = `<strong>✗ Error:</strong> ${data.error || 'Unknown error'}`;
-    }
-  } catch (err) {
-    resultDiv.style.color = 'var(--warning)';
-    resultDiv.innerHTML = `<strong>✗ Network Error:</strong> ${err.message}`;
-  }
-}
-
-async function generateMoreQuestions() {
-  const resultDiv = document.getElementById('moreQuestionsResult');
-  resultDiv.style.display = 'block';
-  resultDiv.textContent = 'Generating additional questions...';
-
-  const numQuestions = parseInt(document.getElementById('moreQuestionsCount').value || '5', 10);
-
-  const payload = {
-    practice_id: "{{ assignment.id }}",
-    num_questions: numQuestions
-  };
-
-  try {
-    const res = await fetch('/teacher/assignments/{{ assignment.id }}/generate_more', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    
-    if (res.ok) {
-      resultDiv.innerHTML = `<strong style="color: var(--success);">✓ Success!</strong> Added ${data.questions_added} questions. Reloading...`;
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } else {
-      resultDiv.innerHTML = `<strong style="color: var(--warning);">✗ Error:</strong> ${data.error || 'Unknown error'}`;
-    }
-  } catch (err) {
-    resultDiv.innerHTML = `<strong style="color: var(--warning);">✗ Network Error:</strong> ${err.message}`;
-  }
-}
-</script>
-<script>
-// Toggle multiple-choice fields and validate MC answers
-document.querySelectorAll('.question-block').forEach(block => {
-  const typeSelect = block.querySelector('.question-type');
-  const mcChoices = block.querySelector('.mc-choices');
-  const correctInput = block.querySelector('.correct-answer');
-
-  function updateVisibility() {
-    const isMC = typeSelect && typeSelect.value === 'multiple_choice';
-    if (mcChoices) mcChoices.style.display = isMC ? 'grid' : 'none';
-    if (correctInput) correctInput.placeholder = isMC ? 'e.g., A or A,B' : 'e.g., 42 or "Momentum increases"';
-  }
-  if (typeSelect) {
-    typeSelect.addEventListener('change', updateVisibility);
-    updateVisibility();
-  }
-});
-
-document.querySelector('form').addEventListener('submit', function(e) {
-  let ok = true;
-  document.querySelectorAll('.question-block').forEach(block => {
-    const typeSelect = block.querySelector('.question-type');
-    const correctInput = block.querySelector('.correct-answer');
-    if (typeSelect && typeSelect.value === 'multiple_choice' && correctInput) {
-      const val = (correctInput.value || '').trim();
-      if (val && !/^([A-D])(,([A-D]))*$/.test(val.toUpperCase())) {
-        ok = false;
-        correctInput.style.border = '1px solid #ff9f1c';
-      } else {
-        correctInput.style.border = '';
-      }
-    }
-  });
-  if (!ok) {
-    e.preventDefault();
-    alert('For Multiple Choice, use letters A-D (e.g., A or A,B).');
-  }
-});
-</script>
-{% endblock %}
+</body>
+</html>
