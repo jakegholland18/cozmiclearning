@@ -592,13 +592,83 @@ VOCAB_SETS = {
 }
 
 def generate_vocab_builder(difficulty='medium'):
-    """Generate vocabulary matching game based on difficulty"""
-    vocab_set = VOCAB_SETS.get(difficulty, VOCAB_SETS["medium"]).copy()
-    random.shuffle(vocab_set)
+    """
+    Generate vocabulary matching game with AI-generated fresh questions.
+    Each time a student plays, they get completely new vocabulary words.
+    """
+    from modules.shared_ai import get_client
 
-    # Shuffle options for each question to prevent predictable patterns
-    shuffled_vocab = [shuffle_question_options(q) for q in vocab_set[:20]]
-    return shuffled_vocab
+    # Define difficulty parameters
+    difficulty_params = {
+        'easy': {
+            'grade_level': '3rd-5th grade',
+            'word_complexity': 'simple everyday words',
+            'num_words': 15
+        },
+        'medium': {
+            'grade_level': '6th-8th grade',
+            'word_complexity': 'intermediate academic vocabulary',
+            'num_words': 15
+        },
+        'hard': {
+            'grade_level': '9th-12th grade',
+            'word_complexity': 'advanced SAT/ACT level vocabulary',
+            'num_words': 15
+        }
+    }
+
+    params = difficulty_params.get(difficulty, difficulty_params['medium'])
+
+    prompt = f"""Generate {params['num_words']} unique vocabulary words for a {params['grade_level']} vocabulary matching game.
+
+REQUIREMENTS:
+1. Words should be {params['word_complexity']}
+2. Each word needs a clear definition (2-4 words, like "showing great courage" or "having strong desire")
+3. Each word needs 3 INCORRECT distractor options that:
+   - Are plausible but wrong
+   - Match the LENGTH and WORD COUNT of the correct definition
+   - Are not obviously wrong
+   - Use similar grammatical structure as correct answer
+
+OUTPUT FORMAT (JSON array):
+[
+  {{
+    "word": "brave",
+    "definition": "showing great courage",
+    "options": ["feeling very scared", "showing great courage", "acting quite silly", "being overly loud"]
+  }},
+  ...
+]
+
+CRITICAL: All 4 options must have similar length (2-4 words each). Do NOT use single-word distractors.
+Make questions educational and age-appropriate. Avoid repetition across words.
+Return ONLY the JSON array, no other text."""
+
+    try:
+        client = get_client()
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a vocabulary game generator. Return only valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.9  # Higher temperature for variety
+        )
+
+        import json
+        vocab_data = json.loads(response.choices[0].message.content)
+
+        # Shuffle options for each question to prevent position patterns
+        shuffled_vocab = [shuffle_question_options(q) for q in vocab_data]
+        return shuffled_vocab
+
+    except Exception as e:
+        print(f"Error generating vocab with AI: {e}")
+        # Fallback to static questions if AI fails
+        vocab_set = VOCAB_SETS.get(difficulty, VOCAB_SETS["medium"]).copy()
+        random.shuffle(vocab_set)
+        shuffled_vocab = [shuffle_question_options(q) for q in vocab_set[:15]]
+        return shuffled_vocab
 
 
 # ============================================================
