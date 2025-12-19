@@ -7555,6 +7555,28 @@ def update_assignment_preview(assignment_id):
 # TEACHER - PUBLISH AI-GENERATED MISSION
 # ============================================================
 
+@app.route("/teacher/assignments/<int:assignment_id>/regenerate")
+def assignment_regenerate_questions(assignment_id):
+    """Force regenerate questions for an assignment"""
+    init_user()
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Only teacher can regenerate their own assignment
+    if assignment.teacher_id != session.get("teacher_id"):
+        flash("Unauthorized.", "error")
+        return redirect("/teacher/dashboard")
+
+    print(f"🔄 [REGENERATE] Forcing question regeneration for assignment {assignment_id}")
+
+    # Clear existing preview_json to force regeneration
+    assignment.preview_json = None
+    db.session.commit()
+
+    flash("Questions will be regenerated. Redirecting to preview...", "success")
+    return redirect(f"/teacher/assignments/{assignment.id}/preview")
+
+
 @app.route("/teacher/assignments/<int:assignment_id>/publish")
 def assignment_publish(assignment_id):
     init_user()
@@ -7568,8 +7590,8 @@ def assignment_publish(assignment_id):
 
     # Must have a JSON preview from the AI generation
     if not assignment.preview_json:
-        flash("You must preview this mission before publishing.", "error")
-        return redirect(f"/teacher/assignments/{assignment.id}")
+        flash("You must preview and generate questions for this assignment before publishing.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}/preview")
 
     import json
     try:
