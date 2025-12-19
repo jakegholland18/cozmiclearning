@@ -5785,9 +5785,64 @@ def student_assignments():
         .all()
     )
 
+    # Get submission status for each assignment
+    assignment_data = []
+    for assignment in assignments:
+        submission = StudentSubmission.query.filter_by(
+            student_id=student_id,
+            assignment_id=assignment.id
+        ).first()
+
+        assignment_data.append({
+            'assignment': assignment,
+            'submission': submission
+        })
+
     return render_template(
         "student_assignments.html",
-        assignments=assignments
+        assignment_data=assignment_data
+    )
+
+
+# ============================================================
+# STUDENT – GRADEBOOK (VIEW ALL GRADES)
+# ============================================================
+
+@app.route("/student/gradebook")
+def student_gradebook():
+    """Student gradebook - view all graded and released assignments"""
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        flash("Student not logged in.", "error")
+        return redirect("/student/login")
+
+    # Set is_student flag for navigation
+    session["is_student"] = True
+
+    # Get all submissions for this student with released grades
+    submissions = (
+        StudentSubmission.query
+        .filter_by(student_id=student_id)
+        .filter(StudentSubmission.status == 'graded')
+        .filter(StudentSubmission.grade_released == True)
+        .order_by(StudentSubmission.graded_at.desc())
+        .all()
+    )
+
+    # Calculate overall statistics
+    total_assignments = len(submissions)
+    total_score = sum(s.score for s in submissions if s.score is not None)
+    average_score = (total_score / total_assignments) if total_assignments > 0 else 0
+
+    return render_template(
+        "student_gradebook.html",
+        submissions=submissions,
+        total_assignments=total_assignments,
+        average_score=average_score
     )
 
 

@@ -54,10 +54,12 @@
 
 <div class="content-box">
 
-    {% if assignments and assignments|length > 0 %}
+    {% if assignment_data and assignment_data|length > 0 %}
         <div class="assignment-list">
 
-            {% for a in assignments %}
+            {% for item in assignment_data %}
+            {% set a = item.assignment %}
+            {% set sub = item.submission %}
             <div class="assignment-card">
 
                 <h3>{{ a.title }}</h3>
@@ -69,11 +71,37 @@
                     <p><strong>Due:</strong> {{ a.due_date.strftime("%B %d, %Y") }}</p>
                 {% endif %}
 
-                <div class="badge badge-gold">Published</div>
+                {# Show submission status #}
+                {% if not sub %}
+                    <div class="badge badge-gold">Not Started</div>
+                {% elif sub.status == 'in_progress' %}
+                    <div class="badge" style="background: #ffa500; color: #000;">In Progress</div>
+                {% elif sub.status == 'submitted' %}
+                    <div class="badge" style="background: #6495ed; color: #fff;">Submitted - Awaiting Grade</div>
+                {% elif sub.status == 'graded' and sub.grade_released %}
+                    <div class="badge" style="background: #32cd32; color: #000;">✅ Graded</div>
+                    <p><strong>Score:</strong> {{ sub.score|round(1) }}% ({{ sub.points_earned|round(1) }}/{{ sub.points_possible|round(1) }})</p>
+                    {% if sub.feedback %}
+                        <p><strong>Teacher Feedback:</strong> {{ sub.feedback }}</p>
+                    {% endif %}
+                {% elif sub.status == 'graded' and not sub.grade_released %}
+                    <div class="badge" style="background: #ffa500; color: #000;">Graded - Pending Release</div>
+                {% endif %}
 
-                <a class="btn-blue" href="/student/assignments/{{ a.id }}/start">
-                    🚀 Start Mission
-                </a>
+                {# Action button based on status #}
+                {% if not sub or sub.status == 'not_started' or sub.status == 'in_progress' %}
+                    <a class="btn-blue" href="/student/assignments/{{ a.id }}/start">
+                        🚀 {% if sub and sub.status == 'in_progress' %}Continue{% else %}Start{% endif %} Mission
+                    </a>
+                {% elif sub.status == 'submitted' or (sub.status == 'graded' and not sub.grade_released) %}
+                    <a class="btn-blue" href="/student/assignments/{{ a.id }}/start">
+                        👁️ View Submission
+                    </a>
+                {% elif sub.status == 'graded' and sub.grade_released %}
+                    <a class="btn-blue" href="/student/assignments/{{ a.id }}/start">
+                        📊 View Graded Assignment
+                    </a>
+                {% endif %}
             </div>
             {% endfor %}
 
