@@ -7935,7 +7935,7 @@ def assignment_wizard():
         return redirect("/teacher/login")
 
     # Get teacher's classes
-    classes = SchoolClass.query.filter_by(teacher_id=teacher_id).all()
+    classes = Class.query.filter_by(teacher_id=teacher_id).all()
 
     return render_template(
         "assignment_wizard.html",
@@ -8110,7 +8110,7 @@ def assignment_edit(assignment_id):
             pass
 
     # Get all classes for this teacher
-    classes = SchoolClass.query.filter_by(teacher_id=teacher_id).all()
+    classes = Class.query.filter_by(teacher_id=teacher_id).all()
 
     return render_template(
         "assignment_edit.html",
