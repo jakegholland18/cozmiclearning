@@ -3916,6 +3916,138 @@ def admin_health():
     )
 
 
+@app.route("/admin/migrate-adaptive")
+def admin_migrate_adaptive():
+    """
+    Manual migration endpoint for adaptive tracking columns
+    Adds current_question_index and mc_phase_complete to student_submissions
+    """
+    if not is_admin():
+        return jsonify({"error": "Access denied"}), 403
+
+    from sqlalchemy import text
+    import traceback
+
+    try:
+        output = []
+        output.append("=" * 70)
+        output.append("MANUAL MIGRATION: Add Adaptive Tracking Columns")
+        output.append("=" * 70)
+
+        # Show database info
+        output.append(f"\nDatabase dialect: {db.engine.dialect.name}")
+
+        # Check existing columns
+        output.append("\nChecking existing columns in student_submissions table...")
+        result = db.session.execute(
+            text("""
+            SELECT column_name, data_type, column_default
+            FROM information_schema.columns
+            WHERE table_name = 'student_submissions'
+            AND column_name IN ('current_question_index', 'mc_phase_complete')
+            ORDER BY column_name
+            """)
+        )
+
+        existing_columns = {}
+        for row in result:
+            existing_columns[row[0]] = {'type': row[1], 'default': row[2]}
+            output.append(f"  - {row[0]}: {row[1]} (default: {row[2]})")
+
+        result.close()
+
+        # Check and add current_question_index
+        output.append("\n" + "-" * 70)
+        if 'current_question_index' in existing_columns:
+            output.append("✅ Column 'current_question_index' already exists")
+        else:
+            output.append("❌ Column 'current_question_index' is MISSING - adding now...")
+            db.session.execute(
+                text("""
+                ALTER TABLE student_submissions
+                ADD COLUMN current_question_index INTEGER DEFAULT 0
+                """)
+            )
+            db.session.commit()
+            output.append("✅ Successfully added 'current_question_index' column")
+
+        # Check and add mc_phase_complete
+        output.append("\n" + "-" * 70)
+        if 'mc_phase_complete' in existing_columns:
+            output.append("✅ Column 'mc_phase_complete' already exists")
+        else:
+            output.append("❌ Column 'mc_phase_complete' is MISSING - adding now...")
+            db.session.execute(
+                text("""
+                ALTER TABLE student_submissions
+                ADD COLUMN mc_phase_complete BOOLEAN DEFAULT FALSE
+                """)
+            )
+            db.session.commit()
+            output.append("✅ Successfully added 'mc_phase_complete' column")
+
+        # Verify final state
+        output.append("\n" + "=" * 70)
+        output.append("VERIFICATION: Checking final table structure...")
+        output.append("=" * 70)
+
+        result = db.session.execute(
+            text("""
+            SELECT column_name, data_type, column_default
+            FROM information_schema.columns
+            WHERE table_name = 'student_submissions'
+            AND column_name IN ('current_question_index', 'mc_phase_complete')
+            ORDER BY column_name
+            """)
+        )
+
+        final_columns = []
+        for row in result:
+            final_columns.append(row[0])
+            output.append(f"✅ {row[0]}: {row[1]} (default: {row[2]})")
+
+        result.close()
+
+        if 'current_question_index' in final_columns and 'mc_phase_complete' in final_columns:
+            output.append("\n" + "=" * 70)
+            output.append("✅ MIGRATION SUCCESSFUL!")
+            output.append("=" * 70)
+            return jsonify({
+                "success": True,
+                "message": "Migration completed successfully",
+                "output": "\n".join(output)
+            })
+        else:
+            output.append("\n" + "=" * 70)
+            output.append("❌ MIGRATION INCOMPLETE!")
+            output.append("=" * 70)
+            missing = set(['current_question_index', 'mc_phase_complete']) - set(final_columns)
+            output.append(f"\nMissing columns: {missing}")
+            return jsonify({
+                "success": False,
+                "message": "Migration incomplete",
+                "missing_columns": list(missing),
+                "output": "\n".join(output)
+            }), 500
+
+    except Exception as e:
+        error_output = [
+            "=" * 70,
+            "❌ MIGRATION FAILED!",
+            "=" * 70,
+            f"\nError: {str(e)}",
+            "\nTraceback:",
+            traceback.format_exc()
+        ]
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "message": "Migration failed",
+            "error": str(e),
+            "output": "\n".join(error_output)
+        }), 500
+
+
 # ============================================================
 # ADMIN - STUDENTS MANAGEMENT
 # ============================================================
