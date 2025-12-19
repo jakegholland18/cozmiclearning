@@ -6893,6 +6893,8 @@ def student_submit_assignment(assignment_id):
             expected = question.get("expected", [])
             question_type = question.get("type")
 
+            print(f"🔍 Question {idx}: type={question_type}, student_answer='{student_answer}', expected={expected}")
+
             # Grade multiple choice questions (including questions with no type specified)
             if (question_type == "multiple_choice" or not question_type) and expected:
                 # For multiple choice, check if answer matches any expected answer
@@ -6904,6 +6906,7 @@ def student_submit_assignment(assignment_id):
                         is_correct = True
                         break
 
+                print(f"{'✅' if is_correct else '❌'} Question {idx} result: {is_correct}")
                 if is_correct:
                     correct_count += 1
 
