@@ -6222,6 +6222,21 @@ def student_start_assignment(assignment_id):
 
         print(f"   Question distribution: {len(mc_questions)} MC (adaptive), {len(free_questions)} free response")
 
+        # If no MC questions, skip to free response
+        if len(mc_questions) == 0:
+            print(f"   ⚠️ No MC questions found - showing free response questions only")
+            submission.mc_phase_complete = True
+            db.session.commit()
+
+            return render_template(
+                "student_take_assignment.html",
+                assignment=assignment,
+                submission=submission,
+                questions=free_questions,
+                saved_answers=saved_answers,
+                mc_phase_complete=True
+            )
+
         # Check if MC phase is complete
         if submission.mc_phase_complete:
             # Show free response questions (all at once)
@@ -6242,7 +6257,7 @@ def student_start_assignment(assignment_id):
             if current_idx >= len(mc_questions):
                 current_idx = 0
 
-            current_question = mc_questions[current_idx] if current_idx < len(mc_questions) else mc_questions[0]
+            current_question = mc_questions[current_idx]
 
             # Calculate progress
             answers_data = json.loads(submission.answers_json) if submission.answers_json else {}
@@ -6250,6 +6265,7 @@ def student_start_assignment(assignment_id):
             progress_percent = int((mc_answered / len(mc_questions)) * 100) if mc_questions else 0
 
             print(f"   Showing MC question {current_idx + 1}/{len(mc_questions)} (difficulty: {current_question.get('difficulty', 'unknown')})")
+            print(f"   Question data: prompt={bool(current_question.get('prompt'))}, choices={len(current_question.get('choices', []))}")
 
             return render_template(
                 "student_take_assignment_sequential.html",
