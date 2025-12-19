@@ -6170,7 +6170,8 @@ def student_start_assignment(assignment_id):
     # Parse mission JSON to get questions
     try:
         mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
-    except:
+    except Exception as e:
+        print(f"❌ Failed to parse preview_json for assignment {assignment.id}: {e}")
         mission = {}
 
     questions = mission.get("steps", [])
@@ -6178,6 +6179,14 @@ def student_start_assignment(assignment_id):
     scaffold_config = mission.get("scaffold_config")
     gap_fill_config = mission.get("gap_fill_config")
     mastery_config = mission.get("mastery_config")
+
+    print(f"📊 Assignment {assignment.id} loaded: {len(questions)} total questions")
+
+    # If no questions at all, show error
+    if len(questions) == 0:
+        print(f"⚠️ No questions found in assignment {assignment.id}")
+        flash("This assignment has no questions. Please contact your teacher.", "error")
+        return redirect("/student/assignments")
 
     # Detect hybrid adaptive mode (new system with difficulty fields on questions)
     has_difficulty_fields = any("difficulty" in q for q in questions)
