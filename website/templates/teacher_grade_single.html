@@ -286,6 +286,21 @@
         <button type="submit" class="btn btn-primary">✅ Save Grade</button>
         <a href="/teacher/assignments/{{ assignment.id }}/submissions" class="btn btn-secondary">Cancel</a>
     </form>
+
+    <!-- Delete Submission Option -->
+    <div style="margin-top: 30px; padding: 20px; background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.3); border-radius: 12px;">
+        <h3 style="color: #ff4444; margin: 0 0 10px 0; font-size: 1.1rem;">⚠️ Delete Submission</h3>
+        <p style="color: var(--muted-2); margin: 0 0 15px 0; font-size: 0.9rem;">
+            If this submission has incorrect data, you can delete it to allow the student to retake the assignment.
+            This action cannot be undone.
+        </p>
+        <form method="POST" action="/teacher/submissions/{{ submission.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete this submission? {{ student.student_name }} will be able to retake the assignment. This cannot be undone.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn" style="background: linear-gradient(135deg, #ff4444, #ff6b6b); color: white; border: none;">
+                🗑️ Delete Submission & Allow Retake
+            </button>
+        </form>
+    </div>
 </div>
 
 </body>

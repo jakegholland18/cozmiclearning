@@ -412,6 +412,15 @@
                             </button>
                         </form>
                         {% endif %}
+
+                        {% if item.submission and item.submission.status in ['submitted', 'graded', 'in_progress'] %}
+                        <form method="POST" action="/teacher/submissions/{{ item.submission.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete this submission? {{ item.student.student_name }} will be able to retake the assignment.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn" style="background: rgba(255, 68, 68, 0.2); color: #ff6666; border: 1px solid rgba(255, 68, 68, 0.4); padding: 8px 16px; font-size: 0.85rem; white-space: nowrap;">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

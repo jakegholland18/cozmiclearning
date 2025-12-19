@@ -8608,6 +8608,37 @@ def teacher_release_all_grades(assignment_id):
     return redirect(f"/teacher/assignments/{assignment_id}/grade_submissions")
 
 
+@app.route("/teacher/submissions/<int:submission_id>/delete", methods=["POST"])
+def teacher_delete_submission(submission_id):
+    """Teacher deletes a student submission (allows student to retake)"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    teacher = Teacher.query.get(teacher_id)
+    submission = StudentSubmission.query.get_or_404(submission_id)
+    assignment = submission.assignment
+
+    # Verify teacher owns this assignment
+    if assignment.teacher_id != teacher.id and not is_owner(teacher):
+        flash("You don't have permission to delete this submission.", "error")
+        return redirect("/teacher/dashboard")
+
+    student_name = submission.student_rel.student_name if submission.student_rel else "Student"
+    assignment_id = assignment.id
+
+    # Delete the submission
+    db.session.delete(submission)
+    db.session.commit()
+
+    print(f"🗑️ Teacher {teacher.id} deleted submission {submission_id} for {student_name}")
+    flash(f"Submission deleted for {student_name}. They can now retake the assignment.", "success")
+    return redirect(f"/teacher/assignments/{assignment_id}/submissions")
+
+
 # ============================================================
 # TEACHER - AI QUESTION ASSIGNMENT GENERATOR
 # ============================================================
