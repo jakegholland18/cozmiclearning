@@ -1,0 +1,158 @@
+{
+  "title": "Multiplication Facts Mastery (2-10)",
+  "description": "Build fluency with multiplication facts from 2x2 through 10x10. Perfect for 3rd graders learning their times tables!",
+  "subject": "num_forge",
+  "grade_level": "3",
+  "tags": ["multiplication", "times_tables", "math_facts", "fluency"],
+  "template_data": {
+    "topic": "Multiplication Facts",
+    "instructions": "Answer each multiplication problem as quickly as you can. Try to beat your best time!",
+    "differentiation_mode": "mastery",
+    "assignment_type": "practice",
+    "num_questions": 15,
+    "character": "nova",
+    "questions": [
+      {
+        "prompt": "2 × 3 = ?",
+        "type": "multiple_choice",
+        "choices": ["5", "6", "8", "9"],
+        "expected": ["6"],
+        "hint": "Think: 2 groups of 3",
+        "explanation": "2 × 3 = 6",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "4 × 5 = ?",
+        "type": "multiple_choice",
+        "choices": ["15", "20", "25", "9"],
+        "expected": ["20"],
+        "hint": "Count by 5s: 5, 10, 15, 20",
+        "explanation": "4 × 5 = 20",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "3 × 7 = ?",
+        "type": "multiple_choice",
+        "choices": ["18", "21", "24", "10"],
+        "expected": ["21"],
+        "hint": "7 + 7 + 7 = ?",
+        "explanation": "3 × 7 = 21",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "6 × 4 = ?",
+        "type": "multiple_choice",
+        "choices": ["20", "24", "28", "10"],
+        "expected": ["24"],
+        "hint": "This is the same as 4 × 6",
+        "explanation": "6 × 4 = 24",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "5 × 8 = ?",
+        "type": "multiple_choice",
+        "choices": ["35", "40", "45", "13"],
+        "expected": ["40"],
+        "hint": "Count by 5s eight times",
+        "explanation": "5 × 8 = 40",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "7 × 6 = ?",
+        "type": "multiple_choice",
+        "choices": ["36", "42", "48", "13"],
+        "expected": ["42"],
+        "hint": "Break it down: (7 × 5) + 7",
+        "explanation": "7 × 6 = 42",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "8 × 9 = ?",
+        "type": "multiple_choice",
+        "choices": ["63", "72", "81", "17"],
+        "expected": ["72"],
+        "hint": "Think: 8 × 10 = 80, then subtract 8",
+        "explanation": "8 × 9 = 72",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "9 × 7 = ?",
+        "type": "multiple_choice",
+        "choices": ["56", "63", "72", "16"],
+        "expected": ["63"],
+        "hint": "Use the 9s trick: 9 × 7 is close to 9 × 10",
+        "explanation": "9 × 7 = 63",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "6 × 6 = ?",
+        "type": "multiple_choice",
+        "choices": ["30", "36", "42", "12"],
+        "expected": ["36"],
+        "hint": "This is a square number",
+        "explanation": "6 × 6 = 36",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "10 × 8 = ?",
+        "type": "multiple_choice",
+        "choices": ["70", "80", "90", "18"],
+        "expected": ["80"],
+        "hint": "Multiplying by 10 is easy!",
+        "explanation": "10 × 8 = 80",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "4 × 9 = ?",
+        "type": "multiple_choice",
+        "choices": ["32", "36", "40", "13"],
+        "expected": ["36"],
+        "hint": "Think: 4 × 10 = 40, then subtract 4",
+        "explanation": "4 × 9 = 36",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "7 × 7 = ?",
+        "type": "multiple_choice",
+        "choices": ["42", "49", "56", "14"],
+        "expected": ["49"],
+        "hint": "This is a square number",
+        "explanation": "7 × 7 = 49",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "3 × 8 = ?",
+        "type": "multiple_choice",
+        "choices": ["21", "24", "27", "11"],
+        "expected": ["24"],
+        "hint": "Double 3 × 4",
+        "explanation": "3 × 8 = 24",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "9 × 9 = ?",
+        "type": "multiple_choice",
+        "choices": ["72", "81", "90", "18"],
+        "expected": ["81"],
+        "hint": "The biggest single-digit square",
+        "explanation": "9 × 9 = 81",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "5 × 5 = ?",
+        "type": "multiple_choice",
+        "choices": ["20", "25", "30", "10"],
+        "expected": ["25"],
+        "hint": "A quarter is this many cents",
+        "explanation": "5 × 5 = 25",
+        "difficulty": "easy"
+      }
+    ],
+    "metadata": {
+      "estimated_time": 15,
+      "skill_focus": ["multiplication_fluency", "times_tables", "mental_math"],
+      "standards": ["CCSS.Math.3.OA.C.7"],
+      "is_featured": true
+    }
+  }
+}

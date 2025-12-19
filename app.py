@@ -4100,6 +4100,137 @@ def admin_migrate_adaptive():
         }), 500
 
 
+@app.route("/admin/seed-templates")
+def admin_seed_templates():
+    """
+    Admin endpoint to seed assignment templates from JSON files
+    Loads templates from templates_seed/templates/ directory
+    """
+    if not is_admin():
+        return jsonify({"error": "Access denied"}), 403
+
+    import json
+    from pathlib import Path
+    from datetime import datetime
+
+    try:
+        output = []
+        output.append("=" * 70)
+        output.append("SEEDING ASSIGNMENT TEMPLATES")
+        output.append("=" * 70)
+
+        # Define templates directory
+        base_dir = Path(__file__).parent
+        templates_dir = base_dir / "templates_seed" / "templates"
+
+        if not templates_dir.exists():
+            return jsonify({
+                "success": False,
+                "error": f"Templates directory not found: {templates_dir}"
+            }), 404
+
+        # Find all JSON files
+        json_files = list(templates_dir.rglob("*.json"))
+        output.append(f"\n📁 Found {len(json_files)} template files")
+
+        created_count = 0
+        skipped_count = 0
+        error_count = 0
+
+        # Process each template file
+        for json_file in sorted(json_files):
+            try:
+                relative_path = json_file.relative_to(templates_dir)
+                output.append(f"\n📄 Processing: {relative_path}")
+
+                # Load template data
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                # Extract fields
+                title = data.get('title')
+                description = data.get('description')
+                subject = data.get('subject')
+                grade_level = data.get('grade_level')
+                tags = data.get('tags', [])
+                template_data = data.get('template_data', {})
+
+                # Check if already exists
+                existing = AssignmentTemplate.query.filter_by(
+                    title=title,
+                    subject=subject,
+                    teacher_id=None
+                ).first()
+
+                if existing:
+                    output.append(f"   ⏭️  Skipped (already exists): {title}")
+                    skipped_count += 1
+                    continue
+
+                # Create new template
+                template = AssignmentTemplate(
+                    teacher_id=None,  # System template
+                    parent_id=None,
+                    title=title,
+                    description=description,
+                    subject=subject,
+                    grade_level=grade_level,
+                    template_data=json.dumps(template_data),
+                    is_public=True,
+                    use_count=0,
+                    tags=json.dumps(tags),
+                    created_at=datetime.now(),
+                    updated_at=datetime.now()
+                )
+
+                db.session.add(template)
+                created_count += 1
+
+                output.append(f"   ✅ Created: {title}")
+                output.append(f"      Subject: {subject} | Grade: {grade_level}")
+                output.append(f"      Questions: {len(template_data.get('questions', []))}")
+
+            except Exception as e:
+                error_count += 1
+                output.append(f"   ❌ Error: {str(e)}")
+
+        # Commit all changes
+        db.session.commit()
+
+        output.append("\n" + "=" * 70)
+        output.append("DATABASE COMMIT SUCCESSFUL")
+        output.append("=" * 70)
+
+        # Summary
+        output.append(f"\n📊 SUMMARY:")
+        output.append(f"   ✅ Created: {created_count}")
+        output.append(f"   ⏭️  Skipped: {skipped_count}")
+        output.append(f"   ❌ Errors: {error_count}")
+        output.append(f"   📁 Total: {len(json_files)}")
+
+        # Verify in database
+        total_system_templates = AssignmentTemplate.query.filter_by(teacher_id=None).count()
+        output.append(f"\n🗄️  Total system templates in database: {total_system_templates}")
+
+        return jsonify({
+            "success": True,
+            "message": f"Seeded {created_count} templates",
+            "created": created_count,
+            "skipped": skipped_count,
+            "errors": error_count,
+            "total_system_templates": total_system_templates,
+            "output": "\n".join(output)
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "output": "\n".join(output) if output else str(e)
+        }), 500
+
+
 # ============================================================
 # ADMIN - STUDENTS MANAGEMENT
 # ============================================================
@@ -5387,6 +5518,235 @@ def teacher_dashboard():
     return response
 
 
+@app.route("/teacher/live-dashboard")
+def teacher_live_dashboard():
+    """Live progress dashboard showing real-time student activity"""
+    teacher = get_teacher_or_admin()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    # Admin users bypass subscription checks
+    if not is_admin():
+        access_check = check_subscription_access("teacher")
+        if access_check != True:
+            return access_check
+
+    # Get teacher's classes and assignments for filters
+    classes = teacher.classes or []
+    assignments = AssignedPractice.query.filter_by(teacher_id=teacher.id).filter_by(is_published=True).order_by(AssignedPractice.created_at.desc()).limit(50).all()
+
+    return render_template(
+        "teacher_live_dashboard.html",
+        teacher=teacher,
+        classes=classes,
+        assignments=assignments
+    )
+
+
+@app.route("/teacher/api/live-progress")
+def teacher_api_live_progress():
+    """API endpoint for live dashboard data"""
+    teacher = get_teacher_or_admin()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    if not is_admin():
+        access_check = check_subscription_access("teacher")
+        if access_check != True:
+            return jsonify({"error": "Subscription expired"}), 403
+
+    from datetime import datetime, timedelta
+
+    # Get all student submissions for this teacher's assignments
+    # Consider "active" if last updated within 15 minutes
+    active_threshold = datetime.now() - timedelta(minutes=15)
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Get all submissions for teacher's assignments
+    submissions = db.session.query(StudentSubmission, AssignedPractice, Student, Class).join(
+        AssignedPractice, StudentSubmission.assignment_id == AssignedPractice.id
+    ).join(
+        Student, StudentSubmission.student_id == Student.id
+    ).join(
+        Class, Student.class_id == Class.id
+    ).filter(
+        AssignedPractice.teacher_id == teacher.id
+    ).filter(
+        AssignedPractice.is_published == True
+    ).all()
+
+    students_data = []
+    active_count = 0
+    completed_today = 0
+    total_progress = 0
+    struggling_count = 0
+
+    for submission, assignment, student, class_obj in submissions:
+        # Parse answers to get progress
+        import json
+        answers = {}
+        if submission.answers:
+            try:
+                answers = json.loads(submission.answers)
+            except:
+                answers = {}
+
+        questions = []
+        if assignment.preview_json:
+            try:
+                preview_data = json.loads(assignment.preview_json)
+                questions = preview_data.get('questions', [])
+            except:
+                pass
+
+        total_questions = len(questions)
+        questions_answered = len(answers)
+        progress = int((questions_answered / total_questions * 100) if total_questions > 0 else 0)
+
+        # Calculate correct/incorrect
+        correct_count = 0
+        incorrect_count = 0
+        for key, value in answers.items():
+            if isinstance(value, dict):
+                if value.get('is_correct'):
+                    correct_count += 1
+                else:
+                    incorrect_count += 1
+
+        # Determine status
+        is_completed = submission.is_complete
+        is_active = submission.last_updated and submission.last_updated > active_threshold and not is_completed
+
+        # Struggling if accuracy < 40% and answered > 3 questions
+        is_struggling = questions_answered > 3 and (correct_count / questions_answered < 0.4) if questions_answered > 0 else False
+
+        if is_completed:
+            status = 'completed'
+            if submission.completed_at and submission.completed_at >= today_start:
+                completed_today += 1
+        elif is_active:
+            status = 'working'
+            active_count += 1
+        elif is_struggling:
+            status = 'struggling'
+            struggling_count += 1
+        elif questions_answered == 0:
+            status = 'not-started'
+        else:
+            status = 'in-progress'
+
+        # Time spent (estimate based on timestamps)
+        time_spent = 0
+        if submission.started_at:
+            end_time = submission.completed_at or submission.last_updated or datetime.now()
+            time_spent = int((end_time - submission.started_at).total_seconds() / 60)
+
+        # Last activity
+        last_activity = None
+        if submission.last_updated:
+            delta = datetime.now() - submission.last_updated
+            if delta.seconds < 60:
+                last_activity = "Just now"
+            elif delta.seconds < 3600:
+                last_activity = f"{delta.seconds // 60} min ago"
+            elif delta.days == 0:
+                last_activity = f"{delta.seconds // 3600} hr ago"
+            elif delta.days == 1:
+                last_activity = "Yesterday"
+            else:
+                last_activity = f"{delta.days} days ago"
+
+        total_progress += progress
+
+        students_data.append({
+            "student_id": student.id,
+            "name": f"{student.first_name} {student.last_name}",
+            "class_id": class_obj.id,
+            "class_name": class_obj.name,
+            "grade_level": class_obj.grade_level,
+            "assignment_id": assignment.id,
+            "assignment_title": assignment.title,
+            "submission_id": submission.id,
+            "status": status,
+            "is_active": is_active,
+            "progress": progress,
+            "total_questions": total_questions,
+            "questions_answered": questions_answered,
+            "correct_count": correct_count,
+            "incorrect_count": incorrect_count,
+            "time_spent": time_spent,
+            "last_activity": last_activity
+        })
+
+    # Calculate averages
+    average_progress = int(total_progress / len(students_data)) if students_data else 0
+
+    # Sort: active first, then struggling, then by progress
+    def sort_key(s):
+        if s['status'] == 'working':
+            return (0, -s['progress'])
+        elif s['status'] == 'struggling':
+            return (1, -s['progress'])
+        elif s['status'] == 'in-progress':
+            return (2, -s['progress'])
+        elif s['status'] == 'completed':
+            return (3, -s['progress'])
+        else:
+            return (4, 0)
+
+    students_data.sort(key=sort_key)
+
+    return jsonify({
+        "success": True,
+        "students": students_data,
+        "stats": {
+            "active_count": active_count,
+            "completed_today": completed_today,
+            "average_progress": average_progress,
+            "needing_help": struggling_count
+        }
+    })
+
+
+@app.route("/teacher/api/send-encouragement/<int:student_id>", methods=["POST"])
+def teacher_api_send_encouragement(student_id):
+    """Send an encouraging message to a student"""
+    teacher = get_teacher_or_admin()
+    if not teacher:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    student = Student.query.get(student_id)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    # Verify student is in teacher's class
+    if student.class_id not in [c.id for c in teacher.classes]:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    # Create a message
+    from datetime import datetime
+    message = Message(
+        sender_type="teacher",
+        sender_id=teacher.id,
+        recipient_type="student",
+        recipient_id=student.id,
+        subject="Keep Going! 💪",
+        body=f"Hi {student.first_name}! I noticed you're working hard on your assignment. Keep it up! Remember, I'm here if you need help. You've got this! ⭐",
+        sent_at=datetime.now(),
+        is_read=False
+    )
+
+    db.session.add(message)
+    db.session.commit()
+
+    print(f"📧 Teacher {teacher.id} sent encouragement to student {student.id}")
+
+    return jsonify({
+        "success": True,
+        "message": "Encouragement sent!"
+    })
+
+
 @app.route("/teacher/settings", methods=["GET", "POST"])
 def teacher_settings():
     """Teacher account settings - subscription, profile, password"""
@@ -5704,8 +6064,8 @@ def assignment_overview(practice_id):
     )
 
 
-@app.route("/teacher/assignments/<int:practice_id>/edit", methods=["GET", "POST"])
-def assignment_edit(practice_id):
+@app.route("/teacher/assignments/<int:practice_id>/edit-questions", methods=["GET", "POST"])
+def assignment_edit_questions(practice_id):
     teacher = get_current_teacher()
     if not teacher:
         return redirect("/teacher/login")
@@ -5733,7 +6093,7 @@ def assignment_edit(practice_id):
             q.difficulty_level = request.form.get(f"difficulty_level_{qid}", "") or None
         db.session.commit()
         flash("Questions updated.", "info")
-        return redirect(f"/teacher/assignments/{practice_id}/edit")
+        return redirect(f"/teacher/assignments/{practice_id}/edit-questions")
 
     return render_template(
         "assignment_edit.html",
@@ -7563,6 +7923,137 @@ def update_assignment_preview(assignment_id):
 # ============================================================
 # TEACHER - PUBLISH AI-GENERATED MISSION
 # ============================================================
+
+@app.route("/teacher/assignments/wizard")
+def assignment_wizard():
+    """Smart assignment creation wizard"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    # Get teacher's classes
+    classes = SchoolClass.query.filter_by(teacher_id=teacher_id).all()
+
+    return render_template(
+        "assignment_wizard.html",
+        classes=classes
+    )
+
+
+@app.route("/teacher/assignments/wizard/create", methods=["POST"])
+def assignment_wizard_create():
+    """Create assignment from wizard"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    data = request.get_json()
+
+    # Extract wizard data
+    assignment_type = data.get("type", "practice")
+    title = data.get("title")
+    subject = data.get("subject")
+    topic = data.get("topic")
+    class_id = data.get("class_id")
+    grade_level = data.get("grade_level", "2")
+    num_questions = data.get("num_questions", 10)
+    differentiation = data.get("differentiation", "adaptive")
+    due_date_str = data.get("due_date")
+    instructions = data.get("instructions", "")
+
+    # Apply smart defaults based on assignment type
+    if assignment_type == "quiz":
+        num_questions = min(num_questions, 10)
+        if not instructions:
+            instructions = "Complete this quiz to the best of your ability. You have one attempt."
+    elif assignment_type == "homework":
+        if not instructions:
+            instructions = "Complete this homework assignment by the due date. Take your time and show your work."
+    elif assignment_type == "assessment":
+        if not instructions:
+            instructions = "This is a graded assessment. Do your best work."
+    else:
+        if not instructions:
+            instructions = "Practice makes perfect! This assignment will adapt to your skill level."
+
+    # Create assignment
+    assignment = AssignedPractice(
+        teacher_id=teacher_id,
+        class_id=class_id,
+        title=title,
+        subject=subject,
+        topic=topic,
+        instructions=instructions,
+        differentiation_mode=differentiation,
+        is_published=False,
+        created_at=datetime.utcnow()
+    )
+
+    if due_date_str:
+        try:
+            assignment.due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+        except:
+            pass
+
+    db.session.add(assignment)
+    db.session.commit()
+
+    # Generate questions
+    try:
+        from modules.practice_helper import assign_questions
+
+        payload = assign_questions(
+            subject=subject or "math",
+            topic=topic or "General",
+            grade=grade_level,
+            character="nova",
+            differentiation_mode=differentiation,
+            student_ability="on_level",
+            num_questions=num_questions,
+        )
+
+        questions_data = payload.get("questions", [])
+
+        mission_json = {
+            "steps": [
+                {
+                    "prompt": q.get("prompt", ""),
+                    "type": q.get("type", "free"),
+                    "choices": q.get("choices", []),
+                    "expected": q.get("expected", []),
+                    "hint": q.get("hint", ""),
+                    "explanation": q.get("explanation", ""),
+                    "difficulty": q.get("difficulty", "medium")
+                }
+                for q in questions_data
+            ],
+            "final_message": payload.get("final_message", "Great work!")
+        }
+
+        assignment.preview_json = json.dumps(mission_json)
+        db.session.commit()
+
+        print(f"🎯 [WIZARD] Created assignment '{title}' with {len(questions_data)} questions")
+
+        return jsonify({
+            "success": True,
+            "assignment_id": assignment.id,
+            "questions_generated": len(questions_data)
+        })
+
+    except Exception as e:
+        print(f"❌ [WIZARD] Error generating questions: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate questions",
+            "assignment_id": assignment.id
+        }), 500
+
 
 @app.route("/teacher/assignments/<int:assignment_id>/edit", methods=["GET", "POST"])
 def assignment_edit(assignment_id):

@@ -44,7 +44,9 @@
 
         {% elif session.teacher_id %}
             <!-- TEACHER OR OWNER -->
-            <a href="/teacher/dashboard">Teacher Dashboard</a>
+            <a href="/teacher/dashboard">Dashboard</a>
+            <a href="/teacher/live-dashboard"><span class="nav-emoji">📡</span> Live Progress</a>
+            <a href="/teacher/assignments/wizard"><span class="nav-emoji">🚀</span> Create</a>
             <a href="/teacher/logout">Logout</a>
 
             {% if session.is_owner %}

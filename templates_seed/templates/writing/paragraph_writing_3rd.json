@@ -1,0 +1,158 @@
+{
+  "title": "Writing Strong Paragraphs",
+  "description": "Learn the essential elements of a well-written paragraph: topic sentence, supporting details, and concluding sentence.",
+  "subject": "ink_haven",
+  "grade_level": "3",
+  "tags": ["paragraph_structure", "writing", "topic_sentence", "supporting_details"],
+  "template_data": {
+    "topic": "Paragraph Writing",
+    "instructions": "Learn about paragraph structure by answering these questions. A good paragraph has a topic sentence, details, and a conclusion!",
+    "differentiation_mode": "scaffold",
+    "assignment_type": "practice",
+    "num_questions": 10,
+    "character": "sage",
+    "questions": [
+      {
+        "prompt": "What is a topic sentence?",
+        "type": "multiple_choice",
+        "choices": [
+          "The last sentence in a paragraph",
+          "The sentence that tells the main idea of the paragraph",
+          "Any sentence in the middle",
+          "A sentence with the word 'topic' in it"
+        ],
+        "expected": ["The sentence that tells the main idea of the paragraph"],
+        "hint": "It's usually the first sentence and tells what the paragraph is about.",
+        "explanation": "A topic sentence states the main idea of the paragraph. It tells the reader what to expect.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Which would be the BEST topic sentence for a paragraph about your favorite season?",
+        "type": "multiple_choice",
+        "choices": [
+          "There are four seasons",
+          "Fall is my favorite season for many reasons",
+          "I like seasons",
+          "The weather changes"
+        ],
+        "expected": ["Fall is my favorite season for many reasons"],
+        "hint": "A good topic sentence is specific and makes a clear point.",
+        "explanation": "This topic sentence is specific (names the season) and promises to give reasons, which the paragraph will explain.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What are supporting details?",
+        "type": "multiple_choice",
+        "choices": [
+          "Random facts",
+          "Sentences that give examples and information about the main idea",
+          "Long sentences",
+          "Questions"
+        ],
+        "expected": ["Sentences that give examples and information about the main idea"],
+        "hint": "These sentences 'support' or back up the topic sentence.",
+        "explanation": "Supporting details are sentences that explain, describe, or give examples about the topic sentence.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Read this topic sentence: 'My dog Max is very playful.'\n\nWhich would be a good supporting detail?",
+        "type": "multiple_choice",
+        "choices": [
+          "Dogs are mammals",
+          "He loves to chase tennis balls in the backyard",
+          "I have a cat named Fluffy",
+          "Max is brown"
+        ],
+        "expected": ["He loves to chase tennis balls in the backyard"],
+        "hint": "Which sentence gives an example of Max being playful?",
+        "explanation": "Chasing tennis balls is an example that supports the idea that Max is playful.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What does a concluding sentence do?",
+        "type": "multiple_choice",
+        "choices": [
+          "Starts a new topic",
+          "Wraps up the paragraph and restates the main idea",
+          "Asks a question",
+          "Lists more details"
+        ],
+        "expected": ["Wraps up the paragraph and restates the main idea"],
+        "hint": "It comes at the end and brings closure.",
+        "explanation": "A concluding sentence wraps up the paragraph and often restates the main idea in a new way.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read this paragraph:\n\n'[Topic] Soccer is an exciting sport. [Detail 1] Players run fast and kick the ball toward the goal. [Detail 2] The crowd cheers when someone scores. [Conclusion] _____'\n\nWhich sentence would be the BEST conclusion?",
+        "type": "multiple_choice",
+        "choices": [
+          "Soccer is played with a ball",
+          "Basketball is also fun",
+          "That's why so many people love watching soccer",
+          "There are 11 players on each team"
+        ],
+        "expected": ["That's why so many people love watching soccer"],
+        "hint": "A conclusion should connect back to the main idea.",
+        "explanation": "This conclusion wraps up by connecting back to the main idea that soccer is exciting.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "In what order should the parts of a paragraph go?",
+        "type": "multiple_choice",
+        "choices": [
+          "Conclusion, details, topic sentence",
+          "Topic sentence, supporting details, concluding sentence",
+          "Details, topic sentence, conclusion",
+          "It doesn't matter"
+        ],
+        "expected": ["Topic sentence, supporting details, concluding sentence"],
+        "hint": "Think: introduce the idea, explain it, wrap it up.",
+        "explanation": "Paragraphs flow best when you start with the main idea, add details, then conclude.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "How many supporting details should a good paragraph have?",
+        "type": "multiple_choice",
+        "choices": [
+          "Only 1",
+          "At least 2-3 good details",
+          "Exactly 10",
+          "None"
+        ],
+        "expected": ["At least 2-3 good details"],
+        "hint": "You need enough details to explain your main idea well.",
+        "explanation": "A strong paragraph typically has 2-3 supporting details that fully explain the topic sentence.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read these sentences:\n\n1. Pizza has many delicious toppings like pepperoni and mushrooms.\n2. Pizza is the best food.\n3. Everyone should try pizza!\n4. The melted cheese is so tasty.\n\nWhich sentence should be the topic sentence?",
+        "type": "multiple_choice",
+        "choices": [
+          "Sentence 1",
+          "Sentence 2",
+          "Sentence 3",
+          "Sentence 4"
+        ],
+        "expected": ["Sentence 2"],
+        "hint": "Which sentence states the main idea that the others support?",
+        "explanation": "Sentence 2 is the topic sentence. Sentences 1 and 4 are supporting details, and sentence 3 is the conclusion.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "True or False: Every sentence in a paragraph should relate to the topic sentence.",
+        "type": "multiple_choice",
+        "choices": ["True", "False"],
+        "expected": ["True"],
+        "hint": "Paragraphs should stay focused on one main idea.",
+        "explanation": "True! Every sentence should connect to the main idea. Sentences that don't fit should be removed or saved for another paragraph.",
+        "difficulty": "medium"
+      }
+    ],
+    "metadata": {
+      "estimated_time": 18,
+      "skill_focus": ["paragraph_structure", "topic_sentences", "supporting_details", "concluding_sentences"],
+      "standards": ["CCSS.ELA-LITERACY.W.3.2"],
+      "is_featured": false
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "title": "Counting Coins and Bills",
+  "description": "Practice counting money using pennies, nickels, dimes, quarters, and dollar bills. Build real-world math skills!",
+  "subject": "coin_quest",
+  "grade_level": "2",
+  "tags": ["money", "coins", "counting", "addition", "real_world_math"],
+  "template_data": {
+    "topic": "Counting Money",
+    "instructions": "Count the money in each problem. Remember: penny = 1¢, nickel = 5¢, dime = 10¢, quarter = 25¢!",
+    "differentiation_mode": "adaptive",
+    "assignment_type": "practice",
+    "num_questions": 12,
+    "character": "nova",
+    "questions": [
+      {
+        "prompt": "How much is 1 penny worth?",
+        "type": "multiple_choice",
+        "choices": ["1 cent", "5 cents", "10 cents", "25 cents"],
+        "expected": ["1 cent"],
+        "hint": "It's the smallest coin!",
+        "explanation": "A penny is worth 1 cent (1¢).",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "How much is 1 nickel worth?",
+        "type": "multiple_choice",
+        "choices": ["1 cent", "5 cents", "10 cents", "25 cents"],
+        "expected": ["5 cents"],
+        "hint": "It's worth 5 pennies.",
+        "explanation": "A nickel is worth 5 cents (5¢).",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "How much is 1 dime worth?",
+        "type": "multiple_choice",
+        "choices": ["1 cent", "5 cents", "10 cents", "25 cents"],
+        "expected": ["10 cents"],
+        "hint": "It's the smallest coin but worth more than a nickel!",
+        "explanation": "A dime is worth 10 cents (10¢).",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "How much is 1 quarter worth?",
+        "type": "multiple_choice",
+        "choices": ["1 cent", "5 cents", "10 cents", "25 cents"],
+        "expected": ["25 cents"],
+        "hint": "It's worth the most!",
+        "explanation": "A quarter is worth 25 cents (25¢).",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "If you have 2 pennies, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["1¢", "2¢", "5¢", "10¢"],
+        "expected": ["2¢"],
+        "hint": "Add: 1¢ + 1¢ = ?",
+        "explanation": "2 pennies = 2¢",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "If you have 1 nickel and 2 pennies, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["3¢", "5¢", "7¢", "10¢"],
+        "expected": ["7¢"],
+        "hint": "5¢ + 1¢ + 1¢ = ?",
+        "explanation": "1 nickel (5¢) + 2 pennies (2¢) = 7¢",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "If you have 1 dime and 1 nickel, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["10¢", "15¢", "20¢", "25¢"],
+        "expected": ["15¢"],
+        "hint": "10¢ + 5¢ = ?",
+        "explanation": "1 dime (10¢) + 1 nickel (5¢) = 15¢",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "If you have 2 dimes, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["10¢", "15¢", "20¢", "25¢"],
+        "expected": ["20¢"],
+        "hint": "10¢ + 10¢ = ?",
+        "explanation": "2 dimes = 20¢",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "If you have 1 quarter and 1 penny, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["25¢", "26¢", "30¢", "35¢"],
+        "expected": ["26¢"],
+        "hint": "25¢ + 1¢ = ?",
+        "explanation": "1 quarter (25¢) + 1 penny (1¢) = 26¢",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "If you have 1 quarter, 1 dime, and 1 nickel, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["30¢", "35¢", "40¢", "45¢"],
+        "expected": ["40¢"],
+        "hint": "25¢ + 10¢ + 5¢ = ?",
+        "explanation": "1 quarter (25¢) + 1 dime (10¢) + 1 nickel (5¢) = 40¢",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "If you have 2 quarters, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["25¢", "40¢", "50¢", "75¢"],
+        "expected": ["50¢"],
+        "hint": "25¢ + 25¢ = ?",
+        "explanation": "2 quarters = 50¢ (or half a dollar!)",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "If you have 3 quarters, 1 dime, and 2 nickels, how much money do you have?",
+        "type": "multiple_choice",
+        "choices": ["75¢", "85¢", "90¢", "95¢"],
+        "expected": ["95¢"],
+        "hint": "Break it down: 75¢ + 10¢ + 10¢ = ?",
+        "explanation": "3 quarters (75¢) + 1 dime (10¢) + 2 nickels (10¢) = 95¢",
+        "difficulty": "hard"
+      }
+    ],
+    "metadata": {
+      "estimated_time": 15,
+      "skill_focus": ["money_counting", "coin_recognition", "addition", "real_world_math"],
+      "standards": ["CCSS.Math.2.MD.C.8"],
+      "is_featured": true
+    }
+  }
+}

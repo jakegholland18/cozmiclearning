@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Assignment – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .wizard-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(71, 200, 255, 0.1));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #ff6fd8, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .wizard-steps {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.2);
+            color: var(--muted-2);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .step-indicator.active {
+            background: linear-gradient(135deg, rgba(99, 116, 255, 0.3), rgba(71, 200, 255, 0.2));
+            border-color: #6374ff;
+            color: #4facfe;
+        }
+
+        .step-indicator.completed {
+            border-color: #4fff89;
+            color: #4fff89;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(99, 116, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .step-indicator.active .step-number {
+            background: #6374ff;
+            color: white;
+        }
+
+        .step-indicator.completed .step-number {
+            background: #4fff89;
+            color: #0a0a15;
+        }
+
+        .wizard-content {
+            background: rgba(20, 20, 40, 0.7);
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .step-section {
+            display: none;
+        }
+
+        .step-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: #4facfe;
+            font-size: 1.5rem;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+        }
+
+        .section-description {
+            color: var(--muted-2);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .type-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.05));
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 14px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .type-card:hover {
+            transform: translateY(-5px);
+            border-color: #6374ff;
+            box-shadow: 0 12px 32px rgba(99, 116, 255, 0.3);
+        }
+
+        .type-card.selected {
+            background: linear-gradient(135deg, rgba(99, 116, 255, 0.25), rgba(71, 200, 255, 0.15));
+            border-color: #6374ff;
+            box-shadow: 0 0 30px rgba(99, 116, 255, 0.4);
+        }
+
+        .type-card .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .type-card h3 {
+            color: #c4d1ff;
+            font-size: 1.3rem;
+            margin: 0 0 10px 0;
+        }
+
+        .type-card p {
+            color: var(--muted-2);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .type-card .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-recommended {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--muted-2);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6374ff;
+            box-shadow: 0 0 20px rgba(99, 116, 255, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .diff-mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .diff-mode-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(118, 131, 255, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diff-mode-card:hover {
+            border-color: #6374ff;
+        }
+
+        .diff-mode-card.selected {
+            background: rgba(99, 116, 255, 0.2);
+            border-color: #6374ff;
+        }
+
+        .diff-mode-card h4 {
+            color: #4facfe;
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+        }
+
+        .diff-mode-card p {
+            color: var(--muted-2);
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .review-section {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(118, 131, 255, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .review-section h3 {
+            color: #4facfe;
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(118, 131, 255, 0.1);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-label {
+            color: var(--muted-2);
+            font-weight: 600;
+        }
+
+        .review-value {
+            color: #c4d1ff;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 116, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(99, 116, 255, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+            border: 1px solid rgba(140, 140, 160, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(100, 100, 120, 0.8);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(99, 116, 255, 0.2);
+            border-top: 4px solid #6374ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-message .icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .success-message h2 {
+            color: #4fff89;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .success-message p {
+            color: var(--muted-2);
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+{% include '_navbar.html' %}
+
+<div class="wizard-container">
+    <div class="header-box">
+        <h1>🚀 Create New Assignment</h1>
+        <p style="color: var(--muted-2); font-size: 1rem; margin: 5px 0 0 0;">
+            Let's create an awesome learning experience for your students!
+        </p>
+    </div>
+
+    <div class="wizard-steps">
+        <div class="step-indicator active" data-step="1">
+            <div class="step-number">1</div>
+            <span>Choose Type</span>
+        </div>
+        <div class="step-indicator" data-step="2">
+            <div class="step-number">2</div>
+            <span>Configure</span>
+        </div>
+        <div class="step-indicator" data-step="3">
+            <div class="step-number">3</div>
+            <span>Review</span>
+        </div>
+    </div>
+
+    <div class="wizard-content">
+        <!-- Step 1: Choose Assignment Type -->
+        <div class="step-section active" id="step1">
+            <h2 class="section-title">Choose Assignment Type</h2>
+            <p class="section-description">
+                Select the type of assignment that best fits your teaching goals. Each type has smart defaults to help you get started quickly.
+            </p>
+
+            <div class="type-grid">
+                <div class="type-card" onclick="selectType('practice')">
+                    <span class="badge badge-recommended">Recommended</span>
+                    <span class="icon">📚</span>
+                    <h3>Practice Mission</h3>
+                    <p>Adaptive learning with instant feedback. Perfect for building skills and confidence. Students get personalized questions based on their performance.</p>
+                </div>
+
+                <div class="type-card" onclick="selectType('quiz')">
+                    <span class="icon">⚡</span>
+                    <h3>Quick Quiz</h3>
+                    <p>Fast assessment with limited questions. Great for checking understanding after a lesson. Single attempt, focused on key concepts.</p>
+                </div>
+
+                <div class="type-card" onclick="selectType('homework')">
+                    <span class="icon">✏️</span>
+                    <h3>Homework</h3>
+                    <p>Flexible assignment for independent practice at home. Students can take their time and learn at their own pace.</p>
+                </div>
+
+                <div class="type-card" onclick="selectType('assessment')">
+                    <span class="icon">🎯</span>
+                    <h3>Formal Assessment</h3>
+                    <p>Graded evaluation of student mastery. Use for tests, exams, or formal performance measures. Includes detailed scoring.</p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/teacher/dashboard'">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="step1Next" disabled onclick="nextStep(2)">
+                    Continue →
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Configure Settings -->
+        <div class="step-section" id="step2">
+            <h2 class="section-title">Configure Assignment Settings</h2>
+            <p class="section-description">
+                Customize the details for your assignment. We've pre-filled smart defaults based on your chosen type.
+            </p>
+
+            <form id="wizardForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="assignmentType" name="type" value="">
+
+                <div class="form-group">
+                    <label for="title">Assignment Title *</label>
+                    <input type="text" id="title" name="title" placeholder="e.g., Fraction Practice: Adding Like Denominators" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Select a subject</option>
+                            <option value="math">Math</option>
+                            <option value="reading">Reading</option>
+                            <option value="writing">Writing</option>
+                            <option value="science">Science</option>
+                            <option value="social_studies">Social Studies</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="topic">Topic *</label>
+                        <input type="text" id="topic" name="topic" placeholder="e.g., Fractions, Photosynthesis" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="class_id">Assign to Class *</label>
+                        <select id="class_id" name="class_id" required>
+                            <option value="">Select a class</option>
+                            {% for class_obj in classes %}
+                            <option value="{{ class_obj.id }}">{{ class_obj.name }} ({{ class_obj.grade_level }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="num_questions">Number of Questions</label>
+                        <input type="number" id="num_questions" name="num_questions" value="15" min="3" max="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Differentiation Mode</label>
+                    <p style="color: var(--muted-2); font-size: 0.85rem; margin: -5px 0 15px 0;">
+                        Choose how questions adapt to student performance
+                    </p>
+                    <div class="diff-mode-grid">
+                        <div class="diff-mode-card selected" onclick="selectDiffMode('adaptive')">
+                            <h4>🎯 Adaptive (Recommended)</h4>
+                            <p>Questions adjust based on student answers. Best for personalized learning.</p>
+                        </div>
+                        <div class="diff-mode-card" onclick="selectDiffMode('scaffold')">
+                            <h4>🪜 Scaffold</h4>
+                            <p>Provides hints and support for struggling students.</p>
+                        </div>
+                        <div class="diff-mode-card" onclick="selectDiffMode('mastery')">
+                            <h4>⭐ Mastery</h4>
+                            <p>Students must achieve proficiency before moving on.</p>
+                        </div>
+                        <div class="diff-mode-card" onclick="selectDiffMode('none')">
+                            <h4>📋 Standard</h4>
+                            <p>Same questions for all students. Good for formal assessments.</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="diffMode" name="differentiation_mode" value="adaptive">
+                </div>
+
+                <div class="form-group">
+                    <label for="due_date">Due Date (optional)</label>
+                    <input type="datetime-local" id="due_date" name="due_date">
+                </div>
+
+                <div class="form-group">
+                    <label for="instructions">Instructions (optional)</label>
+                    <textarea id="instructions" name="instructions" rows="3" placeholder="Additional instructions for students..."></textarea>
+                </div>
+            </form>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                    ← Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                    Review →
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Review & Create -->
+        <div class="step-section" id="step3">
+            <h2 class="section-title">Review Your Assignment</h2>
+            <p class="section-description">
+                Check everything looks good, then create your assignment. Questions will be generated automatically using AI.
+            </p>
+
+            <div class="review-section">
+                <h3>📋 Assignment Details</h3>
+                <div class="review-item">
+                    <span class="review-label">Type:</span>
+                    <span class="review-value" id="reviewType">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Title:</span>
+                    <span class="review-value" id="reviewTitle">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Subject:</span>
+                    <span class="review-value" id="reviewSubject">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Topic:</span>
+                    <span class="review-value" id="reviewTopic">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Class:</span>
+                    <span class="review-value" id="reviewClass">-</span>
+                </div>
+            </div>
+
+            <div class="review-section">
+                <h3>⚙️ Settings</h3>
+                <div class="review-item">
+                    <span class="review-label">Number of Questions:</span>
+                    <span class="review-value" id="reviewNumQuestions">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Differentiation Mode:</span>
+                    <span class="review-value" id="reviewDiffMode">-</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Due Date:</span>
+                    <span class="review-value" id="reviewDueDate">Not set</span>
+                </div>
+                <div class="review-item" id="reviewInstructionsRow" style="display: none;">
+                    <span class="review-label">Instructions:</span>
+                    <span class="review-value" id="reviewInstructions">-</span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                    ← Back
+                </button>
+                <button type="button" class="btn btn-primary" id="createBtn" onclick="createAssignment()">
+                    🚀 Create Assignment
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-spinner" id="loadingState">
+            <div class="spinner"></div>
+            <h3 style="color: #4facfe; margin-bottom: 10px;">Creating Your Assignment...</h3>
+            <p style="color: var(--muted-2);">
+                Our AI is generating personalized questions for your students. This may take a moment.
+            </p>
+        </div>
+
+        <!-- Success State -->
+        <div class="success-message" id="successState">
+            <div class="icon">✅</div>
+            <h2>Assignment Created Successfully!</h2>
+            <p>Your assignment has been created with AI-generated questions.</p>
+            <div class="button-group">
+                <a href="/teacher/dashboard" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+                <a href="#" id="previewLink" class="btn btn-primary">
+                    Preview Assignment →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    let selectedType = '';
+
+    function selectType(type) {
+        selectedType = type;
+        document.getElementById('assignmentType').value = type;
+
+        // Update UI
+        document.querySelectorAll('.type-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+
+        // Enable next button
+        document.getElementById('step1Next').disabled = false;
+
+        // Apply smart defaults based on type
+        applyTypeDefaults(type);
+    }
+
+    function applyTypeDefaults(type) {
+        const defaults = {
+            practice: {
+                num_questions: 15,
+                diff_mode: 'adaptive',
+                instructions: 'Complete this practice mission at your own pace. The questions will adapt to help you learn!'
+            },
+            quiz: {
+                num_questions: 10,
+                diff_mode: 'none',
+                instructions: 'Answer each question carefully. You have one attempt to show what you know.'
+            },
+            homework: {
+                num_questions: 12,
+                diff_mode: 'scaffold',
+                instructions: 'Take your time with this homework. Use hints if you need help!'
+            },
+            assessment: {
+                num_questions: 20,
+                diff_mode: 'none',
+                instructions: 'This is a graded assessment. Answer all questions to the best of your ability.'
+            }
+        };
+
+        const config = defaults[type];
+        if (config) {
+            document.getElementById('num_questions').value = config.num_questions;
+            document.getElementById('instructions').value = config.instructions;
+            selectDiffMode(config.diff_mode);
+        }
+    }
+
+    function selectDiffMode(mode) {
+        document.getElementById('diffMode').value = mode;
+
+        // Update UI
+        document.querySelectorAll('.diff-mode-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event?.currentTarget?.classList.add('selected');
+
+        // If called programmatically, select the right card
+        if (!event) {
+            const cards = document.querySelectorAll('.diff-mode-card');
+            const modeMap = { adaptive: 0, scaffold: 1, mastery: 2, none: 3 };
+            cards[modeMap[mode]]?.classList.add('selected');
+        }
+    }
+
+    function nextStep(step) {
+        // Hide current step
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+
+        // Update step indicators
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.add('completed');
+
+        // Show next step
+        currentStep = step;
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.add('active');
+
+        // If moving to review, populate review data
+        if (step === 3) {
+            populateReview();
+        }
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(step) {
+        // Hide current step
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+
+        // Update step indicators
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.remove('active');
+
+        // Show previous step
+        currentStep = step;
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step-indicator[data-step="${currentStep}"]`).classList.remove('completed');
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function populateReview() {
+        const typeMap = {
+            practice: 'Practice Mission 📚',
+            quiz: 'Quick Quiz ⚡',
+            homework: 'Homework ✏️',
+            assessment: 'Formal Assessment 🎯'
+        };
+
+        const diffModeMap = {
+            adaptive: 'Adaptive 🎯',
+            scaffold: 'Scaffold 🪜',
+            mastery: 'Mastery ⭐',
+            none: 'Standard 📋'
+        };
+
+        const subjectMap = {
+            math: 'Math',
+            reading: 'Reading',
+            writing: 'Writing',
+            science: 'Science',
+            social_studies: 'Social Studies'
+        };
+
+        document.getElementById('reviewType').textContent = typeMap[selectedType] || selectedType;
+        document.getElementById('reviewTitle').textContent = document.getElementById('title').value;
+        document.getElementById('reviewSubject').textContent = subjectMap[document.getElementById('subject').value] || document.getElementById('subject').value;
+        document.getElementById('reviewTopic').textContent = document.getElementById('topic').value;
+
+        const classSelect = document.getElementById('class_id');
+        document.getElementById('reviewClass').textContent = classSelect.options[classSelect.selectedIndex].text;
+
+        document.getElementById('reviewNumQuestions').textContent = document.getElementById('num_questions').value;
+        document.getElementById('reviewDiffMode').textContent = diffModeMap[document.getElementById('diffMode').value];
+
+        const dueDate = document.getElementById('due_date').value;
+        if (dueDate) {
+            const date = new Date(dueDate);
+            document.getElementById('reviewDueDate').textContent = date.toLocaleString();
+        } else {
+            document.getElementById('reviewDueDate').textContent = 'Not set';
+        }
+
+        const instructions = document.getElementById('instructions').value;
+        if (instructions) {
+            document.getElementById('reviewInstructions').textContent = instructions;
+            document.getElementById('reviewInstructionsRow').style.display = 'flex';
+        } else {
+            document.getElementById('reviewInstructionsRow').style.display = 'none';
+        }
+    }
+
+    async function createAssignment() {
+        // Validate form
+        const form = document.getElementById('wizardForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            prevStep(2);
+            return;
+        }
+
+        // Hide review, show loading
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('loadingState').style.display = 'block';
+
+        // Collect form data
+        const formData = new FormData(form);
+        const data = {
+            csrf_token: formData.get('csrf_token'),
+            type: formData.get('type'),
+            title: formData.get('title'),
+            subject: formData.get('subject'),
+            topic: formData.get('topic'),
+            class_id: formData.get('class_id'),
+            num_questions: parseInt(formData.get('num_questions')),
+            differentiation_mode: formData.get('differentiation_mode'),
+            due_date: formData.get('due_date') || null,
+            instructions: formData.get('instructions') || null
+        };
+
+        try {
+            const response = await fetch('/teacher/assignments/wizard/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show success state
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+                document.getElementById('previewLink').href = `/teacher/assignments/${result.assignment_id}/preview`;
+            } else {
+                throw new Error(result.error || 'Failed to create assignment');
+            }
+        } catch (error) {
+            console.error('Error creating assignment:', error);
+            alert('Error creating assignment: ' + error.message);
+
+            // Go back to review
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>

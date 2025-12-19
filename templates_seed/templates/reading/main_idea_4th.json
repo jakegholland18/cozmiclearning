@@ -1,0 +1,163 @@
+{
+  "title": "Finding the Main Idea",
+  "description": "Develop critical reading comprehension skills by identifying the main idea and supporting details in various passages.",
+  "subject": "story_verse",
+  "grade_level": "4",
+  "tags": ["main_idea", "reading_comprehension", "supporting_details", "summarizing"],
+  "template_data": {
+    "topic": "Main Idea and Supporting Details",
+    "instructions": "Read each passage carefully and identify the main idea. Look for what the passage is mostly about!",
+    "differentiation_mode": "adaptive",
+    "assignment_type": "practice",
+    "num_questions": 10,
+    "character": "sage",
+    "questions": [
+      {
+        "prompt": "Read this passage:\n\n'Dogs make wonderful pets. They are loyal and loving companions. Dogs can be trained to follow commands and do tricks. Many dogs also help people by working as service animals or therapy dogs.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Dogs can do tricks",
+          "Dogs make wonderful pets for many reasons",
+          "Service dogs help people",
+          "Dogs are loyal"
+        ],
+        "expected": ["Dogs make wonderful pets for many reasons"],
+        "hint": "What is the passage MOSTLY about? The first sentence often gives a clue.",
+        "explanation": "The main idea is that dogs make wonderful pets. The other sentences provide supporting details about why they are wonderful.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Butterflies go through four stages of life. First, they start as tiny eggs. Next, they hatch into caterpillars and eat lots of leaves. Then, they form a chrysalis and undergo metamorphosis. Finally, they emerge as beautiful butterflies.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Caterpillars eat leaves",
+          "Butterflies are beautiful",
+          "Butterflies go through a life cycle with four stages",
+          "Metamorphosis happens in a chrysalis"
+        ],
+        "expected": ["Butterflies go through a life cycle with four stages"],
+        "hint": "Look at the first sentence for a topic sentence.",
+        "explanation": "The main idea is that butterflies have a four-stage life cycle. Each sentence describes one stage of that cycle.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Read this passage:\n\n'The ocean is home to many amazing creatures. Dolphins use echolocation to find food. Giant squids can grow to be as long as a school bus. Sea turtles can hold their breath for hours underwater. Each animal has unique adaptations for ocean life.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Dolphins use echolocation",
+          "Giant squids are very large",
+          "The ocean has many amazing creatures with special adaptations",
+          "Sea turtles hold their breath"
+        ],
+        "expected": ["The ocean has many amazing creatures with special adaptations"],
+        "hint": "The first and last sentences often help identify the main idea.",
+        "explanation": "The main idea is that the ocean is home to amazing creatures with unique adaptations. The middle sentences give examples.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Exercise is important for staying healthy. It makes your heart stronger and helps you maintain a healthy weight. Exercise also improves your mood and helps you sleep better. Even just 30 minutes a day can make a big difference!'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Exercise helps you sleep",
+          "Your heart gets stronger with exercise",
+          "Exercise is important for many health benefits",
+          "30 minutes of exercise is enough"
+        ],
+        "expected": ["Exercise is important for many health benefits"],
+        "hint": "What is the passage trying to convince you of?",
+        "explanation": "The main idea is that exercise is important for health. The supporting details explain specific benefits.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Rosa Parks was a brave civil rights hero. On December 1, 1955, she refused to give up her seat on a bus to a white passenger in Montgomery, Alabama. Her act of courage sparked the Montgomery Bus Boycott, which lasted 381 days. Her bravery helped change unfair laws.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "The Montgomery Bus Boycott lasted 381 days",
+          "Rosa Parks refused to give up her seat on a bus",
+          "Rosa Parks was a brave hero whose actions helped change unfair laws",
+          "Buses in Montgomery were segregated"
+        ],
+        "expected": ["Rosa Parks was a brave hero whose actions helped change unfair laws"],
+        "hint": "Think about the overall message about Rosa Parks.",
+        "explanation": "The main idea is that Rosa Parks was a brave hero who helped change unfair laws. Her bus protest is the key supporting detail.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Recycling helps protect our environment in many ways. It reduces the amount of trash in landfills. Recycling saves energy because making new products from recycled materials uses less energy than creating them from scratch. It also conserves natural resources like trees and water.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Recycling reduces trash in landfills",
+          "Recycling helps protect the environment in multiple ways",
+          "Making new products uses energy",
+          "Trees and water are natural resources"
+        ],
+        "expected": ["Recycling helps protect the environment in multiple ways"],
+        "hint": "Look for the sentence that covers all the benefits mentioned.",
+        "explanation": "The main idea is stated in the first sentence - recycling helps protect the environment. The rest explains how.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Ancient Egypt was an advanced civilization. The Egyptians built enormous pyramids that still stand today. They developed a system of writing called hieroglyphics. They also made important contributions to mathematics, medicine, and astronomy. The civilization lasted for over 3,000 years.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Pyramids were built in Ancient Egypt",
+          "Hieroglyphics was Egyptian writing",
+          "Ancient Egypt was an advanced civilization with many achievements",
+          "Egypt lasted 3,000 years"
+        ],
+        "expected": ["Ancient Egypt was an advanced civilization with many achievements"],
+        "hint": "What is the passage saying about Ancient Egypt overall?",
+        "explanation": "The main idea is that Ancient Egypt was advanced. The pyramids, writing, and contributions to science are all supporting examples.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "Read this passage:\n\n'Bees play a crucial role in our food supply. As they collect nectar from flowers, they transfer pollen from one plant to another. This process, called pollination, allows plants to produce fruits and seeds. Without bees, many crops that we rely on for food would not grow.'\n\nWhat is the main idea?",
+        "type": "multiple_choice",
+        "choices": [
+          "Bees collect nectar from flowers",
+          "Pollination helps plants make seeds",
+          "Bees are crucial for our food supply through pollination",
+          "Many crops need bees"
+        ],
+        "expected": ["Bees are crucial for our food supply through pollination"],
+        "hint": "Think about the most important point being made about bees.",
+        "explanation": "The main idea is that bees are crucial for food production. The details explain how pollination works and why it matters.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "Which detail would BEST support this main idea?\n\nMain Idea: 'Reading books has many benefits for children.'\n\nWhich is a supporting detail?",
+        "type": "multiple_choice",
+        "choices": [
+          "Some children like comic books",
+          "Libraries have many books",
+          "Reading improves vocabulary and imagination",
+          "Books can be expensive"
+        ],
+        "expected": ["Reading improves vocabulary and imagination"],
+        "hint": "Look for a detail that explains a benefit of reading.",
+        "explanation": "This detail supports the main idea by giving specific benefits (vocabulary and imagination) that reading provides.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Which sentence would make the BEST topic sentence for a paragraph about why homework is important?\n\n(A topic sentence states the main idea)",
+        "type": "multiple_choice",
+        "choices": [
+          "Some homework can be difficult",
+          "Homework reinforces what students learn in school",
+          "Students usually do homework at night",
+          "Teachers assign different amounts of homework"
+        ],
+        "expected": ["Homework reinforces what students learn in school"],
+        "hint": "Which sentence makes a clear point that could be explained in more detail?",
+        "explanation": "This makes the best topic sentence because it states a clear main idea that can be supported with examples and details.",
+        "difficulty": "hard"
+      }
+    ],
+    "metadata": {
+      "estimated_time": 25,
+      "skill_focus": ["main_idea", "supporting_details", "reading_comprehension", "text_analysis"],
+      "standards": ["CCSS.ELA-LITERACY.RI.4.2"],
+      "is_featured": true
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "title": "Photosynthesis: How Plants Make Food",
+  "description": "Explore the amazing process of photosynthesis! Students will learn how plants use sunlight, water, and carbon dioxide to create food and oxygen.",
+  "subject": "atom_sphere",
+  "grade_level": "5",
+  "tags": ["photosynthesis", "plants", "biology", "energy", "life_science"],
+  "template_data": {
+    "topic": "Photosynthesis",
+    "instructions": "Answer these questions about photosynthesis. Think about what plants need and what they produce!",
+    "differentiation_mode": "scaffold",
+    "assignment_type": "practice",
+    "num_questions": 12,
+    "character": "celeste",
+    "questions": [
+      {
+        "prompt": "What is the main purpose of photosynthesis?",
+        "type": "multiple_choice",
+        "choices": [
+          "To help plants breathe",
+          "To make food (glucose) for the plant",
+          "To make flowers bloom",
+          "To help plants grow taller"
+        ],
+        "expected": ["To make food (glucose) for the plant"],
+        "hint": "Think about what plants need to survive and grow",
+        "explanation": "Photosynthesis is the process plants use to make their own food (glucose) using sunlight, water, and carbon dioxide.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Which part of the plant cell is where photosynthesis happens?",
+        "type": "multiple_choice",
+        "choices": ["Nucleus", "Chloroplast", "Cell wall", "Mitochondria"],
+        "expected": ["Chloroplast"],
+        "hint": "This organelle contains chlorophyll and is green",
+        "explanation": "Chloroplasts contain chlorophyll and are the site of photosynthesis in plant cells.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "What gives plants their green color?",
+        "type": "multiple_choice",
+        "choices": ["Water", "Chlorophyll", "Sunlight", "Oxygen"],
+        "expected": ["Chlorophyll"],
+        "hint": "This pigment absorbs light energy",
+        "explanation": "Chlorophyll is a green pigment that absorbs light energy for photosynthesis.",
+        "difficulty": "easy"
+      },
+      {
+        "prompt": "Which THREE things do plants need for photosynthesis?",
+        "type": "multiple_choice",
+        "choices": [
+          "Sunlight, water, carbon dioxide",
+          "Sunlight, soil, oxygen",
+          "Water, fertilizer, air",
+          "Oxygen, water, sunlight"
+        ],
+        "expected": ["Sunlight, water, carbon dioxide"],
+        "hint": "Think: energy source + H₂O + CO₂",
+        "explanation": "Plants need sunlight (energy), water (H₂O), and carbon dioxide (CO₂) to perform photosynthesis.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What TWO things do plants produce during photosynthesis?",
+        "type": "multiple_choice",
+        "choices": [
+          "Oxygen and carbon dioxide",
+          "Glucose (sugar) and oxygen",
+          "Water and glucose",
+          "Carbon dioxide and water"
+        ],
+        "expected": ["Glucose (sugar) and oxygen"],
+        "hint": "One is food for the plant, one is what we breathe",
+        "explanation": "Photosynthesis produces glucose (C₆H₁₂O₆) which is food for the plant, and oxygen (O₂) which is released into the air.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Where do plants get the carbon dioxide they need?",
+        "type": "multiple_choice",
+        "choices": [
+          "From the soil through their roots",
+          "From the air through tiny holes in their leaves",
+          "From water",
+          "They make it themselves"
+        ],
+        "expected": ["From the air through tiny holes in their leaves"],
+        "hint": "Think about stomata - tiny pores in leaves",
+        "explanation": "Plants absorb carbon dioxide from the air through tiny pores called stomata, mainly found on the underside of leaves.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "Why is photosynthesis important for animals and humans?",
+        "type": "multiple_choice",
+        "choices": [
+          "It makes the air smell nice",
+          "It produces oxygen that we need to breathe",
+          "It makes plants colorful",
+          "It helps plants grow flowers"
+        ],
+        "expected": ["It produces oxygen that we need to breathe"],
+        "hint": "What do we breathe in?",
+        "explanation": "Photosynthesis produces oxygen as a byproduct, which is essential for animals and humans to breathe.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What is the chemical formula for glucose (the sugar plants make)?",
+        "type": "multiple_choice",
+        "choices": ["H₂O", "CO₂", "C₆H₁₂O₆", "O₂"],
+        "expected": ["C₆H₁₂O₆"],
+        "hint": "It contains carbon (C), hydrogen (H), and oxygen (O)",
+        "explanation": "Glucose has the chemical formula C₆H₁₂O₆ - it contains 6 carbon, 12 hydrogen, and 6 oxygen atoms.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "When do plants perform photosynthesis?",
+        "type": "multiple_choice",
+        "choices": [
+          "Only at night",
+          "Only during the day when there is sunlight",
+          "All the time, day and night",
+          "Only in the summer"
+        ],
+        "expected": ["Only during the day when there is sunlight"],
+        "hint": "Photosynthesis requires light energy",
+        "explanation": "Photosynthesis requires sunlight, so it only occurs during the day when light is available. At night, plants only respire.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What happens to most of the oxygen produced during photosynthesis?",
+        "type": "multiple_choice",
+        "choices": [
+          "The plant uses it all",
+          "It is released into the air",
+          "It goes into the soil",
+          "It turns into water"
+        ],
+        "expected": ["It is released into the air"],
+        "hint": "This is why forests are called the 'lungs of the Earth'",
+        "explanation": "Most of the oxygen produced during photosynthesis is released into the atmosphere through the stomata.",
+        "difficulty": "medium"
+      },
+      {
+        "prompt": "What would happen to a plant if it was kept in complete darkness?",
+        "type": "multiple_choice",
+        "choices": [
+          "It would grow faster",
+          "It would not be able to perform photosynthesis and would eventually die",
+          "It would produce more oxygen",
+          "Nothing would change"
+        ],
+        "expected": ["It would not be able to perform photosynthesis and would eventually die"],
+        "hint": "Remember, sunlight is one of the key ingredients",
+        "explanation": "Without sunlight, a plant cannot perform photosynthesis to make food, so it would use up its stored energy and eventually die.",
+        "difficulty": "hard"
+      },
+      {
+        "prompt": "The word 'photosynthesis' comes from Greek words meaning:",
+        "type": "multiple_choice",
+        "choices": [
+          "Light + making/putting together",
+          "Plant + food",
+          "Green + energy",
+          "Sun + growth"
+        ],
+        "expected": ["Light + making/putting together"],
+        "hint": "Photo = light, synthesis = making/combining",
+        "explanation": "'Photo' means light and 'synthesis' means putting together - literally 'making with light'.",
+        "difficulty": "hard"
+      }
+    ],
+    "metadata": {
+      "estimated_time": 20,
+      "skill_focus": ["photosynthesis", "plant_biology", "energy_conversion", "scientific_processes"],
+      "standards": ["NGSS.5-LS1-1"],
+      "is_featured": true
+    }
+  }
+}

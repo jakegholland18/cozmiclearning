@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Progress Dashboard – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(71, 200, 255, 0.1));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            background: linear-gradient(135deg, #ff6fd8, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(79, 255, 137, 0.1);
+            border: 1px solid rgba(79, 255, 137, 0.3);
+            border-radius: 25px;
+        }
+
+        .live-dot {
+            width: 12px;
+            height: 12px;
+            background: #4fff89;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.05));
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--muted-2);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .filters-bar {
+            background: rgba(20, 20, 40, 0.7);
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            color: var(--muted-2);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select {
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .refresh-btn {
+            margin-left: auto;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 116, 255, 0.4);
+        }
+
+        .students-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .student-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.1), rgba(71, 200, 255, 0.05));
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 20px;
+            border-radius: 14px;
+            transition: all 0.2s;
+        }
+
+        .student-card:hover {
+            border-color: #6374ff;
+            box-shadow: 0 8px 24px rgba(99, 116, 255, 0.2);
+        }
+
+        .student-card.active {
+            border-color: #4fff89;
+            background: linear-gradient(135deg, rgba(79, 255, 137, 0.1), rgba(71, 200, 255, 0.05));
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .student-info h3 {
+            color: #c4d1ff;
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+
+        .student-meta {
+            color: var(--muted-2);
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-working {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.4);
+        }
+
+        .status-completed {
+            background: rgba(71, 200, 255, 0.2);
+            color: #47c8ff;
+            border: 1px solid rgba(71, 200, 255, 0.4);
+        }
+
+        .status-struggling {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.4);
+        }
+
+        .status-not-started {
+            background: rgba(150, 150, 170, 0.2);
+            color: #9696aa;
+            border: 1px solid rgba(150, 150, 170, 0.4);
+        }
+
+        .assignment-details {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .assignment-title {
+            color: #4facfe;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .progress-bar.high {
+            background: linear-gradient(90deg, #4fff89, #47c8ff);
+        }
+
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #ffdd55, #ff9500);
+        }
+
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ff6b6b, #ff6fd8);
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted-2);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .performance-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .perf-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted-2);
+            font-size: 0.85rem;
+        }
+
+        .perf-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .perf-icon.correct {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+        }
+
+        .perf-icon.incorrect {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .perf-icon.time {
+            background: rgba(99, 116, 255, 0.2);
+            color: #6374ff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 116, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+            border: 1px solid rgba(140, 140, 160, 0.4);
+        }
+
+        .btn-warning {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted-2);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .last-activity {
+            color: var(--muted-2);
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+{% include '_navbar.html' %}
+
+<div class="dashboard-container">
+    <div class="header-box">
+        <div>
+            <h1>📊 Live Progress Dashboard</h1>
+            <p style="color: var(--muted-2); font-size: 0.9rem; margin: 5px 0 0 0;">
+                See what your students are working on right now
+            </p>
+        </div>
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span style="color: #4fff89; font-weight: 600;">LIVE</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="activeCount">0</div>
+            <div class="stat-label">Students Working Now</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="completedToday">0</div>
+            <div class="stat-label">Completed Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="averageProgress">0%</div>
+            <div class="stat-label">Average Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="needingHelp">0</div>
+            <div class="stat-label">Need Assistance</div>
+        </div>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label for="classFilter">Class:</label>
+            <select id="classFilter" onchange="filterStudents()">
+                <option value="all">All Classes</option>
+                {% for class_obj in classes %}
+                <option value="{{ class_obj.id }}">{{ class_obj.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="assignmentFilter">Assignment:</label>
+            <select id="assignmentFilter" onchange="filterStudents()">
+                <option value="all">All Assignments</option>
+                {% for assignment in assignments %}
+                <option value="{{ assignment.id }}">{{ assignment.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" onchange="filterStudents()">
+                <option value="all">All Students</option>
+                <option value="working">Working Now</option>
+                <option value="struggling">Struggling</option>
+                <option value="completed">Completed</option>
+                <option value="not-started">Not Started</option>
+            </select>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshDashboard()">
+            🔄 Refresh
+        </button>
+    </div>
+
+    <div class="students-grid" id="studentsGrid">
+        <!-- Students will be loaded here via JavaScript -->
+        <div class="empty-state">
+            <div class="icon">📚</div>
+            <h3>Loading student progress...</h3>
+            <p>This dashboard updates in real-time as students work on assignments.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allStudentData = [];
+    let refreshInterval;
+
+    // Load dashboard data
+    async function loadDashboard() {
+        try {
+            const response = await fetch('/teacher/api/live-progress');
+            const data = await response.json();
+
+            allStudentData = data.students || [];
+
+            // Update stats
+            document.getElementById('activeCount').textContent = data.stats.active_count;
+            document.getElementById('completedToday').textContent = data.stats.completed_today;
+            document.getElementById('averageProgress').textContent = data.stats.average_progress + '%';
+            document.getElementById('needingHelp').textContent = data.stats.needing_help;
+
+            // Render students
+            renderStudents(allStudentData);
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        }
+    }
+
+    function renderStudents(students) {
+        const grid = document.getElementById('studentsGrid');
+
+        if (students.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">✨</div>
+                    <h3>No students match your filters</h3>
+                    <p>Try adjusting your filter settings or check back later.</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = students.map(student => `
+            <div class="student-card ${student.is_active ? 'active' : ''}" data-class="${student.class_id}" data-assignment="${student.assignment_id}" data-status="${student.status}">
+                <div class="student-header">
+                    <div class="student-info">
+                        <h3>${student.name}</h3>
+                        <div class="student-meta">${student.class_name} • ${student.grade_level}</div>
+                    </div>
+                    <span class="status-badge status-${student.status}">
+                        ${getStatusLabel(student.status)}
+                    </span>
+                </div>
+
+                <div class="assignment-details">
+                    <div class="assignment-title">${student.assignment_title}</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar ${getProgressClass(student.progress)}" style="width: ${student.progress}%;"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>${student.questions_answered} / ${student.total_questions} questions</span>
+                        <span>${student.progress}%</span>
+                    </div>
+                </div>
+
+                <div class="performance-stats">
+                    <div class="perf-stat">
+                        <div class="perf-icon correct">✓</div>
+                        <span>${student.correct_count} correct</span>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-icon incorrect">✗</div>
+                        <span>${student.incorrect_count} incorrect</span>
+                    </div>
+                    <div class="perf-stat">
+                        <div class="perf-icon time">⏱</div>
+                        <span>${student.time_spent} min</span>
+                    </div>
+                </div>
+
+                ${student.last_activity ? `<div class="last-activity">Last active: ${student.last_activity}</div>` : ''}
+
+                <div class="actions">
+                    <a href="/teacher/students/${student.student_id}/view" class="btn btn-small btn-secondary">
+                        View Profile
+                    </a>
+                    ${student.status === 'struggling' ? `
+                        <button class="btn btn-small btn-warning" onclick="sendEncouragement(${student.student_id})">
+                            Send Help
+                        </button>
+                    ` : ''}
+                    <a href="/teacher/assignments/${student.assignment_id}/submissions/${student.submission_id}" class="btn btn-small btn-primary">
+                        View Work
+                    </a>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getStatusLabel(status) {
+        const labels = {
+            'working': '🔥 Working Now',
+            'completed': '✅ Completed',
+            'struggling': '⚠️ Needs Help',
+            'not-started': '📝 Not Started'
+        };
+        return labels[status] || status;
+    }
+
+    function getProgressClass(progress) {
+        if (progress >= 70) return 'high';
+        if (progress >= 30) return 'medium';
+        return 'low';
+    }
+
+    function filterStudents() {
+        const classFilter = document.getElementById('classFilter').value;
+        const assignmentFilter = document.getElementById('assignmentFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        let filtered = allStudentData;
+
+        if (classFilter !== 'all') {
+            filtered = filtered.filter(s => s.class_id == classFilter);
+        }
+
+        if (assignmentFilter !== 'all') {
+            filtered = filtered.filter(s => s.assignment_id == assignmentFilter);
+        }
+
+        if (statusFilter !== 'all') {
+            filtered = filtered.filter(s => s.status === statusFilter);
+        }
+
+        renderStudents(filtered);
+    }
+
+    function refreshDashboard() {
+        loadDashboard();
+    }
+
+    async function sendEncouragement(studentId) {
+        if (!confirm('Send an encouraging message to this student?')) return;
+
+        try {
+            const response = await fetch(`/teacher/api/send-encouragement/${studentId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Encouragement sent! ✨');
+            } else {
+                alert('Failed to send message.');
+            }
+        } catch (error) {
+            console.error('Error sending encouragement:', error);
+            alert('Error sending message.');
+        }
+    }
+
+    // Auto-refresh every 10 seconds
+    refreshInterval = setInterval(refreshDashboard, 10000);
+
+    // Initial load
+    loadDashboard();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(refreshInterval);
+    });
+</script>
+
+</body>
+</html>
