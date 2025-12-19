@@ -338,6 +338,28 @@ def initialize_arcade_games():
 # HELPER FUNCTIONS
 # ============================================================
 
+def shuffle_question_options(question):
+    """
+    Shuffle the options array for a question while preserving the correct answer.
+    This prevents predictable answer patterns (like always being at index 1).
+
+    Args:
+        question (dict): Question dict with 'answer' and 'options' keys
+
+    Returns:
+        dict: Same question with shuffled options
+    """
+    if 'options' not in question or 'answer' not in question:
+        return question
+
+    # Make a copy to avoid modifying the original
+    shuffled_options = question['options'].copy()
+    random.shuffle(shuffled_options)
+
+    # Return updated question dict
+    return {**question, 'options': shuffled_options}
+
+
 def generate_multiple_choice(correct_answer, wrong_range=20, count=3):
     """Generate multiple choice options including the correct answer"""
     options = [correct_answer]
@@ -573,7 +595,10 @@ def generate_vocab_builder(difficulty='medium'):
     """Generate vocabulary matching game based on difficulty"""
     vocab_set = VOCAB_SETS.get(difficulty, VOCAB_SETS["medium"]).copy()
     random.shuffle(vocab_set)
-    return vocab_set[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_vocab = [shuffle_question_options(q) for q in vocab_set[:20]]
+    return shuffled_vocab
 
 
 # ============================================================
@@ -653,7 +678,10 @@ def generate_science_quiz(difficulty='medium'):
     """Generate science trivia questions based on difficulty"""
     questions = SCIENCE_QUESTIONS.get(difficulty, SCIENCE_QUESTIONS["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
@@ -796,7 +824,10 @@ def generate_reading_racer(difficulty='medium'):
         })
 
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
@@ -876,7 +907,10 @@ def generate_map_master(difficulty='medium'):
     """Identify countries, states, and cities on maps"""
     questions = MAP_QUESTIONS.get(difficulty, MAP_QUESTIONS["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
@@ -1330,7 +1364,10 @@ def generate_geography_dash(difficulty='medium'):
     ]
 
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
@@ -1410,7 +1447,10 @@ def generate_bible_trivia(difficulty='medium'):
     """Test your knowledge of Bible stories and verses"""
     questions = BIBLE_QUESTIONS.get(difficulty, BIBLE_QUESTIONS["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
@@ -1456,7 +1496,9 @@ def generate_country_spotter(difficulty='medium'):
             "options": q["options"]
         })
 
-    return formatted[:15]
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in formatted[:15]]
+    return shuffled_questions
 
 
 def generate_capital_quest(difficulty='medium'):
@@ -1496,7 +1538,10 @@ def generate_capital_quest(difficulty='medium'):
 
     questions = capitals_by_difficulty.get(difficulty, capitals_by_difficulty["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 def generate_flag_frenzy(difficulty='medium'):
@@ -1588,7 +1633,10 @@ def generate_money_marathon(difficulty='medium'):
 
     questions = questions_by_difficulty.get(difficulty, questions_by_difficulty["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 def generate_investment_simulator(difficulty='medium'):
@@ -1618,7 +1666,10 @@ def generate_investment_simulator(difficulty='medium'):
 
     questions = questions_by_difficulty.get(difficulty, questions_by_difficulty["medium"]).copy()
     random.shuffle(questions)
-    return questions[:20]
+
+    # Shuffle options for each question to prevent predictable patterns
+    shuffled_questions = [shuffle_question_options(q) for q in questions[:20]]
+    return shuffled_questions
 
 
 # ============================================================
