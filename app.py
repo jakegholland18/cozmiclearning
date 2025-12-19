@@ -7489,6 +7489,7 @@ def student_save_assignment(assignment_id):
 
 
 @app.route("/student/assignments/<int:assignment_id>/answer", methods=["POST"])
+@csrf.exempt
 def student_answer_question(assignment_id):
     """
     Handle individual MC question answer submission for hybrid adaptive assignments.
