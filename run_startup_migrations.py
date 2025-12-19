@@ -78,6 +78,7 @@ def run_migrations():
         success = False
 
     # Migration 6: Add adaptive tracking columns to student_submissions
+    # Adds current_question_index and mc_phase_complete for hybrid adaptive assignments
     try:
         logger.info("\n📋 Migration 6: Add adaptive assignment tracking columns")
         from migrations.add_adaptive_tracking_postgres import migrate as migrate_adaptive
