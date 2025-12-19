@@ -7953,14 +7953,16 @@ def teacher_save_preview_assignment():
         pass
 
     # Create assignment
-    assignment = Practice(
+    assignment = AssignedPractice(
         class_id=int(class_id),
         teacher_id=teacher.id if hasattr(teacher, 'id') and teacher.id else None,
         title=title,
         subject=data.get("subject", "terra_nova"),
+        topic=data.get("topic", "General Practice"),
         open_date=open_date,
         due_date=due_date,
         is_published=True,
+        differentiation_mode=data.get("differentiation_mode", "none"),
     )
     db.session.add(assignment)
     db.session.flush()  # Get assignment ID
