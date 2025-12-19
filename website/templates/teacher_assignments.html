@@ -188,12 +188,13 @@
                             <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
                                 {% if a.is_published %}✅{% else %}📝{% endif %} View / Manage
                             </a>
-                            <form method="POST" action="/teacher/assignments/{{ a.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete {{ a.title }}? This action cannot be undone.');">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="btn-light" style="background: linear-gradient(135deg, #ff4444, #ff6b6b); color: white; border: none; cursor: pointer;">
-                                    🗑️ Delete
-                                </button>
-                            </form>
+                            <button
+                                class="btn-light"
+                                style="background: linear-gradient(135deg, #ff4444, #ff6b6b); color: white; border: none; cursor: pointer;"
+                                onclick="deleteAssignment({{ a.id }}, '{{ a.title|replace("'", "\\'") }}')"
+                            >
+                                🗑️ Delete
+                            </button>
                         </div>
                     </div>
                 {% endfor %}
@@ -214,6 +215,53 @@
 {% endfor %}
 
 </div>
+
+<script>
+async function deleteAssignment(assignmentId, title) {
+    if (!confirm(`Delete "${title}"? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/teacher/assignments/${assignmentId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Remove the assignment card from the DOM
+            const assignmentCard = event.target.closest('.assignment-card');
+            if (assignmentCard) {
+                assignmentCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                assignmentCard.style.opacity = '0';
+                assignmentCard.style.transform = 'scale(0.95)';
+                setTimeout(() => assignmentCard.remove(), 300);
+            }
+
+            // Show success message
+            const message = document.createElement('div');
+            message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #4fff89, #00f2ff); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(79, 255, 137, 0.4); z-index: 10000; font-weight: 600;';
+            message.textContent = `✅ ${data.message}`;
+            document.body.appendChild(message);
+            setTimeout(() => {
+                message.style.transition = 'opacity 0.3s ease';
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 300);
+            }, 3000);
+        } else {
+            alert(`Error: ${data.error || 'Failed to delete assignment'}`);
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('Failed to delete assignment. Please try again.');
+    }
+}
+</script>
 
 </body>
 </html>
