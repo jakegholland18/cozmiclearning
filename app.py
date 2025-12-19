@@ -6322,7 +6322,16 @@ def student_start_assignment(assignment_id):
 
             # Calculate progress
             answers_data = json.loads(submission.answers_json) if submission.answers_json else {}
-            mc_answered = sum(1 for k, v in answers_data.items() if v.get("question_type") == "multiple_choice")
+            # Count MC answers - handle both old format (string values) and new format (dict values)
+            mc_answered = 0
+            for k, v in answers_data.items():
+                if isinstance(v, dict):
+                    if v.get("question_type") == "multiple_choice":
+                        mc_answered += 1
+                elif isinstance(v, str):
+                    # Old format - assume it's an answer (count all answers as progress)
+                    mc_answered += 1
+
             progress_percent = int((mc_answered / len(mc_questions)) * 100) if mc_questions else 0
 
             print(f"   Showing MC question {current_idx + 1}/{len(mc_questions)} (difficulty: {current_question.get('difficulty', 'unknown')})")
