@@ -256,6 +256,11 @@
 
 <body class="fade-in">
 
+<!-- Hidden nav-links for dashboard button detection -->
+<div class="nav-links" style="display: none;">
+    <a href="/dashboard">Dashboard</a>
+</div>
+
 <div class="assignment-container">
     <div class="header-box">
         <h1>{{ assignment.title }}</h1>
@@ -682,6 +687,8 @@
         return div.innerHTML;
     }
 </script>
+
+<script src="/static/enhancements.js"></script>
 
 </body>
 </html>
