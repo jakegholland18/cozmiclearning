@@ -6895,23 +6895,43 @@ def student_submit_assignment(assignment_id):
             student_answer = answers.get(str(idx), "")
             expected = question.get("expected", [])
             question_type = question.get("type")
+            correct_answer = question.get("correct_answer")  # Some questions might use this field
+            options = question.get("options", [])
 
-            print(f"🔍 Question {idx}: type={question_type}, student_answer='{student_answer}', expected={expected}")
+            print(f"🔍 Question {idx}:")
+            print(f"   type={question_type}")
+            print(f"   student_answer='{student_answer}'")
+            print(f"   expected={expected}")
+            print(f"   correct_answer={correct_answer}")
+            print(f"   options={options}")
+            print(f"   question keys: {list(question.keys())}")
+
+            # Determine the correct answer - check multiple possible fields
+            correct_answer_value = None
+            if expected and isinstance(expected, list) and len(expected) > 0:
+                correct_answer_value = expected
+            elif expected and not isinstance(expected, list):
+                correct_answer_value = [expected]
+            elif correct_answer:
+                correct_answer_value = [correct_answer] if not isinstance(correct_answer, list) else correct_answer
+
+            print(f"   ➡️ correct_answer_value={correct_answer_value}")
 
             # Grade multiple choice questions (including questions with no type specified)
-            if (question_type == "multiple_choice" or not question_type) and expected:
+            if (question_type == "multiple_choice" or not question_type) and correct_answer_value:
                 # For multiple choice, check if answer matches any expected answer
                 is_correct = False
-                expected_list = expected if isinstance(expected, list) else [expected]
 
-                for exp in expected_list:
-                    if answers_match(student_answer, exp):
+                for correct_ans in correct_answer_value:
+                    if answers_match(student_answer, correct_ans):
                         is_correct = True
                         break
 
                 print(f"{'✅' if is_correct else '❌'} Question {idx} result: {is_correct}")
                 if is_correct:
                     correct_count += 1
+            else:
+                print(f"⏭️ Question {idx} SKIPPED - no correct answer found or wrong type")
 
         # Calculate score
         if total_questions > 0:
