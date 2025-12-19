@@ -6838,6 +6838,48 @@ def student_submit_assignment(assignment_id):
     submission.status = "submitted"
     submission.submitted_at = datetime.utcnow()
 
+    # Helper function for flexible answer matching
+    def answers_match(student_answer, expected_answer):
+        """Check if student answer matches expected with flexible formatting"""
+        if not student_answer or not expected_answer:
+            return False
+
+        # Normalize both answers
+        student = str(student_answer).strip().lower()
+        expected = str(expected_answer).strip().lower()
+
+        # Exact match
+        if student == expected:
+            return True
+
+        # Remove common symbols and whitespace for comparison
+        import re
+        student_clean = re.sub(r'[%$,\s]', '', student)
+        expected_clean = re.sub(r'[%$,\s]', '', expected)
+
+        if student_clean == expected_clean:
+            return True
+
+        # Try numeric comparison for percentage/decimal equivalents
+        try:
+            student_num = float(student_clean)
+            expected_num = float(expected_clean)
+
+            # Check if they're equal or equivalent (e.g., 25 == 25% when expected has %)
+            if abs(student_num - expected_num) < 0.01:
+                return True
+
+            # Handle percentage conversions (25 vs 0.25, 25% vs 0.25)
+            if abs(student_num * 100 - expected_num) < 0.01:
+                return True
+            if abs(student_num - expected_num * 100) < 0.01:
+                return True
+
+        except (ValueError, TypeError):
+            pass
+
+        return False
+
     # Auto-grade multiple choice questions
     try:
         mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
@@ -6851,8 +6893,16 @@ def student_submit_assignment(assignment_id):
             expected = question.get("expected", [])
 
             if question.get("type") == "multiple_choice" and expected:
-                # For multiple choice, check if answer matches expected
-                if student_answer in expected or student_answer == expected[0]:
+                # For multiple choice, check if answer matches any expected answer
+                is_correct = False
+                expected_list = expected if isinstance(expected, list) else [expected]
+
+                for exp in expected_list:
+                    if answers_match(student_answer, exp):
+                        is_correct = True
+                        break
+
+                if is_correct:
                     correct_count += 1
 
         # Calculate score
