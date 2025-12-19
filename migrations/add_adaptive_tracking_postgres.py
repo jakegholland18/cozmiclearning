@@ -19,6 +19,8 @@ def migrate():
 
     with app.app_context():
         try:
+            print(f"Connected to database: {db.engine.url}")
+
             # Check if current_question_index column already exists
             result = db.session.execute(
                 text("""
@@ -29,7 +31,10 @@ def migrate():
                 """)
             )
 
-            if result.fetchone():
+            row = result.fetchone()
+            result.close()  # Close the result set
+
+            if row:
                 print("✅ Column 'current_question_index' already exists in student_submissions")
             else:
                 # Add the current_question_index column
@@ -53,7 +58,10 @@ def migrate():
                 """)
             )
 
-            if result.fetchone():
+            row = result.fetchone()
+            result.close()  # Close the result set
+
+            if row:
                 print("✅ Column 'mc_phase_complete' already exists in student_submissions")
             else:
                 # Add the mc_phase_complete column
@@ -67,10 +75,13 @@ def migrate():
                 db.session.commit()
                 print("✅ Successfully added 'mc_phase_complete' column")
 
+            print("✅ Migration completed successfully - all columns verified")
             return True
 
         except Exception as e:
-            print(f"❌ Migration failed: {e}")
+            print(f"❌ Migration failed with error: {e}")
+            import traceback
+            traceback.print_exc()
             db.session.rollback()
             return False
 
