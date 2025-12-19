@@ -175,10 +175,17 @@
                             <p><strong>Due:</strong> {{ a.due_date.strftime("%b %d, %Y") }}</p>
                         {% endif %}
 
-                        <!-- FIXED: correct route for viewing assignment -->
-                        <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
-                            View / Manage
-                        </a>
+                        <!-- Action buttons -->
+                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                            {% if not a.is_published %}
+                                <a class="btn-light" href="/teacher/assignments/{{ a.id }}/preview" style="background: linear-gradient(135deg, #6374ff, #47c8ff); color: white;">
+                                    👁️ Preview & Edit
+                                </a>
+                            {% endif %}
+                            <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
+                                {% if a.is_published %}✅{% else %}📝{% endif %} View / Manage
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
