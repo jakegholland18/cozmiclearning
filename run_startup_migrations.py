@@ -65,6 +65,18 @@ def run_migrations():
         logger.error(f"❌ Error in add_assignment_templates: {e}")
         success = False
 
+    # Migration 5: Add grade_released column to student_submissions
+    try:
+        logger.info("\n📋 Migration 5: Add grade_released column")
+        sys.path.insert(0, os.path.dirname(__file__))
+        from migrations.add_grade_released_postgres import migrate
+        if not migrate():
+            logger.error("❌ Failed to add grade_released column")
+            success = False
+    except Exception as e:
+        logger.error(f"❌ Error in add_grade_released: {e}")
+        success = False
+
     if success:
         logger.info("\n✅ All startup migrations completed successfully!")
     else:
