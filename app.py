@@ -7546,11 +7546,24 @@ def student_answer_question(assignment_id):
     expected_normalized = [str(e).strip().lower() for e in expected_answers if e]
     student_normalized = student_answer.strip().lower()
 
-    # Extract letter from choice (e.g., "A. Answer" -> "a")
+    # Extract letter from choice (e.g., "C. 4" -> "c")
+    student_letter = None
     if ". " in student_normalized:
-        student_normalized = student_normalized.split(".")[0].strip()
+        student_letter = student_normalized.split(".")[0].strip()
+        # Also get the answer text after the dot (e.g., "C. 4" -> "4")
+        student_answer_text = student_normalized.split(".", 1)[1].strip()
+    else:
+        student_answer_text = student_normalized
 
-    is_correct = student_normalized in expected_normalized
+    # Check if correct by matching either:
+    # 1. The letter (e.g., "c" matches ["c"])
+    # 2. The answer text (e.g., "4" matches ["4"])
+    # 3. The full choice (e.g., "c. 4" matches ["c. 4"])
+    is_correct = (
+        student_normalized in expected_normalized or
+        (student_letter and student_letter in expected_normalized) or
+        (student_answer_text and student_answer_text in expected_normalized)
+    )
 
     print(f"🎯 [HYBRID ADAPTIVE] Student {student.id} answered Q{question_index}: {'✓ correct' if is_correct else '✗ incorrect'}")
     print(f"   Expected: {expected_normalized}, Got: {student_normalized}")
