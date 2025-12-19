@@ -7739,6 +7739,7 @@ def student_submit_assignment(assignment_id):
 
         total_questions = len(questions)
         correct_count = 0
+        mc_question_count = 0  # Count only MC questions for auto-grading
 
         for idx, question in enumerate(questions):
             # Extract student answer - handle both dict format and string format
@@ -7797,6 +7798,7 @@ def student_submit_assignment(assignment_id):
 
             # Grade multiple choice questions (including questions with no type specified)
             if (question_type == "multiple_choice" or not question_type) and correct_answer_value:
+                mc_question_count += 1  # Count this as an MC question
                 # For multiple choice, check if answer matches any expected answer
                 is_correct = False
 
@@ -7809,18 +7811,27 @@ def student_submit_assignment(assignment_id):
                 if is_correct:
                     correct_count += 1
             else:
-                print(f"⏭️ Question {idx} SKIPPED - no correct answer found or wrong type")
+                print(f"⏭️ Question {idx} SKIPPED - free response or no correct answer (needs manual grading)")
 
-        # Calculate score
-        if total_questions > 0:
-            score = (correct_count / total_questions) * 100
+        # Calculate score based on MC questions only (free response needs manual grading)
+        if mc_question_count > 0:
+            score = (correct_count / mc_question_count) * 100
             submission.score = round(score, 2)
             submission.points_earned = correct_count
-            submission.points_possible = total_questions
+            submission.points_possible = mc_question_count
             submission.graded_at = datetime.utcnow()
             submission.status = "graded"
 
-            print(f"✅ Auto-graded assignment {assignment_id} for student {student.id}: {score}% ({correct_count}/{total_questions})")
+            free_response_count = total_questions - mc_question_count
+            if free_response_count > 0:
+                print(f"✅ Auto-graded MC questions for assignment {assignment_id}: {score}% ({correct_count}/{mc_question_count})")
+                print(f"   ⏸️ {free_response_count} free response questions need manual grading")
+            else:
+                print(f"✅ Auto-graded assignment {assignment_id} for student {student.id}: {score}% ({correct_count}/{mc_question_count})")
+        else:
+            # All free response - mark as submitted but not graded
+            submission.status = "submitted"
+            print(f"⏸️ Assignment {assignment_id} has only free response questions - needs manual grading")
 
     except Exception as e:
         print(f"⚠️ Auto-grading failed for assignment {assignment_id}: {e}")

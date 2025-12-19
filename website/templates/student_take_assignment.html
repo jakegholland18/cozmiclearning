@@ -334,7 +334,7 @@
             <div class="question-number">Question {{ loop.index }}</div>
             <div class="question-prompt">{{ question.prompt }}</div>
 
-            {% if question.type == 'multiple_choice' or not question.type %}
+            {% if question.type == 'multiple_choice' and question.choices and question.choices|length > 0 %}
                 {% for choice in question.choices %}
                 <div class="choice-option" onclick="selectChoice(this, {{ loop.index0 }}, '{{ question_idx }}')">
                     <input
@@ -354,7 +354,7 @@
                 </div>
                 {% endfor %}
 
-            {% elif question.type == 'short_answer' or question.type == 'free' %}
+            {% else %}
                 <textarea
                     name="answer_{{ question_idx }}"
                     class="text-answer"
