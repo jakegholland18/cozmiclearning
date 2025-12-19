@@ -7,7 +7,7 @@
         body {
             background: linear-gradient(135deg, #0a0e27 0%, #050813 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
         }
 
         .page-title {
@@ -24,7 +24,8 @@
 
         .content-box {
             max-width: 1000px;
-            margin: 0 auto;
+            margin: 80px auto 0;
+            padding: 20px;
         }
 
         .class-section {
@@ -148,9 +149,11 @@
 </head>
 <body class="fade-in">
 
-<div class="page-title">Assigned Practice Sets</div>
+{% include '_navbar.html' %}
 
 <div class="content-box">
+
+<div class="page-title">Assigned Practice Sets</div>
 
    {% for cls in classes %}
     <div class="class-section">
@@ -176,7 +179,7 @@
                         {% endif %}
 
                         <!-- Action buttons -->
-                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
                             {% if not a.is_published %}
                                 <a class="btn-light" href="/teacher/assignments/{{ a.id }}/preview" style="background: linear-gradient(135deg, #6374ff, #47c8ff); color: white;">
                                     👁️ Preview & Edit
@@ -185,6 +188,12 @@
                             <a class="btn-light" href="/teacher/assignments/{{ a.id }}">
                                 {% if a.is_published %}✅{% else %}📝{% endif %} View / Manage
                             </a>
+                            <form method="POST" action="/teacher/assignments/{{ a.id }}/delete" style="display: inline;" onsubmit="return confirm('Delete {{ a.title }}? This action cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-light" style="background: linear-gradient(135deg, #ff4444, #ff6b6b); color: white; border: none; cursor: pointer;">
+                                    🗑️ Delete
+                                </button>
+                            </form>
                         </div>
                     </div>
                 {% endfor %}
