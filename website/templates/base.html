@@ -181,18 +181,21 @@
                 <a href="/subjects">Subjects</a>
                 <a href="/student/assignments">Assignments</a>
                 <a href="/student/gradebook">📊 Gradebook</a>
+                <a href="/tutorials">📚 Tutorials</a>
                 <a href="/logout">Logout</a>
             {% endif %}
 
             <!-- Parent Links -->
             {% if session.get('is_parent') %}
                 <a href="/parent_dashboard">🏠 Dashboard</a>
+                <a href="/tutorials">📚 Tutorials</a>
                 <a href="/logout">Logout</a>
             {% endif %}
 
             <!-- Teacher Links -->
             {% if session.get('teacher_id') %}
                 <a href="/teacher/dashboard">🏠 Dashboard</a>
+                <a href="/tutorials">📚 Tutorials</a>
                 <a href="/teacher/logout">Logout</a>
             {% endif %}
 
