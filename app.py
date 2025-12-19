@@ -8008,7 +8008,7 @@ def assignment_wizard_create():
     try:
         from modules.practice_helper import generate_practice_session
 
-        payload = generate_practice_session(
+        mission_json = generate_practice_session(
             topic=topic or "General",
             subject=subject or "terra_nova",
             grade_level=grade_level,
@@ -8019,33 +8019,17 @@ def assignment_wizard_create():
             num_questions=num_questions,
         )
 
-        questions_data = payload.get("questions", [])
-
-        mission_json = {
-            "steps": [
-                {
-                    "prompt": q.get("prompt", ""),
-                    "type": q.get("type", "free"),
-                    "choices": q.get("choices", []),
-                    "expected": q.get("expected", []),
-                    "hint": q.get("hint", ""),
-                    "explanation": q.get("explanation", ""),
-                    "difficulty": q.get("difficulty", "medium")
-                }
-                for q in questions_data
-            ],
-            "final_message": payload.get("final_message", "Great work!")
-        }
-
+        # generate_practice_session returns the complete mission JSON with "steps" key
         assignment.preview_json = json.dumps(mission_json)
         db.session.commit()
 
-        print(f"🎯 [WIZARD] Created assignment '{title}' with {len(questions_data)} questions")
+        questions_count = len(mission_json.get("steps", []))
+        print(f"🎯 [WIZARD] Created assignment '{title}' with {questions_count} questions")
 
         return jsonify({
             "success": True,
             "assignment_id": assignment.id,
-            "questions_generated": len(questions_data)
+            "questions_generated": questions_count
         })
 
     except Exception as e:
