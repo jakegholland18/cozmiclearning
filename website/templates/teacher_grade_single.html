@@ -200,8 +200,13 @@
             <div class="label">Student's Answer:</div>
             <div class="answer">
                 {% set answer_key = loop.index0|string %}
-                {% if answers.get(answer_key) %}
-                    {{ answers.get(answer_key) }}
+                {% set student_answer = answers.get(answer_key) %}
+                {% if student_answer %}
+                    {% if student_answer is mapping %}
+                        {{ student_answer.answer }}
+                    {% else %}
+                        {{ student_answer }}
+                    {% endif %}
                 {% else %}
                     <span style="color: var(--muted-3);">No answer provided</span>
                 {% endif %}

@@ -7741,7 +7741,15 @@ def student_submit_assignment(assignment_id):
         correct_count = 0
 
         for idx, question in enumerate(questions):
-            student_answer = answers.get(str(idx), "")
+            # Extract student answer - handle both dict format and string format
+            student_answer_raw = answers.get(str(idx), "")
+            if isinstance(student_answer_raw, dict):
+                # New format: {"answer": "...", "correct": true, "question_type": "..."}
+                student_answer = student_answer_raw.get("answer", "")
+            else:
+                # Old format: just the answer string
+                student_answer = student_answer_raw
+
             expected = question.get("expected", [])
             question_type = question.get("type")
             correct_answer = question.get("correct_answer")  # Some questions might use this field
