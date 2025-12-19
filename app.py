@@ -7384,6 +7384,73 @@ def teacher_grade_submission(submission_id):
 
 
 # ============================================================
+# TEACHER - GRADE RELEASE
+# ============================================================
+
+@app.route("/teacher/submissions/<int:submission_id>/release_grade", methods=["POST"])
+def teacher_release_grade(submission_id):
+    """Teacher releases a single graded submission to student"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    teacher = Teacher.query.get(teacher_id)
+    submission = StudentSubmission.query.get_or_404(submission_id)
+    assignment = submission.assignment
+
+    # Verify teacher owns this assignment
+    if assignment.teacher_id != teacher.id and not is_owner(teacher):
+        flash("You don't have permission to release this grade.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Release the grade
+    submission.grade_released = True
+    db.session.commit()
+
+    flash(f"Grade released to {submission.student_rel.student_name}!", "success")
+    return redirect(f"/teacher/assignments/{assignment.id}/grade_submissions")
+
+
+@app.route("/teacher/assignments/<int:assignment_id>/release_all_grades", methods=["POST"])
+def teacher_release_all_grades(assignment_id):
+    """Teacher releases all graded submissions for an assignment"""
+    init_user()
+
+    teacher_id = session.get("teacher_id")
+    if not teacher_id:
+        flash("Please log in as a teacher.", "error")
+        return redirect("/teacher/login")
+
+    teacher = Teacher.query.get(teacher_id)
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Verify teacher owns this assignment
+    if assignment.teacher_id != teacher.id and not is_owner(teacher):
+        flash("You don't have permission to release grades for this assignment.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Release all graded submissions
+    graded_submissions = StudentSubmission.query.filter_by(
+        assignment_id=assignment_id,
+        status="graded"
+    ).all()
+
+    released_count = 0
+    for submission in graded_submissions:
+        if not submission.grade_released:
+            submission.grade_released = True
+            released_count += 1
+
+    db.session.commit()
+
+    flash(f"Released {released_count} graded assignments to students!", "success")
+    return redirect(f"/teacher/assignments/{assignment_id}/grade_submissions")
+
+
+# ============================================================
 # TEACHER - AI QUESTION ASSIGNMENT GENERATOR
 # ============================================================
 

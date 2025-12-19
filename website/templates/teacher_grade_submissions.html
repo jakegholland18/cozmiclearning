@@ -303,6 +303,30 @@
     </div>
     {% endif %}
 
+    <!-- Bulk Actions -->
+    {% if student_submissions|selectattr('submission')|selectattr('submission.status', 'equalto', 'graded')|list|length > 0 %}
+    <div style="background: rgba(74, 172, 254, 0.1); border: 1px solid rgba(74, 172, 254, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="color: #4facfe; margin: 0 0 8px 0;">Grade Release Actions</h3>
+                <p style="color: var(--muted-2); margin: 0; font-size: 0.9rem;">
+                    {{ student_submissions|selectattr('submission')|selectattr('submission.grade_released', 'equalto', true)|list|length }} of
+                    {{ student_submissions|selectattr('submission')|selectattr('submission.status', 'equalto', 'graded')|list|length }} graded assignments released
+                </p>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <form method="POST" action="/teacher/assignments/{{ assignment.id }}/release_all_grades" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #4facfe, #00f2ff); color: white; padding: 10px 20px;"
+                            onclick="return confirm('Release all graded assignments to students? They will be able to see their scores.')">
+                        🚀 Release All Grades
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     {% if student_submissions %}
     <table class="submissions-table">
         <thead>
@@ -311,6 +335,7 @@
                 <th>Status</th>
                 <th>Submitted</th>
                 <th>Score</th>
+                <th>Grade Released</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -330,9 +355,11 @@
                         {% elif item.submission.status == 'in_progress' %}
                         <span class="status-badge status-in-progress">In Progress</span>
                         {% elif item.submission.status == 'submitted' %}
-                        <span class="status-badge status-submitted">Submitted</span>
-                        {% elif item.submission.status == 'graded' %}
-                        <span class="status-badge status-graded">Graded</span>
+                        <span class="status-badge status-submitted">Awaiting Grade</span>
+                        {% elif item.submission.status == 'graded' and not item.submission.grade_released %}
+                        <span class="status-badge status-submitted">Pending Release</span>
+                        {% elif item.submission.status == 'graded' and item.submission.grade_released %}
+                        <span class="status-badge status-graded">Released</span>
                         {% endif %}
                     {% else %}
                     <span class="status-badge status-not-started">Not Started</span>
@@ -355,15 +382,37 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if item.submission and item.submission.status in ['submitted', 'graded'] %}
-                    <a href="/teacher/submissions/{{ item.submission.id }}/grade" class="btn btn-grade">
-                        {% if item.submission.status == 'graded' %}✏️ Review{% else %}✅ Grade{% endif %}
-                    </a>
-                    {% elif item.submission and item.submission.status == 'in_progress' %}
-                    <span class="btn btn-view" style="cursor: default; opacity: 0.6;">In Progress</span>
+                    {% if item.submission and item.submission.status == 'graded' %}
+                        {% if item.submission.grade_released %}
+                        <span style="color: #4fff89; font-weight: 600;">✅ Released</span>
+                        {% else %}
+                        <span style="color: #ffdd55; font-weight: 600;">⏳ Hidden</span>
+                        {% endif %}
                     {% else %}
-                    <span style="color: var(--muted-3); font-size: 0.85rem;">Not submitted</span>
+                    <span style="color: var(--muted-3);">—</span>
                     {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        {% if item.submission and item.submission.status in ['submitted', 'graded'] %}
+                        <a href="/teacher/submissions/{{ item.submission.id }}/grade" class="btn btn-grade">
+                            {% if item.submission.status == 'graded' %}✏️ Review{% else %}✅ Grade{% endif %}
+                        </a>
+                        {% elif item.submission and item.submission.status == 'in_progress' %}
+                        <span class="btn btn-view" style="cursor: default; opacity: 0.6;">In Progress</span>
+                        {% else %}
+                        <span style="color: var(--muted-3); font-size: 0.85rem;">Not submitted</span>
+                        {% endif %}
+
+                        {% if item.submission and item.submission.status == 'graded' and not item.submission.grade_released %}
+                        <form method="POST" action="/teacher/submissions/{{ item.submission.id }}/release_grade" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn" style="background: rgba(0, 242, 255, 0.3); color: #00f2ff; border: 1px solid rgba(0, 242, 255, 0.4); padding: 8px 16px; font-size: 0.85rem; white-space: nowrap;">
+                                🚀 Release
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
