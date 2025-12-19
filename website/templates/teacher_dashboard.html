@@ -506,20 +506,11 @@
     </div>
 
     <div class="nav-links">
-        <a href="/teacher/dashboard">🏠 Dashboard</a>
-        <a href="/teacher/live-dashboard">📡 Live Progress</a>
-        <a href="/teacher/assignments">📝 Assignments</a>
-        <a href="/teacher/assignments/wizard">🚀 Create Wizard</a>
-        <a href="/teacher/templates">📚 Templates</a>
-        <a href="/teacher/gradebook">📊 Gradebook</a>
-        <a href="/teacher/analytics">📈 Analytics</a>
-        {% if session.get('parent_id') %}
-        <a href="/parent/lesson-plans">📖 Lesson Plans</a>
-        {% else %}
-        <a href="/teacher/lesson_plans">📖 Lesson Plans</a>
-        {% endif %}
+        <a href="/teacher/assignments/wizard">🚀 Create</a>
+        <a href="/teacher/live-dashboard">📊 Monitor</a>
+        <a href="/teacher/gradebook">📝 Gradebook</a>
         <a href="/teacher/messages">
-            📬 Messages
+            💬 Messages
             {% if unread_messages > 0 %}
             <span style="background: var(--accent); color: var(--bg); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 4px;">{{ unread_messages }}</span>
             {% endif %}
