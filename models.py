@@ -327,14 +327,18 @@ class StudentSubmission(db.Model):
 
     # Teacher feedback
     feedback = db.Column(db.Text, nullable=True)
-    
+
+    # Adaptive assignment tracking (for hybrid adaptive mode)
+    current_question_index = db.Column(db.Integer, default=0)  # Index of current question (0-based)
+    mc_phase_complete = db.Column(db.Boolean, default=False)  # True when student finishes MC questions and moves to free response
+
     # Timestamps
     started_at = db.Column(db.DateTime, nullable=True)
     submitted_at = db.Column(db.DateTime, nullable=True)
     graded_at = db.Column(db.DateTime, nullable=True)
-    
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     student_rel = db.relationship("Student", backref="submissions", lazy=True)
 

@@ -5994,7 +5994,13 @@ def student_start_assignment(assignment_id):
     scaffold_config = mission.get("scaffold_config")
     gap_fill_config = mission.get("gap_fill_config")
     mastery_config = mission.get("mastery_config")
-    is_adaptive = assignment.differentiation_mode == "adaptive" and adaptive_config
+
+    # Detect hybrid adaptive mode (new system with difficulty fields on questions)
+    has_difficulty_fields = any("difficulty" in q for q in questions)
+    is_hybrid_adaptive = assignment.differentiation_mode == "adaptive" and has_difficulty_fields
+
+    # Old adaptive system (uses adaptive_config)
+    is_adaptive = assignment.differentiation_mode == "adaptive" and adaptive_config and not is_hybrid_adaptive
     is_scaffold = assignment.differentiation_mode == "scaffold" and scaffold_config
     is_gap_fill = assignment.differentiation_mode == "gap_fill" and gap_fill_config
     is_mastery = assignment.differentiation_mode == "mastery" and mastery_config
@@ -6073,6 +6079,56 @@ def student_start_assignment(assignment_id):
             print(f"📚 [SCAFFOLD] Initialized routing for student {student.id}")
             print(f"   Pool sizes: E={len(question_pool['easy'])}, M={len(question_pool['medium'])}, H={len(question_pool['hard'])}")
             print(f"   Settings: Progressive hints={scaffold_state['progressive_hints']}, Adjust difficulty={scaffold_state['adjust_difficulty']}, Threshold={scaffold_state['wrong_threshold']}")
+
+    # For HYBRID ADAPTIVE assignments (new system with difficulty fields)
+    if is_hybrid_adaptive:
+        print(f"🎯 [HYBRID ADAPTIVE] Loading assignment for student {student.id}")
+
+        # Separate MC and free response questions
+        mc_questions = [q for q in questions if "difficulty" in q]
+        free_questions = [q for q in questions if "difficulty" not in q]
+
+        print(f"   Question distribution: {len(mc_questions)} MC (adaptive), {len(free_questions)} free response")
+
+        # Check if MC phase is complete
+        if submission.mc_phase_complete:
+            # Show free response questions (all at once)
+            print(f"   ✅ MC phase complete - showing free response questions")
+            return render_template(
+                "student_take_assignment.html",
+                assignment=assignment,
+                submission=submission,
+                questions=free_questions,
+                saved_answers=saved_answers,
+                mc_phase_complete=True
+            )
+        else:
+            # Show current MC question (one at a time)
+            current_idx = submission.current_question_index or 0
+
+            # Make sure we're within the MC range
+            if current_idx >= len(mc_questions):
+                current_idx = 0
+
+            current_question = mc_questions[current_idx] if current_idx < len(mc_questions) else mc_questions[0]
+
+            # Calculate progress
+            answers_data = json.loads(submission.answers_json) if submission.answers_json else {}
+            mc_answered = sum(1 for k, v in answers_data.items() if v.get("question_type") == "multiple_choice")
+            progress_percent = int((mc_answered / len(mc_questions)) * 100) if mc_questions else 0
+
+            print(f"   Showing MC question {current_idx + 1}/{len(mc_questions)} (difficulty: {current_question.get('difficulty', 'unknown')})")
+
+            return render_template(
+                "student_take_assignment_sequential.html",
+                assignment=assignment,
+                submission=submission,
+                current_question=current_question,
+                current_index=current_idx,
+                total_questions=len(questions),
+                mc_phase_complete=False,
+                progress_percent=progress_percent
+            )
 
         # For scaffold mode, only show current question
         current_idx = scaffold_state.get("current_question_index", 0)
@@ -6852,6 +6908,152 @@ def student_save_assignment(assignment_id):
 
     print(f"✅ Saved progress for student {student.id} on assignment {assignment_id}")
     return jsonify({"success": True})
+
+
+@app.route("/student/assignments/<int:assignment_id>/answer", methods=["POST"])
+def student_answer_question(assignment_id):
+    """
+    Handle individual MC question answer submission for hybrid adaptive assignments.
+    Auto-grades the answer, advances to next question, and tracks progress.
+    """
+    init_user()
+
+    student_id = session.get("student_id")
+    student = Student.query.get(student_id) if student_id else None
+
+    if not student:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    # Get assignment and submission
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+    submission = StudentSubmission.query.filter_by(
+        student_id=student.id,
+        assignment_id=assignment.id
+    ).first()
+
+    if not submission:
+        return jsonify({"success": False, "error": "No submission found"}), 404
+
+    # Check if this is a hybrid adaptive assignment
+    if assignment.differentiation_mode != "adaptive":
+        return jsonify({"success": False, "error": "Not an adaptive assignment"}), 400
+
+    # Parse request data
+    data = request.get_json()
+    question_index = data.get("question_index")
+    student_answer = data.get("answer", "").strip()
+
+    if question_index is None or not student_answer:
+        return jsonify({"success": False, "error": "Invalid data"}), 400
+
+    # Parse assignment questions
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+        questions = mission.get("steps", [])
+    except:
+        return jsonify({"success": False, "error": "Failed to load questions"}), 500
+
+    if question_index >= len(questions):
+        return jsonify({"success": False, "error": "Invalid question index"}), 400
+
+    current_question = questions[question_index]
+
+    # Auto-grade the MC answer
+    expected_answers = current_question.get("expected", [])
+    if not isinstance(expected_answers, list):
+        expected_answers = [expected_answers]
+
+    # Normalize answers for comparison
+    expected_normalized = [str(e).strip().lower() for e in expected_answers if e]
+    student_normalized = student_answer.strip().lower()
+
+    # Extract letter from choice (e.g., "A. Answer" -> "a")
+    if ". " in student_normalized:
+        student_normalized = student_normalized.split(".")[0].strip()
+
+    is_correct = student_normalized in expected_normalized
+
+    print(f"🎯 [HYBRID ADAPTIVE] Student {student.id} answered Q{question_index}: {'✓ correct' if is_correct else '✗ incorrect'}")
+    print(f"   Expected: {expected_normalized}, Got: {student_normalized}")
+
+    # Load current answers
+    try:
+        answers_data = json.loads(submission.answers_json) if submission.answers_json else {}
+    except:
+        answers_data = {}
+
+    # Save the answer
+    answers_data[str(question_index)] = {
+        "answer": student_answer,
+        "correct": is_correct,
+        "question_type": "multiple_choice"
+    }
+
+    # Count MC questions (questions with difficulty field)
+    mc_questions = [q for q in questions if "difficulty" in q]
+    num_mc = len(mc_questions)
+
+    # Check if this was the last MC question
+    mc_answered = sum(1 for k, v in answers_data.items() if v.get("question_type") == "multiple_choice")
+    is_last_mc = (mc_answered >= num_mc)
+
+    print(f"   MC progress: {mc_answered}/{num_mc}")
+
+    if is_last_mc:
+        # Mark MC phase as complete
+        submission.mc_phase_complete = True
+        submission.current_question_index = num_mc  # Move to first free response question
+        print(f"   ✅ MC phase complete - moving to free response")
+    else:
+        # Determine next MC question difficulty based on correctness
+        current_difficulty = current_question.get("difficulty", "medium")
+
+        if is_correct:
+            # Move to harder question if available
+            if current_difficulty == "easy":
+                next_difficulty = "medium"
+            elif current_difficulty == "medium":
+                next_difficulty = "hard"
+            else:
+                next_difficulty = "hard"  # Stay at hard
+        else:
+            # Move to easier question if available
+            if current_difficulty == "hard":
+                next_difficulty = "medium"
+            elif current_difficulty == "medium":
+                next_difficulty = "easy"
+            else:
+                next_difficulty = "easy"  # Stay at easy
+
+        # Find next unasked question of target difficulty
+        next_index = None
+        for i, q in enumerate(mc_questions):
+            if str(i) not in answers_data and q.get("difficulty") == next_difficulty:
+                next_index = i
+                break
+
+        # Fallback: find any unanswered MC question
+        if next_index is None:
+            for i, q in enumerate(mc_questions):
+                if str(i) not in answers_data:
+                    next_index = i
+                    break
+
+        if next_index is not None:
+            submission.current_question_index = next_index
+            print(f"   Next question: Q{next_index} (difficulty: {mc_questions[next_index].get('difficulty', 'unknown')})")
+
+    # Save updated submission
+    submission.answers_json = json.dumps(answers_data)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "correct": is_correct,
+        "is_last_mc": is_last_mc,
+        "mc_answered": mc_answered,
+        "total_mc": num_mc
+    })
 
 
 @app.route("/student/assignments/<int:assignment_id>/submit", methods=["POST"])

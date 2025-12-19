@@ -186,14 +186,20 @@ def assign_questions(
         else:
             expected = []
 
-        questions.append({
+        question_data = {
             "prompt": s.get("prompt", ""),
             "type": s.get("type", "free"),
             "choices": s.get("choices", []) if s.get("type") == "multiple_choice" else [],
             "expected": expected,
             "hint": s.get("hint", "Think carefully."),
             "explanation": s.get("explanation", "Let's walk through it together."),
-        })
+        }
+
+        # Preserve difficulty field for adaptive mode (used in hybrid adaptive assignments)
+        if "difficulty" in s:
+            question_data["difficulty"] = s["difficulty"]
+
+        questions.append(question_data)
 
     payload = {
         "created_at": datetime.utcnow().isoformat(),

@@ -308,18 +308,73 @@ def _subject_flavor(subject: str) -> str:
 # DIFFERENTIATION ENGINE (adds instructions to prompt)
 # ------------------------------------------------------------
 
-def apply_differentiation(base_prompt: str, mode: str) -> str:
+def apply_differentiation(base_prompt: str, mode: str, num_mc: int = None, num_free: int = None) -> str:
     if mode == "none":
         return base_prompt
 
     if mode == "adaptive":
-        return base_prompt + """
+        mc_instructions = f"""
+DIFFERENTIATION MODE: HYBRID ADAPTIVE (CRITICAL!)
+
+This assignment uses a TWO-PHASE approach:
+1. PHASE 1: {num_mc} Multiple Choice Questions (Adaptive)
+2. PHASE 2: {num_free} Free Response Questions (Standard)
+
+PHASE 1 REQUIREMENTS - ADAPTIVE MULTIPLE CHOICE:
+- Generate EXACTLY {num_mc} multiple choice questions
+- EACH question MUST include a "difficulty" field with value "easy", "medium", or "hard"
+- Start with 2-3 "easy" questions, then 3-4 "medium", then 1-2 "hard"
+- Questions will be presented ONE AT A TIME to students
+- Next question difficulty adjusts based on whether student got previous answer correct
+- These questions test foundational knowledge and quick recall
+
+PHASE 2 REQUIREMENTS - FREE RESPONSE:
+- Generate EXACTLY {num_free} free response questions
+- These should NOT have a difficulty field (they're all shown together at the end)
+- These test deeper understanding, explanation, and application
+- Students will see all free response questions at once after completing MC phase
+
+EXAMPLE JSON FORMAT:
+{{
+  "steps": [
+    {{
+      "prompt": "What is 2 + 2?",
+      "type": "multiple_choice",
+      "difficulty": "easy",
+      "choices": ["A. 3", "B. 4", "C. 5", "D. 6"],
+      "expected": ["b"],
+      "hint": "...",
+      "explanation": "..."
+    }},
+    {{
+      "prompt": "If x + 5 = 12, what is x?",
+      "type": "multiple_choice",
+      "difficulty": "medium",
+      "choices": ["A. 5", "B. 7", "C. 17", "D. 12"],
+      "expected": ["b"],
+      "hint": "...",
+      "explanation": "..."
+    }},
+    {{
+      "prompt": "Explain why multiplying two fractions gives a result smaller than either fraction.",
+      "type": "free",
+      "choices": [],
+      "expected": [],
+      "hint": "...",
+      "explanation": "..."
+    }}
+  ]
+}}
+
+CRITICAL: First {num_mc} questions MUST be multiple_choice with difficulty field, last {num_free} MUST be free response without difficulty field.
+""" if num_mc and num_free else """
 DIFFERENTIATION MODE: ADAPTIVE
 - Start medium.
 - Harder after correct answers.
 - Easier after incorrect answers.
 - Smooth difficulty curve.
 """
+        return base_prompt + mc_instructions
 
     if mode == "gap_fill":
         return base_prompt + """
@@ -456,12 +511,24 @@ def generate_practice_session(
     """
     Generate a 10-question practice 'mission' with differentiation support.
     Context: "student" = gamified mission style; "teacher" = clean professional format.
+
+    For adaptive mode: generates 7-8 MC questions (with difficulty levels) + 2-3 free response
+    For other modes: generates standard mixed questions
     """
 
     difficulty = _difficulty_for_grade(grade_level)
     flavor = _subject_flavor(subject)
     voice = build_character_voice(character) if context == "student" else ""
     depth_rule = grade_depth_instruction(grade_level)
+
+    # Determine question distribution for adaptive mode
+    is_adaptive = (differentiation_mode == "adaptive")
+    if is_adaptive:
+        num_mc = 7  # Adaptive multiple choice questions
+        num_free = num_questions - num_mc  # Remaining are free response
+    else:
+        num_mc = None
+        num_free = None
 
     if not topic:
         topic = "the last skill the student reviewed"
@@ -597,7 +664,7 @@ REMEMBER: Generate EXACTLY {num_questions} questions in the steps array.
     # ------------------------------------------------------------
     # 🔥 APPLY DIFFERENTIATION RULES
     # ------------------------------------------------------------
-    system_prompt = apply_differentiation(base_prompt, differentiation_mode)
+    system_prompt = apply_differentiation(base_prompt, differentiation_mode, num_mc, num_free)
 
     user_prompt = f"""Generate {num_questions} specific practice questions about: {topic}
 
@@ -747,7 +814,8 @@ IMPORTANT:
         hint = str(step.get("hint", "Think carefully.")).strip()
         explanation = str(step.get("explanation", "Let's walk through it together.")).strip()
 
-        valid_steps.append({
+        # Preserve difficulty field for adaptive mode
+        question_data = {
             "prompt": prompt,
             "type": qtype,
             "choices": choices,
@@ -755,7 +823,15 @@ IMPORTANT:
             "hint": hint,
             "explanation": explanation,
             "status": "unanswered",
-        })
+        }
+
+        # Add difficulty if present (for adaptive MC questions)
+        if "difficulty" in step:
+            difficulty_value = str(step["difficulty"]).lower()
+            if difficulty_value in ["easy", "medium", "hard"]:
+                question_data["difficulty"] = difficulty_value
+
+        valid_steps.append(question_data)
 
     if not valid_steps:
         valid_steps = [

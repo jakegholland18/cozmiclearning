@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ assignment.title }} – CozmicLearning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <style>
+        body {
+            background: var(--bg-gradient-main);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .assignment-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header-box {
+            background: linear-gradient(135deg,
+                rgba(92, 107, 255, 0.15),
+                rgba(71, 200, 255, 0.1)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #ff6fd8, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            height: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #4fff89, #47c8ff);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--muted-2);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .phase-mc {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.4);
+        }
+
+        .phase-free {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.4);
+        }
+
+        .question-card {
+            background: linear-gradient(135deg,
+                rgba(92, 107, 255, 0.1),
+                rgba(71, 200, 255, 0.06)
+            );
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            padding: 30px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #4facfe;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .difficulty-easy {
+            background: rgba(79, 255, 137, 0.2);
+            color: #4fff89;
+            border: 1px solid rgba(79, 255, 137, 0.3);
+        }
+
+        .difficulty-medium {
+            background: rgba(255, 221, 85, 0.2);
+            color: #ffdd55;
+            border: 1px solid rgba(255, 221, 85, 0.3);
+        }
+
+        .difficulty-hard {
+            background: rgba(255, 111, 216, 0.2);
+            color: #ff6fd8;
+            border: 1px solid rgba(255, 111, 216, 0.3);
+        }
+
+        .question-prompt {
+            font-size: 1.2rem;
+            color: #c4d1ff;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .choice-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(118, 131, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .choice-option:hover {
+            background: rgba(99, 116, 255, 0.15);
+            border-color: rgba(99, 116, 255, 0.5);
+            transform: translateX(5px);
+        }
+
+        .choice-option.selected {
+            background: linear-gradient(135deg, rgba(99, 116, 255, 0.2), rgba(71, 200, 255, 0.15));
+            border-color: #6374ff;
+            box-shadow: 0 0 20px rgba(99, 116, 255, 0.3);
+        }
+
+        .choice-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #6374ff;
+        }
+
+        .choice-option label {
+            flex: 1;
+            cursor: pointer;
+            color: #dce4ff;
+            font-size: 1rem;
+        }
+
+        .feedback-section {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .feedback-correct {
+            background: rgba(79, 255, 137, 0.1);
+            border: 2px solid rgba(79, 255, 137, 0.3);
+        }
+
+        .feedback-incorrect {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .feedback-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feedback-correct .feedback-title {
+            color: #4fff89;
+        }
+
+        .feedback-incorrect .feedback-title {
+            color: #ff6b6b;
+        }
+
+        .feedback-explanation {
+            color: var(--muted-2);
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6374ff, #47c8ff);
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 116, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(99, 116, 255, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(100, 100, 120, 0.6);
+            color: white;
+            border: 1px solid rgba(140, 140, 160, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(100, 100, 120, 0.8);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .hint-section {
+            background: rgba(255, 221, 85, 0.1);
+            border: 2px solid rgba(255, 221, 85, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .hint-title {
+            color: #ffdd55;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .hint-text {
+            color: var(--muted-2);
+            line-height: 1.5;
+        }
+
+        .transition-message {
+            background: linear-gradient(135deg,
+                rgba(79, 255, 137, 0.15),
+                rgba(71, 200, 255, 0.1)
+            );
+            border: 2px solid rgba(79, 255, 137, 0.4);
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .transition-message h2 {
+            color: #4fff89;
+            margin-bottom: 15px;
+        }
+
+        .transition-message p {
+            color: var(--muted-2);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body class="fade-in">
+
+<!-- Hidden nav-links for dashboard button detection -->
+<div class="nav-links" style="display: none;">
+    <a href="/dashboard">Dashboard</a>
+</div>
+
+<div class="assignment-container">
+    <div class="header-box">
+        <h1>{{ assignment.title }}</h1>
+        <p style="color: var(--muted-2); font-size: 0.95rem; margin: 5px 0;">
+            <strong>Subject:</strong> {{ assignment.subject|title }} |
+            <strong>Topic:</strong> {{ assignment.topic }}
+        </p>
+
+        {% if mc_phase_complete %}
+        <span class="phase-indicator phase-free">📝 Phase 2: Free Response</span>
+        {% else %}
+        <span class="phase-indicator phase-mc">🎯 Phase 1: Multiple Choice</span>
+        {% endif %}
+
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: {{ progress_percent }}%;"></div>
+        </div>
+        <div class="progress-text">
+            Question {{ current_index + 1 }} of {{ total_questions }}
+        </div>
+    </div>
+
+    {% if mc_phase_complete %}
+    <!-- Transition message before free response -->
+    <div class="transition-message">
+        <h2>🎉 Great Job on the Multiple Choice!</h2>
+        <p>
+            You've completed the adaptive multiple choice section.<br>
+            Now let's dive deeper with some free response questions to show your understanding.
+        </p>
+        <a href="/student/assignments/{{ assignment.id }}/start" class="btn btn-primary" style="margin-top: 20px;">
+            Continue to Free Response →
+        </a>
+    </div>
+    {% else %}
+    <!-- Single MC Question -->
+    <div class="question-card">
+        <div class="question-number">
+            Question {{ current_index + 1 }}
+            {% if current_question.difficulty %}
+            <span class="difficulty-badge difficulty-{{ current_question.difficulty }}">
+                {{ current_question.difficulty|title }}
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="question-prompt">{{ current_question.prompt }}</div>
+
+        <form id="questionForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="question_index" value="{{ current_index }}">
+
+            {% for choice in current_question.choices %}
+            <div class="choice-option" onclick="selectChoice(this, {{ loop.index0 }})">
+                <input
+                    type="radio"
+                    name="answer"
+                    value="{{ choice }}"
+                    id="choice_{{ loop.index0 }}"
+                    required
+                >
+                <label for="choice_{{ loop.index0 }}">{{ choice }}</label>
+            </div>
+            {% endfor %}
+        </form>
+
+        <div class="hint-section" id="hintSection">
+            <div class="hint-title">💡 Hint</div>
+            <div class="hint-text">{{ current_question.hint }}</div>
+        </div>
+
+        <div class="feedback-section" id="feedbackSection">
+            <div class="feedback-title" id="feedbackTitle"></div>
+            <div class="feedback-explanation" id="feedbackExplanation"></div>
+        </div>
+
+        <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="showHint()">
+                Show Hint
+            </button>
+            <button type="button" class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">
+                Submit Answer
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    let answerSubmitted = false;
+
+    function selectChoice(element, index) {
+        if (answerSubmitted) return;
+
+        // Remove previous selection
+        document.querySelectorAll('.choice-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Add selection to clicked option
+        element.classList.add('selected');
+
+        // Check the radio button
+        document.getElementById('choice_' + index).checked = true;
+    }
+
+    function showHint() {
+        const hintSection = document.getElementById('hintSection');
+        hintSection.style.display = hintSection.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function submitAnswer() {
+        if (answerSubmitted) return;
+
+        const form = document.getElementById('questionForm');
+        const formData = new FormData(form);
+        const selectedAnswer = formData.get('answer');
+
+        if (!selectedAnswer) {
+            alert('Please select an answer before submitting.');
+            return;
+        }
+
+        // Disable further selection
+        answerSubmitted = true;
+        document.getElementById('submitBtn').disabled = true;
+        document.querySelectorAll('.choice-option').forEach(opt => {
+            opt.style.cursor = 'default';
+            opt.onclick = null;
+        });
+
+        // Submit answer to server
+        try {
+            const response = await fetch('/student/assignments/{{ assignment.id }}/answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    csrf_token: formData.get('csrf_token'),
+                    question_index: {{ current_index }},
+                    answer: selectedAnswer
+                })
+            });
+
+            const result = await response.json();
+
+            // Show feedback
+            const feedbackSection = document.getElementById('feedbackSection');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackExplanation = document.getElementById('feedbackExplanation');
+
+            if (result.correct) {
+                feedbackSection.classList.add('feedback-correct');
+                feedbackTitle.textContent = '✅ Correct!';
+            } else {
+                feedbackSection.classList.add('feedback-incorrect');
+                feedbackTitle.textContent = '❌ Not quite right';
+            }
+
+            feedbackExplanation.textContent = '{{ current_question.explanation }}';
+            feedbackSection.style.display = 'block';
+
+            // Change button to "Next Question"
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = result.is_last_mc ? 'Continue to Free Response →' : 'Next Question →';
+            submitBtn.disabled = false;
+            submitBtn.onclick = () => {
+                window.location.href = '/student/assignments/{{ assignment.id }}/start';
+            };
+
+        } catch (error) {
+            console.error('Error submitting answer:', error);
+            alert('Error submitting answer. Please try again.');
+            answerSubmitted = false;
+            document.getElementById('submitBtn').disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>

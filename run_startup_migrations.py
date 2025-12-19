@@ -77,6 +77,17 @@ def run_migrations():
         logger.error(f"❌ Error in add_grade_released: {e}")
         success = False
 
+    # Migration 6: Add adaptive tracking columns to student_submissions
+    try:
+        logger.info("\n📋 Migration 6: Add adaptive assignment tracking columns")
+        from migrations.add_adaptive_tracking_postgres import migrate as migrate_adaptive
+        if not migrate_adaptive():
+            logger.error("❌ Failed to add adaptive tracking columns")
+            success = False
+    except Exception as e:
+        logger.error(f"❌ Error in add_adaptive_tracking: {e}")
+        success = False
+
     if success:
         logger.info("\n✅ All startup migrations completed successfully!")
     else:
