@@ -342,7 +342,12 @@
                         name="answer_{{ question_idx }}"
                         value="{{ choice }}"
                         id="q{{ question_idx }}_c{{ loop.index0 }}"
-                        {% if saved_answers.get(question_idx|string) == choice %}checked{% endif %}
+                        {% set saved_val = saved_answers.get(question_idx|string) %}
+                        {% if saved_val is mapping %}
+                            {% if saved_val.answer == choice %}checked{% endif %}
+                        {% else %}
+                            {% if saved_val == choice %}checked{% endif %}
+                        {% endif %}
                         {% if submission.status in ['submitted', 'graded'] %}disabled{% endif %}
                     >
                     <label for="q{{ question_idx }}_c{{ loop.index0 }}">{{ choice }}</label>
@@ -355,7 +360,7 @@
                     class="text-answer"
                     placeholder="Type your answer here..."
                     {% if submission.status in ['submitted', 'graded'] %}readonly{% endif %}
-                >{{ saved_answers.get(question_idx|string, '') }}</textarea>
+                >{% set saved_val = saved_answers.get(question_idx|string, '') %}{% if saved_val is mapping %}{{ saved_val.answer }}{% else %}{{ saved_val }}{% endif %}</textarea>
             {% endif %}
 
             {% if question.hint and submission.status in ['in_progress', 'not_started'] %}
