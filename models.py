@@ -320,10 +320,11 @@ class StudentSubmission(db.Model):
     score = db.Column(db.Float, nullable=True)  # Percentage score (0-100)
     points_earned = db.Column(db.Float, nullable=True)
     points_possible = db.Column(db.Float, nullable=True)
-    
+    grade_released = db.Column(db.Boolean, default=False)  # Teacher has released grade to student
+
     # Answers submitted (JSON of question_id: answer pairs)
     answers_json = db.Column(db.Text, nullable=True)
-    
+
     # Teacher feedback
     feedback = db.Column(db.Text, nullable=True)
     
