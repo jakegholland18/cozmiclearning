@@ -19,18 +19,19 @@ def main():
     print("=" * 60)
 
     from app import app, db
+    from sqlalchemy import text
 
     with app.app_context():
         try:
             # Check if column already exists
             print("\n1. Checking if column already exists...")
             result = db.session.execute(
-                """
+                text("""
                 SELECT column_name
                 FROM information_schema.columns
                 WHERE table_name = 'student_submissions'
                 AND column_name = 'grade_released'
-                """
+                """)
             )
 
             if result.fetchone():
@@ -43,10 +44,10 @@ def main():
             # Add the column
             print("\n2. Adding grade_released column...")
             db.session.execute(
-                """
+                text("""
                 ALTER TABLE student_submissions
                 ADD COLUMN grade_released BOOLEAN DEFAULT FALSE
-                """
+                """)
             )
             db.session.commit()
             print("   ✅ Successfully added column!")
@@ -54,11 +55,11 @@ def main():
             # Set existing graded submissions to released=True
             print("\n3. Setting grade_released=True for existing graded assignments...")
             result = db.session.execute(
-                """
+                text("""
                 UPDATE student_submissions
                 SET grade_released = TRUE
                 WHERE status = 'graded'
-                """
+                """)
             )
             rows_updated = result.rowcount
             db.session.commit()

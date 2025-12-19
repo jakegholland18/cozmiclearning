@@ -14,6 +14,7 @@ def migrate():
 
     from app import app, db
     from models import StudentSubmission
+    from sqlalchemy import text
 
     print("Starting PostgreSQL migration: add grade_released column")
 
@@ -21,12 +22,12 @@ def migrate():
         try:
             # Check if column already exists
             result = db.session.execute(
-                """
+                text("""
                 SELECT column_name
                 FROM information_schema.columns
                 WHERE table_name = 'student_submissions'
                 AND column_name = 'grade_released'
-                """
+                """)
             )
 
             if result.fetchone():
@@ -36,10 +37,10 @@ def migrate():
             # Add the column
             print("Adding grade_released column...")
             db.session.execute(
-                """
+                text("""
                 ALTER TABLE student_submissions
                 ADD COLUMN grade_released BOOLEAN DEFAULT FALSE
-                """
+                """)
             )
 
             db.session.commit()
@@ -48,11 +49,11 @@ def migrate():
             # Set existing graded submissions to released=True for backward compatibility
             print("Setting grade_released=True for existing graded submissions...")
             result = db.session.execute(
-                """
+                text("""
                 UPDATE student_submissions
                 SET grade_released = TRUE
                 WHERE status = 'graded'
-                """
+                """)
             )
 
             rows_updated = result.rowcount
