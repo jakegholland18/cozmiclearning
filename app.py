@@ -3916,6 +3916,58 @@ def admin_health():
     )
 
 
+@app.route("/admin/assignment/<int:assignment_id>/debug")
+def admin_debug_assignment(assignment_id):
+    """Debug endpoint to view assignment data structure"""
+    if not is_admin():
+        return jsonify({"error": "Access denied"}), 403
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    try:
+        mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
+        questions = mission.get("steps", [])
+
+        # Analyze question structure
+        mc_questions = [q for q in questions if "difficulty" in q]
+        free_questions = [q for q in questions if "difficulty" not in q]
+
+        question_details = []
+        for i, q in enumerate(questions):
+            question_details.append({
+                "index": i,
+                "has_difficulty": "difficulty" in q,
+                "difficulty": q.get("difficulty"),
+                "has_prompt": "prompt" in q,
+                "has_choices": "choices" in q,
+                "num_choices": len(q.get("choices", [])),
+                "has_expected": "expected" in q,
+                "has_hint": "hint" in q,
+                "has_explanation": "explanation" in q,
+                "keys": list(q.keys())
+            })
+
+        return jsonify({
+            "assignment_id": assignment.id,
+            "title": assignment.title,
+            "differentiation_mode": assignment.differentiation_mode,
+            "is_published": assignment.is_published,
+            "has_preview_json": bool(assignment.preview_json),
+            "preview_json_length": len(assignment.preview_json) if assignment.preview_json else 0,
+            "total_questions": len(questions),
+            "mc_questions_count": len(mc_questions),
+            "free_questions_count": len(free_questions),
+            "question_details": question_details,
+            "mission_keys": list(mission.keys())
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
+
+
 @app.route("/admin/migrate-adaptive")
 def admin_migrate_adaptive():
     """
