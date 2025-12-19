@@ -3975,9 +3975,9 @@ def admin_student_detail(student_id):
         QuestionLog.created_at.desc()
     ).limit(50).all()
 
-    # Get assignments and completions
-    completions = PracticeCompletion.query.filter_by(student_id=student_id).order_by(
-        PracticeCompletion.started_at.desc()
+    # Get assignments and submissions
+    submissions = StudentSubmission.query.filter_by(student_id=student_id).order_by(
+        StudentSubmission.started_at.desc()
     ).limit(20).all()
 
     # Get parent info
@@ -3991,7 +3991,7 @@ def admin_student_detail(student_id):
                          parent=parent,
                          student_class=student_class,
                          recent_questions=recent_questions,
-                         completions=completions)
+                         submissions=submissions)
 
 
 # ============================================================
@@ -4158,9 +4158,9 @@ def admin_assignments():
     # Get completion stats for each assignment
     assignment_stats = []
     for assignment in assignments:
-        completions = PracticeCompletion.query.filter_by(assignment_id=assignment.id).all()
-        completed_count = sum(1 for c in completions if c.completed)
-        total_assigned = len(completions)
+        submissions = StudentSubmission.query.filter_by(assignment_id=assignment.id).all()
+        completed_count = sum(1 for s in submissions if s.status in ['submitted', 'graded'])
+        total_assigned = len(submissions)
 
         assignment_stats.append({
             'assignment': assignment,

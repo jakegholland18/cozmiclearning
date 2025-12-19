@@ -136,12 +136,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for c in completions %}
+            {% for s in submissions %}
             <tr>
-                <td>{{ c.practice_ref.title if c.practice_ref else 'N/A' }}</td>
-                <td>{{ c.started_at.strftime('%Y-%m-%d %H:%M') if c.started_at else 'N/A' }}</td>
-                <td>{{ 'Completed' if c.completed else 'In Progress' }}</td>
-                <td>{{ c.score if c.score else 'N/A' }}</td>
+                <td>{{ s.assignment.title if s.assignment else 'N/A' }}</td>
+                <td>{{ s.started_at.strftime('%Y-%m-%d %H:%M') if s.started_at else 'N/A' }}</td>
+                <td>{{ s.status|title }}</td>
+                <td>{{ s.score|round(1) if s.score else 'N/A' }}</td>
             </tr>
             {% else %}
             <tr><td colspan="4" style="text-align: center; padding: 30px;">No assignments yet</td></tr>
