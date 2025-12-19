@@ -466,7 +466,7 @@
                 Customize the details for your assignment. We've pre-filled smart defaults based on your chosen type.
             </p>
 
-            <form id="wizardForm">
+            <form id="wizardForm" onsubmit="return false;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" id="assignmentType" name="type" value="">
 
@@ -613,7 +613,7 @@
                 <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
                     ← Back
                 </button>
-                <button type="button" class="btn btn-primary" id="createBtn" onclick="createAssignment()">
+                <button type="button" class="btn btn-primary" id="createBtn" onclick="event.preventDefault(); createAssignment();">
                     🚀 Create Assignment
                 </button>
             </div>
