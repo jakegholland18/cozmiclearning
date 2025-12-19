@@ -6891,8 +6891,10 @@ def student_submit_assignment(assignment_id):
         for idx, question in enumerate(questions):
             student_answer = answers.get(str(idx), "")
             expected = question.get("expected", [])
+            question_type = question.get("type")
 
-            if question.get("type") == "multiple_choice" and expected:
+            # Grade multiple choice questions (including questions with no type specified)
+            if (question_type == "multiple_choice" or not question_type) and expected:
                 # For multiple choice, check if answer matches any expected answer
                 is_correct = False
                 expected_list = expected if isinstance(expected, list) else [expected]
