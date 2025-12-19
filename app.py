@@ -6909,11 +6909,17 @@ def student_submit_assignment(assignment_id):
             # Determine the correct answer - check multiple possible fields
             correct_answer_value = None
             if expected and isinstance(expected, list) and len(expected) > 0:
-                correct_answer_value = expected
-            elif expected and not isinstance(expected, list):
+                # Filter out empty strings
+                filtered = [e for e in expected if e and str(e).strip()]
+                correct_answer_value = filtered if filtered else None
+            elif expected and not isinstance(expected, list) and str(expected).strip():
                 correct_answer_value = [expected]
             elif correct_answer:
-                correct_answer_value = [correct_answer] if not isinstance(correct_answer, list) else correct_answer
+                if isinstance(correct_answer, list):
+                    filtered = [c for c in correct_answer if c and str(c).strip()]
+                    correct_answer_value = filtered if filtered else None
+                elif str(correct_answer).strip():
+                    correct_answer_value = [correct_answer]
 
             print(f"   ➡️ correct_answer_value={correct_answer_value}")
 

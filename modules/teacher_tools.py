@@ -177,11 +177,20 @@ def assign_questions(
 
     questions: List[Dict] = []
     for s in steps:
+        # Get expected answer, filtering out empty strings
+        expected_raw = s.get("expected", [])
+        if isinstance(expected_raw, list):
+            expected = [e for e in expected_raw if e and str(e).strip()]
+        elif expected_raw and str(expected_raw).strip():
+            expected = [expected_raw]
+        else:
+            expected = []
+
         questions.append({
             "prompt": s.get("prompt", ""),
             "type": s.get("type", "free"),
             "choices": s.get("choices", []) if s.get("type") == "multiple_choice" else [],
-            "expected": s.get("expected", [""]),
+            "expected": expected,
             "hint": s.get("hint", "Think carefully."),
             "explanation": s.get("explanation", "Let's walk through it together."),
         })
