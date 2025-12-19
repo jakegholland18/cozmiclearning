@@ -5774,6 +5774,9 @@ def student_assignments():
         flash("Student not logged in.", "error")
         return redirect("/student/login")
 
+    # Set is_student flag for navigation
+    session["is_student"] = True
+
     # ONLY show fully published assignments for this student's class
     assignments = (
         AssignedPractice.query
