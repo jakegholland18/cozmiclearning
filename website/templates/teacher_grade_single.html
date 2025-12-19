@@ -225,6 +225,7 @@
     {% endfor %}
 
     <form method="POST" class="grade-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h2>Assign Grade</h2>
 
         <div class="form-group">
