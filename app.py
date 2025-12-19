@@ -7743,11 +7743,26 @@ def student_submit_assignment(assignment_id):
         for idx, question in enumerate(questions):
             # Extract student answer - handle both dict format and string format
             student_answer_raw = answers.get(str(idx), "")
+
+            # Check if answer is already graded (hybrid adaptive format)
+            if isinstance(student_answer_raw, dict) and "correct" in student_answer_raw:
+                # New format with pre-graded answer: {"answer": "...", "correct": true, "question_type": "..."}
+                is_correct = student_answer_raw.get("correct", False)
+                student_answer = student_answer_raw.get("answer", "")
+
+                print(f"🔍 Question {idx}: Pre-graded answer")
+                print(f"   student_answer='{student_answer}'")
+                print(f"   pre_graded_result={is_correct}")
+                print(f"{'✅' if is_correct else '❌'} Question {idx} result: {is_correct} (from stored grade)")
+
+                if is_correct:
+                    correct_count += 1
+                continue  # Skip re-grading, we already have the result
+
+            # Extract answer for traditional grading
             if isinstance(student_answer_raw, dict):
-                # New format: {"answer": "...", "correct": true, "question_type": "..."}
                 student_answer = student_answer_raw.get("answer", "")
             else:
-                # Old format: just the answer string
                 student_answer = student_answer_raw
 
             expected = question.get("expected", [])
