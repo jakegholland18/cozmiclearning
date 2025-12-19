@@ -941,6 +941,158 @@ READING_PASSAGES = {
                 {"q": "What can some dogs help with?", "a": "helping people who cannot see", "opts": ["helping people who cannot see", "cooking food", "building houses", "driving cars"]},
             ]
         },
+        {
+            "passage": "Butterflies are beautiful insects. They start life as caterpillars. Then they make a cocoon and sleep inside. After a few weeks, they come out as butterflies with colorful wings.",
+            "questions": [
+                {"q": "What are butterflies?", "a": "insects", "opts": ["insects", "birds", "fish", "mammals"]},
+                {"q": "What do caterpillars become?", "a": "butterflies", "opts": ["butterflies", "moths", "bees", "dragonflies"]},
+                {"q": "Where do caterpillars sleep?", "a": "in a cocoon", "opts": ["in a cocoon", "in a nest", "under rocks", "in flowers"]},
+            ]
+        },
+        {
+            "passage": "The moon shines bright at night. It is not a star. The moon travels around Earth. Sometimes we see a full moon, and other times just a crescent.",
+            "questions": [
+                {"q": "Is the moon a star?", "a": "no", "opts": ["no", "yes", "sometimes", "only at night"]},
+                {"q": "What does the moon travel around?", "a": "Earth", "opts": ["Earth", "the sun", "Mars", "Venus"]},
+                {"q": "What shape is a crescent moon?", "a": "curved like a smile", "opts": ["curved like a smile", "perfectly round", "square", "triangular"]},
+            ]
+        },
+        {
+            "passage": "Bees are small insects that make honey. They live in hives with many other bees. Bees fly from flower to flower collecting nectar. This helps plants grow new flowers.",
+            "questions": [
+                {"q": "What do bees make?", "a": "honey", "opts": ["honey", "milk", "juice", "bread"]},
+                {"q": "Where do bees live?", "a": "in hives", "opts": ["in hives", "in trees", "underground", "in houses"]},
+                {"q": "What do bees collect from flowers?", "a": "nectar", "opts": ["nectar", "water", "leaves", "seeds"]},
+            ]
+        },
+        {
+            "passage": "Frogs are amphibians. They can live in water and on land. Baby frogs are called tadpoles and look like little fish. As they grow, they develop legs and lose their tails.",
+            "questions": [
+                {"q": "What are baby frogs called?", "a": "tadpoles", "opts": ["tadpoles", "froglets", "pollywogs", "kittens"]},
+                {"q": "Where can frogs live?", "a": "water and land", "opts": ["water and land", "only water", "only land", "in trees"]},
+                {"q": "What do tadpoles look like?", "a": "little fish", "opts": ["little fish", "butterflies", "worms", "beetles"]},
+            ]
+        },
+        {
+            "passage": "Trees give us oxygen to breathe. They have roots that go deep into the ground to get water. Their leaves use sunlight to make food for the tree.",
+            "questions": [
+                {"q": "What do trees give us?", "a": "oxygen", "opts": ["oxygen", "carbon dioxide", "nitrogen", "helium"]},
+                {"q": "What do tree roots get from the ground?", "a": "water", "opts": ["water", "air", "sunlight", "leaves"]},
+                {"q": "What do leaves use to make food?", "a": "sunlight", "opts": ["sunlight", "rain", "wind", "snow"]},
+            ]
+        },
+        {
+            "passage": "Penguins are birds that cannot fly. They live in cold places near the ocean. Penguins are excellent swimmers and catch fish to eat. They slide on their bellies across the ice.",
+            "questions": [
+                {"q": "Can penguins fly?", "a": "no", "opts": ["no", "yes", "only short distances", "only at night"]},
+                {"q": "Where do penguins live?", "a": "cold places", "opts": ["cold places", "hot deserts", "tropical forests", "mountains"]},
+                {"q": "What do penguins eat?", "a": "fish", "opts": ["fish", "plants", "insects", "fruit"]},
+            ]
+        },
+        {
+            "passage": "Rainbows appear after it rains when the sun comes out. They are made of seven colors: red, orange, yellow, green, blue, indigo, and violet. You can see rainbows in the sky.",
+            "questions": [
+                {"q": "When do rainbows appear?", "a": "after rain when sun comes out", "opts": ["after rain when sun comes out", "during storms", "at night", "in winter"]},
+                {"q": "How many colors are in a rainbow?", "a": "seven", "opts": ["seven", "five", "ten", "three"]},
+                {"q": "Where can you see rainbows?", "a": "in the sky", "opts": ["in the sky", "underground", "in the ocean", "on trees"]},
+            ]
+        },
+        {
+            "passage": "Elephants are the largest land animals. They have long trunks that they use like arms. Elephants live in groups called herds. They are very smart and have good memories.",
+            "questions": [
+                {"q": "What are elephants?", "a": "the largest land animals", "opts": ["the largest land animals", "the smallest animals", "birds", "fish"]},
+                {"q": "What do elephants use like arms?", "a": "their trunks", "opts": ["their trunks", "their ears", "their tails", "their feet"]},
+                {"q": "What is a group of elephants called?", "a": "a herd", "opts": ["a herd", "a flock", "a school", "a pack"]},
+            ]
+        },
+        {
+            "passage": "The sun is a star. It is very hot and bright. The sun gives us light during the day. Plants, animals, and people all need the sun to live.",
+            "questions": [
+                {"q": "What is the sun?", "a": "a star", "opts": ["a star", "a planet", "a moon", "a comet"]},
+                {"q": "When does the sun give us light?", "a": "during the day", "opts": ["during the day", "at night", "only in summer", "only in winter"]},
+                {"q": "Who needs the sun?", "a": "plants, animals, and people", "opts": ["plants, animals, and people", "only plants", "only animals", "nobody"]},
+            ]
+        },
+        {
+            "passage": "Dinosaurs lived millions of years ago. They were reptiles that came in many sizes. Some dinosaurs were bigger than houses. Others were as small as chickens. All dinosaurs are extinct now.",
+            "questions": [
+                {"q": "When did dinosaurs live?", "a": "millions of years ago", "opts": ["millions of years ago", "yesterday", "last year", "100 years ago"]},
+                {"q": "What were dinosaurs?", "a": "reptiles", "opts": ["reptiles", "mammals", "birds", "fish"]},
+                {"q": "Are there still dinosaurs today?", "a": "no, they are extinct", "opts": ["no, they are extinct", "yes, in zoos", "yes, in forests", "yes, in oceans"]},
+            ]
+        },
+        {
+            "passage": "Ants are tiny insects that live in colonies. They work together as a team. Some ants gather food, others take care of baby ants. Ants can carry things much heavier than themselves.",
+            "questions": [
+                {"q": "How do ants live?", "a": "in colonies", "opts": ["in colonies", "alone", "in pairs", "in nests underground"]},
+                {"q": "How do ants work?", "a": "as a team", "opts": ["as a team", "alone", "only at night", "only in summer"]},
+                {"q": "What can ants carry?", "a": "things heavier than themselves", "opts": ["things heavier than themselves", "only light things", "nothing", "only food"]},
+            ]
+        },
+        {
+            "passage": "Snow is frozen water that falls from clouds. It is white and soft. Snow forms when it is very cold outside. Kids love to play in the snow and build snowmen.",
+            "questions": [
+                {"q": "What is snow?", "a": "frozen water", "opts": ["frozen water", "ice cream", "salt", "sand"]},
+                {"q": "What color is snow?", "a": "white", "opts": ["white", "blue", "yellow", "green"]},
+                {"q": "When does snow form?", "a": "when it is very cold", "opts": ["when it is very cold", "when it is hot", "in summer", "at night only"]},
+            ]
+        },
+        {
+            "passage": "Whales are the biggest animals in the ocean. They are mammals, not fish. Whales breathe air through blowholes on top of their heads. They sing songs to talk to each other.",
+            "questions": [
+                {"q": "Are whales fish?", "a": "no, they are mammals", "opts": ["no, they are mammals", "yes", "sometimes", "only baby whales"]},
+                {"q": "How do whales breathe?", "a": "through blowholes", "opts": ["through blowholes", "through gills", "through their mouth", "they don't breathe"]},
+                {"q": "How do whales talk?", "a": "they sing songs", "opts": ["they sing songs", "they bark", "they roar", "they don't talk"]},
+            ]
+        },
+        {
+            "passage": "Fire is very hot and bright. It needs three things to burn: fuel, heat, and oxygen. Firefighters put out fires with water. We must be careful around fire because it can be dangerous.",
+            "questions": [
+                {"q": "How many things does fire need?", "a": "three", "opts": ["three", "one", "two", "four"]},
+                {"q": "What do firefighters use to put out fires?", "a": "water", "opts": ["water", "dirt", "sand", "leaves"]},
+                {"q": "Is fire dangerous?", "a": "yes", "opts": ["yes", "no", "sometimes", "only at night"]},
+            ]
+        },
+        {
+            "passage": "Birds have feathers and wings. Most birds can fly. They build nests to lay eggs. Baby birds hatch from eggs and their parents feed them until they can fly.",
+            "questions": [
+                {"q": "What do birds have?", "a": "feathers and wings", "opts": ["feathers and wings", "fur and claws", "scales and fins", "shells"]},
+                {"q": "Where do birds lay eggs?", "a": "in nests", "opts": ["in nests", "in holes", "on the ground", "in water"]},
+                {"q": "How are baby birds born?", "a": "they hatch from eggs", "opts": ["they hatch from eggs", "they are born alive", "they grow from seeds", "they appear from nowhere"]},
+            ]
+        },
+        {
+            "passage": "Spiders have eight legs and many eyes. They spin webs to catch insects to eat. Spiders are not insects. They are arachnids. Most spiders are helpful because they eat pests.",
+            "questions": [
+                {"q": "How many legs do spiders have?", "a": "eight", "opts": ["eight", "six", "four", "ten"]},
+                {"q": "Are spiders insects?", "a": "no, they are arachnids", "opts": ["no, they are arachnids", "yes", "sometimes", "only big spiders"]},
+                {"q": "Why are spiders helpful?", "a": "they eat pests", "opts": ["they eat pests", "they make honey", "they pollinate flowers", "they clean the air"]},
+            ]
+        },
+        {
+            "passage": "Rain falls from clouds in the sky. It helps plants grow and gives us water to drink. Without rain, everything would be dry. Too much rain can cause floods.",
+            "questions": [
+                {"q": "Where does rain come from?", "a": "clouds", "opts": ["clouds", "the ocean", "the ground", "trees"]},
+                {"q": "What does rain help?", "a": "plants grow", "opts": ["plants grow", "fire burn", "snow fall", "wind blow"]},
+                {"q": "What can too much rain cause?", "a": "floods", "opts": ["floods", "earthquakes", "tornadoes", "fires"]},
+            ]
+        },
+        {
+            "passage": "Dolphins are smart sea animals. They are mammals that live in the ocean. Dolphins can jump high out of the water. They use clicking sounds to find food and talk to other dolphins.",
+            "questions": [
+                {"q": "Where do dolphins live?", "a": "in the ocean", "opts": ["in the ocean", "in rivers", "on land", "in lakes"]},
+                {"q": "What are dolphins?", "a": "mammals", "opts": ["mammals", "fish", "reptiles", "birds"]},
+                {"q": "How do dolphins find food?", "a": "clicking sounds", "opts": ["clicking sounds", "with their eyes", "by smell", "by taste"]},
+            ]
+        },
+        {
+            "passage": "Carrots are orange vegetables that grow underground. Rabbits love to eat carrots. Carrots are good for your eyes and help you see better. They taste sweet and crunchy.",
+            "questions": [
+                {"q": "What color are carrots?", "a": "orange", "opts": ["orange", "red", "blue", "green"]},
+                {"q": "Where do carrots grow?", "a": "underground", "opts": ["underground", "on trees", "in water", "in the air"]},
+                {"q": "What are carrots good for?", "a": "your eyes", "opts": ["your eyes", "your feet", "your ears", "your nose"]},
+            ]
+        },
     ],
     "medium": [
         {
@@ -959,6 +1111,142 @@ READING_PASSAGES = {
                 {"q": "What is precipitation?", "a": "rain or snow", "opts": ["rain or snow", "evaporation", "clouds", "oceans"]},
             ]
         },
+        {
+            "passage": "The American Revolution began in 1775 when colonists rebelled against British rule. Tensions had been building for years over taxation without representation. The war lasted eight years and resulted in American independence. Key figures included George Washington, Benjamin Franklin, and Thomas Jefferson.",
+            "questions": [
+                {"q": "When did the American Revolution begin?", "a": "1775", "opts": ["1775", "1776", "1783", "1765"]},
+                {"q": "What were colonists upset about?", "a": "taxation without representation", "opts": ["taxation without representation", "religious freedom", "land disputes", "trade restrictions"]},
+                {"q": "Who was a key figure in the revolution?", "a": "George Washington", "opts": ["George Washington", "Abraham Lincoln", "Theodore Roosevelt", "John Adams"]},
+            ]
+        },
+        {
+            "passage": "Mitosis is cell division that produces two identical daughter cells. The process includes prophase, metaphase, anaphase, and telophase. During mitosis, chromosomes duplicate and separate to ensure each new cell receives the same genetic information. This process is essential for growth and repair in organisms.",
+            "questions": [
+                {"q": "What does mitosis produce?", "a": "two identical daughter cells", "opts": ["two identical daughter cells", "four different cells", "one large cell", "three cells"]},
+                {"q": "What happens to chromosomes?", "a": "they duplicate and separate", "opts": ["they duplicate and separate", "they disappear", "they merge", "they shrink"]},
+                {"q": "Why is mitosis important?", "a": "for growth and repair", "opts": ["for growth and repair", "for reproduction only", "for energy production", "for digestion"]},
+            ]
+        },
+        {
+            "passage": "Shakespeare wrote 37 plays and 154 sonnets during the Elizabethan era. His works explore themes of love, power, jealousy, and betrayal. Famous plays include Romeo and Juliet, Hamlet, and Macbeth. His influence on English literature and language remains profound today.",
+            "questions": [
+                {"q": "How many plays did Shakespeare write?", "a": "37", "opts": ["37", "50", "20", "100"]},
+                {"q": "What themes did he explore?", "a": "love, power, jealousy, betrayal", "opts": ["love, power, jealousy, betrayal", "only comedy", "only tragedy", "science fiction"]},
+                {"q": "Which is a famous Shakespeare play?", "a": "Hamlet", "opts": ["Hamlet", "The Great Gatsby", "1984", "To Kill a Mockingbird"]},
+            ]
+        },
+        {
+            "passage": "Ecosystems are communities of living organisms interacting with their environment. Producers like plants make food through photosynthesis. Consumers eat other organisms, while decomposers break down dead matter. Energy flows through food chains from producers to top predators.",
+            "questions": [
+                {"q": "What are producers?", "a": "organisms that make food", "opts": ["organisms that make food", "animals that hunt", "organisms that decompose", "predators"]},
+                {"q": "What do decomposers do?", "a": "break down dead matter", "opts": ["break down dead matter", "make food", "hunt prey", "produce oxygen"]},
+                {"q": "How does energy flow?", "a": "from producers to predators", "opts": ["from producers to predators", "from predators to producers", "randomly", "in circles"]},
+            ]
+        },
+        {
+            "passage": "The Pythagorean theorem states that in a right triangle, the square of the hypotenuse equals the sum of squares of the other two sides (a² + b² = c²). This ancient mathematical principle has applications in construction, navigation, and engineering. Pythagoras discovered this relationship around 500 BCE.",
+            "questions": [
+                {"q": "What does the Pythagorean theorem apply to?", "a": "right triangles", "opts": ["right triangles", "all triangles", "circles", "squares"]},
+                {"q": "What is the formula?", "a": "a² + b² = c²", "opts": ["a² + b² = c²", "a + b = c", "a² = b² + c²", "a × b = c"]},
+                {"q": "When was it discovered?", "a": "around 500 BCE", "opts": ["around 500 BCE", "1500 CE", "100 CE", "2000 BCE"]},
+            ]
+        },
+        {
+            "passage": "The Industrial Revolution began in Britain in the late 1700s. New machinery transformed manufacturing from hand production to machine production. Factories emerged, and people moved from farms to cities for work. This period brought economic growth but also harsh working conditions.",
+            "questions": [
+                {"q": "Where did the Industrial Revolution begin?", "a": "Britain", "opts": ["Britain", "America", "France", "Germany"]},
+                {"q": "What transformed manufacturing?", "a": "new machinery", "opts": ["new machinery", "more workers", "better tools", "education"]},
+                {"q": "Where did people move?", "a": "from farms to cities", "opts": ["from farms to cities", "from cities to farms", "to other countries", "to the coast"]},
+            ]
+        },
+        {
+            "passage": "Volcanoes form when magma from Earth's mantle rises to the surface. Plate tectonics drive this process, with most volcanoes occurring along plate boundaries. Eruptions can be explosive or effusive, depending on magma viscosity. Volcanic activity creates new land but can also be destructive.",
+            "questions": [
+                {"q": "What rises to form volcanoes?", "a": "magma", "opts": ["magma", "water", "gas", "rocks"]},
+                {"q": "Where do most volcanoes occur?", "a": "along plate boundaries", "opts": ["along plate boundaries", "in oceans only", "in deserts", "at the poles"]},
+                {"q": "What does volcanic activity create?", "a": "new land", "opts": ["new land", "only destruction", "earthquakes only", "tsunamis"]},
+            ]
+        },
+        {
+            "passage": "Antibodies are proteins produced by the immune system to identify and neutralize foreign pathogens like bacteria and viruses. Each antibody recognizes a specific antigen on the pathogen's surface. This immune response can provide lasting immunity after infection or vaccination.",
+            "questions": [
+                {"q": "What are antibodies?", "a": "proteins", "opts": ["proteins", "cells", "viruses", "bacteria"]},
+                {"q": "What do antibodies recognize?", "a": "specific antigens", "opts": ["specific antigens", "all pathogens", "healthy cells", "blood types"]},
+                {"q": "What can antibodies provide?", "a": "lasting immunity", "opts": ["lasting immunity", "instant death", "infection", "nothing"]},
+            ]
+        },
+        {
+            "passage": "The Roman Empire dominated the Mediterranean region for over 500 years. Romans made advances in engineering, law, and military strategy. They built extensive road networks and aqueducts. The empire eventually split into Eastern and Western halves, with the Western Empire falling in 476 CE.",
+            "questions": [
+                {"q": "How long did Rome dominate?", "a": "over 500 years", "opts": ["over 500 years", "100 years", "50 years", "1000 years"]},
+                {"q": "What did Romans build?", "a": "roads and aqueducts", "opts": ["roads and aqueducts", "pyramids", "skyscrapers", "airplanes"]},
+                {"q": "When did Western Rome fall?", "a": "476 CE", "opts": ["476 CE", "1000 CE", "100 CE", "1492 CE"]},
+            ]
+        },
+        {
+            "passage": "Renewable energy sources like solar, wind, and hydroelectric power generate electricity without depleting natural resources. Unlike fossil fuels, they produce minimal greenhouse gases. However, renewable energy faces challenges including intermittency and storage. Many countries are transitioning to renewables to combat climate change.",
+            "questions": [
+                {"q": "What are renewable energy sources?", "a": "solar, wind, hydroelectric", "opts": ["solar, wind, hydroelectric", "coal, oil, gas", "nuclear only", "wood burning"]},
+                {"q": "What do renewables produce less of?", "a": "greenhouse gases", "opts": ["greenhouse gases", "electricity", "energy", "oxygen"]},
+                {"q": "What is a challenge for renewables?", "a": "intermittency and storage", "opts": ["intermittency and storage", "too much power", "no technology", "too expensive"]},
+            ]
+        },
+        {
+            "passage": "The nervous system controls body functions through electrical signals. The brain processes information and coordinates responses. Neurons transmit signals via synapses using neurotransmitters. The nervous system is divided into central (brain and spinal cord) and peripheral components.",
+            "questions": [
+                {"q": "What does the nervous system use?", "a": "electrical signals", "opts": ["electrical signals", "chemical reactions only", "mechanical force", "light waves"]},
+                {"q": "What transmits signals?", "a": "neurons", "opts": ["neurons", "blood cells", "organs", "bones"]},
+                {"q": "What are the two divisions?", "a": "central and peripheral", "opts": ["central and peripheral", "left and right", "upper and lower", "internal and external"]},
+            ]
+        },
+        {
+            "passage": "Metamorphosis is a biological process where an organism undergoes dramatic physical change. Complete metamorphosis includes egg, larva, pupa, and adult stages, seen in butterflies and beetles. Incomplete metamorphosis skips the pupal stage, as in grasshoppers. This adaptation allows organisms to exploit different ecological niches.",
+            "questions": [
+                {"q": "What is metamorphosis?", "a": "dramatic physical change", "opts": ["dramatic physical change", "slow growth", "reproduction", "death"]},
+                {"q": "How many stages in complete metamorphosis?", "a": "four", "opts": ["four", "two", "three", "five"]},
+                {"q": "Which shows complete metamorphosis?", "a": "butterflies", "opts": ["butterflies", "grasshoppers", "humans", "fish"]},
+            ]
+        },
+        {
+            "passage": "Democracy originated in ancient Athens around 508 BCE. Citizens participated directly in government decisions. Modern democracies use representative systems where elected officials make laws. Key principles include majority rule, minority rights, and regular free elections.",
+            "questions": [
+                {"q": "Where did democracy originate?", "a": "ancient Athens", "opts": ["ancient Athens", "Rome", "America", "Egypt"]},
+                {"q": "When did it begin?", "a": "around 508 BCE", "opts": ["around 508 BCE", "1776 CE", "100 CE", "2000 BCE"]},
+                {"q": "What do modern democracies use?", "a": "representative systems", "opts": ["representative systems", "direct democracy only", "monarchy", "dictatorship"]},
+            ]
+        },
+        {
+            "passage": "The periodic table organizes elements by atomic number and properties. Elements in the same column share similar chemical behaviors. Dmitri Mendeleev created the first periodic table in 1869. The table has helped scientists predict element properties and discover new elements.",
+            "questions": [
+                {"q": "How are elements organized?", "a": "by atomic number and properties", "opts": ["by atomic number and properties", "alphabetically", "by color", "randomly"]},
+                {"q": "Who created the first table?", "a": "Dmitri Mendeleev", "opts": ["Dmitri Mendeleev", "Albert Einstein", "Isaac Newton", "Marie Curie"]},
+                {"q": "What do columns indicate?", "a": "similar chemical behaviors", "opts": ["similar chemical behaviors", "same mass", "same color", "nothing"]},
+            ]
+        },
+        {
+            "passage": "Plate tectonics theory explains Earth's geological activity. The lithosphere is divided into plates that move on the semi-fluid asthenosphere. Convergent boundaries create mountains, divergent boundaries form rifts, and transform boundaries cause earthquakes. This movement shapes continents over millions of years.",
+            "questions": [
+                {"q": "What moves on the asthenosphere?", "a": "lithospheric plates", "opts": ["lithospheric plates", "oceans", "clouds", "magma only"]},
+                {"q": "What do convergent boundaries create?", "a": "mountains", "opts": ["mountains", "valleys", "oceans", "deserts"]},
+                {"q": "What causes earthquakes?", "a": "transform boundaries", "opts": ["transform boundaries", "rain", "wind", "the sun"]},
+            ]
+        },
+        {
+            "passage": "The Great Depression was a severe economic crisis from 1929 to 1939. It began with the stock market crash in October 1929. Unemployment reached 25% in the United States. President Franklin D. Roosevelt's New Deal programs helped provide relief and recovery.",
+            "questions": [
+                {"q": "When did the Great Depression occur?", "a": "1929 to 1939", "opts": ["1929 to 1939", "1914 to 1918", "1940 to 1945", "1950 to 1960"]},
+                {"q": "What started it?", "a": "stock market crash", "opts": ["stock market crash", "war", "drought", "earthquake"]},
+                {"q": "Who implemented the New Deal?", "a": "Franklin D. Roosevelt", "opts": ["Franklin D. Roosevelt", "Abraham Lincoln", "George Washington", "Thomas Jefferson"]},
+            ]
+        },
+        {
+            "passage": "Acids and bases are chemical opposites measured on the pH scale from 0 to 14. Acids have pH below 7, bases above 7, and neutral substances equal 7. When acids and bases react, they neutralize each other, forming salt and water. Common acids include vinegar and lemon juice.",
+            "questions": [
+                {"q": "What is the pH scale range?", "a": "0 to 14", "opts": ["0 to 14", "1 to 10", "0 to 100", "-7 to 7"]},
+                {"q": "What pH do acids have?", "a": "below 7", "opts": ["below 7", "above 7", "exactly 7", "above 14"]},
+                {"q": "What happens when acids and bases react?", "a": "they neutralize", "opts": ["they neutralize", "they explode", "nothing happens", "they evaporate"]},
+            ]
+        },
     ],
     "hard": [
         {
@@ -975,6 +1263,142 @@ READING_PASSAGES = {
                 {"q": "What enzyme facilitates DNA replication?", "a": "DNA polymerase", "opts": ["DNA polymerase", "RNA polymerase", "helicase", "ligase"]},
                 {"q": "What does each DNA strand become?", "a": "a template", "opts": ["a template", "a protein", "an enzyme", "a cell"]},
                 {"q": "What type of replication is this?", "a": "semi-conservative", "opts": ["semi-conservative", "conservative", "dispersive", "random"]},
+            ]
+        },
+        {
+            "passage": "The Renaissance marked a cultural rebirth in Europe from the 14th to 17th centuries. Humanism emphasized classical learning and individual potential. Artists like Leonardo da Vinci and Michelangelo created masterpieces that revolutionized art. Scientific inquiry challenged medieval worldviews, laying groundwork for the Scientific Revolution. This period transformed European society intellectually and culturally.",
+            "questions": [
+                {"q": "What did humanism emphasize?", "a": "classical learning and individual potential", "opts": ["classical learning and individual potential", "religious devotion only", "warfare", "monarchy"]},
+                {"q": "Who were Renaissance artists?", "a": "Leonardo da Vinci and Michelangelo", "opts": ["Leonardo da Vinci and Michelangelo", "Picasso and Monet", "Van Gogh and Rembrandt", "Shakespeare and Dante"]},
+                {"q": "What did scientific inquiry challenge?", "a": "medieval worldviews", "opts": ["medieval worldviews", "modern science", "art movements", "nothing"]},
+            ]
+        },
+        {
+            "passage": "Thermodynamics is the study of energy transfer and transformation. The first law states that energy cannot be created or destroyed, only converted. The second law introduces entropy, showing that systems naturally progress toward disorder. The third law establishes absolute zero as the point where entropy reaches its minimum. These principles govern all physical and chemical processes.",
+            "questions": [
+                {"q": "What does the first law state?", "a": "energy cannot be created or destroyed", "opts": ["energy cannot be created or destroyed", "energy can be created", "energy disappears", "entropy increases"]},
+                {"q": "What does the second law introduce?", "a": "entropy", "opts": ["entropy", "temperature", "pressure", "volume"]},
+                {"q": "What is absolute zero?", "a": "where entropy reaches minimum", "opts": ["where entropy reaches minimum", "the hottest temperature", "room temperature", "boiling point"]},
+            ]
+        },
+        {
+            "passage": "Game theory analyzes strategic decision-making in competitive situations. The Nash equilibrium occurs when no player can benefit by changing strategy while others keep theirs unchanged. Zero-sum games involve one player's gain being another's loss. Cooperative game theory examines how coalitions form and distribute payoffs. These concepts apply to economics, political science, and biology.",
+            "questions": [
+                {"q": "What is game theory?", "a": "study of strategic decision-making", "opts": ["study of strategic decision-making", "study of video games", "study of sports", "study of gambling"]},
+                {"q": "What is Nash equilibrium?", "a": "no player benefits from changing strategy", "opts": ["no player benefits from changing strategy", "all players lose", "one player wins everything", "random outcomes"]},
+                {"q": "What are zero-sum games?", "a": "one player's gain is another's loss", "opts": ["one player's gain is another's loss", "everyone wins", "no one wins", "only cooperation"]},
+            ]
+        },
+        {
+            "passage": "Existentialism is a philosophical movement emphasizing individual existence, freedom, and choice. Sartre argued that existence precedes essence, meaning humans define themselves through actions. Anxiety arises from the burden of absolute freedom and responsibility. Authenticity requires confronting this freedom rather than conforming to social expectations. Key thinkers include Kierkegaard, Nietzsche, Heidegger, and Camus.",
+            "questions": [
+                {"q": "What does 'existence precedes essence' mean?", "a": "humans define themselves through actions", "opts": ["humans define themselves through actions", "essence comes first", "nothing matters", "fate determines all"]},
+                {"q": "What causes anxiety according to existentialism?", "a": "burden of absolute freedom", "opts": ["burden of absolute freedom", "lack of choice", "poverty", "illness"]},
+                {"q": "Who are existentialist thinkers?", "a": "Sartre, Kierkegaard, Nietzsche", "opts": ["Sartre, Kierkegaard, Nietzsche", "Plato, Aristotle, Socrates", "Darwin, Newton, Einstein", "Marx, Lenin, Stalin"]},
+            ]
+        },
+        {
+            "passage": "The French Revolution (1789-1799) transformed European political structures. Enlightenment ideals of liberty, equality, and fraternity inspired revolutionary fervor. The Reign of Terror saw mass executions under Robespierre. Napoleon's rise ended the revolution, but its principles influenced democratic movements worldwide. The revolution demonstrated both the power and dangers of radical social change.",
+            "questions": [
+                {"q": "What inspired the French Revolution?", "a": "Enlightenment ideals", "opts": ["Enlightenment ideals", "religious fervor", "monarchism", "feudalism"]},
+                {"q": "What was the Reign of Terror?", "a": "mass executions under Robespierre", "opts": ["mass executions under Robespierre", "peaceful period", "Napoleon's rule", "foreign invasion"]},
+                {"q": "Who ended the revolution?", "a": "Napoleon", "opts": ["Napoleon", "Robespierre", "Louis XVI", "Voltaire"]},
+            ]
+        },
+        {
+            "passage": "String theory proposes that fundamental particles are one-dimensional strings rather than point particles. Different vibrational modes of strings correspond to different particles. The theory requires extra spatial dimensions beyond our observable three. M-theory attempts to unify various string theories into a single framework. While mathematically elegant, string theory lacks experimental verification.",
+            "questions": [
+                {"q": "What are fundamental particles in string theory?", "a": "one-dimensional strings", "opts": ["one-dimensional strings", "points", "waves", "spheres"]},
+                {"q": "What do vibrational modes determine?", "a": "different particles", "opts": ["different particles", "nothing", "energy only", "mass only"]},
+                {"q": "What is M-theory?", "a": "unification of string theories", "opts": ["unification of string theories", "disproof of strings", "quantum mechanics", "relativity theory"]},
+            ]
+        },
+        {
+            "passage": "Keynesian economics, developed by John Maynard Keynes, advocates government intervention during economic downturns. Aggregate demand drives economic activity, and insufficient demand causes recessions. Government spending can stimulate demand and reduce unemployment. Critics argue this approach increases deficits and inflation. The 2008 financial crisis renewed interest in Keynesian policies.",
+            "questions": [
+                {"q": "What drives economic activity in Keynesianism?", "a": "aggregate demand", "opts": ["aggregate demand", "supply only", "gold reserves", "population growth"]},
+                {"q": "How can government help during recessions?", "a": "increase spending", "opts": ["increase spending", "cut all spending", "do nothing", "raise taxes only"]},
+                {"q": "What do critics worry about?", "a": "deficits and inflation", "opts": ["deficits and inflation", "prosperity", "full employment", "economic growth"]},
+            ]
+        },
+        {
+            "passage": "Epigenetics studies heritable changes in gene expression without alterations to DNA sequence. DNA methylation and histone modification regulate which genes are active. Environmental factors like diet and stress can cause epigenetic changes. These modifications can be passed to offspring, challenging traditional genetic determinism. Epigenetics bridges nature and nurture in understanding heredity.",
+            "questions": [
+                {"q": "What does epigenetics study?", "a": "gene expression changes without DNA sequence change", "opts": ["gene expression changes without DNA sequence change", "DNA mutations only", "genetic diseases", "evolution"]},
+                {"q": "What regulates gene activity?", "a": "DNA methylation and histone modification", "opts": ["DNA methylation and histone modification", "nothing", "random chance", "viruses"]},
+                {"q": "Can epigenetic changes be inherited?", "a": "yes", "opts": ["yes", "no", "only in plants", "only in bacteria"]},
+            ]
+        },
+        {
+            "passage": "The Cold War (1947-1991) was an ideological and geopolitical struggle between the United States and Soviet Union. Nuclear deterrence through mutually assured destruction prevented direct conflict. Proxy wars occurred in Korea, Vietnam, and Afghanistan. The arms race drained economic resources from both superpowers. The Soviet Union's collapse in 1991 ended this era of tension.",
+            "questions": [
+                {"q": "What prevented direct conflict?", "a": "mutually assured destruction", "opts": ["mutually assured destruction", "friendship", "United Nations", "economics only"]},
+                {"q": "Where were proxy wars fought?", "a": "Korea, Vietnam, Afghanistan", "opts": ["Korea, Vietnam, Afghanistan", "Europe only", "Australia", "Antarctica"]},
+                {"q": "When did the Cold War end?", "a": "1991", "opts": ["1991", "1945", "2001", "1989"]},
+            ]
+        },
+        {
+            "passage": "Relativity theory consists of special and general relativity. Special relativity establishes that time and space are relative to the observer's frame of reference, and nothing travels faster than light. General relativity describes gravity as spacetime curvature caused by mass and energy. These theories revolutionized physics and predicted phenomena like black holes and gravitational waves.",
+            "questions": [
+                {"q": "What does special relativity establish?", "a": "time and space are relative", "opts": ["time and space are relative", "everything is absolute", "gravity doesn't exist", "light has no speed limit"]},
+                {"q": "How does general relativity describe gravity?", "a": "spacetime curvature", "opts": ["spacetime curvature", "force at distance", "magnetic field", "illusion"]},
+                {"q": "What did relativity predict?", "a": "black holes and gravitational waves", "opts": ["black holes and gravitational waves", "nothing new", "end of physics", "time travel machines"]},
+            ]
+        },
+        {
+            "passage": "CRISPR-Cas9 is a revolutionary gene-editing technology derived from bacterial immune systems. It allows precise modification of DNA sequences in living organisms. Scientists use guide RNA to direct the Cas9 enzyme to specific genomic locations for cutting. This technology has applications in treating genetic diseases, agriculture, and research. Ethical concerns include human germline editing and unintended consequences.",
+            "questions": [
+                {"q": "What is CRISPR-Cas9?", "a": "gene-editing technology", "opts": ["gene-editing technology", "antibiotic", "vaccine", "vitamin"]},
+                {"q": "What guides Cas9 to DNA locations?", "a": "guide RNA", "opts": ["guide RNA", "proteins", "lipids", "carbohydrates"]},
+                {"q": "What is an ethical concern?", "a": "human germline editing", "opts": ["human germline editing", "cost only", "speed of process", "nothing"]},
+            ]
+        },
+        {
+            "passage": "Postmodernism challenges grand narratives and objective truth. It emphasizes subjectivity, cultural relativism, and deconstruction of meaning. Postmodern thinkers like Foucault and Derrida questioned power structures and language's role in shaping reality. In art and literature, postmodernism embraces irony, pastiche, and fragmentation. Critics argue it leads to moral relativism and nihilism.",
+            "questions": [
+                {"q": "What does postmodernism challenge?", "a": "grand narratives and objective truth", "opts": ["grand narratives and objective truth", "science only", "art only", "nothing"]},
+                {"q": "Who are postmodern thinkers?", "a": "Foucault and Derrida", "opts": ["Foucault and Derrida", "Newton and Einstein", "Darwin and Mendel", "Marx and Engels"]},
+                {"q": "What do critics say postmodernism causes?", "a": "moral relativism", "opts": ["moral relativism", "absolute certainty", "religious revival", "scientific progress"]},
+            ]
+        },
+        {
+            "passage": "Artificial intelligence encompasses machine learning, neural networks, and deep learning. Supervised learning trains models on labeled data, while unsupervised learning finds patterns without labels. Reinforcement learning optimizes actions through trial and error. AI applications range from image recognition to autonomous vehicles. Concerns include job displacement, algorithmic bias, and existential risks from artificial general intelligence.",
+            "questions": [
+                {"q": "What is supervised learning?", "a": "training on labeled data", "opts": ["training on labeled data", "random guessing", "human thinking", "no training needed"]},
+                {"q": "What does reinforcement learning use?", "a": "trial and error", "opts": ["trial and error", "memorization", "copying humans", "random actions"]},
+                {"q": "What is a concern about AI?", "a": "job displacement and bias", "opts": ["job displacement and bias", "too slow", "too cheap", "nothing"]},
+            ]
+        },
+        {
+            "passage": "The Enlightenment was an 18th-century intellectual movement emphasizing reason, science, and individual rights. Philosophers like Locke, Voltaire, and Rousseau challenged traditional authority. The scientific method became the standard for knowledge acquisition. Enlightenment ideals influenced the American and French revolutions. This period laid the foundation for modern democratic societies and human rights.",
+            "questions": [
+                {"q": "What did the Enlightenment emphasize?", "a": "reason, science, individual rights", "opts": ["reason, science, individual rights", "monarchy", "feudalism", "superstition"]},
+                {"q": "Who were Enlightenment philosophers?", "a": "Locke, Voltaire, Rousseau", "opts": ["Locke, Voltaire, Rousseau", "Shakespeare and Milton", "Napoleon and Wellington", "Darwin and Mendel"]},
+                {"q": "What did Enlightenment ideals influence?", "a": "American and French revolutions", "opts": ["American and French revolutions", "nothing", "only art", "only science"]},
+            ]
+        },
+        {
+            "passage": "Ecological succession describes how ecosystems change over time. Primary succession occurs on barren land, beginning with pioneer species like lichens. Secondary succession follows disturbances in established ecosystems. Climax communities represent stable endpoints adapted to local conditions. Succession demonstrates ecosystems' resilience and dynamic nature.",
+            "questions": [
+                {"q": "What is primary succession?", "a": "change on barren land", "opts": ["change on barren land", "change after fire", "seasonal changes", "daily changes"]},
+                {"q": "What are pioneer species?", "a": "first organisms like lichens", "opts": ["first organisms like lichens", "last organisms", "predators", "humans"]},
+                {"q": "What are climax communities?", "a": "stable endpoints", "opts": ["stable endpoints", "starting points", "disasters", "dead ecosystems"]},
+            ]
+        },
+        {
+            "passage": "Neuroplasticity is the brain's ability to reorganize itself by forming new neural connections. Experience and learning physically change brain structure throughout life. Stroke recovery demonstrates neuroplasticity as healthy brain regions compensate for damaged areas. This discovery contradicts earlier beliefs that adult brains were fixed. Neuroplasticity has implications for education, therapy, and cognitive enhancement.",
+            "questions": [
+                {"q": "What is neuroplasticity?", "a": "brain reorganization ability", "opts": ["brain reorganization ability", "brain damage", "memory loss", "fixed brain structure"]},
+                {"q": "What changes brain structure?", "a": "experience and learning", "opts": ["experience and learning", "nothing", "age only", "genetics only"]},
+                {"q": "What does neuroplasticity help with?", "a": "stroke recovery", "opts": ["stroke recovery", "nothing", "only young brains", "preventing all disease"]},
+            ]
+        },
+        {
+            "passage": "The Protestant Reformation began in 1517 when Martin Luther challenged Catholic Church practices. Luther's 95 Theses criticized indulgences and emphasized salvation through faith alone. The printing press spread Reformation ideas rapidly across Europe. Religious wars and political realignment followed. The Reformation fragmented Western Christianity and promoted individual interpretation of scripture.",
+            "questions": [
+                {"q": "When did the Reformation begin?", "a": "1517", "opts": ["1517", "1492", "1789", "1066"]},
+                {"q": "What did Luther emphasize?", "a": "salvation through faith alone", "opts": ["salvation through faith alone", "papal authority", "indulgences", "crusades"]},
+                {"q": "What spread Reformation ideas?", "a": "printing press", "opts": ["printing press", "television", "internet", "carrier pigeons"]},
             ]
         },
     ]
@@ -1649,6 +2073,46 @@ def generate_spelling_sprint(difficulty='medium'):
             {"word": "castle", "wrong": ["casel", "castel", "cassle"]},
             {"word": "rocket", "wrong": ["roket", "rockit", "rokket"]},
             {"word": "adventure", "wrong": ["adventur", "adventchur", "advenchure"]},
+            {"word": "chicken", "wrong": ["chiken", "chickin", "chikken"]},
+            {"word": "picture", "wrong": ["pictur", "pickture", "pitchure"]},
+            {"word": "brother", "wrong": ["bruther", "brothar", "brotha"]},
+            {"word": "sister", "wrong": ["sistor", "sistar", "siste"]},
+            {"word": "kitten", "wrong": ["kiten", "kittan", "kitin"]},
+            {"word": "puppy", "wrong": ["pupy", "puppie", "pupe"]},
+            {"word": "water", "wrong": ["watter", "weter", "watr"]},
+            {"word": "cookie", "wrong": ["cooky", "cokie", "cookee"]},
+            {"word": "flower", "wrong": ["flowr", "flour", "flouwer"]},
+            {"word": "summer", "wrong": ["sumer", "summur", "summar"]},
+            {"word": "winter", "wrong": ["wintr", "wintir", "wenter"]},
+            {"word": "planet", "wrong": ["planit", "plannet", "planat"]},
+            {"word": "monkey", "wrong": ["munkey", "monky", "monkee"]},
+            {"word": "tiger", "wrong": ["tyger", "tigr", "tigar"]},
+            {"word": "forest", "wrong": ["forrest", "forist", "fourrest"]},
+            {"word": "soccer", "wrong": ["socker", "soccar", "socer"]},
+            {"word": "pirate", "wrong": ["pyrate", "pirat", "pirut"]},
+            {"word": "magic", "wrong": ["majic", "magick", "majik"]},
+            {"word": "penguin", "wrong": ["pinguin", "penquin", "pengwin"]},
+            {"word": "thunder", "wrong": ["thundar", "thundur", "thnder"]},
+            {"word": "lightning", "wrong": ["lightening", "lightnin", "litening"]},
+            {"word": "sandwich", "wrong": ["sandwitch", "sandwhich", "sandwish"]},
+            {"word": "chocolate", "wrong": ["chocolet", "chocoate", "choclate"]},
+            {"word": "strawberry", "wrong": ["strawbery", "strawburry", "strabery"]},
+            {"word": "butterfly", "wrong": ["butterfy", "buterfly", "butterflie"]},
+            {"word": "caterpillar", "wrong": ["caterpiller", "caterpilar", "catapillar"]},
+            {"word": "dinosaur", "wrong": ["dinosour", "dinasor", "dinesaur"]},
+            {"word": "unicorn", "wrong": ["unikorn", "unicron", "unicorn"]},
+            {"word": "princess", "wrong": ["prinses", "princiss", "princes"]},
+            {"word": "dragon", "wrong": ["dragan", "dragun", "dragen"]},
+            {"word": "fountain", "wrong": ["fountin", "fontain", "fountian"]},
+            {"word": "blanket", "wrong": ["blankit", "blancket", "blankut"]},
+            {"word": "carrot", "wrong": ["carot", "carrat", "carret"]},
+            {"word": "turtle", "wrong": ["turtel", "turtul", "tertul"]},
+            {"word": "rabbit", "wrong": ["rabit", "rabitt", "rabbut"]},
+            {"word": "squirrel", "wrong": ["squirel", "squirrl", "squrrel"]},
+            {"word": "spider", "wrong": ["spyder", "spidar", "spida"]},
+            {"word": "guitar", "wrong": ["gitar", "guiter", "guitarr"]},
+            {"word": "parade", "wrong": ["parad", "perade", "parede"]},
+            {"word": "crayon", "wrong": ["craon", "craion", "crayen"]},
         ],
         "medium": [
             {"word": "beautiful", "wrong": ["beautifull", "beutiful", "beautyful"]},
@@ -1671,6 +2135,45 @@ def generate_spelling_sprint(difficulty='medium'):
             {"word": "achievement", "wrong": ["acheivment", "achievment", "achievemant"]},
             {"word": "desperate", "wrong": ["desparate", "desprate", "desperet"]},
             {"word": "category", "wrong": ["catagory", "categery", "catergory"]},
+            {"word": "believe", "wrong": ["beleive", "belive", "beleave"]},
+            {"word": "calendar", "wrong": ["calender", "calandar", "calendor"]},
+            {"word": "committee", "wrong": ["commitee", "comittee", "committe"]},
+            {"word": "discipline", "wrong": ["disipline", "disciplin", "dicipline"]},
+            {"word": "environment", "wrong": ["enviornment", "enviroment", "environmant"]},
+            {"word": "February", "wrong": ["Febuary", "Febrary", "Feburary"]},
+            {"word": "grateful", "wrong": ["greatful", "gratefull", "greatfull"]},
+            {"word": "height", "wrong": ["hieght", "heighth", "hight"]},
+            {"word": "independent", "wrong": ["independant", "independet", "independint"]},
+            {"word": "jewelry", "wrong": ["jewlery", "jewelery", "jewellery"]},
+            {"word": "knowledge", "wrong": ["knowlege", "knowladge", "knolege"]},
+            {"word": "lieutenant", "wrong": ["leutenant", "liutenant", "lieutenent"]},
+            {"word": "miniature", "wrong": ["minature", "minitur", "miniuture"]},
+            {"word": "neighbor", "wrong": ["nieghbor", "naighbor", "neighbour"]},
+            {"word": "official", "wrong": ["offical", "oficiel", "offisial"]},
+            {"word": "particular", "wrong": ["perticular", "particuler", "particluar"]},
+            {"word": "questionnaire", "wrong": ["questionare", "questionaire", "questionairre"]},
+            {"word": "recognize", "wrong": ["reconize", "recognise", "recogize"]},
+            {"word": "schedule", "wrong": ["shedule", "schedual", "scedule"]},
+            {"word": "technique", "wrong": ["techneque", "tecnique", "techniqe"]},
+            {"word": "unusual", "wrong": ["unusaul", "unusuel", "unusal"]},
+            {"word": "vacuum", "wrong": ["vacume", "vaccum", "vacum"]},
+            {"word": "weather", "wrong": ["wether", "wheather", "weathr"]},
+            {"word": "yacht", "wrong": ["yatch", "yaucht", "yaught"]},
+            {"word": "address", "wrong": ["adress", "addres", "adres"]},
+            {"word": "business", "wrong": ["buisness", "bussiness", "busness"]},
+            {"word": "college", "wrong": ["colege", "collage", "colledge"]},
+            {"word": "decision", "wrong": ["descision", "decison", "dicision"]},
+            {"word": "evening", "wrong": ["evning", "evenning", "eveing"]},
+            {"word": "family", "wrong": ["famaly", "familly", "famly"]},
+            {"word": "grammar", "wrong": ["grammer", "gramar", "gramr"]},
+            {"word": "hospital", "wrong": ["hospitel", "hospitol", "hospitle"]},
+            {"word": "imagine", "wrong": ["imagin", "imaigne", "imajine"]},
+            {"word": "jealous", "wrong": ["jelous", "jealus", "jelaous"]},
+            {"word": "kitchen", "wrong": ["kichen", "kitchn", "kitchan"]},
+            {"word": "language", "wrong": ["langauge", "languge", "languege"]},
+            {"word": "medicine", "wrong": ["medicin", "medecine", "medisine"]},
+            {"word": "neighbor", "wrong": ["nieghbor", "naybor", "neighbor"]},
+            {"word": "opinion", "wrong": ["oppinion", "opinon", "opinoin"]},
         ],
         "hard": [
             {"word": "accommodate", "wrong": ["accomodate", "acommodate", "acomodate"]},
@@ -1693,6 +2196,45 @@ def generate_spelling_sprint(difficulty='medium'):
             {"word": "guarantee", "wrong": ["garantee", "guarentee", "garentee"]},
             {"word": "harassment", "wrong": ["harrasment", "harasment", "harrassment"]},
             {"word": "liaison", "wrong": ["liason", "liaision", "liasion"]},
+            {"word": "millennium", "wrong": ["millenium", "milenium", "milennium"]},
+            {"word": "mischievous", "wrong": ["mischievious", "mischevous", "mischeivous"]},
+            {"word": "necessary", "wrong": ["neccessary", "necesary", "neccesary"]},
+            {"word": "parallel", "wrong": ["paralel", "parrallel", "paralell"]},
+            {"word": "perseverance", "wrong": ["perserverance", "perseverence", "perserverence"]},
+            {"word": "questionnaire", "wrong": ["questionaire", "questionairre", "questionnare"]},
+            {"word": "reconnaissance", "wrong": ["reconaissance", "reconisance", "reconnaisance"]},
+            {"word": "rheumatism", "wrong": ["rhumatism", "rheumatizm", "reumatism"]},
+            {"word": "bureaucrat", "wrong": ["burocrat", "beaucrat", "bureaucrate"]},
+            {"word": "surveillance", "wrong": ["surveilance", "survelance", "survillance"]},
+            {"word": "conscientiously", "wrong": ["concienciously", "conscienciously", "conscientously"]},
+            {"word": "reconnaissance", "wrong": ["reconaissance", "reconisance", "reconnaisance"]},
+            {"word": "maneuver", "wrong": ["manuver", "maneuvar", "manoeuver"]},
+            {"word": "pneumonia", "wrong": ["pnuemonia", "neumonia", "pneumonya"]},
+            {"word": "psychiatrist", "wrong": ["psyciatrist", "phychiatrist", "psychiatrest"]},
+            {"word": "exaggerate", "wrong": ["exagerate", "exaggarate", "exadgerate"]},
+            {"word": "irresistible", "wrong": ["irresistable", "irristible", "iresistible"]},
+            {"word": "independent", "wrong": ["independant", "independet", "independint"]},
+            {"word": "desiccate", "wrong": ["desicate", "dessicate", "dessiccate"]},
+            {"word": "seize", "wrong": ["sieze", "seaze", "ceize"]},
+            {"word": "weird", "wrong": ["wierd", "weerd", "weard"]},
+            {"word": "kaleidoscope", "wrong": ["kaliedoscope", "kalidoscope", "kaleadoscope"]},
+            {"word": "silhouette", "wrong": ["silouette", "silouete", "silowette"]},
+            {"word": "supersede", "wrong": ["supercede", "superseed", "superceed"]},
+            {"word": "inoculate", "wrong": ["innoculate", "inocculate", "inocullate"]},
+            {"word": "accommodate", "wrong": ["accomodate", "acommodate", "acomodate"]},
+            {"word": "curiosity", "wrong": ["curiousity", "curiousety", "curousity"]},
+            {"word": "ecstasy", "wrong": ["extasy", "ecstacy", "exstacy"]},
+            {"word": "entrepreneur", "wrong": ["entrepeneur", "entreprenuer", "enterpreneur"]},
+            {"word": "embarrassment", "wrong": ["embarassment", "embarrasment", "embaressment"]},
+            {"word": "definitely", "wrong": ["definately", "definitly", "definatly"]},
+            {"word": "connoisseur", "wrong": ["connaisseur", "connoissuer", "conoisseur"]},
+            {"word": "idiosyncrasy", "wrong": ["idiosyncracy", "ideosyncrasy", "idiosincracy"]},
+            {"word": "hemorrhage", "wrong": ["hemorage", "hemorrage", "hemorrhege"]},
+            {"word": "acquaintance", "wrong": ["acquaintence", "aquaintance", "acqaintance"]},
+            {"word": "humiliate", "wrong": ["humilliate", "humaliate", "humilate"]},
+            {"word": "pharmaceutical", "wrong": ["pharmeceutical", "pharmacutical", "pharmaseutical"]},
+            {"word": "Mediterranean", "wrong": ["Mediteranean", "Mediteranian", "Mediterannean"]},
+            {"word": "refrigerator", "wrong": ["refridgerator", "refrigerator", "refridgirator"]},
         ]
     }
 
@@ -1740,6 +2282,46 @@ def generate_grammar_quest(difficulty='medium'):
         {"wrong": "Me and her are friends", "correct": "She and I are friends"},
         {"wrong": "I could care less", "correct": "I couldn't care less"},
         {"wrong": "Who's book is this?", "correct": "Whose book is this?"},
+        {"wrong": "The team are playing well", "correct": "The team is playing well"},
+        {"wrong": "Everyone should bring their lunch", "correct": "Everyone should bring his or her lunch"},
+        {"wrong": "Neither of the boys are here", "correct": "Neither of the boys is here"},
+        {"wrong": "Each of the students have a book", "correct": "Each of the students has a book"},
+        {"wrong": "The data supports this theory", "correct": "The data support this theory"},
+        {"wrong": "Less people attended today", "correct": "Fewer people attended today"},
+        {"wrong": "The amount of students increased", "correct": "The number of students increased"},
+        {"wrong": "Can I borrow your pen?", "correct": "May I borrow your pen?"},
+        {"wrong": "Hopefully, we will win", "correct": "I hope we will win"},
+        {"wrong": "Try and finish your homework", "correct": "Try to finish your homework"},
+        {"wrong": "Irregardless of the outcome", "correct": "Regardless of the outcome"},
+        {"wrong": "This is different than that", "correct": "This is different from that"},
+        {"wrong": "The reason is because", "correct": "The reason is that"},
+        {"wrong": "He layed down on the bed", "correct": "He lay down on the bed"},
+        {"wrong": "I will lay down for a nap", "correct": "I will lie down for a nap"},
+        {"wrong": "She has went to the store", "correct": "She has gone to the store"},
+        {"wrong": "I have wrote a letter", "correct": "I have written a letter"},
+        {"wrong": "The book was laying on the table", "correct": "The book was lying on the table"},
+        {"wrong": "He has came home", "correct": "He has come home"},
+        {"wrong": "I have ran three miles", "correct": "I have run three miles"},
+        {"wrong": "She has did her homework", "correct": "She has done her homework"},
+        {"wrong": "The bell has rang", "correct": "The bell has rung"},
+        {"wrong": "I have swam in the ocean", "correct": "I have swum in the ocean"},
+        {"wrong": "He has began the project", "correct": "He has begun the project"},
+        {"wrong": "We have ate dinner", "correct": "We have eaten dinner"},
+        {"wrong": "She has sang beautifully", "correct": "She has sung beautifully"},
+        {"wrong": "They have drank all the juice", "correct": "They have drunk all the juice"},
+        {"wrong": "I have broke my pencil", "correct": "I have broken my pencil"},
+        {"wrong": "He has spoke to the teacher", "correct": "He has spoken to the teacher"},
+        {"wrong": "The sun has rose", "correct": "The sun has risen"},
+        {"wrong": "If I was you", "correct": "If I were you"},
+        {"wrong": "I wish I was taller", "correct": "I wish I were taller"},
+        {"wrong": "Whom is calling?", "correct": "Who is calling?"},
+        {"wrong": "To who should I address this?", "correct": "To whom should I address this?"},
+        {"wrong": "Him and me are partners", "correct": "He and I are partners"},
+        {"wrong": "The teacher gave the award to John and I", "correct": "The teacher gave the award to John and me"},
+        {"wrong": "Its raining outside", "correct": "It's raining outside"},
+        {"wrong": "The dog lost it's collar", "correct": "The dog lost its collar"},
+        {"wrong": "Who's turn is it?", "correct": "Whose turn is it?"},
+        {"wrong": "Your right about that", "correct": "You're right about that"},
     ]
 
     questions = []
