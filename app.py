@@ -7944,6 +7944,7 @@ def assignment_wizard():
 
 
 @app.route("/teacher/assignments/wizard/create", methods=["POST"])
+@csrf.exempt
 def assignment_wizard_create():
     """Create assignment from wizard"""
     init_user()
