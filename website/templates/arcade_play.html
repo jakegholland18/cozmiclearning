@@ -362,7 +362,20 @@
                 } else {
                     questionText = question.question;
                 }
+
+                // Check if there's a reading passage to display
+                let passageHTML = '';
+                if (question.passage) {
+                    passageHTML = `
+                        <div style="background: rgba(0,0,0,0.4); padding: 25px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #00f2ff;">
+                            <div style="font-size: 0.9rem; color: #00f2ff; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">📖 Read the passage:</div>
+                            <div style="font-size: 1.1rem; line-height: 1.8; color: #c4d1ff; text-align: left;">${question.passage}</div>
+                        </div>
+                    `;
+                }
+
                 container.innerHTML = `
+                    ${passageHTML}
                     <div class="question-text">${questionText}</div>
                     <div class="options-grid" id="options-grid">
                         ${question.options.map((opt, i) => `
