@@ -301,22 +301,23 @@
 
         <div id="questionsContainer">
         {% for question in questions %}
-        <div class="question-card" data-question-index="{{ loop.index0 }}">
+        {% set question_idx = loop.index0 %}
+        <div class="question-card" data-question-index="{{ question_idx }}">
             <div class="question-number">Question {{ loop.index }}</div>
             <div class="question-prompt">{{ question.prompt }}</div>
 
             {% if question.type == 'multiple_choice' or not question.type %}
                 {% for choice in question.choices %}
-                <div class="choice-option" onclick="selectChoice(this, {{ loop.index0 }}, '{{ loop.parent.index0 }}')">
+                <div class="choice-option" onclick="selectChoice(this, {{ loop.index0 }}, '{{ question_idx }}')">
                     <input
                         type="radio"
-                        name="answer_{{ loop.parent.index0 }}"
+                        name="answer_{{ question_idx }}"
                         value="{{ choice }}"
-                        id="q{{ loop.parent.index0 }}_c{{ loop.index0 }}"
-                        {% if saved_answers.get(loop.parent.index0|string) == choice %}checked{% endif %}
+                        id="q{{ question_idx }}_c{{ loop.index0 }}"
+                        {% if saved_answers.get(question_idx|string) == choice %}checked{% endif %}
                         {% if submission.status in ['submitted', 'graded'] %}disabled{% endif %}
                     >
-                    <label for="q{{ loop.parent.index0 }}_c{{ loop.index0 }}">{{ choice }}</label>
+                    <label for="q{{ question_idx }}_c{{ loop.index0 }}">{{ choice }}</label>
                 </div>
                 {% endfor %}
 
