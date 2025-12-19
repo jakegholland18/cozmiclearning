@@ -329,11 +329,11 @@
 
             {% elif question.type == 'short_answer' or question.type == 'free' %}
                 <textarea
-                    name="answer_{{ loop.index0 }}"
+                    name="answer_{{ question_idx }}"
                     class="text-answer"
                     placeholder="Type your answer here..."
                     {% if submission.status in ['submitted', 'graded'] %}readonly{% endif %}
-                >{{ saved_answers.get(loop.index0|string, '') }}</textarea>
+                >{{ saved_answers.get(question_idx|string, '') }}</textarea>
             {% endif %}
 
             {% if question.hint and submission.status in ['in_progress', 'not_started'] %}
