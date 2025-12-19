@@ -1,64 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Assignments</title>
-    <link rel="stylesheet" href="/static/style.css?v=20251202">
+{% extends "base.html" %}
+{% block content %}
 
-    <style>
-        .assignment-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+<style>
+    .assignment-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
 
-        .assignment-card {
-            width: 100%;
-            background: rgba(255,255,255,0.06);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 18px rgba(0,0,0,0.4);
-        }
+    .assignment-card {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 18px rgba(0,0,0,0.4);
+    }
 
-        .assignment-card h3 {
-            margin-top: 0;
-            color: #dce4ff;
-        }
+    .assignment-card h3 {
+        margin-top: 0;
+        color: #dce4ff;
+    }
 
-        .badge {
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
+    .badge {
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        display: inline-block;
+    }
 
-        .badge-gold {
-            background: #fdd65b;
-            color: #000;
-        }
+    .badge-gold {
+        background: #fdd65b;
+        color: #000;
+    }
 
-        .btn-blue {
-            display: inline-block;
-            padding: 10px 16px;
-            background: #6374ff;
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            margin-top: 10px;
-            transition: 0.2s;
-        }
+    .btn-blue {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #6374ff;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        margin-top: 10px;
+        transition: 0.2s;
+    }
 
-        .btn-blue:hover {
-            background: #7f8bff;
-        }
-    </style>
-</head>
-<body class="fade-in">
-
-<!-- Hidden nav-links for dashboard button detection -->
-<div class="nav-links" style="display: none;">
-    <a href="/dashboard">Dashboard</a>
-</div>
+    .btn-blue:hover {
+        background: #7f8bff;
+    }
+</style>
 
 <div class="page-title">Your Assignments</div>
 
@@ -96,8 +86,4 @@
 
 </div>
 
-<script src="/static/enhancements.js"></script>
-
-</body>
-</html>
-
+{% endblock %}
