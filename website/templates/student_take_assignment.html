@@ -288,6 +288,7 @@
     {% endif %}
 
     <form id="assignmentForm" method="POST" action="/student/assignments/{{ assignment.id }}/submit">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         {% if submission.status in ['in_progress', 'not_started'] %}
         <div class="progress-indicator">
@@ -489,6 +490,7 @@
         const form = document.getElementById('assignmentForm');
         const formData = new FormData(form);
         const answers = {};
+        const csrfToken = formData.get('csrf_token');
 
         formData.forEach((value, key) => {
             if (key.startsWith('answer_')) {
@@ -500,7 +502,10 @@
         try {
             const response = await fetch('/student/assignments/{{ assignment.id }}/submit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
                 body: JSON.stringify({ answers: answers })
             });
 
