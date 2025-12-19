@@ -8006,15 +8006,16 @@ def assignment_wizard_create():
 
     # Generate questions
     try:
-        from modules.practice_helper import assign_questions
+        from modules.practice_helper import generate_practice_session
 
-        payload = assign_questions(
-            subject=subject or "math",
+        payload = generate_practice_session(
             topic=topic or "General",
-            grade=grade_level,
+            subject=subject or "terra_nova",
+            grade_level=grade_level,
             character="nova",
             differentiation_mode=differentiation,
             student_ability="on_level",
+            context="teacher",
             num_questions=num_questions,
         )
 
