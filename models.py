@@ -40,6 +40,10 @@ class Parent(db.Model):
     reset_token = db.Column(db.String(255), nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
 
+    # Account lockout fields
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    account_locked_until = db.Column(db.DateTime, nullable=True)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # One parent → many students
@@ -72,6 +76,10 @@ class Teacher(db.Model):
     # Password reset tokens
     reset_token = db.Column(db.String(255), nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
+
+    # Account lockout fields
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    account_locked_until = db.Column(db.DateTime, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -141,6 +149,10 @@ class Student(db.Model):
     # Password reset tokens
     reset_token = db.Column(db.String(255), nullable=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)
+
+    # Account lockout fields
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    account_locked_until = db.Column(db.DateTime, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -1173,5 +1185,50 @@ db.Index('idx_team_member_student', TeamMember.student_id)
 db.Index('idx_team_member_team', TeamMember.team_id)
 
 db.Index('idx_team_match_status', TeamMatch.match_status)
+
+
+# ============================================================
+# AUDIT LOG
+# ============================================================
+
+class AuditLog(db.Model):
+    """
+    Audit trail for critical actions (security, data changes, etc.)
+    """
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Who performed the action
+    user_id = db.Column(db.Integer, nullable=False)  # ID of user
+    user_type = db.Column(db.String(20), nullable=False)  # 'teacher', 'student', 'parent', 'admin'
+    user_email = db.Column(db.String(120), nullable=True)  # For quick reference
+
+    # What action was performed
+    action = db.Column(db.String(100), nullable=False)  # e.g., 'login', 'delete_class', 'grade_submission'
+    resource_type = db.Column(db.String(50), nullable=True)  # e.g., 'class', 'assignment', 'student'
+    resource_id = db.Column(db.Integer, nullable=True)  # ID of affected resource
+
+    # Additional context
+    details = db.Column(db.Text, nullable=True)  # JSON or text with additional context
+    ip_address = db.Column(db.String(45), nullable=True)  # Support IPv6
+    user_agent = db.Column(db.Text, nullable=True)
+
+    # Status of action
+    status = db.Column(db.String(20), nullable=False, default='success')  # 'success', 'failed', 'blocked'
+    error_message = db.Column(db.Text, nullable=True)  # If action failed
+
+    # Timestamp
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f'<AuditLog {self.user_type}:{self.user_id} {self.action} {self.status}>'
+
+
+# Indexes for audit log queries
+db.Index('idx_audit_user', AuditLog.user_id, AuditLog.user_type)
+db.Index('idx_audit_action', AuditLog.action)
+db.Index('idx_audit_created', AuditLog.created_at)
+db.Index('idx_audit_resource', AuditLog.resource_type, AuditLog.resource_id)
 
 

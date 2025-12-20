@@ -243,9 +243,57 @@ got_request_exception.connect(log_unhandled_exception, app)
 # Auto-heal session before every request
 @app.before_request
 def auto_heal():
-    """Fix corrupted session data automatically"""
+    """Fix corrupted session data automatically and check session timeout"""
     ensure_session_defaults(session)
     fix_corrupted_session(session)
+
+    # Check for session timeout (30 minutes of inactivity)
+    SESSION_TIMEOUT_MINUTES = 30
+
+    # Skip timeout check for public routes
+    public_routes = [
+        '/static/', '/choose_login_role', '/student/login', '/teacher/login',
+        '/parent/login', '/student/signup', '/teacher/signup', '/parent/signup',
+        '/forgot-password', '/reset-password'
+    ]
+
+    # Check if current path is a public route
+    is_public = any(request.path.startswith(route) for route in public_routes)
+
+    if not is_public and 'last_activity' in session:
+        # Check if session has been inactive too long
+        last_activity = session.get('last_activity')
+        if last_activity:
+            try:
+                # Handle both datetime objects and ISO strings
+                if isinstance(last_activity, str):
+                    last_activity = datetime.fromisoformat(last_activity)
+
+                now = datetime.utcnow()
+                inactive_duration = now - last_activity
+
+                if inactive_duration > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
+                    # Session has timed out
+                    user_role = session.get('user_role')
+                    session.clear()
+                    flash(f"Your session expired after {SESSION_TIMEOUT_MINUTES} minutes of inactivity. Please log in again.", "info")
+
+                    # Redirect based on role
+                    if user_role == 'teacher':
+                        return redirect('/teacher/login')
+                    elif user_role == 'student':
+                        return redirect('/student/login')
+                    elif user_role == 'parent':
+                        return redirect('/parent/login')
+                    else:
+                        return redirect('/choose_login_role')
+            except (ValueError, TypeError):
+                # If there's an error parsing the timestamp, just update it
+                pass
+
+    # Update last activity timestamp for authenticated users
+    if 'teacher_id' in session or 'student_id' in session or 'parent_id' in session:
+        session['last_activity'] = datetime.utcnow().isoformat()
 
 # ============================================================
 # PLAN LIMITS CONFIGURATION
@@ -355,6 +403,7 @@ from models import (
     Message,
     StudentSubmission,
     QuestionLog,
+    AuditLog,
 )
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
@@ -386,6 +435,137 @@ def safe_commit(retries=3, delay=0.1):
         return False, "Database commit failed after retries"
 
     return False, "Max retries exceeded"
+
+# ------------------------------------------------------------
+# Account Lockout Helper Functions
+# ------------------------------------------------------------
+
+LOCKOUT_THRESHOLD = 5  # Lock account after 5 failed attempts
+LOCKOUT_DURATION_MINUTES = 15  # Lock for 15 minutes
+
+def check_account_locked(user):
+    """
+    Check if user account is currently locked.
+
+    Returns:
+        (is_locked: bool, minutes_remaining: int)
+    """
+    if not user or not user.account_locked_until:
+        return False, 0
+
+    now = datetime.utcnow()
+    if now < user.account_locked_until:
+        # Account is still locked
+        time_remaining = user.account_locked_until - now
+        minutes_remaining = int(time_remaining.total_seconds() / 60) + 1
+        return True, minutes_remaining
+    else:
+        # Lockout period has expired, reset
+        user.account_locked_until = None
+        user.failed_login_attempts = 0
+        db.session.commit()
+        return False, 0
+
+def record_failed_login(user):
+    """
+    Record a failed login attempt and lock account if threshold exceeded.
+
+    Returns:
+        is_locked: bool - whether account is now locked
+    """
+    if not user:
+        return False
+
+    user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+
+    if user.failed_login_attempts >= LOCKOUT_THRESHOLD:
+        # Lock the account
+        user.account_locked_until = datetime.utcnow() + timedelta(minutes=LOCKOUT_DURATION_MINUTES)
+        db.session.commit()
+        return True
+
+    db.session.commit()
+    return False
+
+def reset_failed_login_attempts(user):
+    """Reset failed login counter after successful login."""
+    if user:
+        user.failed_login_attempts = 0
+        user.account_locked_until = None
+        db.session.commit()
+
+# ------------------------------------------------------------
+# Audit Logging Helper Functions
+# ------------------------------------------------------------
+
+def log_audit(action, user_id=None, user_type=None, resource_type=None,
+              resource_id=None, details=None, status='success', error_message=None):
+    """
+    Log an audit event for critical actions.
+
+    Args:
+        action: Action being performed (e.g., 'login', 'delete_class', 'grade_submission')
+        user_id: ID of user performing action
+        user_type: Type of user ('teacher', 'student', 'parent', 'admin')
+        resource_type: Type of resource affected (e.g., 'class', 'assignment')
+        resource_id: ID of affected resource
+        details: Additional context (string or dict - will be JSONified)
+        status: 'success', 'failed', or 'blocked'
+        error_message: Error message if action failed
+    """
+    try:
+        # Get user info from session if not provided
+        if user_id is None:
+            user_id = session.get('teacher_id') or session.get('student_id') or session.get('parent_id') or 0
+
+        if user_type is None:
+            user_type = session.get('user_role', 'unknown')
+
+        # Get user email for reference
+        user_email = None
+        if user_type == 'teacher' and user_id:
+            teacher = Teacher.query.get(user_id)
+            user_email = teacher.email if teacher else None
+        elif user_type == 'student' and user_id:
+            student = Student.query.get(user_id)
+            user_email = student.student_email if student else None
+        elif user_type == 'parent' and user_id:
+            parent = Parent.query.get(user_id)
+            user_email = parent.email if parent else None
+
+        # Convert details to JSON if it's a dict
+        if isinstance(details, dict):
+            details = json.dumps(details)
+
+        # Get IP and user agent from request
+        ip_address = request.remote_addr if request else None
+        user_agent = request.headers.get('User-Agent') if request else None
+
+        # Create audit log entry
+        log_entry = AuditLog(
+            user_id=user_id,
+            user_type=user_type,
+            user_email=user_email,
+            action=action,
+            resource_type=resource_type,
+            resource_id=resource_id,
+            details=details,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            status=status,
+            error_message=error_message
+        )
+
+        db.session.add(log_entry)
+        db.session.commit()
+
+    except Exception as e:
+        # Don't let audit logging failure break the application
+        print(f"⚠️ Audit logging failed: {e}")
+        try:
+            db.session.rollback()
+        except:
+            pass
 
 # ------------------------------------------------------------
 # Simple backup/restore for teachers/classes/students
@@ -818,30 +998,85 @@ except Exception as e:
     print(f"⚠️ Arcade initialization failed: {e}")
 
 # ============================================================
-# PASSWORD RESET TOKEN STORE (In-memory for now)
+# PASSWORD RESET TOKEN STORE (Database-backed)
 # ============================================================
 
-password_reset_tokens = {}  # {token: {"email": email, "role": role, "expires": datetime}}
-
 def generate_reset_token(email, role):
-    """Generate a password reset token valid for 1 hour"""
+    """
+    Generate a password reset token valid for 1 hour and store in database.
+
+    Args:
+        email: User's email address
+        role: User type ('student', 'parent', 'teacher')
+
+    Returns:
+        token: URL-safe reset token
+    """
     token = secrets.token_urlsafe(32)
-    password_reset_tokens[token] = {
-        "email": email.lower(),
-        "role": role,
-        "expires": datetime.now() + timedelta(hours=1)
-    }
-    return token
+    expires = datetime.utcnow() + timedelta(hours=1)
+    email_lower = email.lower()
+
+    try:
+        # Find user and update their reset token
+        user = None
+        if role == 'teacher':
+            user = Teacher.query.filter_by(email=email_lower).first()
+        elif role == 'student':
+            user = Student.query.filter_by(student_email=email_lower).first()
+        elif role == 'parent':
+            user = Parent.query.filter_by(email=email_lower).first()
+
+        if user:
+            user.reset_token = token
+            user.reset_token_expires = expires
+            db.session.commit()
+
+        # Return token even if user not found (don't leak user existence)
+        return token
+
+    except Exception as e:
+        print(f"⚠️ Error generating reset token: {e}")
+        db.session.rollback()
+        return token
 
 def verify_reset_token(token):
-    """Verify token and return email/role if valid, None otherwise"""
-    data = password_reset_tokens.get(token)
-    if not data:
+    """
+    Verify token from database and return user info if valid.
+
+    Args:
+        token: Reset token to verify
+
+    Returns:
+        dict with email and role if valid, None otherwise
+    """
+    try:
+        # Check all user types for this token
+        for role, model, email_field in [
+            ('teacher', Teacher, 'email'),
+            ('student', Student, 'student_email'),
+            ('parent', Parent, 'email')
+        ]:
+            user = model.query.filter_by(reset_token=token).first()
+
+            if user:
+                # Check if token is expired
+                if user.reset_token_expires and datetime.utcnow() > user.reset_token_expires:
+                    # Clear expired token
+                    user.reset_token = None
+                    user.reset_token_expires = None
+                    db.session.commit()
+                    return None
+
+                # Token is valid
+                email = getattr(user, email_field)
+                return {"email": email, "role": role, "user_id": user.id}
+
+        # Token not found
         return None
-    if datetime.now() > data["expires"]:
-        del password_reset_tokens[token]
+
+    except Exception as e:
+        print(f"⚠️ Error verifying reset token: {e}")
         return None
-    return data
 
 # ============================================================
 # LOGGING
@@ -859,11 +1094,31 @@ got_request_exception.connect(log_exception, app)
 # ------------------------------------------------------------
 # SIMPLE INPUT SANITIZATION HELPERS (essentials)
 # ------------------------------------------------------------
-def safe_text(value: str, max_len: int = 500) -> str:
+class ValidationError(Exception):
+    """Custom exception for input validation errors"""
+    pass
+
+def safe_text(value: str, max_len: int = 500, raise_on_truncate: bool = False) -> str:
+    """
+    Sanitize and validate text input.
+
+    Args:
+        value: Input string to sanitize
+        max_len: Maximum allowed length
+        raise_on_truncate: If True, raise ValidationError instead of silently truncating
+
+    Returns:
+        Sanitized string
+
+    Raises:
+        ValidationError: If input exceeds max_len and raise_on_truncate is True
+    """
     if not isinstance(value, str):
         return ""
     v = value.strip()
     if len(v) > max_len:
+        if raise_on_truncate:
+            raise ValidationError(f"Input exceeds maximum length of {max_len} characters (got {len(v)})")
         v = v[:max_len]
     return v
 
@@ -5021,16 +5276,21 @@ def student_signup():
     selected_billing = request.args.get("billing", "monthly")
     
     if request.method == "POST":
-        name = safe_text(request.form.get("name", ""), 100)
-        email = safe_email(request.form.get("email", ""))
-        password = request.form.get("password", "")
-        date_of_birth_str = request.form.get("date_of_birth", "")
-        parent_code = safe_text(request.form.get("parent_code", ""), 10).upper().strip()
-        signup_mode = request.form.get("signup_mode", "standalone")  # standalone or parent_linked
+        try:
+            # Validate with truncation check
+            name = safe_text(request.form.get("name", ""), max_len=100, raise_on_truncate=True)
+            email = safe_email(request.form.get("email", ""))
+            password = request.form.get("password", "")
+            date_of_birth_str = request.form.get("date_of_birth", "")
+            parent_code = safe_text(request.form.get("parent_code", ""), max_len=10, raise_on_truncate=True).upper().strip()
+            signup_mode = request.form.get("signup_mode", "standalone")  # standalone or parent_linked
 
-        # Plan selections for standalone students
-        plan = safe_text(request.form.get("plan", ""), 50) or "basic"
-        billing = safe_text(request.form.get("billing", ""), 20) or "monthly"
+            # Plan selections for standalone students
+            plan = safe_text(request.form.get("plan", ""), max_len=50, raise_on_truncate=True) or "basic"
+            billing = safe_text(request.form.get("billing", ""), max_len=20, raise_on_truncate=True) or "monthly"
+        except ValidationError as e:
+            flash(f"Validation error: {str(e)}", "error")
+            return redirect("/student/signup")
 
         if not name or not email or not password or not date_of_birth_str:
             flash("Name, email, password, and date of birth are required.", "error")
@@ -5372,7 +5632,20 @@ def teacher_login():
         password = request.form.get("password", "")
 
         teacher = Teacher.query.filter_by(email=email).first()
+
+        # Check if account is locked
+        if teacher:
+            is_locked, minutes = check_account_locked(teacher)
+            if is_locked:
+                flash(f"Account is locked due to multiple failed login attempts. Try again in {minutes} minutes.", "error")
+                log_audit('teacher_login_blocked', user_id=teacher.id, user_type='teacher',
+                          details=f"Login blocked - account locked for {minutes} minutes", status='blocked')
+                return render_template("teacher_login.html")
+
         if teacher and check_password_hash(teacher.password_hash, password):
+            # Reset failed login counter on successful login
+            reset_failed_login_attempts(teacher)
+
             # SECURITY: Regenerate session to prevent session fixation
             session.clear()
             session.modified = True
@@ -5381,10 +5654,29 @@ def teacher_login():
             session["user_role"] = "teacher"
             # Set is_owner flag for navbar admin button
             session["is_owner"] = is_owner(teacher)
+
+            # Audit log successful login
+            log_audit('teacher_login', user_id=teacher.id, user_type='teacher', status='success')
+
             flash("Logged in successfully.", "info")
             return redirect("/teacher/dashboard")
 
-        flash("Invalid email or password.", "error")
+        # Record failed login attempt
+        if teacher:
+            is_now_locked = record_failed_login(teacher)
+            if is_now_locked:
+                flash(f"Too many failed login attempts. Account locked for {LOCKOUT_DURATION_MINUTES} minutes.", "error")
+                log_audit('teacher_account_locked', user_id=teacher.id, user_type='teacher',
+                          details=f"Account locked after {LOCKOUT_THRESHOLD} failed attempts", status='blocked')
+            else:
+                attempts_remaining = LOCKOUT_THRESHOLD - teacher.failed_login_attempts
+                flash(f"Invalid password. {attempts_remaining} attempts remaining before lockout.", "error")
+        else:
+            flash("Invalid email or password.", "error")
+
+        # Audit log failed login attempt
+        log_audit('teacher_login_failed', user_type='teacher',
+                  details=f"Failed login attempt for email: {email}", status='failed')
 
     return render_template("teacher_login.html")
 
@@ -5459,34 +5751,50 @@ def reset_password(token):
         
         # Update password based on role
         hashed = generate_password_hash(new_password)
-        
-        if role == "student":
-            # Students don't currently use password_hash in DB
-            # For now, just show success message
-            flash("Password reset successful! You can now log in.", "success")
-            del password_reset_tokens[token]
-            return redirect("/student/login")
-        
-        elif role == "parent":
-            parent = Parent.query.filter_by(email=email).first()
-            if parent:
-                parent.password_hash = hashed
-                db.session.commit()
-                flash("Password reset successful! You can now log in.", "success")
-                del password_reset_tokens[token]
-                return redirect("/parent/login")
-        
-        elif role == "teacher":
-            teacher = Teacher.query.filter_by(email=email).first()
-            if teacher:
-                teacher.password_hash = hashed
-                db.session.commit()
-                flash("Password reset successful! You can now log in.", "success")
-                del password_reset_tokens[token]
-                return redirect("/teacher/login")
-        
-        flash("Account not found.", "error")
-        return redirect("/choose_login_role")
+        user_id = token_data.get("user_id")
+
+        try:
+            if role == "student":
+                student = Student.query.get(user_id)
+                if student:
+                    student.password_hash = hashed
+                    # Clear reset token
+                    student.reset_token = None
+                    student.reset_token_expires = None
+                    db.session.commit()
+                    flash("Password reset successful! You can now log in.", "success")
+                    return redirect("/student/login")
+
+            elif role == "parent":
+                parent = Parent.query.get(user_id)
+                if parent:
+                    parent.password_hash = hashed
+                    # Clear reset token
+                    parent.reset_token = None
+                    parent.reset_token_expires = None
+                    db.session.commit()
+                    flash("Password reset successful! You can now log in.", "success")
+                    return redirect("/parent/login")
+
+            elif role == "teacher":
+                teacher = Teacher.query.get(user_id)
+                if teacher:
+                    teacher.password_hash = hashed
+                    # Clear reset token
+                    teacher.reset_token = None
+                    teacher.reset_token_expires = None
+                    db.session.commit()
+                    flash("Password reset successful! You can now log in.", "success")
+                    return redirect("/teacher/login")
+
+            flash("Account not found.", "error")
+            return redirect("/choose_login_role")
+
+        except Exception as e:
+            print(f"⚠️ Error resetting password: {e}")
+            db.session.rollback()
+            flash("Error resetting password. Please try again.", "error")
+            return render_template("reset_password.html", token=token, role=role)
     
     return render_template("reset_password.html", token=token, role=role)
 
@@ -5855,14 +6163,15 @@ def add_class():
     if not teacher:
         return redirect("/teacher/login")
 
-    class_name = request.form.get("class_name", "").strip()
-    grade = request.form.get("grade_level", "").strip()
-
-    if not class_name:
-        flash("Class name is required.", "error")
-        return redirect("/teacher/dashboard")
-
     try:
+        # Validate input with truncation check
+        class_name = safe_text(request.form.get("class_name", ""), max_len=100, raise_on_truncate=True)
+        grade = safe_text(request.form.get("grade_level", ""), max_len=20, raise_on_truncate=True)
+
+        if not class_name:
+            flash("Class name is required.", "error")
+            return redirect("/teacher/dashboard")
+
         # Generate unique join code
         join_code = generate_join_code()
         cls = Class(
@@ -5871,6 +6180,11 @@ def add_class():
             grade_level=grade,
             join_code=join_code
         )
+    except ValidationError as e:
+        flash(f"Validation error: {str(e)}", "error")
+        return redirect("/teacher/dashboard")
+
+    try:
         db.session.add(cls)
         db.session.commit()
 
@@ -5936,20 +6250,26 @@ def delete_class(class_id):
         return redirect("/teacher/dashboard")
 
     class_name = cls.class_name
-    
+    student_count = Student.query.filter_by(class_id=class_id).count()
+
     # Delete all students in the class (cascade should handle this, but explicit is safer)
     Student.query.filter_by(class_id=class_id).delete()
-    
+
     # Delete all assignments for this class
     AssignedPractice.query.filter_by(class_id=class_id).delete()
-    
+
     # Delete the class
     db.session.delete(cls)
     db.session.commit()
-    
+
+    # Audit log the deletion
+    log_audit('delete_class', resource_type='class', resource_id=class_id,
+              details={'class_name': class_name, 'student_count': student_count},
+              status='success')
+
     # Update backup
     backup_classes_to_json()
-    
+
     flash(f"Class '{class_name}' and all its students have been deleted.", "info")
     return redirect("/teacher/dashboard")
 
@@ -8681,6 +9001,14 @@ def teacher_grade_submission(submission_id):
 
             db.session.commit()
 
+            # Audit log the grading
+            student = Student.query.get(submission.student_id)
+            log_audit('grade_submission', resource_type='submission', resource_id=submission.id,
+                      details={'assignment_id': assignment.id, 'student_id': submission.student_id,
+                               'student_name': student.student_name if student else 'Unknown',
+                               'score': submission.score},
+                      status='success')
+
             print(f"✅ Teacher {teacher.id} graded submission {submission.id}: {submission.score}%")
             if question_grades:
                 print(f"   Individual question grades: {len(question_grades)} questions graded")
@@ -8822,10 +9150,17 @@ def teacher_delete_submission(submission_id):
 
     student_name = submission.student_rel.student_name if submission.student_rel else "Student"
     assignment_id = assignment.id
+    student_id = submission.student_id
 
     # Delete the submission
     db.session.delete(submission)
     db.session.commit()
+
+    # Audit log the deletion
+    log_audit('delete_submission', resource_type='submission', resource_id=submission_id,
+              details={'assignment_id': assignment_id, 'student_id': student_id,
+                       'student_name': student_name, 'reason': 'allow_retake'},
+              status='success')
 
     print(f"🗑️ Teacher {teacher.id} deleted submission {submission_id} for {student_name}")
     flash(f"Submission deleted for {student_name}. They can now retake the assignment.", "success")

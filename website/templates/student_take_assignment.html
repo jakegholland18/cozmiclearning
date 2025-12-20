@@ -480,6 +480,117 @@
         document.querySelectorAll('.text-answer').forEach(textarea => {
             textarea.addEventListener('input', updateProgress);
         });
+
+        // Initialize auto-save for non-dynamic modes
+        {% if not is_adaptive and not is_scaffold %}
+        if ({{ 'true' if submission.status in ['in_progress', 'not_started'] else 'false' }}) {
+            startAutoSave();
+        }
+        {% endif %}
+    });
+
+    // Auto-save functionality
+    let autoSaveInterval = null;
+    let lastSaveTime = Date.now();
+    let hasUnsavedChanges = false;
+
+    function startAutoSave() {
+        // Auto-save every 30 seconds
+        autoSaveInterval = setInterval(() => {
+            if (hasUnsavedChanges) {
+                autoSaveProgress();
+            }
+        }, 30000); // 30 seconds
+
+        // Track changes
+        document.querySelectorAll('input[type="radio"], .text-answer').forEach(element => {
+            element.addEventListener('change', () => {
+                hasUnsavedChanges = true;
+                updateAutoSaveIndicator('unsaved');
+            });
+        });
+
+        // Add auto-save indicator
+        const actionButtons = document.querySelector('.action-buttons');
+        if (actionButtons) {
+            const indicator = document.createElement('div');
+            indicator.id = 'autoSaveIndicator';
+            indicator.style.cssText = 'color: var(--muted-3); font-size: 0.85rem; padding: 8px 0;';
+            indicator.textContent = 'All changes saved';
+            actionButtons.insertAdjacentElement('beforebegin', indicator);
+        }
+    }
+
+    function updateAutoSaveIndicator(status) {
+        const indicator = document.getElementById('autoSaveIndicator');
+        if (!indicator) return;
+
+        if (status === 'saving') {
+            indicator.textContent = '💾 Saving...';
+            indicator.style.color = '#ffdd55';
+        } else if (status === 'saved') {
+            indicator.textContent = '✅ All changes saved';
+            indicator.style.color = '#4fff89';
+            setTimeout(() => {
+                indicator.textContent = 'All changes saved';
+                indicator.style.color = 'var(--muted-3)';
+            }, 2000);
+        } else if (status === 'unsaved') {
+            indicator.textContent = 'Unsaved changes';
+            indicator.style.color = '#ffb84d';
+        } else if (status === 'error') {
+            indicator.textContent = '❌ Save failed - will retry';
+            indicator.style.color = '#ff4444';
+        }
+    }
+
+    async function autoSaveProgress() {
+        updateAutoSaveIndicator('saving');
+
+        const form = document.getElementById('assignmentForm');
+        const formData = new FormData(form);
+        const answers = {};
+
+        formData.forEach((value, key) => {
+            if (key.startsWith('answer_')) {
+                const questionIndex = key.replace('answer_', '');
+                answers[questionIndex] = value;
+            }
+        });
+
+        try {
+            const response = await fetch('/student/assignments/{{ assignment.id }}/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                hasUnsavedChanges = false;
+                lastSaveTime = Date.now();
+                updateAutoSaveIndicator('saved');
+            } else {
+                console.error('Auto-save failed:', data.error);
+                updateAutoSaveIndicator('error');
+            }
+        } catch (error) {
+            console.error('Auto-save error:', error);
+            updateAutoSaveIndicator('error');
+        }
+    }
+
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', (e) => {
+        if (autoSaveInterval) {
+            clearInterval(autoSaveInterval);
+        }
+        // Warn if unsaved changes
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
     });
 
     // Save progress
