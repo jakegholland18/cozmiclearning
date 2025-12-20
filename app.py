@@ -10588,28 +10588,30 @@ def teacher_analytics_overview():
         # Get student IDs for this class
         student_ids = [s.id for s in students]
 
-        # Class average from assignment submissions (use score field)
+        # Class average from assignment submissions (only released grades)
         recent_scores = None
         if student_ids:
             recent_scores = (
                 db.session.query(func.avg(StudentSubmission.score))
                 .filter(
                     StudentSubmission.student_id.in_(student_ids),
-                    StudentSubmission.status.in_(['graded', 'submitted']),
+                    StudentSubmission.status == 'graded',
+                    StudentSubmission.grade_released == True,
                     StudentSubmission.score.isnot(None)
                 )
                 .scalar()
             )
         class_avg = round(recent_scores, 1) if recent_scores else 0.0
 
-        # Total submissions (graded or submitted)
+        # Total submissions (only released grades)
         total_assessments = 0
         if student_ids:
             total_assessments = (
                 db.session.query(func.count(StudentSubmission.id))
                 .filter(
                     StudentSubmission.student_id.in_(student_ids),
-                    StudentSubmission.status.in_(['graded', 'submitted'])
+                    StudentSubmission.status == 'graded',
+                    StudentSubmission.grade_released == True
                 )
                 .scalar()
             ) or 0
@@ -10636,12 +10638,13 @@ def teacher_analytics_overview():
     for cls in classes:
         all_student_ids.extend([s.id for s in cls.students])
 
-    # Query assignment submissions in the last 30 days
+    # Query assignment submissions in the last 30 days (only released grades)
     time_series_results = []
     if all_student_ids:
         time_series_results = StudentSubmission.query.filter(
             StudentSubmission.student_id.in_(all_student_ids),
-            StudentSubmission.status.in_(['graded', 'submitted']),
+            StudentSubmission.status == 'graded',
+            StudentSubmission.grade_released == True,
             StudentSubmission.score.isnot(None),
             StudentSubmission.submitted_at >= start_date
         ).order_by(StudentSubmission.submitted_at).all()
