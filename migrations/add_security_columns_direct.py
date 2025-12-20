@@ -11,7 +11,7 @@ import os
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'persistent_db', 'cozmiclearning.db')
 
 def add_security_columns():
-    """Add security-related columns to students and teachers tables"""
+    """Add security-related columns to students, teachers, and parents tables"""
 
     print(f"Connecting to database: {DB_PATH}")
 
@@ -84,6 +84,37 @@ def add_security_columns():
             print("✅ Added account_locked_until to teachers")
         else:
             print("⏭️  teachers.account_locked_until already exists")
+
+        # Migrate PARENTS table
+        print("\n" + "="*60)
+        print("Migrating PARENTS table")
+        print("="*60)
+
+        cursor.execute("PRAGMA table_info(parents)")
+        columns = cursor.fetchall()
+        column_names = [col[1] for col in columns]
+
+        print(f"Existing columns in parents table: {len(column_names)}")
+
+        if 'failed_login_attempts' not in column_names:
+            print("Adding failed_login_attempts column to parents...")
+            cursor.execute("""
+                ALTER TABLE parents
+                ADD COLUMN failed_login_attempts INTEGER DEFAULT 0
+            """)
+            print("✅ Added failed_login_attempts to parents")
+        else:
+            print("⏭️  parents.failed_login_attempts already exists")
+
+        if 'account_locked_until' not in column_names:
+            print("Adding account_locked_until column to parents...")
+            cursor.execute("""
+                ALTER TABLE parents
+                ADD COLUMN account_locked_until TIMESTAMP
+            """)
+            print("✅ Added account_locked_until to parents")
+        else:
+            print("⏭️  parents.account_locked_until already exists")
 
         conn.commit()
         print("\n" + "="*60)
