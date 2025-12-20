@@ -1110,6 +1110,12 @@ async function sendHelpMessage() {
     input.value = "";
     thinking.style.display = "block";
 
+    // Add typing indicator to chat
+    const typingDiv = createTypingIndicator();
+    typingDiv.classList.add("help-msg", "help-msg-tutor");
+    log.appendChild(typingDiv);
+    log.scrollTop = log.scrollHeight;
+
     const res = await fetch("/practice_help_message", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -1117,6 +1123,9 @@ async function sendHelpMessage() {
     });
 
     thinking.style.display = "none";
+
+    // Remove typing indicator
+    typingDiv.remove();
 
     const data = await res.json();
     const reply = data.reply || "I'm here with you! Try rephrasing what you need help with.";

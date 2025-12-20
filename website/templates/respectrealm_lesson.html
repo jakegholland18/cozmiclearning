@@ -372,6 +372,13 @@ async function sendMessage() {
     // Clear input
     input.value = '';
 
+    // Add typing indicator
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = createTypingIndicator();
+    typingDiv.className = 'chat-message assistant';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     try {
         // Send to server
         const response = await fetch('/respectrealm/chat', {
@@ -390,6 +397,9 @@ async function sendMessage() {
 
         const data = await response.json();
 
+        // Remove typing indicator
+        typingDiv.remove();
+
         if (data.success) {
             // Add assistant response to chat with streaming
             await addMessageToChat('assistant', data.response);
@@ -399,8 +409,9 @@ async function sendMessage() {
         }
     } catch (error) {
         console.error('Error:', error);
+        typingDiv.remove();
         await addMessageToChat('assistant', 'Oops! Something went wrong. Please try again.');
-    } finally {
+    } finally{
         // Re-enable input
         input.disabled = false;
         document.getElementById('sendButton').disabled = false;

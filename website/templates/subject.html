@@ -400,6 +400,12 @@ async function sendFollowup() {
     thinking.innerText = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
     thinking.style.display = "block";
 
+    // Add typing indicator to chat
+    const typingDiv = createTypingIndicator();
+    typingDiv.className = 'chat-msg msg-ai';
+    log.appendChild(typingDiv);
+    log.scrollTop = log.scrollHeight;
+
     // SEND request to backend
     const response = await fetch("/followup_message", {
         method: "POST",
@@ -414,6 +420,9 @@ async function sendFollowup() {
 
     // Hide thinking
     thinking.style.display = "none";
+
+    // Remove typing indicator
+    typingDiv.remove();
 
     const data = await response.json();
     const reply = data.reply || "I'm not sure — try rephrasing it!";

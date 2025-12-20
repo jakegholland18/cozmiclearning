@@ -61,13 +61,30 @@ function celebrationBurst() {
 async function streamText(element, text, speed = 30) {
     element.innerHTML = '';
     element.classList.add('ai-streaming');
-    
+
+    // Find the scrollable parent (chat log container)
+    let scrollContainer = element.parentElement;
+    while (scrollContainer && scrollContainer.scrollHeight <= scrollContainer.clientHeight) {
+        scrollContainer = scrollContainer.parentElement;
+    }
+
     for (let i = 0; i < text.length; i++) {
         element.textContent += text[i];
+
+        // Auto-scroll during streaming if we found a scroll container
+        if (scrollContainer) {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+
         await new Promise(resolve => setTimeout(resolve, speed));
     }
-    
+
     element.classList.remove('ai-streaming');
+
+    // Final scroll to ensure we're at the bottom
+    if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
 }
 
 // ================================================================

@@ -463,6 +463,12 @@ async function sendMessage() {
     addMessage('user', question);
     chatInput.value = '';
 
+    // Add typing indicator
+    const typingDiv = createTypingIndicator();
+    typingDiv.className = 'chat-message ai-message';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
     try {
         // Send to backend
         const response = await fetch('/lesson-chat', {
@@ -482,6 +488,9 @@ async function sendMessage() {
 
         const data = await response.json();
 
+        // Remove typing indicator
+        typingDiv.remove();
+
         if (data.success) {
             await addMessage('ai', data.answer);
         } else {
@@ -489,6 +498,7 @@ async function sendMessage() {
         }
     } catch (error) {
         console.error('Error:', error);
+        typingDiv.remove();
         await addMessage('ai', 'Oops! Something went wrong. Please try again.');
     } finally {
         // Re-enable input
