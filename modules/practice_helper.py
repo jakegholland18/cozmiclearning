@@ -1,6 +1,7 @@
 # modules/practice_helper.py
 
 import json
+import html
 from typing import Dict, Any, List
 from modules.shared_ai import get_client, build_character_voice, grade_depth_instruction
 
@@ -811,8 +812,12 @@ IMPORTANT:
 
             expected = corrected
 
-        hint = str(step.get("hint", "Think carefully.")).strip()
-        explanation = str(step.get("explanation", "Let's walk through it together.")).strip()
+        hint = html.unescape(str(step.get("hint", "Think carefully.")).strip())
+        explanation = html.unescape(str(step.get("explanation", "Let's walk through it together.")).strip())
+
+        # Also decode HTML entities in prompt and choices
+        prompt = html.unescape(prompt)
+        choices = [html.unescape(str(c)) for c in choices]
 
         # Preserve difficulty field for adaptive mode
         question_data = {
