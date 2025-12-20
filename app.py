@@ -8047,12 +8047,14 @@ def assignment_wizard_create():
     # Apply smart defaults based on assignment type
     if assignment_type == "quiz":
         num_questions = min(num_questions, 10)
+        differentiation = "none"  # Quick Quiz mode = no differentiation
         if not instructions:
             instructions = "Complete this quiz to the best of your ability. You have one attempt."
     elif assignment_type == "homework":
         if not instructions:
             instructions = "Complete this homework assignment by the due date. Take your time and show your work."
     elif assignment_type == "assessment":
+        differentiation = "none"  # Formal assessments = no differentiation
         if not instructions:
             instructions = "This is a graded assessment. Do your best work."
     else:

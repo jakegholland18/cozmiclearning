@@ -340,6 +340,9 @@ PHASE 2 REQUIREMENTS - FREE RESPONSE:
 - CRITICAL: Free response questions MUST have "expected": [] (empty array, manual grading required)
 - These test deeper understanding, explanation, and application
 - Students will see all free response questions at once after completing MC phase
+- CRITICAL: Include ALL necessary context in the question prompt (Bible verses, passages, diagrams, data, etc.)
+- Students should NOT need external materials to answer - everything must be in the question
+- Example: Instead of "What does John 1:1 mean?", write "Read this verse: 'In the beginning was the Word...' What does this mean?"
 
 EXAMPLE JSON FORMAT:
 {{
@@ -414,6 +417,8 @@ REQUIREMENTS:
 - Break complex problems into smaller steps
 - Include detailed explanations that teach the concept
 - Build confidence through gradual progression
+- CRITICAL: Include ALL necessary context in questions (Bible verses, passages, data, etc.)
+- Students should NOT need external materials - everything must be in the question prompt
 
 HINT EXAMPLES:
 - "Think about what happens to the denominator when you multiply fractions"
