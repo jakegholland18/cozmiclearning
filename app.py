@@ -8564,9 +8564,42 @@ def teacher_grade_submission(submission_id):
                 submission.points_earned = float(points_earned)
                 submission.points_possible = float(points_possible)
 
+            # Process individual question grades (for free response)
+            # Collect question-specific feedback and points
+            question_grades = {}
+            for key in request.form:
+                if key.startswith("question_") and "_points" in key:
+                    # Extract question index from "question_0_points"
+                    question_idx = key.replace("question_", "").replace("_points", "")
+                    points = request.form.get(key)
+                    feedback_key = f"question_{question_idx}_feedback"
+                    q_feedback = request.form.get(feedback_key, "").strip()
+
+                    if points:
+                        question_grades[question_idx] = {
+                            "points": float(points),
+                            "feedback": q_feedback if q_feedback else None
+                        }
+
+            # Store question grades in a separate JSON field (we'll add this field later if needed)
+            # For now, append to main feedback
+            if question_grades:
+                individual_feedback = "\n\n--- Individual Question Feedback ---\n"
+                for q_idx, grade_info in question_grades.items():
+                    individual_feedback += f"\nQuestion {int(q_idx) + 1}: {grade_info['points']} points"
+                    if grade_info['feedback']:
+                        individual_feedback += f"\n  {grade_info['feedback']}"
+
+                if submission.feedback:
+                    submission.feedback += individual_feedback
+                else:
+                    submission.feedback = individual_feedback.strip()
+
             db.session.commit()
 
             print(f"✅ Teacher {teacher.id} graded submission {submission.id}: {submission.score}%")
+            if question_grades:
+                print(f"   Individual question grades: {len(question_grades)} questions graded")
             flash("Submission graded successfully!", "success")
             return redirect(f"/teacher/assignments/{assignment.id}/submissions")
 
