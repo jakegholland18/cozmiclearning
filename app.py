@@ -8169,10 +8169,14 @@ def assignment_delete(assignment_id):
     if assignment.teacher_id != teacher_id:
         return jsonify({"error": "You can only delete your own assignments"}), 403
 
-    # Delete related submissions first
+    # Delete related records in correct order to avoid foreign key constraints
+    # 1. Delete assigned questions first (they reference practice_id)
+    AssignedQuestion.query.filter_by(practice_id=assignment_id).delete()
+
+    # 2. Delete related submissions
     StudentSubmission.query.filter_by(assignment_id=assignment_id).delete()
 
-    # Delete the assignment
+    # 3. Delete the assignment
     title = assignment.title
     db.session.delete(assignment)
     db.session.commit()
