@@ -744,7 +744,7 @@
 
                     <div class="class-actions">
                         <a href="/teacher/class/{{ c.id }}/analytics">Analytics</a>
-                        <form method="POST" action="/teacher/delete_class/{{ c.id }}" style="display: inline;" onsubmit="return confirm('Delete class {{ c.class_name }}? This will remove all students and assignments.');">
+                        <form method="POST" action="/teacher/delete_class/{{ c.id }}" style="display: inline;" onsubmit="return confirm('⚠️ WARNING: Delete class {{ c.class_name }}?\n\nThis will permanently remove:\n• All {{ c.students|length }} students\n• All assignments and grades\n• This CANNOT be undone!\n\nType DELETE to confirm.');">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn" style="background: linear-gradient(135deg, #ff4444, #ff6666); padding: 6px 12px; font-size: 0.8rem;">Delete Class</button>
                         </form>

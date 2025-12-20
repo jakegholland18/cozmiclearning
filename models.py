@@ -108,8 +108,8 @@ class Student(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    class_id = db.Column(db.Integer, db.ForeignKey("classes.id"))
-    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id"))
+    class_id = db.Column(db.Integer, db.ForeignKey("classes.id", ondelete="SET NULL"))
+    parent_id = db.Column(db.Integer, db.ForeignKey("parents.id", ondelete="SET NULL"))
 
     student_name = db.Column(db.String(120))
     student_email = db.Column(db.String(120))
@@ -217,7 +217,7 @@ class AssignedQuestion(db.Model):
     __tablename__ = "assigned_questions"
 
     id = db.Column(db.Integer, primary_key=True)
-    practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
+    practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id", ondelete="CASCADE"), nullable=False)
 
     question_text = db.Column(db.Text, nullable=False)
     question_type = db.Column(db.String(20), default="free")  # free / multiple_choice
@@ -307,11 +307,14 @@ class Message(db.Model):
 
 class StudentSubmission(db.Model):
     __tablename__ = "student_submissions"
+    __table_args__ = (
+        db.UniqueConstraint('student_id', 'assignment_id', name='unique_student_assignment'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
-    
-    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
-    assignment_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id"), nullable=False)
+
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    assignment_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id", ondelete="CASCADE"), nullable=False)
     
     # Submission status
     status = db.Column(db.String(20), default="not_started")  # not_started / in_progress / submitted / graded

@@ -5176,6 +5176,10 @@ def student_login():
         student.last_login = now
         db.session.commit()
 
+        # SECURITY: Regenerate session to prevent session fixation
+        session.clear()
+        session.modified = True
+
         # Set session after successful authentication
         session["student_id"] = student.id
         session["user_role"] = "student"
@@ -5277,6 +5281,10 @@ def parent_login():
             flash("Incorrect password.", "error")
             return redirect("/parent/login")
 
+        # SECURITY: Regenerate session to prevent session fixation
+        session.clear()
+        session.modified = True
+
         session["parent_id"] = parent.id
         session["user_role"] = "parent"
         session["parent_name"] = parent.name
@@ -5365,6 +5373,10 @@ def teacher_login():
 
         teacher = Teacher.query.filter_by(email=email).first()
         if teacher and check_password_hash(teacher.password_hash, password):
+            # SECURITY: Regenerate session to prevent session fixation
+            session.clear()
+            session.modified = True
+
             session["teacher_id"] = teacher.id
             session["user_role"] = "teacher"
             # Set is_owner flag for navbar admin button
@@ -6524,16 +6536,28 @@ def student_start_assignment(assignment_id):
     ).first()
 
     if not submission:
-        # Create new submission
-        submission = StudentSubmission(
-            student_id=student.id,
-            assignment_id=assignment.id,
-            status="in_progress",
-            started_at=datetime.utcnow(),
-            answers_json="{}"
-        )
-        db.session.add(submission)
-        db.session.commit()
+        # Create new submission with race condition protection
+        try:
+            submission = StudentSubmission(
+                student_id=student.id,
+                assignment_id=assignment.id,
+                status="in_progress",
+                started_at=datetime.utcnow(),
+                answers_json="{}"
+            )
+            db.session.add(submission)
+            db.session.commit()
+        except Exception as e:
+            # Handle race condition - another request already created submission
+            db.session.rollback()
+            submission = StudentSubmission.query.filter_by(
+                student_id=student.id,
+                assignment_id=assignment.id
+            ).first()
+            if not submission:
+                # Still no submission - something else went wrong
+                flash("Error creating submission. Please try again.", "error")
+                return redirect("/student/assignments")
         print(f"✅ Created submission for student {student.id} on assignment {assignment.id}")
     elif submission.status == "not_started":
         # Update status to in_progress
@@ -9622,7 +9646,8 @@ def teacher_gradebook():
                     })
 
             if submissions:
-                avg_score = sum(s.score for s in submissions if s.score) / len(submissions)
+                scored_submissions = [s.score for s in submissions if s.score is not None]
+                avg_score = sum(scored_submissions) / len(scored_submissions) if len(scored_submissions) > 0 else None
                 graded_count = len(submissions)
             else:
                 avg_score = None
