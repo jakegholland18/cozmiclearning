@@ -10585,22 +10585,34 @@ def teacher_analytics_overview():
         on_level = sum(1 for s in students if (s.ability_level or "").lower() == "on_level")
         advanced = sum(1 for s in students if (s.ability_level or "").lower() == "advanced")
         
-        # Class average from recent assessments
-        recent_scores = (
-            db.session.query(func.avg(AssessmentResult.score_percent))
-            .join(Student, AssessmentResult.student_id == Student.id)
-            .filter(Student.class_id == cls.id)
-            .scalar()
-        )
+        # Get student IDs for this class
+        student_ids = [s.id for s in students]
+
+        # Class average from assignment submissions (use score field)
+        recent_scores = None
+        if student_ids:
+            recent_scores = (
+                db.session.query(func.avg(StudentSubmission.score))
+                .filter(
+                    StudentSubmission.student_id.in_(student_ids),
+                    StudentSubmission.status.in_(['graded', 'submitted']),
+                    StudentSubmission.score.isnot(None)
+                )
+                .scalar()
+            )
         class_avg = round(recent_scores, 1) if recent_scores else 0.0
-        
-        # Total assessments
-        total_assessments = (
-            db.session.query(func.count(AssessmentResult.id))
-            .join(Student, AssessmentResult.student_id == Student.id)
-            .filter(Student.class_id == cls.id)
-            .scalar()
-        ) or 0
+
+        # Total submissions (graded or submitted)
+        total_assessments = 0
+        if student_ids:
+            total_assessments = (
+                db.session.query(func.count(StudentSubmission.id))
+                .filter(
+                    StudentSubmission.student_id.in_(student_ids),
+                    StudentSubmission.status.in_(['graded', 'submitted'])
+                )
+                .scalar()
+            ) or 0
         
         class_summaries.append({
             "class": cls,
@@ -10624,30 +10636,34 @@ def teacher_analytics_overview():
     for cls in classes:
         all_student_ids.extend([s.id for s in cls.students])
 
-    # Query assessment results in the last 30 days
-    time_series_results = AssessmentResult.query.filter(
-        AssessmentResult.student_id.in_(all_student_ids),
-        AssessmentResult.created_at >= start_date
-    ).order_by(AssessmentResult.created_at).all()
+    # Query assignment submissions in the last 30 days
+    time_series_results = []
+    if all_student_ids:
+        time_series_results = StudentSubmission.query.filter(
+            StudentSubmission.student_id.in_(all_student_ids),
+            StudentSubmission.status.in_(['graded', 'submitted']),
+            StudentSubmission.score.isnot(None),
+            StudentSubmission.submitted_at >= start_date
+        ).order_by(StudentSubmission.submitted_at).all()
 
     # Group by week for cleaner visualization
     weekly_data = {}
     for result in time_series_results:
-        if result.score_percent is None:
+        if result.score is None or result.submitted_at is None:
             continue
 
         # Get week key (e.g., "2024-W01")
-        week_key = result.created_at.strftime("%Y-W%W")
-        week_label = result.created_at.strftime("%b %d")
+        week_key = result.submitted_at.strftime("%Y-W%W")
+        week_label = result.submitted_at.strftime("%b %d")
 
         if week_key not in weekly_data:
             weekly_data[week_key] = {
                 'label': week_label,
                 'scores': [],
-                'date': result.created_at
+                'date': result.submitted_at
             }
 
-        weekly_data[week_key]['scores'].append(result.score_percent)
+        weekly_data[week_key]['scores'].append(result.score)
 
     # Calculate weekly averages
     chart_labels = []
