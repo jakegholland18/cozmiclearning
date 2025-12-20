@@ -3,15 +3,120 @@
 <head>
     <title>Select Grade</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Softer, eye-friendly grade selection */
+        .grade-select-body {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f1524 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .grade-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .grade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .grade-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .grade-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(156, 172, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grade-card:hover::before {
+            opacity: 1;
+        }
+
+        .grade-card:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(156, 172, 255, 0.08));
+            border-color: rgba(156, 172, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 12px rgba(156, 172, 255, 0.15);
+        }
+
+        .grade-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9cacff, #c5cae9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .grade-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .grade-grid {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+                gap: 15px;
+            }
+
+            .grade-title {
+                font-size: 2rem;
+                margin-bottom: 35px;
+            }
+
+            .grade-card {
+                padding: 24px 16px;
+            }
+
+            .grade-number {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
 </head>
-<body class="fade-in">
+<body class="fade-in grade-select-body">
 
-<h1 class="select-title">Choose Your Grade</h1>
+<h1 class="grade-title">Choose Your Grade</h1>
 
-<div class="planet-container">
+<div class="grade-grid">
     {% for g in range(1, 13) %}
-    <div class="planet-wrapper" onclick="goToQuestion({{ g }})">
-        <div class="planet-label">Grade {{ g }}</div>
+    <div class="grade-card" onclick="goToQuestion({{ g }})">
+        <div class="grade-number">{{ g }}</div>
+        <div class="grade-label">Grade</div>
     </div>
     {% endfor %}
 </div>
