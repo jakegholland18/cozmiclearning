@@ -8661,7 +8661,7 @@ def teacher_release_grade(submission_id):
     db.session.commit()
 
     flash(f"Grade released to {submission.student_rel.student_name}!", "success")
-    return redirect(f"/teacher/assignments/{assignment.id}/grade_submissions")
+    return redirect(f"/teacher/assignments/{assignment.id}/submissions")
 
 
 @app.route("/teacher/assignments/<int:assignment_id>/release_all_grades", methods=["POST"])
@@ -8697,7 +8697,7 @@ def teacher_release_all_grades(assignment_id):
     db.session.commit()
 
     flash(f"Released {released_count} graded assignments to students!", "success")
-    return redirect(f"/teacher/assignments/{assignment_id}/grade_submissions")
+    return redirect(f"/teacher/assignments/{assignment_id}/submissions")
 
 
 @app.route("/teacher/submissions/<int:submission_id>/delete", methods=["POST"])
