@@ -7704,8 +7704,25 @@ def student_submit_assignment(assignment_id):
         if student == expected:
             return True
 
-        # Remove common symbols and whitespace for comparison
+        # Multiple choice letter matching
+        # Student might submit "b" while expected is "B. 4" or "b. 4"
+        if len(student) == 1 and student.isalpha():
+            # Check if expected starts with this letter
+            if expected.startswith(student + '.') or expected.startswith(student + ' '):
+                return True
+            # Also check if expected is just the letter
+            if expected == student:
+                return True
+
+        # Check if expected contains the student answer after a letter prefix
+        # e.g., student="4", expected="B. 4"
         import re
+        if re.match(r'^[a-z]\.?\s*', expected):
+            expected_without_letter = re.sub(r'^[a-z]\.?\s*', '', expected).strip()
+            if student == expected_without_letter:
+                return True
+
+        # Remove common symbols and whitespace for comparison
         student_clean = re.sub(r'[%$,\s]', '', student)
         expected_clean = re.sub(r'[%$,\s]', '', expected)
 
