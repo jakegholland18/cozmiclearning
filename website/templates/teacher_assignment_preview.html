@@ -660,25 +660,34 @@
             const container = document.getElementById('questions-container');
             const questionCount = container.querySelectorAll('.question-card').length;
 
+            // Ask user what type of question
+            const questionType = prompt('What type of question?\n\nEnter "MC" for Multiple Choice\nEnter "FR" for Free Response', 'MC');
+
+            if (!questionType) {
+                return; // User cancelled
+            }
+
+            const isFreeResponse = questionType.toUpperCase().startsWith('F');
+            const typeBadge = isFreeResponse ? 'free' : 'multiple_choice';
+
             const newCard = document.createElement('div');
             newCard.className = 'question-card';
             newCard.draggable = true;
             newCard.setAttribute('data-index', questionCount);
-            newCard.innerHTML = `
-                <div class="question-header">
-                    <div>
-                        <span class="question-number">📌 Question ${questionCount + 1}</span>
-                        <span class="type-badge">multiple_choice</span>
-                    </div>
-                    <div class="question-actions">
-                        <button class="icon-btn delete" onclick="deleteQuestion(${questionCount})">🗑️ Delete</button>
-                    </div>
-                </div>
 
-                <div class="question-content">
-                    <label class="form-label">Question Prompt</label>
-                    <textarea class="editable-field question-prompt" placeholder="Enter question..."></textarea>
-
+            // Build choices section based on type
+            let choicesSection = '';
+            if (isFreeResponse) {
+                choicesSection = `
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label" style="color: #c084fc;">📝 Free Response Question</label>
+                        <div class="short-answer-note" style="background: rgba(192, 132, 252, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(192, 132, 252, 0.3);">
+                            Students will type their answer in a text box. You will grade this manually.
+                        </div>
+                    </div>
+                `;
+            } else {
+                choicesSection = `
                     <div class="choices-list">
                         <label class="form-label">Answer Choices (select correct answer)</label>
                         <div class="choice-item">
@@ -701,6 +710,25 @@
                         </div>
                         <button class="add-choice-btn" onclick="addChoice(this)">+ Add Choice</button>
                     </div>
+                `;
+            }
+
+            newCard.innerHTML = `
+                <div class="question-header">
+                    <div>
+                        <span class="question-number">📌 Question ${questionCount + 1}</span>
+                        <span class="type-badge" style="${isFreeResponse ? 'background: rgba(192, 132, 252, 0.2); color: #c084fc; border-color: rgba(192, 132, 252, 0.4);' : ''}">${typeBadge}</span>
+                    </div>
+                    <div class="question-actions">
+                        <button class="icon-btn delete" onclick="deleteQuestion(${questionCount})">🗑️ Delete</button>
+                    </div>
+                </div>
+
+                <div class="question-content">
+                    <label class="form-label">Question Prompt</label>
+                    <textarea class="editable-field question-prompt" placeholder="Enter question..."></textarea>
+
+                    ${choicesSection}
 
                     <div class="explanation-field">
                         <label class="form-label">Explanation (Optional)</label>
@@ -712,7 +740,7 @@
             container.appendChild(newCard);
             updateDragHandlers();
             newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            showFlash('Question added', 'success');
+            showFlash(`${isFreeResponse ? 'Free Response' : 'Multiple Choice'} question added`, 'success');
         }
 
         function addChoice(btn) {
@@ -815,6 +843,10 @@
                     const expectedAnswer = card.querySelector('.expected-answer').value.trim();
                     questionData.choices = [];
                     questionData.expected = expectedAnswer || '';
+                } else if (typeBadge === 'free') {
+                    // Free response - no choices, no expected answer
+                    questionData.choices = [];
+                    questionData.expected = [];
                 }
 
                 questions.push(questionData);
