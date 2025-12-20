@@ -1,182 +1,633 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Gradebook – Cozmic Learning</title>
+    <link rel="stylesheet" href="/static/style.css?v=20251202">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f1a2b, #000814);
+            color: white;
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding-bottom: 70px;
+        }
 
-<style>
-    .gradebook-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
+        .stars {
+            position: fixed;
+            inset: 0;
+            background: url('/static/stars.png');
+            background-size: cover;
+            opacity: 0.35;
+            z-index: -1;
+        }
 
-    .stat-card {
-        background: rgba(255,255,255,0.06);
-        padding: 20px;
-        border-radius: 15px;
-        text-align: center;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 24px;
+        }
 
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #fdd65b;
-        margin: 10px 0;
-    }
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 2.2rem;
+            color: #bfe6ff;
+            text-shadow: 0 0 14px #5fd6ff;
+        }
 
-    .stat-label {
-        color: #b8c5ff;
-        font-size: 0.9rem;
-    }
+        .subtitle {
+            font-size: 1rem;
+            color: #d0e9ff;
+            margin-bottom: 24px;
+        }
 
-    .gradebook-table {
-        width: 100%;
-        background: rgba(255,255,255,0.06);
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
+        /* Missing Assignments Alert */
+        .alert-banner {
+            background: linear-gradient(135deg, rgba(255, 111, 97, 0.2), rgba(255, 68, 68, 0.15));
+            border: 2px solid rgba(255, 111, 97, 0.5);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
 
-    .gradebook-table table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 111, 97, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(255, 111, 97, 0.6); }
+        }
 
-    .gradebook-table th {
-        background: rgba(255,255,255,0.1);
-        padding: 15px;
-        text-align: left;
-        font-weight: bold;
-        color: #dce4ff;
-        border-bottom: 2px solid rgba(255,255,255,0.2);
-    }
+        .alert-banner h3 {
+            margin: 0 0 12px 0;
+            color: #ff6f61;
+            font-size: 1.3rem;
+        }
 
-    .gradebook-table td {
-        padding: 15px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        color: #b8c5ff;
-    }
+        .alert-banner ul {
+            margin: 0;
+            padding-left: 20px;
+        }
 
-    .gradebook-table tr:hover {
-        background: rgba(255,255,255,0.05);
-    }
+        .alert-banner li {
+            color: #ffa8a0;
+            margin: 6px 0;
+        }
 
-    .grade-excellent {
-        color: #32cd32;
-        font-weight: bold;
-    }
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-    .grade-good {
-        color: #fdd65b;
-        font-weight: bold;
-    }
+        .stat-card {
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(71, 200, 255, 0.1));
+            border: 1px solid rgba(118, 131, 255, 0.35);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
 
-    .grade-needs-improvement {
-        color: #ff6b6b;
-        font-weight: bold;
-    }
+        .stat-card .value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #5c6bff, #47c8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 10px 0;
+        }
 
-    .view-btn {
-        display: inline-block;
-        padding: 8px 16px;
-        background: #6374ff;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        transition: 0.2s;
-    }
+        .stat-card .label {
+            font-size: 0.95rem;
+            color: #d0e9ff;
+            font-weight: 600;
+        }
 
-    .view-btn:hover {
-        background: #7f8bff;
-    }
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
 
-    .feedback-text {
-        font-style: italic;
-        color: #dce4ff;
-        margin-top: 5px;
-        font-size: 0.9rem;
-    }
-</style>
+        .chart-card {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 0 16px rgba(0, 0, 0, 0.55);
+        }
 
-<div class="page-title">📊 My Gradebook</div>
+        .chart-card h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: #ffdf9b;
+        }
 
-<div class="content-box">
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
 
-    {% if total_assignments > 0 %}
-        <!-- Statistics Cards -->
-        <div class="gradebook-stats">
+        /* Class Performance Cards */
+        .class-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .class-performance-card {
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.15), rgba(255, 111, 216, 0.1));
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .class-performance-card h4 {
+            margin: 0 0 12px 0;
+            color: #c084fc;
+            font-size: 1.2rem;
+        }
+
+        .class-performance-card .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .class-performance-card .metric-label {
+            color: #e5ecff;
+        }
+
+        .class-performance-card .metric-value {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Assignments Section */
+        .assignments-section {
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 0 16px rgba(0, 0, 0, 0.55);
+        }
+
+        .assignments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .assignments-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #ffdf9b;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filters select {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(118, 131, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .filters select:focus {
+            outline: none;
+            border-color: #5c6bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 700;
+            color: #bfe6ff;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .grade-A { background: rgba(79, 255, 137, 0.25); color: #4fff89; }
+        .grade-B { background: rgba(180, 255, 79, 0.25); color: #b4ff4f; }
+        .grade-C { background: rgba(255, 223, 79, 0.25); color: #ffdf4f; }
+        .grade-D { background: rgba(255, 165, 79, 0.25); color: #ffa54f; }
+        .grade-F { background: rgba(255, 79, 79, 0.25); color: #ff4f4f; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-graded { background: rgba(79, 255, 137, 0.2); color: #4fff89; }
+        .status-pending { background: rgba(255, 184, 77, 0.2); color: #ffb84d; }
+        .status-in-progress { background: rgba(118, 131, 255, 0.2); color: #7683ff; }
+
+        .feedback-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #d0e9ff;
+            font-size: 0.85rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #d0e9ff;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <div class="container">
+        <h1>📊 My Gradebook</h1>
+        <p class="subtitle">Track your progress, grades, and performance across all your classes</p>
+
+        {% if missing_assignments and missing_assignments|length > 0 %}
+        <div class="alert-banner">
+            <h3>⚠️ Missing Assignments ({{ missing_assignments|length }})</h3>
+            <ul>
+                {% for assignment in missing_assignments[:5] %}
+                <li><strong>{{ assignment.title }}</strong> – {{ assignment.class_ref.class_name }}</li>
+                {% endfor %}
+                {% if missing_assignments|length > 5 %}
+                <li style="color: #ff6f61; font-weight: 600;">...and {{ missing_assignments|length - 5 }} more</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Graded</div>
-                <div class="stat-value">{{ total_assignments }}</div>
-                <div class="stat-label">Assignments</div>
+                <div class="label">Overall Average</div>
+                <div class="value">{{ "%.1f"|format(overall_average) }}%</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Overall Average</div>
-                <div class="stat-value {% if average_score >= 90 %}grade-excellent{% elif average_score >= 70 %}grade-good{% else %}grade-needs-improvement{% endif %}">
-                    {{ average_score|round(1) }}%
-                </div>
-                <div class="stat-label">Keep up the great work!</div>
+                <div class="label">Completion Rate</div>
+                <div class="value">{{ "%.0f"|format(completion_rate) }}%</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Assignments In Progress</div>
+                <div class="value">{{ in_progress_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Pending Grades</div>
+                <div class="value">{{ pending_grade_count }}</div>
             </div>
         </div>
 
-        <!-- Grades Table -->
-        <div class="gradebook-table">
-            <table>
+        <!-- Charts -->
+        {% if grade_trend and grade_trend|length > 0 %}
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>📈 Grade Trend (Last 10)</h3>
+                <div class="chart-container">
+                    <canvas id="gradeTrendChart"></canvas>
+                </div>
+            </div>
+
+            {% if subject_stats and subject_stats|length > 0 %}
+            <div class="chart-card">
+                <h3>📚 Subject Performance</h3>
+                <div class="chart-container">
+                    <canvas id="subjectPerformanceChart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Class Performance Cards -->
+        {% if class_stats and class_stats|length > 0 %}
+        <h3 style="color: #bfe6ff; margin-bottom: 16px;">Class Performance Breakdown</h3>
+        <div class="class-cards">
+            {% for class_id, stats in class_stats.items() %}
+            <div class="class-performance-card">
+                <h4>{{ stats.class.class_name }}</h4>
+                <div class="metric">
+                    <span class="metric-label">Average Score</span>
+                    <span class="metric-value">{{ "%.1f"|format(stats.average) }}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Graded Assignments</span>
+                    <span class="metric-value">{{ stats.total }}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Grade Level</span>
+                    <span class="metric-value">{{ stats.class.grade_level or "N/A" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- All Assignments Table -->
+        <div class="assignments-section">
+            <div class="assignments-header">
+                <h3>All Assignments</h3>
+                <div class="filters">
+                    <select id="classFilter">
+                        <option value="">All Classes</option>
+                        {% for class_obj in student.classes %}
+                        <option value="{{ class_obj.id }}">{{ class_obj.class_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="subjectFilter">
+                        <option value="">All Subjects</option>
+                        {% for subject in subject_stats.keys() %}
+                        <option value="{{ subject }}">{{ subject }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="graded">Graded</option>
+                        <option value="submitted">Pending Grade</option>
+                        <option value="in_progress">In Progress</option>
+                    </select>
+                    <select id="sortBy">
+                        <option value="date-desc">Newest First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="grade-desc">Highest Grade</option>
+                        <option value="grade-asc">Lowest Grade</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if all_submissions and all_submissions|length > 0 %}
+            <table id="assignmentsTable">
                 <thead>
                     <tr>
-                        <th>Assignment</th>
-                        <th>Subject</th>
-                        <th>Graded Date</th>
-                        <th>Score</th>
+                        <th data-sort="title">Assignment</th>
+                        <th data-sort="class">Class</th>
+                        <th data-sort="subject">Subject</th>
+                        <th data-sort="date">Date</th>
+                        <th data-sort="grade">Grade</th>
+                        <th data-sort="status">Status</th>
                         <th>Feedback</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for sub in submissions %}
-                    <tr>
-                        <td><strong>{{ sub.assignment.title }}</strong></td>
-                        <td>{{ sub.assignment.subject|title }}</td>
-                        <td>{{ sub.graded_at.strftime("%B %d, %Y") if sub.graded_at else 'N/A' }}</td>
+                    {% for submission in all_submissions %}
+                    <tr data-class="{{ submission.assignment.class_id }}"
+                        data-subject="{{ submission.assignment.subject or 'General' }}"
+                        data-status="{{ submission.status }}"
+                        data-date="{{ submission.created_at.timestamp() }}"
+                        data-grade="{{ submission.score or 0 }}">
+                        <td>{{ submission.assignment.title }}</td>
+                        <td>{{ submission.assignment.class_ref.class_name }}</td>
+                        <td>{{ submission.assignment.subject or "General" }}</td>
+                        <td>{{ submission.created_at.strftime("%b %d, %Y") }}</td>
                         <td>
-                            <span class="{% if sub.score >= 90 %}grade-excellent{% elif sub.score >= 70 %}grade-good{% else %}grade-needs-improvement{% endif %}">
-                                {{ sub.score|round(1) }}%
-                            </span>
-                            <br>
-                            <small style="color: #888;">{{ sub.points_earned|round(1) }}/{{ sub.points_possible|round(1) }} points</small>
-                        </td>
-                        <td>
-                            {% if sub.feedback %}
-                                <div class="feedback-text">{{ sub.feedback[:100] }}{% if sub.feedback|length > 100 %}...{% endif %}</div>
+                            {% if submission.status == 'graded' and submission.grade_released and submission.score is not none %}
+                                {% set letter_grade = 'A' if submission.score >= 90 else 'B' if submission.score >= 80 else 'C' if submission.score >= 70 else 'D' if submission.score >= 60 else 'F' %}
+                                <span class="grade-badge grade-{{ letter_grade }}">{{ "%.1f"|format(submission.score) }}%</span>
                             {% else %}
-                                <span style="color: #888;">No feedback</span>
+                                <span style="color: #888;">—</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a class="view-btn" href="/student/assignments/{{ sub.assignment_id }}/start">
-                                👁️ View
-                            </a>
+                            {% if submission.status == 'graded' and submission.grade_released %}
+                                <span class="status-badge status-graded">Graded</span>
+                            {% elif submission.status == 'submitted' %}
+                                <span class="status-badge status-pending">Pending Grade</span>
+                            {% else %}
+                                <span class="status-badge status-in-progress">In Progress</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if submission.feedback %}
+                                <div class="feedback-cell" title="{{ submission.feedback }}">{{ submission.feedback }}</div>
+                            {% else %}
+                                <span style="color: #888;">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <div class="no-data">
+                <p>No assignments or submissions yet.</p>
+                <p style="font-size: 0.9rem; color: #d0e9ff;">Start working on assignments to see your grades here!</p>
+            </div>
+            {% endif %}
         </div>
+    </div>
 
-    {% else %}
-        <div style="text-align: center; padding: 60px 20px;">
-            <p style="font-size: 1.2rem; color: #b8c5ff; margin-bottom: 10px;">
-                📚 No graded assignments yet
-            </p>
-            <p style="color: #888;">
-                Complete and submit assignments to see your grades here!
-            </p>
-            <a href="/student/assignments" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #6374ff; color: white; text-decoration: none; border-radius: 10px;">
-                View Assignments
-            </a>
-        </div>
-    {% endif %}
+    <script>
+        // Grade Trend Chart
+        {% if grade_trend and grade_trend|length > 0 %}
+        const gradeTrendCtx = document.getElementById('gradeTrendChart').getContext('2d');
+        new Chart(gradeTrendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ grade_trend | map(attribute='date') | list | tojson }},
+                datasets: [{
+                    label: 'Score %',
+                    data: {{ grade_trend | map(attribute='score') | list | tojson }},
+                    borderColor: '#5c6bff',
+                    backgroundColor: 'rgba(92, 107, 255, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#5c6bff',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#bfe6ff',
+                        bodyColor: '#fff',
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                return {{ grade_trend | map(attribute='title') | list | tojson }}[index];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#d0e9ff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#d0e9ff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+        {% endif %}
 
-</div>
+        // Subject Performance Chart
+        {% if subject_stats and subject_stats|length > 0 %}
+        const subjectPerfCtx = document.getElementById('subjectPerformanceChart').getContext('2d');
+        const subjectData = {{ subject_stats | tojson }};
+        const subjects = Object.keys(subjectData);
+        const averages = subjects.map(s => {
+            const scores = subjectData[s].scores;
+            return scores.reduce((a, b) => a + b, 0) / scores.length;
+        });
 
-{% endblock %}
+        new Chart(subjectPerfCtx, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: 'Average Score',
+                    data: averages,
+                    backgroundColor: [
+                        'rgba(92, 107, 255, 0.7)',
+                        'rgba(71, 200, 255, 0.7)',
+                        'rgba(192, 132, 252, 0.7)',
+                        'rgba(255, 111, 216, 0.7)',
+                        'rgba(79, 255, 137, 0.7)'
+                    ],
+                    borderColor: [
+                        '#5c6bff',
+                        '#47c8ff',
+                        '#c084fc',
+                        '#ff6fd8',
+                        '#4fff89'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#bfe6ff',
+                        bodyColor: '#fff'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { color: '#d0e9ff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#d0e9ff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+        {% endif %}
+
+        // Table Filtering and Sorting
+        const classFilter = document.getElementById('classFilter');
+        const subjectFilter = document.getElementById('subjectFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const table = document.getElementById('assignmentsTable');
+
+        function filterAndSortTable() {
+            if (!table) return;
+
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const classValue = classFilter.value;
+            const subjectValue = subjectFilter.value;
+            const statusValue = statusFilter.value;
+            const sortValue = sortBy.value;
+
+            // Filter
+            rows.forEach(row => {
+                let show = true;
+                if (classValue && row.dataset.class !== classValue) show = false;
+                if (subjectValue && row.dataset.subject !== subjectValue) show = false;
+                if (statusValue && row.dataset.status !== statusValue) show = false;
+                row.style.display = show ? '' : 'none';
+            });
+
+            // Sort visible rows
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            visibleRows.sort((a, b) => {
+                switch(sortValue) {
+                    case 'date-desc':
+                        return parseFloat(b.dataset.date) - parseFloat(a.dataset.date);
+                    case 'date-asc':
+                        return parseFloat(a.dataset.date) - parseFloat(b.dataset.date);
+                    case 'grade-desc':
+                        return parseFloat(b.dataset.grade) - parseFloat(a.dataset.grade);
+                    case 'grade-asc':
+                        return parseFloat(a.dataset.grade) - parseFloat(b.dataset.grade);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Re-append sorted rows
+            const tbody = table.querySelector('tbody');
+            visibleRows.forEach(row => tbody.appendChild(row));
+        }
+
+        if (classFilter) classFilter.addEventListener('change', filterAndSortTable);
+        if (subjectFilter) subjectFilter.addEventListener('change', filterAndSortTable);
+        if (statusFilter) statusFilter.addEventListener('change', filterAndSortTable);
+        if (sortBy) sortBy.addEventListener('change', filterAndSortTable);
+    </script>
+</body>
+</html>

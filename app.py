@@ -6708,7 +6708,7 @@ def student_assignments():
 
 @app.route("/student/gradebook")
 def student_gradebook():
-    """Student gradebook - view all graded and released assignments"""
+    """Student gradebook - comprehensive view of all grades and performance"""
     init_user()
 
     student_id = session.get("student_id")
@@ -6721,26 +6721,110 @@ def student_gradebook():
     # Set is_student flag for navigation
     session["is_student"] = True
 
-    # Get all submissions for this student with released grades
-    submissions = (
+    # Get all class IDs for this student
+    class_ids = [c.id for c in student.classes]
+    if student.class_id and student.class_id not in class_ids:
+        class_ids.append(student.class_id)
+
+    # Get ALL submissions (graded and pending) for context
+    all_submissions = (
         StudentSubmission.query
         .filter_by(student_id=student_id)
-        .filter(StudentSubmission.status == 'graded')
-        .filter(StudentSubmission.grade_released == True)
-        .order_by(StudentSubmission.graded_at.desc())
+        .join(AssignedPractice, StudentSubmission.assignment_id == AssignedPractice.id)
+        .filter(AssignedPractice.class_id.in_(class_ids) if class_ids else False)
+        .order_by(StudentSubmission.created_at.desc())
         .all()
-    )
+    ) if class_ids else []
+
+    # Filter only released graded submissions for grade calculations
+    graded_submissions = [
+        s for s in all_submissions
+        if s.status == 'graded' and s.grade_released and s.score is not None
+    ]
 
     # Calculate overall statistics
-    total_assignments = len(submissions)
-    total_score = sum(s.score for s in submissions if s.score is not None)
-    average_score = (total_score / total_assignments) if total_assignments > 0 else 0
+    total_graded = len(graded_submissions)
+    total_submitted = len([s for s in all_submissions if s.status in ['submitted', 'graded']])
+    total_in_progress = len([s for s in all_submissions if s.status == 'in_progress'])
+
+    overall_average = (
+        sum(s.score for s in graded_submissions) / total_graded
+    ) if total_graded > 0 else 0
+
+    # Calculate per-class statistics
+    class_stats = {}
+    for class_obj in student.classes:
+        class_submissions = [
+            s for s in graded_submissions
+            if s.assignment.class_id == class_obj.id
+        ]
+        if class_submissions:
+            class_average = sum(s.score for s in class_submissions) / len(class_submissions)
+            class_stats[class_obj.id] = {
+                'class': class_obj,
+                'average': class_average,
+                'total': len(class_submissions)
+            }
+
+    # Calculate per-subject statistics
+    subject_stats = {}
+    for submission in graded_submissions:
+        subject = submission.assignment.subject or 'General'
+        if subject not in subject_stats:
+            subject_stats[subject] = {'scores': [], 'count': 0}
+        subject_stats[subject]['scores'].append(submission.score)
+        subject_stats[subject]['count'] += 1
+
+    # Calculate subject averages
+    for subject in subject_stats:
+        scores = subject_stats[subject]['scores']
+        subject_stats[subject]['average'] = sum(scores) / len(scores) if scores else 0
+
+    # Get missing assignments (published but not submitted)
+    all_available_assignments = (
+        AssignedPractice.query
+        .filter(AssignedPractice.class_id.in_(class_ids) if class_ids else False)
+        .filter_by(is_published=True)
+        .all()
+    ) if class_ids else []
+
+    submitted_assignment_ids = {s.assignment_id for s in all_submissions}
+    missing_assignments = [
+        a for a in all_available_assignments
+        if a.id not in submitted_assignment_ids
+    ]
+
+    # Calculate completion rate
+    total_available = len(all_available_assignments)
+    completion_rate = (
+        (total_submitted / total_available * 100) if total_available > 0 else 0
+    )
+
+    # Prepare grade trend data (last 10 graded assignments)
+    recent_grades = graded_submissions[:10]
+    grade_trend = [
+        {
+            'title': s.assignment.title[:20] + '...' if len(s.assignment.title) > 20 else s.assignment.title,
+            'score': s.score,
+            'date': s.graded_at.strftime('%m/%d') if s.graded_at else 'N/A'
+        }
+        for s in reversed(recent_grades)  # Chronological order for chart
+    ]
 
     return render_template(
         "student_gradebook.html",
-        submissions=submissions,
-        total_assignments=total_assignments,
-        average_score=average_score
+        student=student,
+        all_submissions=all_submissions,
+        graded_submissions=graded_submissions,
+        missing_assignments=missing_assignments,
+        overall_average=overall_average,
+        total_graded=total_graded,
+        total_submitted=total_submitted,
+        total_in_progress=total_in_progress,
+        completion_rate=completion_rate,
+        class_stats=class_stats,
+        subject_stats=subject_stats,
+        grade_trend=grade_trend
     )
 
 
