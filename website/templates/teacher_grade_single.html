@@ -213,7 +213,7 @@
             </div>
         </div>
 
-        {% if question.expected and question.expected|length > 0 %}
+        {% if question.type == 'multiple_choice' and question.expected and question.expected|length > 0 %}
         <div class="correct-answer-box">
             <div class="label">Correct Answer:</div>
             <div class="answer">{{ question.expected[0] if question.expected is iterable and question.expected is not string else question.expected }}</div>
