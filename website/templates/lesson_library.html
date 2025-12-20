@@ -11,16 +11,28 @@
         position: relative;
     }
 
-    /* Animated gradient background orbs */
+    /* Animated gradient background orbs - vibrant cosmic colors */
     body::before {
         content: '';
         position: fixed;
         inset: 0;
         background:
-            radial-gradient(ellipse at 20% 30%, rgba(156, 172, 255, 0.15) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 70%, rgba(180, 190, 255, 0.12) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 50%, rgba(200, 210, 255, 0.08) 0%, transparent 60%);
+            radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 70%, rgba(65, 105, 225, 0.18) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(147, 51, 234, 0.15) 0%, transparent 60%);
         animation: orbFloat 20s ease-in-out infinite;
+        z-index: -2;
+    }
+
+    /* Additional floating orb for more color */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse at 40% 80%, rgba(32, 178, 170, 0.12) 0%, transparent 50%),
+            radial-gradient(ellipse at 60% 20%, rgba(123, 104, 238, 0.15) 0%, transparent 50%);
+        animation: orbFloat 25s ease-in-out infinite reverse;
         z-index: -2;
     }
 
@@ -69,17 +81,18 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Soft title with gentle gradient */
+    /* Vibrant title with purple-blue gradient */
     .library-title {
         font-size: 2.8rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #e8eaf6, #c5cae9, #b8c5e8);
+        background: linear-gradient(135deg, #9b87f5, #7dd3fc, #c084fc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 12px;
         letter-spacing: 0.5px;
         animation: gentleFadeIn 1s ease-out;
+        filter: drop-shadow(0 0 20px rgba(155, 135, 245, 0.3));
     }
 
     @keyframes gentleFadeIn {
@@ -126,10 +139,10 @@
         display: block;
     }
 
-    /* Soft lesson card */
+    /* Vibrant lesson card with colorful borders */
     .lesson-card {
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: linear-gradient(145deg, rgba(155, 135, 245, 0.12), rgba(123, 104, 238, 0.08));
+        border: 2px solid rgba(138, 43, 226, 0.3);
         border-radius: 20px;
         padding: 30px 25px;
         cursor: pointer;
@@ -140,20 +153,37 @@
         -webkit-tap-highlight-color: transparent;
         overflow: hidden;
         animation: cardFadeIn 0.6s ease-out backwards;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 20px rgba(138, 43, 226, 0.15);
     }
 
     .lesson-card::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(156, 172, 255, 0.1), transparent);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.15), rgba(65, 105, 225, 0.1));
         opacity: 0;
         transition: opacity 0.3s ease;
     }
 
     .lesson-card-link:hover .lesson-card::before {
         opacity: 1;
+    }
+
+    /* Sparkle effect on cards */
+    .lesson-card::after {
+        content: '✨';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 1.2rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+        animation: sparkle 3s ease-in-out infinite;
+    }
+
+    @keyframes sparkle {
+        0%, 100% { opacity: 0; transform: scale(0.8) rotate(0deg); }
+        50% { opacity: 0.6; transform: scale(1) rotate(20deg); }
     }
 
     @keyframes cardFadeIn {
@@ -175,10 +205,15 @@
     .lesson-card:nth-child(6) { animation-delay: 0.6s; }
 
     .lesson-card-link:hover .lesson-card {
-        transform: translateY(-8px);
-        border-color: rgba(156, 172, 255, 0.3);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 0 16px rgba(156, 172, 255, 0.15);
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(156, 172, 255, 0.08));
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(138, 43, 226, 0.6);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(138, 43, 226, 0.4);
+        background: linear-gradient(145deg, rgba(155, 135, 245, 0.18), rgba(123, 104, 238, 0.12));
+    }
+
+    .lesson-card-link:hover .lesson-card::after {
+        opacity: 1;
+        transform: scale(1.2) rotate(20deg);
     }
 
     .lesson-card-link:active .lesson-card {
@@ -192,30 +227,39 @@
         right: 18px;
         font-size: 0.85rem;
         font-weight: 700;
-        color: rgba(255, 255, 255, 0.8);
-        background: rgba(156, 172, 255, 0.2);
+        color: #ffffff;
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(65, 105, 225, 0.3));
         padding: 4px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(156, 172, 255, 0.4);
+        border: 1px solid rgba(138, 43, 226, 0.6);
         backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
     }
 
     .lesson-icon {
         font-size: 3rem;
         margin-bottom: 18px;
         display: inline-block;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 4px 8px rgba(138, 43, 226, 0.4));
         transition: all 0.3s ease;
+        animation: iconBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes iconBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
     }
 
     .lesson-card-link:hover .lesson-icon {
-        transform: translateY(-5px) scale(1.1);
+        transform: translateY(-5px) scale(1.15) rotate(5deg);
+        filter: drop-shadow(0 6px 12px rgba(138, 43, 226, 0.6));
+        animation: none;
     }
 
     .lesson-title {
         font-size: 1.4rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #b8c5e8, #9cacff);
+        background: linear-gradient(135deg, #9b87f5, #7dd3fc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -226,10 +270,11 @@
     }
 
     .lesson-card-link:hover .lesson-title {
-        background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+        background: linear-gradient(135deg, #c084fc, #60a5fa, #a78bfa);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        filter: drop-shadow(0 0 10px rgba(155, 135, 245, 0.5));
     }
 
     .lesson-description {
@@ -238,16 +283,18 @@
         line-height: 1.5;
     }
 
-    /* LESSON COMPLETION STATUS */
+    /* LESSON COMPLETION STATUS - vibrant mint green */
     .lesson-card.completed {
-        background: linear-gradient(145deg, rgba(136, 217, 184, 0.12), rgba(156, 172, 255, 0.08));
-        border-color: rgba(136, 217, 184, 0.4);
+        background: linear-gradient(145deg, rgba(16, 185, 129, 0.15), rgba(52, 211, 153, 0.1));
+        border-color: rgba(16, 185, 129, 0.5);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 20px rgba(16, 185, 129, 0.2);
     }
 
     .lesson-card.completed .lesson-number {
-        background: rgba(136, 217, 184, 0.25);
-        border-color: rgba(136, 217, 184, 0.5);
-        color: #88d9b8;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(52, 211, 153, 0.3));
+        border-color: rgba(16, 185, 129, 0.6);
+        color: #6ee7b7;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
     }
 
     .completion-checkmark {
@@ -255,38 +302,45 @@
         top: 15px;
         right: 15px;
         font-size: 2rem;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        filter: drop-shadow(0 2px 8px rgba(16, 185, 129, 0.6));
+        animation: checkmarkPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes checkmarkPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
     }
 
     .lesson-card.completed:hover {
-        border-color: rgba(136, 217, 184, 0.5);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), 0 0 16px rgba(136, 217, 184, 0.2);
+        border-color: rgba(16, 185, 129, 0.7);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 0 30px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(145deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.15));
     }
 
     .back-button {
         display: inline-block;
         margin: 30px auto 60px auto;
         padding: 14px 35px;
-        background: linear-gradient(135deg, rgba(156, 172, 255, 0.25), rgba(200, 210, 255, 0.15));
-        border: 1px solid rgba(156, 172, 255, 0.5);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(65, 105, 225, 0.2));
+        border: 2px solid rgba(138, 43, 226, 0.6);
         border-radius: 15px;
-        color: rgba(255, 255, 255, 0.9);
+        color: #ffffff;
         font-size: 1.15rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         text-decoration: none;
         backdrop-filter: blur(12px);
-        box-shadow: 0 4px 15px rgba(156, 172, 255, 0.2);
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
         display: block;
         width: fit-content;
     }
 
     .back-button:hover {
-        background: linear-gradient(135deg, rgba(156, 172, 255, 0.35), rgba(200, 210, 255, 0.25));
-        border-color: rgba(156, 172, 255, 0.7);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(156, 172, 255, 0.3);
+        background: linear-gradient(135deg, rgba(138, 43, 226, 0.45), rgba(65, 105, 225, 0.35));
+        border-color: rgba(138, 43, 226, 0.8);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 6px 25px rgba(138, 43, 226, 0.5);
     }
 
     .back-button:active {
