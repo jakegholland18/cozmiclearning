@@ -336,6 +336,8 @@ PHASE 1 REQUIREMENTS - ADAPTIVE MULTIPLE CHOICE:
 PHASE 2 REQUIREMENTS - FREE RESPONSE:
 - Generate EXACTLY {num_free} free response questions
 - These should NOT have a difficulty field (they're all shown together at the end)
+- CRITICAL: Free response questions MUST have "choices": [] (empty array, NOT multiple choice options!)
+- CRITICAL: Free response questions MUST have "expected": [] (empty array, manual grading required)
 - These test deeper understanding, explanation, and application
 - Students will see all free response questions at once after completing MC phase
 
@@ -780,17 +782,23 @@ IMPORTANT:
         if qtype not in ["multiple_choice", "free"]:
             qtype = "free"
 
-        # Choices for MC
-        choices = step.get("choices", []) if qtype == "multiple_choice" else []
-        if not isinstance(choices, list):
+        # Choices for MC - FORCE clear for free response
+        if qtype == "multiple_choice":
+            choices = step.get("choices", [])
+            if not isinstance(choices, list):
+                choices = []
+        else:
+            # FREE RESPONSE: Must have NO choices
             choices = []
 
-        # Expected answers
-        expected_raw = step.get("expected", [])
-        if not isinstance(expected_raw, list):
-            expected_raw = [expected_raw]
-
-        expected = [str(x).strip().lower() for x in expected_raw if x]
+        # Expected answers - clear for free response (manual grading)
+        if qtype == "free":
+            expected = []
+        else:
+            expected_raw = step.get("expected", [])
+            if not isinstance(expected_raw, list):
+                expected_raw = [expected_raw]
+            expected = [str(x).strip().lower() for x in expected_raw if x]
 
         # Fix multiple-choice answer letters
         if qtype == "multiple_choice":
