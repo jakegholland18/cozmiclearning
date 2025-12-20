@@ -729,6 +729,43 @@ class GameLeaderboard(db.Model):
     student = db.relationship("Student", backref="leaderboard_entries")
 
 
+class PracticeSession(db.Model):
+    """Student self-created practice sessions from Learning Planets"""
+    __tablename__ = "practice_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+
+    # Practice metadata
+    subject = db.Column(db.String(50))  # e.g., "math_haven", "atom_sphere"
+    topic = db.Column(db.String(200))  # What they practiced
+    grade_level = db.Column(db.String(10))
+    mode = db.Column(db.String(20))  # quick, full, timed, teach, related, interactive
+
+    # Performance metrics
+    total_questions = db.Column(db.Integer)
+    questions_answered = db.Column(db.Integer, default=0)
+    questions_correct = db.Column(db.Integer, default=0)
+    score_percent = db.Column(db.Float)  # Overall percentage
+
+    # Time tracking
+    time_spent_seconds = db.Column(db.Integer)  # Total time spent
+
+    # Completion status
+    completed = db.Column(db.Boolean, default=False)
+
+    # Practice data (JSON storage of questions and answers)
+    practice_data_json = db.Column(db.Text, nullable=True)  # Full practice session data
+    answers_json = db.Column(db.Text, nullable=True)  # Student answers
+
+    # Timestamps
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationships
+    student = db.relationship("Student", backref="practice_sessions")
+
+
 class HomeschoolLessonPlan(db.Model):
     """AI-generated and manual lesson plans for homeschool parents"""
     __tablename__ = "homeschool_lesson_plans"
@@ -1245,5 +1282,9 @@ db.Index('idx_audit_user', AuditLog.user_id, AuditLog.user_type)
 db.Index('idx_audit_action', AuditLog.action)
 db.Index('idx_audit_created', AuditLog.created_at)
 db.Index('idx_audit_resource', AuditLog.resource_type, AuditLog.resource_id)
+
+# PracticeSession Indices
+db.Index('idx_practice_session_student_id', PracticeSession.student_id)
+db.Index('idx_practice_session_started_at', PracticeSession.started_at)
 
 

@@ -404,6 +404,7 @@ from models import (
     StudentSubmission,
     QuestionLog,
     AuditLog,
+    PracticeSession,
 )
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
@@ -6811,6 +6812,41 @@ def student_gradebook():
         for s in reversed(recent_grades)  # Chronological order for chart
     ]
 
+    # ============================================================
+    # SELF-PRACTICE SESSIONS (Learning Planets)
+    # ============================================================
+
+    # Get all self-practice sessions
+    practice_sessions = (
+        PracticeSession.query
+        .filter_by(student_id=student_id, completed=True)
+        .order_by(PracticeSession.completed_at.desc())
+        .all()
+    )
+
+    # Calculate self-practice statistics
+    total_practice_sessions = len(practice_sessions)
+    practice_questions_total = sum(p.total_questions for p in practice_sessions)
+    practice_questions_correct = sum(p.questions_correct for p in practice_sessions)
+    practice_average = (
+        sum(p.score_percent for p in practice_sessions) / total_practice_sessions
+    ) if total_practice_sessions > 0 else 0
+
+    # Calculate per-subject practice stats
+    practice_subject_stats = {}
+    for practice in practice_sessions:
+        subject = practice.subject or 'General'
+        if subject not in practice_subject_stats:
+            practice_subject_stats[subject] = {'scores': [], 'count': 0, 'total_questions': 0}
+        practice_subject_stats[subject]['scores'].append(practice.score_percent)
+        practice_subject_stats[subject]['count'] += 1
+        practice_subject_stats[subject]['total_questions'] += practice.total_questions
+
+    # Calculate practice subject averages
+    for subject in practice_subject_stats:
+        scores = practice_subject_stats[subject]['scores']
+        practice_subject_stats[subject]['average'] = sum(scores) / len(scores) if scores else 0
+
     return render_template(
         "student_gradebook.html",
         student=student,
@@ -6821,10 +6857,19 @@ def student_gradebook():
         total_graded=total_graded,
         total_submitted=total_submitted,
         total_in_progress=total_in_progress,
+        in_progress_count=total_in_progress,
+        pending_grade_count=len([s for s in all_submissions if s.status == 'submitted']),
         completion_rate=completion_rate,
         class_stats=class_stats,
         subject_stats=subject_stats,
-        grade_trend=grade_trend
+        grade_trend=grade_trend,
+        # Self-practice data
+        practice_sessions=practice_sessions,
+        total_practice_sessions=total_practice_sessions,
+        practice_average=practice_average,
+        practice_questions_total=practice_questions_total,
+        practice_questions_correct=practice_questions_correct,
+        practice_subject_stats=practice_subject_stats
     )
 
 
@@ -13274,6 +13319,75 @@ def practice_step():
             "character": character,
         }
     )
+
+
+@app.route("/save_practice_session", methods=["POST"])
+@csrf.exempt
+def save_practice_session():
+    """Save completed self-practice session to database for gradebook tracking"""
+    init_user()
+
+    student_id = session.get("student_id")
+    if not student_id:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    try:
+        data = request.get_json() or {}
+
+        # Get practice data from session
+        practice_data = session.get("practice", {})
+        practice_progress = session.get("practice_progress", [])
+
+        if not practice_data or not practice_progress:
+            return jsonify({"success": False, "error": "No practice data found"}), 400
+
+        # Calculate statistics
+        steps = practice_data.get("steps", [])
+        total_questions = len(steps)
+        questions_answered = len([p for p in practice_progress if p.get("status") in ["correct", "given_up"]])
+        questions_correct = len([p for p in practice_progress if p.get("status") == "correct"])
+        score_percent = (questions_correct / total_questions * 100) if total_questions > 0 else 0
+
+        # Get session metadata
+        subject = session.get("subject", "general")
+        grade = session.get("grade", "8")
+        mode = session.get("practice_mode", "interactive")
+        topic = data.get("topic") or practice_data.get("topic", "Practice")
+        time_spent = data.get("time_spent_seconds", 0)
+
+        # Create practice session record
+        practice_session = PracticeSession(
+            student_id=student_id,
+            subject=subject,
+            topic=topic,
+            grade_level=grade,
+            mode=mode,
+            total_questions=total_questions,
+            questions_answered=questions_answered,
+            questions_correct=questions_correct,
+            score_percent=score_percent,
+            time_spent_seconds=time_spent,
+            completed=True,
+            practice_data_json=json.dumps(practice_data),
+            answers_json=json.dumps(practice_progress),
+            completed_at=datetime.utcnow()
+        )
+
+        db.session.add(practice_session)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "session_id": practice_session.id,
+            "score_percent": score_percent,
+            "questions_correct": questions_correct,
+            "total_questions": total_questions
+        })
+
+    except Exception as e:
+        app.logger.error(f"Error saving practice session: {str(e)}")
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/practice_help_message", methods=["POST"])

@@ -370,10 +370,15 @@
         </div>
         {% endif %}
 
+        <!-- Section Header: Teacher-Assigned Work -->
+        <h2 style="color: #bfe6ff; margin: 40px 0 16px 0; font-size: 1.8rem; border-bottom: 2px solid rgba(191, 230, 255, 0.3); padding-bottom: 10px;">
+            👨‍🏫 Teacher-Assigned Work
+        </h2>
+
         <!-- All Assignments Table -->
         <div class="assignments-section">
             <div class="assignments-header">
-                <h3>All Assignments</h3>
+                <h3>Class Assignments</h3>
                 <div class="filters">
                     <select id="classFilter">
                         <option value="">All Classes</option>
@@ -461,6 +466,103 @@
             </div>
             {% endif %}
         </div>
+
+        <!-- Section Header: Self-Practice -->
+        <h2 style="color: #ffdf9b; margin: 50px 0 16px 0; font-size: 1.8rem; border-bottom: 2px solid rgba(255, 223, 155, 0.3); padding-bottom: 10px;">
+            🌟 My Self-Practice (Learning Planets)
+        </h2>
+
+        {% if practice_sessions and practice_sessions|length > 0 %}
+        <!-- Self-Practice Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 223, 155, 0.15), rgba(255, 184, 77, 0.1)); border-color: rgba(255, 223, 155, 0.35);">
+                <div class="label">Practice Average</div>
+                <div class="value" style="background: linear-gradient(135deg, #ffdf9b, #ffb84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ "%.1f"|format(practice_average) }}%</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 223, 155, 0.15), rgba(255, 184, 77, 0.1)); border-color: rgba(255, 223, 155, 0.35);">
+                <div class="label">Total Practice Sessions</div>
+                <div class="value" style="background: linear-gradient(135deg, #ffdf9b, #ffb84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ total_practice_sessions }}</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 223, 155, 0.15), rgba(255, 184, 77, 0.1)); border-color: rgba(255, 223, 155, 0.35);">
+                <div class="label">Questions Answered</div>
+                <div class="value" style="background: linear-gradient(135deg, #ffdf9b, #ffb84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ practice_questions_total }}</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, rgba(255, 223, 155, 0.15), rgba(255, 184, 77, 0.1)); border-color: rgba(255, 223, 155, 0.35);">
+                <div class="label">Questions Correct</div>
+                <div class="value" style="background: linear-gradient(135deg, #ffdf9b, #ffb84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ practice_questions_correct }}</div>
+            </div>
+        </div>
+
+        <!-- Self-Practice Subject Breakdown -->
+        {% if practice_subject_stats and practice_subject_stats|length > 0 %}
+        <h3 style="color: #ffdf9b; margin: 30px 0 16px 0;">Subject Breakdown</h3>
+        <div class="class-cards">
+            {% for subject, stats in practice_subject_stats.items() %}
+            <div class="class-performance-card" style="background: linear-gradient(135deg, rgba(255, 223, 155, 0.15), rgba(255, 184, 77, 0.1)); border-color: rgba(255, 223, 155, 0.35);">
+                <h4 style="color: #ffdf9b;">{{ subject|title }}</h4>
+                <div class="metric">
+                    <span class="metric-label">Average Score</span>
+                    <span class="metric-value">{{ "%.1f"|format(stats.average) }}%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Practice Sessions</span>
+                    <span class="metric-value">{{ stats.count }}</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Questions</span>
+                    <span class="metric-value">{{ stats.total_questions }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Self-Practice Sessions Table -->
+        <div class="assignments-section" style="margin-top: 30px;">
+            <div class="assignments-header">
+                <h3 style="color: #ffdf9b;">Practice History</h3>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Topic</th>
+                        <th>Mode</th>
+                        <th>Questions</th>
+                        <th>Score</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for practice in practice_sessions %}
+                    <tr>
+                        <td>{{ practice.completed_at.strftime("%b %d, %Y") if practice.completed_at else "N/A" }}</td>
+                        <td>{{ practice.subject|title if practice.subject else "General" }}</td>
+                        <td>{{ practice.topic }}</td>
+                        <td><span class="chip" style="background: rgba(255, 223, 155, 0.2); color: #ffdf9b;">{{ practice.mode }}</span></td>
+                        <td>{{ practice.questions_correct }}/{{ practice.total_questions }}</td>
+                        <td>
+                            {% set letter_grade = 'A' if practice.score_percent >= 90 else 'B' if practice.score_percent >= 80 else 'C' if practice.score_percent >= 70 else 'D' if practice.score_percent >= 60 else 'F' %}
+                            <span class="grade-badge grade-{{ letter_grade }}">{{ "%.1f"|format(practice.score_percent) }}%</span>
+                        </td>
+                        <td>{{ (practice.time_spent_seconds // 60)|int }}m {{ practice.time_spent_seconds % 60 }}s</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data" style="background: rgba(255, 223, 155, 0.1); border: 1px solid rgba(255, 223, 155, 0.3); border-radius: 16px;">
+            <p style="color: #ffdf9b;">No self-practice sessions yet.</p>
+            <p style="font-size: 0.9rem; color: #d0e9ff;">Visit the Learning Planets to start practicing on your own!</p>
+            <a href="/subjects" style="display: inline-block; margin-top: 15px; padding: 12px 24px; background: linear-gradient(135deg, #ffdf9b, #ffb84d); color: #000; text-decoration: none; border-radius: 10px; font-weight: 600;">
+                🌍 Explore Learning Planets
+            </a>
+        </div>
+        {% endif %}
+
     </div>
 
     <script>

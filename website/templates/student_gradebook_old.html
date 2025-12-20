@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .gradebook-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: rgba(255,255,255,0.06);
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #fdd65b;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        color: #b8c5ff;
+        font-size: 0.9rem;
+    }
+
+    .gradebook-table {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border-radius: 15px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .gradebook-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .gradebook-table th {
+        background: rgba(255,255,255,0.1);
+        padding: 15px;
+        text-align: left;
+        font-weight: bold;
+        color: #dce4ff;
+        border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .gradebook-table td {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        color: #b8c5ff;
+    }
+
+    .gradebook-table tr:hover {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .grade-excellent {
+        color: #32cd32;
+        font-weight: bold;
+    }
+
+    .grade-good {
+        color: #fdd65b;
+        font-weight: bold;
+    }
+
+    .grade-needs-improvement {
+        color: #ff6b6b;
+        font-weight: bold;
+    }
+
+    .view-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background: #6374ff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .view-btn:hover {
+        background: #7f8bff;
+    }
+
+    .feedback-text {
+        font-style: italic;
+        color: #dce4ff;
+        margin-top: 5px;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="page-title">📊 My Gradebook</div>
+
+<div class="content-box">
+
+    {% if total_assignments > 0 %}
+        <!-- Statistics Cards -->
+        <div class="gradebook-stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Graded</div>
+                <div class="stat-value">{{ total_assignments }}</div>
+                <div class="stat-label">Assignments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Overall Average</div>
+                <div class="stat-value {% if average_score >= 90 %}grade-excellent{% elif average_score >= 70 %}grade-good{% else %}grade-needs-improvement{% endif %}">
+                    {{ average_score|round(1) }}%
+                </div>
+                <div class="stat-label">Keep up the great work!</div>
+            </div>
+        </div>
+
+        <!-- Grades Table -->
+        <div class="gradebook-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Assignment</th>
+                        <th>Subject</th>
+                        <th>Graded Date</th>
+                        <th>Score</th>
+                        <th>Feedback</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in submissions %}
+                    <tr>
+                        <td><strong>{{ sub.assignment.title }}</strong></td>
+                        <td>{{ sub.assignment.subject|title }}</td>
+                        <td>{{ sub.graded_at.strftime("%B %d, %Y") if sub.graded_at else 'N/A' }}</td>
+                        <td>
+                            <span class="{% if sub.score >= 90 %}grade-excellent{% elif sub.score >= 70 %}grade-good{% else %}grade-needs-improvement{% endif %}">
+                                {{ sub.score|round(1) }}%
+                            </span>
+                            <br>
+                            <small style="color: #888;">{{ sub.points_earned|round(1) }}/{{ sub.points_possible|round(1) }} points</small>
+                        </td>
+                        <td>
+                            {% if sub.feedback %}
+                                <div class="feedback-text">{{ sub.feedback[:100] }}{% if sub.feedback|length > 100 %}...{% endif %}</div>
+                            {% else %}
+                                <span style="color: #888;">No feedback</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="view-btn" href="/student/assignments/{{ sub.assignment_id }}/start">
+                                👁️ View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px;">
+            <p style="font-size: 1.2rem; color: #b8c5ff; margin-bottom: 10px;">
+                📚 No graded assignments yet
+            </p>
+            <p style="color: #888;">
+                Complete and submit assignments to see your grades here!
+            </p>
+            <a href="/student/assignments" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background: #6374ff; color: white; text-decoration: none; border-radius: 10px;">
+                View Assignments
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
