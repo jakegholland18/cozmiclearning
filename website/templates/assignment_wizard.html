@@ -613,7 +613,7 @@
                 <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
                     ← Back
                 </button>
-                <button type="button" class="btn btn-primary" id="createBtn" onclick="event.preventDefault(); createAssignment();">
+                <button type="button" class="btn btn-primary" id="createBtn">
                     🚀 Create Assignment
                 </button>
             </div>
@@ -872,6 +872,21 @@
             document.getElementById('step3').style.display = 'block';
         }
     }
+
+    // Attach event listener to create button
+    document.addEventListener('DOMContentLoaded', function() {
+        const createBtn = document.getElementById('createBtn');
+        if (createBtn) {
+            createBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🎯 Button click event fired');
+                createAssignment();
+            });
+            console.log('✅ Event listener attached to create button');
+        } else {
+            console.error('❌ Create button not found!');
+        }
+    });
 </script>
 
 </body>
