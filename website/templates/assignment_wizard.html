@@ -806,13 +806,18 @@
     }
 
     async function createAssignment() {
+        console.log('🚀 Create Assignment button clicked');
+
         // Validate form
         const form = document.getElementById('wizardForm');
         if (!form.checkValidity()) {
+            console.log('❌ Form validation failed');
             form.reportValidity();
             prevStep(2);
             return;
         }
+
+        console.log('✅ Form is valid, proceeding...');
 
         // Hide review, show loading
         document.getElementById('step3').style.display = 'none';
@@ -833,7 +838,10 @@
             instructions: formData.get('instructions') || null
         };
 
+        console.log('📦 Sending data:', data);
+
         try {
+            console.log('📡 Making fetch request to /teacher/assignments/wizard/create');
             const response = await fetch('/teacher/assignments/wizard/create', {
                 method: 'POST',
                 headers: {
@@ -842,9 +850,12 @@
                 body: JSON.stringify(data)
             });
 
+            console.log('📥 Response status:', response.status);
             const result = await response.json();
+            console.log('📥 Response data:', result);
 
             if (result.success) {
+                console.log('✅ Assignment created successfully!');
                 // Show success state
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('successState').style.display = 'block';
@@ -853,7 +864,7 @@
                 throw new Error(result.error || 'Failed to create assignment');
             }
         } catch (error) {
-            console.error('Error creating assignment:', error);
+            console.error('❌ Error creating assignment:', error);
             alert('Error creating assignment: ' + error.message);
 
             // Go back to review
