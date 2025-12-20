@@ -477,14 +477,23 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="subject">Subject *</label>
+                        <label for="subject">Learning Planet *</label>
                         <select id="subject" name="subject" required>
-                            <option value="">Select a subject</option>
-                            <option value="math">Math</option>
-                            <option value="reading">Reading</option>
-                            <option value="writing">Writing</option>
-                            <option value="science">Science</option>
-                            <option value="social_studies">Social Studies</option>
+                            <option value="">Select a learning planet</option>
+                            <option value="math">📐 NumForge (Math)</option>
+                            <option value="reading">📖 StoryVerse (Reading)</option>
+                            <option value="writing">✍️ InkHaven (Writing)</option>
+                            <option value="science">🔬 AtomSphere (Science)</option>
+                            <option value="history">⏰ ChronoCore (History)</option>
+                            <option value="geography">🗺️ MapVerse (Geography)</option>
+                            <option value="social_studies">🌍 Social Studies</option>
+                            <option value="bible">✝️ FaithRealm (Bible)</option>
+                            <option value="apologetics">🛡️ TruthForge (Apologetics)</option>
+                            <option value="character">💎 RespectRealm (Character)</option>
+                            <option value="finance">💰 CoinQuest (Finance)</option>
+                            <option value="investing">📈 StockStar (Investing)</option>
+                            <option value="study_skills">⚡ PowerGrid (Study Skills)</option>
+                            <option value="terra_nova">🌌 TerraNova (General)</option>
                         </select>
                     </div>
 
@@ -770,11 +779,20 @@
         };
 
         const subjectMap = {
-            math: 'Math',
-            reading: 'Reading',
-            writing: 'Writing',
-            science: 'Science',
-            social_studies: 'Social Studies'
+            math: '📐 NumForge (Math)',
+            reading: '📖 StoryVerse (Reading)',
+            writing: '✍️ InkHaven (Writing)',
+            science: '🔬 AtomSphere (Science)',
+            history: '⏰ ChronoCore (History)',
+            geography: '🗺️ MapVerse (Geography)',
+            social_studies: '🌍 Social Studies',
+            bible: '✝️ FaithRealm (Bible)',
+            apologetics: '🛡️ TruthForge (Apologetics)',
+            character: '💎 RespectRealm (Character)',
+            finance: '💰 CoinQuest (Finance)',
+            investing: '📈 StockStar (Investing)',
+            study_skills: '⚡ PowerGrid (Study Skills)',
+            terra_nova: '🌌 TerraNova (General)'
         };
 
         document.getElementById('reviewType').textContent = typeMap[selectedType] || selectedType;
