@@ -357,6 +357,7 @@
         let score = 0;
         let answers = [];
         let answered = false;
+        const startTime = Date.now(); // Track practice duration
 
         const returnUrl = "{{ return_url }}";
         const mode = "{{ mode }}";
@@ -541,12 +542,35 @@
             showQuestion();
         }
 
-        function showCompletion() {
+        async function showCompletion() {
             const percentage = Math.round((score / questions.length) * 100);
 
             document.getElementById('practice-content').classList.add('hidden');
             document.getElementById('completion-screen').classList.remove('hidden');
             document.getElementById('final-score').textContent = `${score}/${questions.length} (${percentage}%)`;
+
+            // Save practice session to database for gradebook tracking
+            const endTime = Date.now();
+            const timeSpent = Math.round((endTime - startTime) / 1000); // seconds
+
+            try {
+                const response = await fetch('/save_practice_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        time_spent_seconds: timeSpent
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    console.log('✅ Practice session saved to gradebook!', data);
+                } else {
+                    console.warn('⚠️ Failed to save practice session:', data.error);
+                }
+            } catch (error) {
+                console.error('❌ Error saving practice session:', error);
+            }
         }
     </script>
 </body>
