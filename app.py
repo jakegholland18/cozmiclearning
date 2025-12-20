@@ -5662,7 +5662,7 @@ def teacher_api_live_progress():
             "student_id": student.id,
             "name": f"{student.first_name} {student.last_name}",
             "class_id": class_obj.id,
-            "class_name": class_obj.name,
+            "class_name": class_obj.class_name,
             "grade_level": class_obj.grade_level,
             "assignment_id": assignment.id,
             "assignment_title": assignment.title,

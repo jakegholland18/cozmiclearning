@@ -408,7 +408,7 @@
             <select id="classFilter" onchange="filterStudents()">
                 <option value="all">All Classes</option>
                 {% for class_obj in classes %}
-                <option value="{{ class_obj.id }}">{{ class_obj.name }}</option>
+                <option value="{{ class_obj.id }}">{{ class_obj.class_name }}</option>
                 {% endfor %}
             </select>
         </div>
