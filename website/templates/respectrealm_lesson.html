@@ -391,15 +391,15 @@ async function sendMessage() {
         const data = await response.json();
 
         if (data.success) {
-            // Add assistant response to chat
-            addMessageToChat('assistant', data.response);
+            // Add assistant response to chat with streaming
+            await addMessageToChat('assistant', data.response);
             conversationHistory.push({ role: 'assistant', content: data.response });
         } else {
-            addMessageToChat('assistant', 'Sorry, I had trouble understanding that. Could you ask your question again?');
+            await addMessageToChat('assistant', 'Sorry, I had trouble understanding that. Could you ask your question again?');
         }
     } catch (error) {
         console.error('Error:', error);
-        addMessageToChat('assistant', 'Oops! Something went wrong. Please try again.');
+        await addMessageToChat('assistant', 'Oops! Something went wrong. Please try again.');
     } finally {
         // Re-enable input
         input.disabled = false;
@@ -409,7 +409,7 @@ async function sendMessage() {
     }
 }
 
-function addMessageToChat(role, text) {
+async function addMessageToChat(role, text) {
     const chatMessages = document.getElementById('chatMessages');
 
     const messageDiv = document.createElement('div');
@@ -426,11 +426,17 @@ function addMessageToChat(role, text) {
 
     const textDiv = document.createElement('div');
     textDiv.className = 'message-text';
-    textDiv.textContent = text;
 
     messageDiv.appendChild(headerDiv);
     messageDiv.appendChild(textDiv);
     chatMessages.appendChild(messageDiv);
+
+    // Use streaming effect for AI messages
+    if (role === 'assistant') {
+        await streamText(textDiv, text, 15);
+    } else {
+        textDiv.textContent = text;
+    }
 
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;

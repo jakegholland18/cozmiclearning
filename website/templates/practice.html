@@ -1123,8 +1123,9 @@ async function sendHelpMessage() {
 
     const tutorDiv = document.createElement("div");
     tutorDiv.classList.add("help-msg", "help-msg-tutor");
-    tutorDiv.textContent = reply;
     log.appendChild(tutorDiv);
+
+    await streamText(tutorDiv, reply, 15);
     log.scrollTop = log.scrollHeight;
 }
 

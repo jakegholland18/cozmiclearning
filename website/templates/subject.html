@@ -418,8 +418,12 @@ async function sendFollowup() {
     const data = await response.json();
     const reply = data.reply || "I'm not sure — try rephrasing it!";
 
-    // Add AI response
-    log.innerHTML += `<div class="chat-msg msg-ai">${reply}</div>`;
+    // Add AI response with streaming effect
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-msg msg-ai';
+    log.appendChild(aiMsg);
+
+    await streamText(aiMsg, reply, 15);
     log.scrollTop = log.scrollHeight;
 }
 </script>

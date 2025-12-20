@@ -483,13 +483,13 @@ async function sendMessage() {
         const data = await response.json();
 
         if (data.success) {
-            addMessage('ai', data.answer);
+            await addMessage('ai', data.answer);
         } else {
-            addMessage('ai', 'Sorry, I had trouble understanding. Can you try asking again?');
+            await addMessage('ai', 'Sorry, I had trouble understanding. Can you try asking again?');
         }
     } catch (error) {
         console.error('Error:', error);
-        addMessage('ai', 'Oops! Something went wrong. Please try again.');
+        await addMessage('ai', 'Oops! Something went wrong. Please try again.');
     } finally {
         // Re-enable input
         chatInput.disabled = false;
@@ -498,11 +498,17 @@ async function sendMessage() {
     }
 }
 
-function addMessage(type, text) {
+async function addMessage(type, text) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${type}-message`;
-    messageDiv.textContent = text;
     chatMessages.appendChild(messageDiv);
+
+    // Use streaming effect for AI messages
+    if (type === 'ai') {
+        await streamText(messageDiv, text, 15);
+    } else {
+        messageDiv.textContent = text;
+    }
 
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;

@@ -210,6 +210,12 @@ async function sendMsg() {
     log.innerHTML += `<div class="msg msg-user">${text}</div>`;
     log.scrollTop = log.scrollHeight;
 
+    // Add typing indicator
+    const typingDiv = createTypingIndicator();
+    typingDiv.className += ' msg msg-ai';
+    log.appendChild(typingDiv);
+    log.scrollTop = log.scrollHeight;
+
     // Send to backend
     const response = await fetch("/deep_study_message", {
         method: "POST",
@@ -220,8 +226,15 @@ async function sendMsg() {
     const data = await response.json();
     let reply = data.reply || "I couldn't generate a response.";
 
-    // Add AI reply
-    log.innerHTML += `<div class="msg msg-ai">${reply}</div>`;
+    // Remove typing indicator
+    typingDiv.remove();
+
+    // Add AI reply with streaming effect
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'msg msg-ai';
+    log.appendChild(aiMsg);
+
+    await streamText(aiMsg, reply, 15);
     log.scrollTop = log.scrollHeight;
 }
 </script>

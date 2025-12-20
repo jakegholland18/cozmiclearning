@@ -225,6 +225,12 @@ async function sendMessage() {
     addMessage(text, "user");
     input.value = "";
 
+    // Add typing indicator
+    const typingDiv = createTypingIndicator();
+    typingDiv.className = 'ai-msg';
+    chatBox.appendChild(typingDiv);
+    scrollToBottom();
+
     try {
         const res = await fetch("/deep_study_message", {
             method: "POST",
@@ -233,9 +239,27 @@ async function sendMessage() {
         });
 
         const data = await res.json();
-        addMessage(data.reply, "ai");
+
+        // Remove typing indicator
+        typingDiv.remove();
+
+        // Add AI message with streaming effect
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'ai-msg';
+        chatBox.appendChild(aiMsg);
+
+        await streamText(aiMsg, data.reply, 15);
+        scrollToBottom();
     } catch (err) {
-        addMessage("Hmm, something went wrong talking to the server. Try again in a moment.", "ai");
+        // Remove typing indicator on error
+        typingDiv.remove();
+
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'ai-msg';
+        chatBox.appendChild(errorMsg);
+
+        await streamText(errorMsg, "Hmm, something went wrong talking to the server. Try again in a moment.", 15);
+        scrollToBottom();
         console.error(err);
     }
 }
