@@ -50,6 +50,8 @@ SECTION 3 — CHRISTIAN VIEW
 Explain softly why Christians believe this matters.
 Describe how Christians understand the topic through Scripture,
 hope, and meaning, but keep it simple and peaceful.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding or comparison, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what Christians and non-Christians may both agree on
@@ -110,6 +112,8 @@ Explain simple background ideas.
 
 SECTION 3 — CHRISTIAN VIEW
 Explain gently what many Christians believe.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Describe what most people can agree on.

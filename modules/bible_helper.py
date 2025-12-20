@@ -49,6 +49,8 @@ SECTION 3 — CHRISTIAN VIEW
 Describe softly why Christians believe this matters,
 what they think it teaches, and how it connects to daily life.
 Use Scripture only if it naturally fits.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what Christians and non-Christians may both notice or agree on
@@ -102,6 +104,8 @@ Describe a few key ideas Christians learn from this verse using a small paragrap
 
 SECTION 3 — CHRISTIAN VIEW
 Explain softly how Christians understand this verse and how it encourages them.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what anyone might notice or agree on about this verse.
@@ -151,6 +155,8 @@ Explain basic truths Christians learn from this story in one short paragraph.
 SECTION 3 — CHRISTIAN VIEW
 Explain gently why Christians believe this story matters
 and what God may be teaching through it.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what anyone might notice or agree on about the story.
@@ -200,6 +206,8 @@ Describe a few basic ideas Christians think about this topic in a small paragrap
 
 SECTION 3 — CHRISTIAN VIEW
 Explain softly what Christians believe and why it matters.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what Christians and non-Christians may both agree on.

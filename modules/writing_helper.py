@@ -40,6 +40,8 @@ SECTION 3 — CHRISTIAN VIEW
 Explain softly how Christians may think about communication:
 truthfulness, encouragement, kindness, clarity, and using words wisely.
 If the topic is not naturally Christian, simply mention this gently.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what nearly everyone agrees on about good writing.
@@ -74,6 +76,8 @@ Teach the important writing skills for this topic.
 SECTION 3 — CHRISTIAN VIEW
 Explain how Christians think about speech: truth, grace, encouragement,
 purpose, and kindness in communication.
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 SECTION 4 — AGREEMENT
 Explain what all worldviews agree on about good writing.
@@ -129,10 +133,13 @@ Topic: "{topic}"
 Use SIX labeled sections:
 SECTION 1 — OVERVIEW
 SECTION 2 — KEY FACTS
-SECTION 3 — CHRISTIAN VIEW
+SECTION 3 — CHRISTIAN VIEW (cite ONLY the Bible as authority)
 SECTION 4 — AGREEMENT
 SECTION 5 — DIFFERENCE
 SECTION 6 — PRACTICE
+
+CRITICAL: The Bible is the sole authority - cite ONLY Scripture for backing.
+Other religions may be discussed for understanding, NEVER as evidence.
 
 Tone must be slow, warm, kid-friendly, and clear.
 """
