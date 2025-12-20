@@ -84,9 +84,17 @@
             justify-content: space-between;
             font-size: 0.95rem;
             margin-top: 4px;
+            gap: 12px;
         }
-        .metric-label { color: #e5ecff; }
-        .metric-value { font-weight: 600; }
+        .metric-label {
+            color: #e5ecff;
+            flex-shrink: 0;
+        }
+        .metric-value {
+            font-weight: 600;
+            word-break: break-all;
+            text-align: right;
+        }
 
         table {
             width: 100%;
