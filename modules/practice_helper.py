@@ -324,10 +324,14 @@ This assignment uses a TWO-PHASE approach:
 PHASE 1 REQUIREMENTS - ADAPTIVE MULTIPLE CHOICE:
 - Generate EXACTLY {num_mc} multiple choice questions
 - EACH question MUST include a "difficulty" field with value "easy", "medium", or "hard"
-- Start with 2-3 "easy" questions, then 3-4 "medium", then 1-2 "hard"
+- CRITICAL DIFFICULTY DISTRIBUTION (MUST FOLLOW EXACTLY):
+  * Questions 1-3: difficulty="easy" (basic recall, simple concepts)
+  * Questions 4-6: difficulty="medium" (application, multi-step)
+  * Questions 7+: difficulty="hard" (analysis, synthesis, complex)
 - Questions will be presented ONE AT A TIME to students
 - Next question difficulty adjusts based on whether student got previous answer correct
 - These questions test foundational knowledge and quick recall
+- VERIFY: Your response MUST have at least 2 easy, 2 medium, and 1 hard question
 
 PHASE 2 REQUIREMENTS - FREE RESPONSE:
 - Generate EXACTLY {num_free} free response questions
