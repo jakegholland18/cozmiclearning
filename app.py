@@ -868,7 +868,21 @@ def safe_text(value: str, max_len: int = 500) -> str:
     return v
 
 def safe_email(value: str, max_len: int = 254) -> str:
-    v = safe_text(value.lower(), max_len)
+    """Validate and sanitize email addresses"""
+    import re
+
+    if not value or not isinstance(value, str):
+        return ""
+
+    v = safe_text(value.lower(), max_len).strip()
+
+    # Basic email regex validation
+    # Pattern: one or more characters, @, domain with at least one dot
+    email_pattern = r'^[a-z0-9._%-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+
+    if not re.match(email_pattern, v):
+        return ""  # Return empty string for invalid emails
+
     return v
 
 # ============================================================
@@ -7672,6 +7686,16 @@ def student_submit_assignment(assignment_id):
         flash("No submission found.", "error")
         return redirect("/student/assignments")
 
+    # Prevent resubmission if already submitted and graded
+    if submission.status == "submitted" and submission.submitted_at:
+        flash("You have already submitted this assignment. Contact your teacher if you need to make changes.", "error")
+        return redirect("/student/assignments")
+
+    # Prevent overwriting graded submissions
+    if submission.status == "graded":
+        flash("This assignment has been graded. You cannot resubmit.", "error")
+        return redirect("/student/assignments")
+
     # Get answers from request
     data = request.get_json() if request.is_json else request.form
     answers = {}
@@ -7684,11 +7708,6 @@ def student_submit_assignment(assignment_id):
             if key.startswith("answer_"):
                 question_idx = key.replace("answer_", "")
                 answers[question_idx] = value
-
-    # Save answers and mark as submitted
-    submission.answers_json = json.dumps(answers)
-    submission.status = "submitted"
-    submission.submitted_at = datetime.utcnow()
 
     # Helper function for flexible answer matching
     def answers_match(student_answer, expected_answer):
@@ -7761,8 +7780,14 @@ def student_submit_assignment(assignment_id):
 
         return False
 
-    # Auto-grade multiple choice questions
+    # Wrap entire submission and grading process in transaction
     try:
+        # Save answers and mark as submitted
+        submission.answers_json = json.dumps(answers)
+        submission.status = "submitted"
+        submission.submitted_at = datetime.utcnow()
+
+        # Auto-grade multiple choice questions
         mission = json.loads(assignment.preview_json) if assignment.preview_json else {}
         questions = mission.get("steps", [])
 
@@ -7862,14 +7887,22 @@ def student_submit_assignment(assignment_id):
             submission.status = "submitted"
             print(f"⏸️ Assignment {assignment_id} has only free response questions - needs manual grading")
 
+        # Commit all changes if everything succeeded
+        db.session.commit()
+        flash("Assignment submitted successfully!", "success")
+
     except Exception as e:
-        print(f"⚠️ Auto-grading failed for assignment {assignment_id}: {e}")
-        # Still mark as submitted even if auto-grading fails
-        pass
+        # Rollback transaction on any error
+        db.session.rollback()
+        print(f"❌ Submission failed for assignment {assignment_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Failed to submit assignment. Please try again.", "error")
 
-    db.session.commit()
-
-    flash("Assignment submitted successfully!", "success")
+        if request.is_json:
+            return jsonify({"success": False, "error": "Submission failed"}), 500
+        else:
+            return redirect("/student/assignments")
 
     if request.is_json:
         return jsonify({"success": True, "redirect": "/student/assignments"})
@@ -8145,20 +8178,38 @@ def assignment_edit(assignment_id):
         assignment.instructions = request.form.get("instructions", assignment.instructions)
         assignment.differentiation_mode = request.form.get("differentiation_mode", assignment.differentiation_mode)
 
-        # Update dates
+        # Update dates with validation
         due_date_str = request.form.get("due_date")
+        open_date_str = request.form.get("open_date")
+
+        new_due_date = None
+        new_open_date = None
+
         if due_date_str:
             try:
-                assignment.due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
+                new_due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
             except:
-                pass
+                flash("Invalid due date format.", "error")
+                return redirect(f"/teacher/assignments/{assignment.id}/edit")
 
-        open_date_str = request.form.get("open_date")
         if open_date_str:
             try:
-                assignment.open_date = datetime.strptime(open_date_str, "%Y-%m-%dT%H:%M")
+                new_open_date = datetime.strptime(open_date_str, "%Y-%m-%dT%H:%M")
             except:
-                pass
+                flash("Invalid open date format.", "error")
+                return redirect(f"/teacher/assignments/{assignment.id}/edit")
+
+        # Validate: open_date must be before due_date
+        if new_open_date and new_due_date:
+            if new_open_date >= new_due_date:
+                flash("Open date must be before due date.", "error")
+                return redirect(f"/teacher/assignments/{assignment.id}/edit")
+
+        # Apply validated dates
+        if new_due_date:
+            assignment.due_date = new_due_date
+        if new_open_date:
+            assignment.open_date = new_open_date
 
         db.session.commit()
         flash("Assignment updated successfully!", "success")
@@ -8303,8 +8354,14 @@ def assignment_publish(assignment_id):
         return redirect(f"/teacher/assignments/{assignment.id}")
 
     steps = mission.get("steps", [])
-    if not steps:
-        flash("Mission contains no steps.", "error")
+    if not steps or len(steps) == 0:
+        flash("Cannot publish - assignment has no questions. Please generate questions first.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}")
+
+    # Validate that questions have content
+    valid_questions = [s for s in steps if s.get("prompt", "").strip()]
+    if len(valid_questions) == 0:
+        flash("Cannot publish - all questions are empty. Please regenerate questions.", "error")
         return redirect(f"/teacher/assignments/{assignment.id}")
 
     # ---------------------------------------------
@@ -8539,11 +8596,12 @@ def teacher_grade_submission(submission_id):
         flash("Please log in as a teacher.", "error")
         return redirect("/teacher/login")
 
+    # Get submission with minimal data first
     submission = StudentSubmission.query.get_or_404(submission_id)
-    assignment = AssignedPractice.query.get(submission.assignment_id)
 
-    # Verify teacher owns this assignment
-    if not assignment or assignment.teacher_id != teacher.id:
+    # SECURITY: Verify teacher owns assignment BEFORE fetching sensitive data
+    assignment = AssignedPractice.query.get(submission.assignment_id)
+    if not assignment or (assignment.teacher_id != teacher.id and not is_owner(teacher)):
         flash("You don't have access to this submission.", "error")
         return redirect("/teacher/assignments")
 
@@ -8658,6 +8716,15 @@ def teacher_release_grade(submission_id):
         flash("You don't have permission to release this grade.", "error")
         return redirect("/teacher/dashboard")
 
+    # Validate submission is actually graded before releasing
+    if submission.status != "graded":
+        flash("Cannot release grade - submission has not been graded yet.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}/submissions")
+
+    if submission.score is None:
+        flash("Cannot release grade - no score has been assigned.", "error")
+        return redirect(f"/teacher/assignments/{assignment.id}/submissions")
+
     # Release the grade
     submission.grade_released = True
     db.session.commit()
@@ -8684,21 +8751,29 @@ def teacher_release_all_grades(assignment_id):
         flash("You don't have permission to release grades for this assignment.", "error")
         return redirect("/teacher/dashboard")
 
-    # Release all graded submissions
+    # Release all graded submissions (with valid scores)
     graded_submissions = StudentSubmission.query.filter_by(
         assignment_id=assignment_id,
         status="graded"
     ).all()
 
     released_count = 0
+    skipped_count = 0
     for submission in graded_submissions:
+        # Only release if has a valid score
+        if submission.score is None:
+            skipped_count += 1
+            continue
         if not submission.grade_released:
             submission.grade_released = True
             released_count += 1
 
     db.session.commit()
 
-    flash(f"Released {released_count} graded assignments to students!", "success")
+    if skipped_count > 0:
+        flash(f"Released {released_count} grades. Skipped {skipped_count} submissions without scores.", "warning")
+    else:
+        flash(f"Released {released_count} graded assignments to students!", "success")
     return redirect(f"/teacher/assignments/{assignment_id}/submissions")
 
 
