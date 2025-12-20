@@ -355,12 +355,22 @@
                 {% endfor %}
 
             {% else %}
+                {# Free response question - show textarea #}
+                {% set saved_val = saved_answers.get(question_idx|string, '') %}
+                {% set display_val = '' %}
+                {% if saved_val %}
+                    {% if saved_val is mapping %}
+                        {% set display_val = saved_val.answer %}
+                    {% else %}
+                        {% set display_val = saved_val %}
+                    {% endif %}
+                {% endif %}
                 <textarea
                     name="answer_{{ question_idx }}"
                     class="text-answer"
                     placeholder="Type your answer here..."
                     {% if submission.status in ['submitted', 'graded'] %}readonly{% endif %}
-                >{% set saved_val = saved_answers.get(question_idx|string, '') %}{% if saved_val is mapping %}{{ saved_val.answer }}{% else %}{{ saved_val }}{% endif %}</textarea>
+                >{{ display_val }}</textarea>
             {% endif %}
 
             {% if question.hint and submission.status in ['in_progress', 'not_started'] %}
