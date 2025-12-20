@@ -52,6 +52,28 @@
 
 <div class="page-title">Your Assignments</div>
 
+{% if student and student.classes and student.classes|length > 0 %}
+<div class="content-box" style="margin-bottom: 20px;">
+    <h3 style="color: #c4d1ff; margin-top: 0;">Your Classes</h3>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        {% for class_obj in student.classes %}
+        <div style="background: rgba(255,255,255,0.08); padding: 15px; border-radius: 12px; flex: 1; min-width: 250px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="color: #ffdf9b; font-weight: 600; font-size: 1.1rem;">{{ class_obj.class_name }}</div>
+                <div style="color: var(--muted-2); font-size: 0.85rem; margin-top: 4px;">Grade {{ class_obj.grade_level or "N/A" }}</div>
+            </div>
+            <form method="POST" action="/student/leave-class/{{ class_obj.id }}" style="display: inline;" onsubmit="return confirm('Leave {{ class_obj.class_name }}? You can rejoin later with the class code.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" style="background: rgba(255,68,68,0.2); color: #ff6666; border: 1px solid rgba(255,68,68,0.4); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                    Leave
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="content-box">
 
     {% if assignment_data and assignment_data|length > 0 %}
@@ -64,6 +86,7 @@
 
                 <h3>{{ a.title }}</h3>
 
+                <p><strong>Class:</strong> {{ a.class_ref.class_name if a.class_ref else "Unknown" }}</p>
                 <p><strong>Subject:</strong> {{ a.subject|title }}</p>
                 <p><strong>Topic:</strong> {{ a.topic }}</p>
 

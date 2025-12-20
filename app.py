@@ -6667,13 +6667,20 @@ def student_assignments():
     # Set is_student flag for navigation
     session["is_student"] = True
 
-    # ONLY show fully published assignments for this student's class
+    # Get all class IDs for this student
+    class_ids = [c.id for c in student.classes]
+
+    # Also include legacy class_id if set
+    if student.class_id and student.class_id not in class_ids:
+        class_ids.append(student.class_id)
+
+    # ONLY show fully published assignments for all of this student's classes
     assignments = (
         AssignedPractice.query
-        .filter_by(class_id=student.class_id, is_published=True)
+        .filter(AssignedPractice.class_id.in_(class_ids), AssignedPractice.is_published == True)
         .order_by(AssignedPractice.created_at.desc())
         .all()
-    )
+    ) if class_ids else []
 
     # Get submission status for each assignment
     assignment_data = []
@@ -6690,7 +6697,8 @@ def student_assignments():
 
     return render_template(
         "student_assignments.html",
-        assignment_data=assignment_data
+        assignment_data=assignment_data,
+        student=student
     )
 
 
@@ -6766,18 +6774,19 @@ def student_join_class():
             flash("Invalid join code. Please check and try again.", "error")
             return redirect("/student/join-class")
 
-        # Check if student is already in a class
-        if student.class_id:
-            current_class = Class.query.get(student.class_id)
-            if current_class and current_class.id == class_obj.id:
-                flash(f"You're already enrolled in {class_obj.class_name}!", "info")
-                return redirect("/student/assignments")
-            else:
-                flash(f"You're already enrolled in {current_class.class_name}. Leave that class first to join a new one.", "error")
-                return redirect("/student/join-class")
+        # Check if student is already in this class
+        if class_obj in student.classes:
+            flash(f"You're already enrolled in {class_obj.class_name}!", "info")
+            return redirect("/student/assignments")
 
-        # Join the class
-        student.class_id = class_obj.id
+        # Add student to the class (many-to-many)
+        student.classes.append(class_obj)
+
+        # Also update legacy class_id field for backward compatibility
+        # Set it to the first class if not set, or keep current if already set
+        if not student.class_id:
+            student.class_id = class_obj.id
+
         db.session.commit()
 
         print(f"✅ Student {student.student_name} (ID:{student.id}) joined class {class_obj.class_name} (Code: {join_code})")
@@ -6788,27 +6797,45 @@ def student_join_class():
     return render_template("student_join_class.html", student=student)
 
 
-@app.route("/student/leave-class", methods=["POST"])
-def student_leave_class():
-    """Student can leave their current class"""
+@app.route("/student/leave-class/<int:class_id>", methods=["POST"])
+def student_leave_class(class_id):
+    """Student can leave a specific class"""
     init_user()
 
     student_id = session.get("student_id")
     student = Student.query.get(student_id) if student_id else None
 
-    if not student or not student.class_id:
-        flash("You're not enrolled in any class.", "error")
-        return redirect("/student/join-class")
+    if not student:
+        flash("Please log in.", "error")
+        return redirect("/student/login")
 
-    class_name = student.class_ref.class_name if student.class_ref else "Unknown"
+    # Find the class
+    class_obj = Class.query.get(class_id)
+    if not class_obj:
+        flash("Class not found.", "error")
+        return redirect("/student/dashboard")
 
-    # Remove from class
-    student.class_id = None
+    # Check if student is in this class
+    if class_obj not in student.classes:
+        flash("You're not enrolled in this class.", "error")
+        return redirect("/student/dashboard")
+
+    # Remove from class (many-to-many)
+    student.classes.remove(class_obj)
+
+    # Update legacy class_id if this was the legacy class
+    if student.class_id == class_id:
+        # Set to another class if student has one, otherwise None
+        if len(student.classes) > 0:
+            student.class_id = student.classes[0].id
+        else:
+            student.class_id = None
+
     db.session.commit()
 
-    print(f"✅ Student {student.student_name} (ID:{student.id}) left class {class_name}")
-    flash(f"You've left {class_name}.", "info")
-    return redirect("/student/join-class")
+    print(f"✅ Student {student.student_name} (ID:{student.id}) left class {class_obj.class_name}")
+    flash(f"You've left {class_obj.class_name}.", "info")
+    return redirect("/student/dashboard")
 
 
 # ============================================================

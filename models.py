@@ -91,6 +91,13 @@ class Teacher(db.Model):
 # CLASSROOMS
 # ============================================================
 
+# Association table for many-to-many relationship between students and classes
+student_classes = db.Table('student_classes',
+    db.Column('student_id', db.Integer, db.ForeignKey('students.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('class_id', db.Integer, db.ForeignKey('classes.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('joined_at', db.DateTime, default=datetime.utcnow, nullable=False)
+)
+
 class Class(db.Model):
     __tablename__ = "classes"
 
@@ -103,7 +110,8 @@ class Class(db.Model):
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    students = db.relationship("Student", backref="class_ref", lazy=True)
+    # Many-to-many relationship with students
+    students = db.relationship("Student", secondary=student_classes, back_populates="classes", lazy=True)
     assignments = db.relationship("AssignedPractice", backref="class_ref", lazy=True)
 
 
@@ -116,7 +124,8 @@ class Student(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    class_id = db.Column(db.Integer, db.ForeignKey("classes.id", ondelete="SET NULL"))
+    # DEPRECATED: Keep for backward compatibility during migration, will be removed
+    class_id = db.Column(db.Integer, db.ForeignKey("classes.id", ondelete="SET NULL"), nullable=True)
     parent_id = db.Column(db.Integer, db.ForeignKey("parents.id", ondelete="SET NULL"))
 
     student_name = db.Column(db.String(120))
@@ -155,6 +164,12 @@ class Student(db.Model):
     account_locked_until = db.Column(db.DateTime, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Many-to-many relationship with classes
+    classes = db.relationship("Class", secondary=student_classes, back_populates="students", lazy=True)
+
+    # Keep old backref for backward compatibility
+    class_ref = db.relationship("Class", foreign_keys=[class_id], backref="legacy_students", lazy=True)
 
     assessment_results = db.relationship("AssessmentResult", backref="student", lazy=True)
 
