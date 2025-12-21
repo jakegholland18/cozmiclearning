@@ -39,7 +39,6 @@ def migrate():
                 # Student table indexes
                 ("idx_student_email", "students", "student_email"),
                 ("idx_student_parent", "students", "parent_id"),
-                ("idx_student_id", "students", "student_id"),
                 ("idx_student_stripe_customer", "students", "stripe_customer_id"),
 
                 # AssignedPractice table indexes

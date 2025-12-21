@@ -137,7 +137,6 @@ class Student(db.Model):
     __table_args__ = (
         db.Index('idx_student_email', 'student_email'),
         db.Index('idx_student_parent', 'parent_id'),
-        db.Index('idx_student_id', 'student_id'),
         db.Index('idx_student_stripe_customer', 'stripe_customer_id'),
     )
 
