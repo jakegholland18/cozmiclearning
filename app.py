@@ -8574,6 +8574,7 @@ def assignment_wizard_create():
     grade_level = data.get("grade_level", "2")
     num_questions = data.get("num_questions", 10)
     differentiation = data.get("differentiation", "adaptive")
+    start_date_str = data.get("start_date")
     due_date_str = data.get("due_date")
     instructions = data.get("instructions", "")
 
@@ -8606,6 +8607,12 @@ def assignment_wizard_create():
         is_published=False,
         created_at=datetime.utcnow()
     )
+
+    if start_date_str:
+        try:
+            assignment.start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
+        except:
+            pass
 
     if due_date_str:
         try:
