@@ -450,7 +450,7 @@
             </div>
 
             <div class="button-group">
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='/teacher/dashboard'">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='{% if is_homeschool %}/homeschool/dashboard{% else %}/teacher/dashboard{% endif %}'">
                     Cancel
                 </button>
                 <button type="button" class="btn btn-primary" id="step1Next" disabled onclick="nextStep(2)">

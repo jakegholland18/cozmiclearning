@@ -5920,9 +5920,9 @@ def teacher_api_live_progress():
         # Parse answers to get progress
         import json
         answers = {}
-        if submission.answers:
+        if submission.answers_json:
             try:
-                answers = json.loads(submission.answers)
+                answers = json.loads(submission.answers_json)
             except:
                 answers = {}
 
@@ -5949,8 +5949,10 @@ def teacher_api_live_progress():
                     incorrect_count += 1
 
         # Determine status
-        is_completed = submission.is_complete
-        is_active = submission.last_updated and submission.last_updated > active_threshold and not is_completed
+        is_completed = submission.status in ['submitted', 'graded']
+        # Check if recently updated based on submitted_at timestamp
+        is_active = (submission.submitted_at and submission.submitted_at > active_threshold and not is_completed) or \
+                   (submission.status == 'in_progress' and submission.started_at and submission.started_at > active_threshold)
 
         # Struggling if accuracy < 40% and answered > 3 questions
         is_struggling = questions_answered > 3 and (correct_count / questions_answered < 0.4) if questions_answered > 0 else False
@@ -8853,6 +8855,47 @@ def homeschool_assignment_wizard_create():
         }), 500
 
 
+@app.route("/homeschool/assignments/<int:assignment_id>/delete", methods=["POST"])
+@csrf.exempt
+def homeschool_assignment_delete(assignment_id):
+    """Delete a homeschool assignment"""
+    init_user()
+
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return jsonify({"error": "Parent not found"}), 404
+
+    assignment = AssignedPractice.query.get_or_404(assignment_id)
+
+    # Get the virtual teacher for this parent
+    virtual_teacher_email = f"homeschool.parent.{parent.id}@system.internal"
+    homeschool_teacher = Teacher.query.filter_by(email=virtual_teacher_email).first()
+
+    # Only parent's assignments can be deleted (via their virtual teacher)
+    if not homeschool_teacher or assignment.teacher_id != homeschool_teacher.id:
+        return jsonify({"error": "You can only delete your own assignments"}), 403
+
+    # Delete related records in correct order to avoid foreign key constraints
+    # 1. Delete assigned questions first (they reference practice_id)
+    AssignedQuestion.query.filter_by(practice_id=assignment_id).delete()
+
+    # 2. Delete related submissions
+    StudentSubmission.query.filter_by(assignment_id=assignment_id).delete()
+
+    # 3. Delete the assignment
+    title = assignment.title
+    db.session.delete(assignment)
+    db.session.commit()
+
+    print(f"🗑️ [HOMESCHOOL DELETE] Parent {parent_id} deleted assignment '{title}' (ID: {assignment_id})")
+
+    return jsonify({"success": True, "message": f"Assignment '{title}' deleted successfully"})
+
+
 @app.route("/teacher/assignments/<int:assignment_id>/edit", methods=["GET", "POST"])
 def assignment_edit(assignment_id):
     """Edit assignment details and questions"""
@@ -8937,6 +8980,7 @@ def assignment_edit(assignment_id):
 
 
 @app.route("/teacher/assignments/<int:assignment_id>/delete", methods=["POST"])
+@csrf.exempt
 def assignment_delete(assignment_id):
     """Delete an assignment"""
     init_user()
