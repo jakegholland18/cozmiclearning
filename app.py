@@ -8660,6 +8660,182 @@ def assignment_wizard_create():
         }), 500
 
 
+# ============================================================
+# HOMESCHOOL ASSIGNMENT WIZARD ROUTES
+# ============================================================
+
+@app.route("/homeschool/assignments/wizard")
+def homeschool_assignment_wizard():
+    """Smart assignment creation wizard for homeschool parents"""
+    init_user()
+
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        flash("Please log in as a parent.", "error")
+        return redirect("/parent/login")
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        flash("Parent not found.", "error")
+        return redirect("/parent/login")
+
+    # Check if parent has homeschool plan (teacher features)
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+    else:
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
+    if not has_teacher_features:
+        flash("Homeschool plan required for this feature.", "error")
+        return redirect("/homeschool/dashboard")
+
+    # Get parent's "classes" (students grouped as a class)
+    # For homeschool, we create a single class with all students
+    classes = Class.query.filter_by(teacher_id=parent.id, is_homeschool=True).all()
+
+    # If no homeschool class exists, create one
+    if not classes:
+        homeschool_class = Class(
+            teacher_id=parent.id,
+            name=f"{parent.name}'s Students",
+            is_homeschool=True
+        )
+        db.session.add(homeschool_class)
+        db.session.commit()
+
+        # Add all parent's students to this class
+        for student in parent.students:
+            student.class_id = homeschool_class.id
+        db.session.commit()
+
+        classes = [homeschool_class]
+
+    return render_template(
+        "assignment_wizard.html",
+        classes=classes
+    )
+
+
+@app.route("/homeschool/assignments/wizard/create", methods=["POST"])
+@csrf.exempt
+def homeschool_assignment_wizard_create():
+    """Create assignment from wizard for homeschool parents"""
+    init_user()
+
+    parent_id = session.get("parent_id")
+    if not parent_id:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    parent = Parent.query.get(parent_id)
+    if not parent:
+        return jsonify({"error": "Parent not found"}), 404
+
+    # Check if parent has homeschool plan (teacher features)
+    if session.get("admin_authenticated"):
+        has_teacher_features = True
+    else:
+        _, _, _, has_teacher_features = get_parent_plan_limits(parent)
+
+    if not has_teacher_features:
+        return jsonify({"error": "Homeschool plan required"}), 403
+
+    data = request.get_json()
+
+    # Extract wizard data
+    assignment_type = data.get("type", "practice")
+    title = data.get("title")
+    subject = data.get("subject")
+    topic = data.get("topic")
+    class_id = data.get("class_id")
+    grade_level = data.get("grade_level", "2")
+    num_questions = data.get("num_questions", 10)
+    differentiation = data.get("differentiation", "adaptive")
+    start_date_str = data.get("start_date")
+    due_date_str = data.get("due_date")
+    instructions = data.get("instructions", "")
+
+    # Apply smart defaults based on assignment type
+    if assignment_type == "quiz":
+        num_questions = min(num_questions, 10)
+        differentiation = "none"  # Quick Quiz mode = no differentiation
+        if not instructions:
+            instructions = "Complete this quiz to the best of your ability. You have one attempt."
+    elif assignment_type == "homework":
+        if not instructions:
+            instructions = "Complete this homework assignment by the due date. Take your time and show your work."
+    elif assignment_type == "assessment":
+        differentiation = "none"  # Formal assessments = no differentiation
+        if not instructions:
+            instructions = "This is a graded assessment. Do your best work."
+    else:
+        if not instructions:
+            instructions = "Practice makes perfect! This assignment will adapt to your skill level."
+
+    # Create assignment (using parent_id as teacher_id for homeschool)
+    assignment = AssignedPractice(
+        teacher_id=parent.id,
+        class_id=class_id,
+        title=title,
+        subject=subject,
+        topic=topic,
+        instructions=instructions,
+        differentiation_mode=differentiation,
+        is_published=False,
+        created_at=datetime.utcnow()
+    )
+
+    if start_date_str:
+        try:
+            assignment.start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
+        except:
+            pass
+
+    if due_date_str:
+        try:
+            assignment.due_date = datetime.fromisoformat(due_date_str.replace('Z', '+00:00'))
+        except:
+            pass
+
+    db.session.add(assignment)
+    db.session.commit()
+
+    # Generate questions
+    try:
+        from modules.practice_helper import generate_practice_session
+
+        mission_json = generate_practice_session(
+            topic=topic or "General",
+            subject=subject or "terra_nova",
+            grade_level=grade_level,
+            character="nova",
+            differentiation_mode=differentiation,
+            student_ability="on_level",
+            context="teacher",
+            num_questions=num_questions,
+        )
+
+        # generate_practice_session returns the complete mission JSON with "steps" key
+        assignment.preview_json = json.dumps(mission_json)
+        db.session.commit()
+
+        questions_count = len(mission_json.get("steps", []))
+        print(f"🎯 [HOMESCHOOL WIZARD] Created assignment '{title}' with {questions_count} questions")
+
+        return jsonify({
+            "success": True,
+            "assignment_id": assignment.id,
+            "questions_generated": questions_count
+        })
+
+    except Exception as e:
+        print(f"❌ [HOMESCHOOL WIZARD] Error generating questions: {e}")
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate questions",
+            "assignment_id": assignment.id
+        }), 500
+
+
 @app.route("/teacher/assignments/<int:assignment_id>/edit", methods=["GET", "POST"])
 def assignment_edit(assignment_id):
     """Edit assignment details and questions"""
