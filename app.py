@@ -8690,25 +8690,35 @@ def homeschool_assignment_wizard():
         flash("Homeschool plan required for this feature.", "error")
         return redirect("/homeschool/dashboard")
 
-    # Get parent's "classes" (students grouped as a class)
-    # For homeschool, we create a single class with all students
-    classes = Class.query.filter_by(teacher_id=parent.id).all()
+    # Get or create unique virtual teacher for THIS parent
+    # Each homeschool parent gets their own virtual teacher account
+    virtual_teacher_email = f"homeschool.parent.{parent.id}@system.internal"
+    homeschool_teacher = Teacher.query.filter_by(email=virtual_teacher_email).first()
 
-    # If no homeschool class exists, create one
-    if not classes:
-        homeschool_class = Class(
-            teacher_id=parent.id,
+    if not homeschool_teacher:
+        # Create virtual teacher for this specific parent
+        homeschool_teacher = Teacher(
+            email=virtual_teacher_email,
+            name=f"{parent.name} (Homeschool)",
+            password_hash="",  # No login for virtual account
+        )
+        db.session.add(homeschool_teacher)
+        db.session.commit()
+
+    # Get or create class for this parent's virtual teacher
+    virtual_class = Class.query.filter_by(
+        teacher_id=homeschool_teacher.id
+    ).first()
+
+    if not virtual_class:
+        virtual_class = Class(
+            teacher_id=homeschool_teacher.id,
             class_name=f"{parent.name}'s Students"
         )
-        db.session.add(homeschool_class)
+        db.session.add(virtual_class)
         db.session.commit()
 
-        # Add all parent's students to this class
-        for student in parent.students:
-            student.class_id = homeschool_class.id
-        db.session.commit()
-
-        classes = [homeschool_class]
+    classes = [virtual_class]
 
     return render_template(
         "assignment_wizard.html",
@@ -8772,9 +8782,15 @@ def homeschool_assignment_wizard_create():
         if not instructions:
             instructions = "Practice makes perfect! This assignment will adapt to your skill level."
 
-    # Create assignment (using parent_id as teacher_id for homeschool)
+    # Get unique virtual teacher for THIS parent
+    virtual_teacher_email = f"homeschool.parent.{parent.id}@system.internal"
+    homeschool_teacher = Teacher.query.filter_by(email=virtual_teacher_email).first()
+    if not homeschool_teacher:
+        return jsonify({"error": "Homeschool teacher account not found"}), 500
+
+    # Create assignment (using this parent's virtual teacher)
     assignment = AssignedPractice(
-        teacher_id=parent.id,
+        teacher_id=homeschool_teacher.id,
         class_id=class_id,
         title=title,
         subject=subject,
