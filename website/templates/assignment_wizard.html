@@ -656,7 +656,7 @@
             <h2>Assignment Created Successfully!</h2>
             <p>Your assignment has been created with AI-generated questions.</p>
             <div class="button-group">
-                <a href="/teacher/dashboard" class="btn btn-secondary">
+                <a href="{% if is_homeschool %}/homeschool/dashboard{% else %}/teacher/dashboard{% endif %}" class="btn btn-secondary">
                     Back to Dashboard
                 </a>
                 <a href="#" id="previewLink" class="btn btn-primary">
@@ -668,6 +668,10 @@
 </div>
 
 <script>
+    const IS_HOMESCHOOL = {{ 'true' if is_homeschool else 'false' }};
+    const API_ENDPOINT = IS_HOMESCHOOL ? '/homeschool/assignments/wizard/create' : '/teacher/assignments/wizard/create';
+    const PREVIEW_BASE = IS_HOMESCHOOL ? '/homeschool/assignments' : '/teacher/assignments';
+
     let currentStep = 1;
     let selectedType = '';
 
@@ -881,8 +885,8 @@
         console.log('📦 Sending data:', data);
 
         try {
-            console.log('📡 Making fetch request to /teacher/assignments/wizard/create');
-            const response = await fetch('/teacher/assignments/wizard/create', {
+            console.log(`📡 Making fetch request to ${API_ENDPOINT}`);
+            const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -899,7 +903,7 @@
                 // Show success state
                 document.getElementById('loadingState').style.display = 'none';
                 document.getElementById('successState').style.display = 'block';
-                document.getElementById('previewLink').href = `/teacher/assignments/${result.assignment_id}/preview`;
+                document.getElementById('previewLink').href = `${PREVIEW_BASE}/${result.assignment_id}/preview`;
             } else {
                 throw new Error(result.error || 'Failed to create assignment');
             }

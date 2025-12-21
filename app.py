@@ -8549,7 +8549,8 @@ def assignment_wizard():
 
     return render_template(
         "assignment_wizard.html",
-        classes=classes
+        classes=classes,
+        is_homeschool=False
     )
 
 
@@ -8712,7 +8713,8 @@ def homeschool_assignment_wizard():
 
     return render_template(
         "assignment_wizard.html",
-        classes=classes
+        classes=classes,
+        is_homeschool=True
     )
 
 
