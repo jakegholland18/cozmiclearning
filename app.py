@@ -8692,14 +8692,13 @@ def homeschool_assignment_wizard():
 
     # Get parent's "classes" (students grouped as a class)
     # For homeschool, we create a single class with all students
-    classes = Class.query.filter_by(teacher_id=parent.id, is_homeschool=True).all()
+    classes = Class.query.filter_by(teacher_id=parent.id).all()
 
     # If no homeschool class exists, create one
     if not classes:
         homeschool_class = Class(
             teacher_id=parent.id,
-            name=f"{parent.name}'s Students",
-            is_homeschool=True
+            name=f"{parent.name}'s Students"
         )
         db.session.add(homeschool_class)
         db.session.commit()
