@@ -14518,13 +14518,13 @@ def homeschool_assignments():
         return redirect("/homeschool/dashboard")
 
     # Get all assignments for this parent's virtual homeschool class
-    # Find the virtual homeschool class for this parent
-    homeschool_teacher = Teacher.query.filter_by(email="homeschool@system.internal").first()
+    # Find the unique virtual teacher for this parent
+    virtual_teacher_email = f"homeschool.parent.{parent.id}@system.internal"
+    homeschool_teacher = Teacher.query.filter_by(email=virtual_teacher_email).first()
 
     if homeschool_teacher:
         virtual_class = Class.query.filter_by(
-            teacher_id=homeschool_teacher.id,
-            class_name=f"Homeschool - Parent {parent.id}"
+            teacher_id=homeschool_teacher.id
         ).first()
 
         if virtual_class:
