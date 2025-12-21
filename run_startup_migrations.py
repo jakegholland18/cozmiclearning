@@ -89,6 +89,18 @@ def run_migrations():
         logger.error(f"❌ Error in add_adaptive_tracking: {e}")
         success = False
 
+    # Migration 7: Add performance indexes for scalability
+    # Adds indexes to Parent, Teacher, Class, Student, AssignedPractice, AssignedQuestion, and StudentSubmission tables
+    try:
+        logger.info("\n📋 Migration 7: Add performance indexes")
+        from migrations.add_performance_indexes import migrate as migrate_indexes
+        if not migrate_indexes():
+            logger.error("❌ Failed to add performance indexes")
+            success = False
+    except Exception as e:
+        logger.error(f"❌ Error in add_performance_indexes: {e}")
+        success = False
+
     if success:
         logger.info("\n✅ All startup migrations completed successfully!")
     else:

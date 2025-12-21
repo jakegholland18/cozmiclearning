@@ -5897,7 +5897,10 @@ def teacher_api_live_progress():
     active_threshold = datetime.now() - timedelta(minutes=15)
     today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # Get all submissions for teacher's assignments
+    # Get all submissions for teacher's assignments with eager loading for better performance
+    # Only fetch recent submissions to reduce load (last 30 days)
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+
     submissions = db.session.query(StudentSubmission, AssignedPractice, Student, Class).join(
         AssignedPractice, StudentSubmission.assignment_id == AssignedPractice.id
     ).join(
@@ -5908,7 +5911,14 @@ def teacher_api_live_progress():
         AssignedPractice.teacher_id == teacher.id
     ).filter(
         AssignedPractice.is_published == True
-    ).all()
+    ).filter(
+        db.or_(
+            StudentSubmission.started_at >= thirty_days_ago,
+            StudentSubmission.status == 'in_progress'
+        )
+    ).order_by(
+        StudentSubmission.started_at.desc()
+    ).limit(100).all()  # Limit to 100 most recent for performance
 
     students_data = []
     active_count = 0
@@ -10338,30 +10348,74 @@ def teacher_gradebook():
     if not teacher:
         return redirect("/teacher/login")
 
-    # Get all classes for this teacher
+    # Get all classes for this teacher with eager loading
+    from datetime import datetime, timedelta
+    from sqlalchemy.orm import joinedload
+
     if is_owner(teacher):
-        classes = Class.query.all()
+        classes = Class.query.options(joinedload(Class.students)).all()
     else:
-        classes = Class.query.filter_by(teacher_id=teacher.id).all()
+        classes = Class.query.filter_by(teacher_id=teacher.id).options(joinedload(Class.students)).all()
+
+    # Get all class IDs for batch queries
+    class_ids = [cls.id for cls in classes]
+
+    # Batch fetch all assignments for these classes
+    if class_ids:
+        assignments_by_class = {}
+        all_assignments = AssignedPractice.query.filter(
+            AssignedPractice.class_id.in_(class_ids),
+            AssignedPractice.is_published == True
+        ).all()
+
+        for assignment in all_assignments:
+            if assignment.class_id not in assignments_by_class:
+                assignments_by_class[assignment.class_id] = []
+            assignments_by_class[assignment.class_id].append(assignment)
+
+        # Get all assignment IDs
+        assignment_ids = [a.id for a in all_assignments]
+
+        # Batch fetch all submissions for these assignments
+        submissions_by_assignment = {}
+        ungraded_by_assignment = {}
+
+        if assignment_ids:
+            all_submissions = StudentSubmission.query.filter(
+                StudentSubmission.assignment_id.in_(assignment_ids),
+                StudentSubmission.status.in_(['graded', 'submitted'])
+            ).all()
+
+            for sub in all_submissions:
+                if sub.status == 'graded':
+                    if sub.assignment_id not in submissions_by_assignment:
+                        submissions_by_assignment[sub.assignment_id] = []
+                    submissions_by_assignment[sub.assignment_id].append(sub)
+                elif sub.status == 'submitted':
+                    if sub.assignment_id not in ungraded_by_assignment:
+                        ungraded_by_assignment[sub.assignment_id] = []
+                    ungraded_by_assignment[sub.assignment_id].append(sub)
+    else:
+        assignments_by_class = {}
+        submissions_by_assignment = {}
+        ungraded_by_assignment = {}
 
     # Calculate grading backlog across all classes
-    from datetime import datetime, timedelta
     total_ungraded = 0
     oldest_ungraded = None
     grading_backlog = []
 
-    # For each class, get assignment summary with average scores
+    # Build class data structure with pre-fetched data
     class_data = []
     for cls in classes:
-        assignments = AssignedPractice.query.filter_by(class_id=cls.id, is_published=True).all()
+        assignments = assignments_by_class.get(cls.id, [])
 
         assignment_summary = []
         for assignment in assignments:
-            # Get all submissions for this assignment
-            submissions = StudentSubmission.query.filter_by(assignment_id=assignment.id, status='graded').all()
+            # Get submissions from pre-fetched data
+            submissions = submissions_by_assignment.get(assignment.id, [])
+            ungraded = ungraded_by_assignment.get(assignment.id, [])
 
-            # Count ungraded submissions
-            ungraded = StudentSubmission.query.filter_by(assignment_id=assignment.id, status='submitted').all()
             total_ungraded += len(ungraded)
 
             # Find oldest ungraded
@@ -10370,7 +10424,6 @@ def teacher_gradebook():
                     if not oldest_ungraded or sub.submitted_at < oldest_ungraded:
                         oldest_ungraded = sub.submitted_at
 
-                    # Add to backlog list
                     grading_backlog.append({
                         'student_id': sub.student_id,
                         'assignment_id': assignment.id,
@@ -10382,7 +10435,7 @@ def teacher_gradebook():
 
             if submissions:
                 scored_submissions = [s.score for s in submissions if s.score is not None]
-                avg_score = sum(scored_submissions) / len(scored_submissions) if len(scored_submissions) > 0 else None
+                avg_score = sum(scored_submissions) / len(scored_submissions) if scored_submissions else None
                 graded_count = len(submissions)
             else:
                 avg_score = None
@@ -10857,15 +10910,42 @@ def homeschool_gradebook():
     
     # Get all students linked to this parent
     students = parent.students
-    
+
+    # Batch fetch all submissions and results for better performance
+    student_ids = [s.id for s in students]
+
+    # Fetch all submissions at once
+    all_submissions = StudentSubmission.query.filter(
+        StudentSubmission.student_id.in_(student_ids),
+        StudentSubmission.status == 'graded'
+    ).all() if student_ids else []
+
+    submissions_by_student = {}
+    for sub in all_submissions:
+        if sub.student_id not in submissions_by_student:
+            submissions_by_student[sub.student_id] = []
+        submissions_by_student[sub.student_id].append(sub)
+
+    # Fetch recent assessment results for all students (20 per student)
+    all_results = AssessmentResult.query.filter(
+        AssessmentResult.student_id.in_(student_ids)
+    ).order_by(AssessmentResult.created_at.desc()).all() if student_ids else []
+
+    results_by_student = {}
+    for result in all_results:
+        if result.student_id not in results_by_student:
+            results_by_student[result.student_id] = []
+        if len(results_by_student[result.student_id]) < 20:
+            results_by_student[result.student_id].append(result)
+
     # Group assessment results and submissions by student
     student_data = []
     for student in students:
-        # Get submissions for any assignments (if we create homeschool assignments)
-        submissions = StudentSubmission.query.filter_by(student_id=student.id, status='graded').all()
-        
-        # Get assessment results (from practice missions)
-        results = AssessmentResult.query.filter_by(student_id=student.id).order_by(AssessmentResult.created_at.desc()).limit(20).all()
+        # Get submissions from pre-fetched data
+        submissions = submissions_by_student.get(student.id, [])
+
+        # Get assessment results from pre-fetched data
+        results = results_by_student.get(student.id, [])
         
         # Calculate subject averages
         subject_scores = {}

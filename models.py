@@ -9,6 +9,11 @@ db = SQLAlchemy()
 
 class Parent(db.Model):
     __tablename__ = "parents"
+    __table_args__ = (
+        db.Index('idx_parent_email', 'email'),
+        db.Index('idx_parent_access_code', 'access_code'),
+        db.Index('idx_parent_stripe_customer', 'stripe_customer_id'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
@@ -56,6 +61,10 @@ class Parent(db.Model):
 
 class Teacher(db.Model):
     __tablename__ = "teachers"
+    __table_args__ = (
+        db.Index('idx_teacher_email', 'email'),
+        db.Index('idx_teacher_stripe_customer', 'stripe_customer_id'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
@@ -100,6 +109,10 @@ student_classes = db.Table('student_classes',
 
 class Class(db.Model):
     __tablename__ = "classes"
+    __table_args__ = (
+        db.Index('idx_class_teacher', 'teacher_id'),
+        db.Index('idx_class_join_code', 'join_code'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id"), nullable=False)
@@ -121,6 +134,12 @@ class Class(db.Model):
 
 class Student(db.Model):
     __tablename__ = "students"
+    __table_args__ = (
+        db.Index('idx_student_email', 'student_email'),
+        db.Index('idx_student_parent', 'parent_id'),
+        db.Index('idx_student_id', 'student_id'),
+        db.Index('idx_student_stripe_customer', 'stripe_customer_id'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -201,6 +220,12 @@ class AssessmentResult(db.Model):
 
 class AssignedPractice(db.Model):
     __tablename__ = "assigned_practice"
+    __table_args__ = (
+        db.Index('idx_assignment_teacher', 'teacher_id'),
+        db.Index('idx_assignment_class', 'class_id'),
+        db.Index('idx_assignment_published', 'is_published'),
+        db.Index('idx_assignment_dates', 'open_date', 'due_date'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -242,6 +267,9 @@ class AssignedPractice(db.Model):
 
 class AssignedQuestion(db.Model):
     __tablename__ = "assigned_questions"
+    __table_args__ = (
+        db.Index('idx_question_practice', 'practice_id'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     practice_id = db.Column(db.Integer, db.ForeignKey("assigned_practice.id", ondelete="CASCADE"), nullable=False)
@@ -336,6 +364,10 @@ class StudentSubmission(db.Model):
     __tablename__ = "student_submissions"
     __table_args__ = (
         db.UniqueConstraint('student_id', 'assignment_id', name='unique_student_assignment'),
+        db.Index('idx_submission_student', 'student_id'),
+        db.Index('idx_submission_assignment', 'assignment_id'),
+        db.Index('idx_submission_status', 'status'),
+        db.Index('idx_submission_timestamps', 'started_at', 'submitted_at'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
