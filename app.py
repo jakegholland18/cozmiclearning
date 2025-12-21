@@ -8698,7 +8698,7 @@ def homeschool_assignment_wizard():
     if not classes:
         homeschool_class = Class(
             teacher_id=parent.id,
-            name=f"{parent.name}'s Students"
+            class_name=f"{parent.name}'s Students"
         )
         db.session.add(homeschool_class)
         db.session.commit()
