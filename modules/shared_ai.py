@@ -1,5 +1,6 @@
 # modules/shared_ai.py
 import os
+import re
 
 
 # -------------------------------
@@ -8,6 +9,115 @@ import os
 def get_client():
     from openai import OpenAI
     return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+# -------------------------------
+# GAMBLING CONTENT FILTER
+# -------------------------------
+def filter_gambling_content(content: str, topic: str = "") -> tuple[str, bool]:
+    """
+    Detects and filters inappropriate gambling content in AI responses.
+
+    Returns:
+        (filtered_content, was_flagged): The filtered content and whether issues were found
+    """
+
+    # Gambling strategy red flags (case-insensitive)
+    strategy_patterns = [
+        r'\b(card counting|count(ing)? cards?)\b',
+        r'\b(betting system|martingale|fibonacci betting)\b',
+        r'\b(how to (win|beat) (at )?(casino|roulette|blackjack|poker|slots))\b',
+        r'\b(improve your odds (at|in)|increase (your )?chances of winning)\b',
+        r'\b(gambling strateg(y|ies)|winning strateg(y|ies))\b',
+        r'\b(casino secret|insider tip|betting tip)\b',
+        r'\b(double down|split pairs|insurance bet)\b',  # Blackjack-specific strategies
+        r'\b(bankroll management|bet sizing)\b',  # Gambling-specific terms
+    ]
+
+    # Combine all patterns
+    combined_pattern = '|'.join(strategy_patterns)
+
+    # Check if content contains gambling strategies
+    flagged = bool(re.search(combined_pattern, content, re.IGNORECASE))
+
+    if not flagged:
+        return content, False
+
+    # Content was flagged - add educational disclaimer
+    disclaimer = """
+
+⚠️ **Educational Note on Probability and Gambling**
+
+This lesson teaches probability concepts using mathematical examples. Remember:
+• Gambling is designed so the house always has an advantage
+• No strategy can overcome the mathematical house edge
+• God calls us to be wise stewards of our resources (Luke 16:10-11)
+• The best "strategy" is to understand the math shows gambling leads to loss over time
+
+Let's focus on understanding probability through fun, safe examples like board games, game shows, and everyday decisions instead!
+"""
+
+    filtered_content = content + disclaimer
+
+    return filtered_content, True
+
+
+# -------------------------------
+# VALIDATE LESSON CONTENT SAFETY
+# -------------------------------
+def validate_lesson_content(lesson_dict: dict) -> dict:
+    """
+    Validates and filters lesson content for age-appropriate safety.
+    Checks all text fields in a lesson dictionary.
+
+    Returns:
+        The lesson dictionary with filtered content and a 'content_flagged' key
+    """
+
+    flagged = False
+    fields_to_check = ['title', 'hook', 'explanation', 'summary', 'encouragement']
+
+    # Check main text fields
+    for field in fields_to_check:
+        if field in lesson_dict and isinstance(lesson_dict[field], str):
+            filtered, was_flagged = filter_gambling_content(
+                lesson_dict[field],
+                topic=lesson_dict.get('title', '')
+            )
+            if was_flagged:
+                lesson_dict[field] = filtered
+                flagged = True
+
+    # Check examples list
+    if 'examples' in lesson_dict and isinstance(lesson_dict['examples'], list):
+        for i, example in enumerate(lesson_dict['examples']):
+            if isinstance(example, dict):
+                for key in ['scenario', 'solution']:
+                    if key in example and isinstance(example[key], str):
+                        filtered, was_flagged = filter_gambling_content(
+                            example[key],
+                            topic=lesson_dict.get('title', '')
+                        )
+                        if was_flagged:
+                            lesson_dict['examples'][i][key] = filtered
+                            flagged = True
+
+    # Check discussion questions
+    if 'discussion_questions' in lesson_dict and isinstance(lesson_dict['discussion_questions'], list):
+        for i, question in enumerate(lesson_dict['discussion_questions']):
+            if isinstance(question, str):
+                filtered, was_flagged = filter_gambling_content(
+                    question,
+                    topic=lesson_dict.get('title', '')
+                )
+                if was_flagged:
+                    lesson_dict['discussion_questions'][i] = filtered
+                    flagged = True
+
+    # Add flag to lesson
+    lesson_dict['content_flagged'] = flagged
+
+    return lesson_dict
 
 
 # -------------------------------------------------------
@@ -93,6 +203,20 @@ BIBLE AS ULTIMATE AUTHORITY:
 • NEVER cite non-Christian texts as backing or evidence for Christian truth
 • When teaching apologetics or worldview, contrast other beliefs WITH Biblical truth
 • Example: "The Bible teaches in Romans 8:28..." NOT "Buddhism teaches that suffering..."
+
+AGE-APPROPRIATE CONTENT GUIDELINES:
+You are teaching young students (K-12). Follow these critical safety rules:
+
+GAMBLING AND PROBABILITY:
+• When teaching probability, use ONLY age-appropriate examples
+• NEVER provide gambling strategies, betting systems, or casino techniques
+• NEVER explain how to improve odds in real gambling (card counting, systems, etc.)
+• DO explain mathematical concepts like expected value and house edge
+• DO use these safe examples: game shows (Wheel of Fortune, Deal or No Deal), board games (Monopoly, Yahtzee), carnival games, coin flips, dice rolls, card games (for math only), weather prediction, sports statistics
+• IF gambling must be mentioned, frame it as a cautionary tale about how casinos use math against players
+• Emphasize that gambling is designed for the house to profit, not the player
+• Connect to stewardship: God calls us to be wise with resources, not wasteful
+• Redirect gambling questions to educational probability concepts
 
 Throughout ALL sections:
 • Use language that reflects God's order and design in creation
@@ -188,6 +312,20 @@ BIBLE AS SOLE AUTHORITY:
 • Other religious texts may be discussed for understanding, NOT as evidence
 • When comparing worldviews, lead with what the Bible teaches
 • Example: "Romans 8:28 teaches..." NOT "Buddhism also believes..."
+
+AGE-APPROPRIATE CONTENT GUIDELINES:
+You are teaching young students (K-12). Follow these critical safety rules:
+
+GAMBLING AND PROBABILITY:
+• When teaching probability, use ONLY age-appropriate examples
+• NEVER provide gambling strategies, betting systems, or casino techniques
+• NEVER explain how to improve odds in real gambling (card counting, systems, etc.)
+• DO explain mathematical concepts like expected value and house edge
+• DO use these safe examples: game shows, board games, carnival games, coin flips, dice rolls, card games (for math only), weather prediction, sports statistics
+• IF gambling must be mentioned, frame it as a cautionary tale about how casinos use math against players
+• Emphasize that gambling is designed for the house to profit, not the player
+• Connect to stewardship: God calls us to be wise with resources, not wasteful
+• Redirect gambling questions to educational probability concepts
 
 CHARACTER VOICE:
 {voice}

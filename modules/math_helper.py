@@ -1,6 +1,6 @@
 # modules/math_helper.py
 
-from modules.shared_ai import study_buddy_ai
+from modules.shared_ai import study_buddy_ai, filter_gambling_content
 from modules.personality_helper import apply_personality
 from modules.answer_formatter import parse_into_sections, format_answer
 
@@ -20,15 +20,41 @@ def is_christian_question(text: str) -> bool:
 
 
 # -----------------------------------------------------------
+# Detect probability/gambling-related questions
+# -----------------------------------------------------------
+def is_probability_question(text: str) -> bool:
+    keywords = [
+        "probability", "odds", "chance", "likelihood", "random",
+        "dice", "coin", "card", "bet", "gamble", "casino",
+        "roulette", "blackjack", "poker", "lottery", "expected value"
+    ]
+    txt = text.lower()
+    return any(k in txt for k in keywords)
+
+
+# -----------------------------------------------------------
 # Build standard math prompt (NO bullets)
 # -----------------------------------------------------------
 def build_math_prompt(question: str, grade: str):
+    # Add extra safety guidelines for probability questions
+    probability_safety = ""
+    if is_probability_question(question):
+        probability_safety = """
+
+IMPORTANT - PROBABILITY SAFETY GUIDELINES:
+• Use ONLY age-appropriate examples: board games, game shows, carnival games, coin flips, weather, sports stats
+• NEVER explain gambling strategies, betting systems, or how to improve casino odds
+• If gambling is mentioned, frame it as a cautionary math lesson showing house edge
+• Emphasize stewardship: God calls us to be wise with resources
+• Redirect to educational probability concepts
+"""
+
     return f"""
 You are a gentle math tutor for a grade {grade} student.
 
 The student asked:
 \"{question}\"
-
+{probability_safety}
 Use the SIX-section CozmicLearning format.
 NO bullet points. ONLY calm paragraphs.
 
@@ -61,11 +87,24 @@ Write them in simple, tiny paragraph sentences.
 # Build Christian-directed math prompt (NO bullets)
 # -----------------------------------------------------------
 def build_christian_math_prompt(question: str, grade: str):
+    # Add extra safety guidelines for probability questions
+    probability_safety = ""
+    if is_probability_question(question):
+        probability_safety = """
+
+IMPORTANT - PROBABILITY SAFETY GUIDELINES:
+• Use ONLY age-appropriate examples: board games, game shows, carnival games, coin flips, weather, sports stats
+• NEVER explain gambling strategies, betting systems, or how to improve casino odds
+• If gambling is mentioned, frame it as a cautionary math lesson showing house edge
+• Connect to Biblical stewardship: God calls us to be wise with resources (Luke 16:10-11)
+• Redirect to educational probability concepts
+"""
+
     return f"""
 The student asked this math question from a Christian perspective:
 
 \"{question}\"
-
+{probability_safety}
 Use the SIX-section CozmicLearning format.
 NO bullet points.
 
@@ -106,6 +145,12 @@ def explain_math(question: str, grade_level="5", character="nova"):
 
     # AI output
     raw = study_buddy_ai(enriched_prompt, grade_level, character)
+
+    # Apply gambling content filter for probability questions
+    if is_probability_question(question):
+        raw, was_flagged = filter_gambling_content(raw, topic="probability")
+        if was_flagged:
+            print(f"⚠️  Gambling content detected and filtered in math response")
 
     # Universal parsing
     sections = parse_into_sections(raw)

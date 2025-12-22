@@ -6,7 +6,7 @@ Provides curated lessons for each subject and grade level with AI follow-up chat
 import os
 import json
 from typing import Dict, List, Optional
-from modules.shared_ai import get_client
+from modules.shared_ai import get_client, validate_lesson_content, filter_gambling_content
 
 
 # Lesson topics organized by subject and grade
@@ -248,6 +248,25 @@ IMPORTANT: Build on the chapter's overall theme and connect this lesson to the c
 Make sure content is appropriate for lesson {lesson_number} in this sequence.
 """
 
+    # Check if this is a probability-related topic
+    is_probability = any(keyword in topic.lower() for keyword in
+                        ['probability', 'odds', 'chance', 'random', 'gambling', 'casino', 'bet', 'expected value'])
+
+    probability_safety = ""
+    if is_probability:
+        probability_safety = """
+
+CRITICAL SAFETY GUIDELINES FOR PROBABILITY LESSONS:
+- Use ONLY age-appropriate examples: board games (Monopoly, Yahtzee), game shows (Wheel of Fortune, Deal or No Deal), carnival games, coin flips, dice rolls, weather prediction, sports statistics
+- NEVER provide gambling strategies, betting systems, card counting, or ways to improve casino odds
+- NEVER explain practical gambling techniques like bankroll management or bet sizing
+- DO explain mathematical concepts like expected value and house edge
+- IF gambling must be mentioned, frame it as a cautionary lesson showing how the house always wins
+- Emphasize Biblical stewardship: God calls us to be wise with resources (Luke 16:10-11)
+- Connect probability to God's design and order in creation
+- Use examples that teach math, not practical gambling application
+"""
+
     prompt = f"""You are {character.title()}, a {character_style}, teaching a Grade {grade} student.
 
 Create an engaging, interactive lesson on "{topic}" for {subject_name}.
@@ -260,7 +279,7 @@ IMPORTANT GUIDELINES:
 - Use encouraging, supportive tone
 - End with thought-provoking questions for discussion
 {"- Connect to the chapter theme and build on previous lessons" if chapter_info else ""}
-
+{probability_safety}
 Generate the lesson in this EXACT JSON format (valid JSON only, no markdown):
 
 {{
@@ -320,6 +339,13 @@ Make it grade {grade} appropriate, engaging, and educational!"""
 
         lesson_data = json.loads(response_text)
 
+        # Apply content safety filter to validate lesson content
+        lesson_data = validate_lesson_content(lesson_data)
+
+        # Log if content was flagged
+        if lesson_data.get('content_flagged'):
+            print(f"⚠️  Gambling content detected and filtered in {topic} lesson for grade {grade}")
+
         return {
             "success": True,
             "lesson": lesson_data,
@@ -374,6 +400,22 @@ def get_lesson_chat_response(
     if conversation_history is None:
         conversation_history = []
 
+    # Check if this is a probability-related topic
+    is_probability = any(keyword in lesson_topic.lower() for keyword in
+                        ['probability', 'odds', 'chance', 'random', 'gambling', 'casino', 'bet'])
+
+    probability_safety = ""
+    if is_probability:
+        probability_safety = """
+
+CRITICAL SAFETY GUIDELINES FOR PROBABILITY:
+- Use ONLY age-appropriate examples: board games, game shows, carnival games, coin flips, weather, sports stats
+- NEVER provide gambling strategies, betting systems, or ways to improve casino odds
+- If student asks about gambling, redirect to educational probability concepts
+- Frame any gambling discussion as cautionary: the house always wins mathematically
+- Connect to Biblical stewardship: God calls us to be wise with resources
+"""
+
     system_message = f"""You are {character.title()}, an encouraging AI mentor helping a Grade {grade} student
 understand "{lesson_topic}" in {subject_name}.
 
@@ -384,7 +426,8 @@ Guidelines:
 - Provide examples when helpful
 - Ask follow-up questions to check understanding
 - Praise good questions and effort
-- Keep responses concise (2-3 paragraphs max)"""
+- Keep responses concise (2-3 paragraphs max)
+{probability_safety}"""
 
     messages = [{"role": "system", "content": system_message}]
 
@@ -404,7 +447,15 @@ Guidelines:
             timeout=30.0
         )
 
-        return response.choices[0].message.content.strip()
+        response_text = response.choices[0].message.content.strip()
+
+        # Apply gambling content filter for probability-related lessons
+        if is_probability:
+            response_text, was_flagged = filter_gambling_content(response_text, topic=lesson_topic)
+            if was_flagged:
+                print(f"⚠️  Gambling content detected and filtered in lesson chat for: {lesson_topic}")
+
+        return response_text
 
     except Exception as e:
         print(f"Error getting chat response: {e}")
