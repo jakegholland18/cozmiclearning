@@ -49,6 +49,7 @@
             <a href="/teacher/assignments"><span class="nav-emoji">📝</span> Assignments</a>
             <a href="/teacher/live-dashboard"><span class="nav-emoji">📊</span> Monitor</a>
             <a href="/teacher/messages"><span class="nav-emoji">💬</span> Messages</a>
+            <a href="/tutorials"><span class="nav-emoji">📚</span> Tutorials</a>
             <a href="/teacher/logout">Logout</a>
 
             {% if session.is_owner %}
@@ -67,6 +68,7 @@
             <!-- STUDENT -->
             <a href="/dashboard">Dashboard</a>
             <a href="/subjects">Planets</a>
+            <a href="/tutorials"><span class="nav-emoji">📚</span> Tutorials</a>
             <a href="/parent_login">Parent Access</a>
             <a href="/student/logout">Logout</a>
 
@@ -80,6 +82,7 @@
         {% elif session.parent_id %}
             <!-- PARENT -->
             <a href="/parent_dashboard">Reports</a>
+            <a href="/tutorials"><span class="nav-emoji">📚</span> Tutorials</a>
             <a href="/parent/logout">Logout</a>
 
             {% if session.is_owner %}

@@ -15919,7 +15919,7 @@ def tutorial_help_ai():
             return jsonify({"answer": "Please ask a question!"})
 
         # Use OpenAI to answer tutorial questions
-        from modules.openai_helper import get_completion
+        from modules.ai_client import get_completion
 
         system_prompt = """You are a helpful AI assistant for CozmicLearning, an educational platform.
 
