@@ -189,16 +189,20 @@ SECTION 5 — DIFFERENCE
 SECTION 6 — PRACTICE
 
 STRICT FORMAT RULES:
-- NEVER use bullet points (•, *, -, 1., 2., etc.) in your content
-- NEVER use lists of any kind in your content
-- ONLY write in paragraphs with full sentences
+- NEVER use bullet points (•, *, -) in your content
+- NEVER use markdown formatting (**, __, ~~, etc.) in your content
+- Numbered lists (1. 2. 3.) are acceptable when listing steps or items
+- ONLY write in paragraphs with full sentences or simple numbered lists
 - Each section MUST contain 2–5 full sentences in paragraph form
 - After each label: one blank line, then the paragraph
 - Never modify section labels
 - Never merge or remove sections
 - Never add new sections
 
-CRITICAL: Your responses must be ONLY flowing paragraphs. If you find yourself listing items with bullets, numbers, or dashes, you MUST rewrite them as connected sentences in paragraph form instead.
+FORMATTING GUIDELINES:
+- Use plain text only - no bold (**text**), italics, or other markdown
+- When listing items, use simple numbers: "1. First item" not "**1.** First item"
+- Keep formatting clean and minimal for easy reading
 
 CHRISTIAN WITNESS GUIDELINES:
 In SECTION 3 — CHRISTIAN VIEW, you must:
@@ -240,16 +244,20 @@ SECTION 3 — EXAMPLES
 SECTION 4 — PRACTICE
 
 STRICT FORMAT RULES:
-- NEVER use bullet points (•, *, -, 1., 2., etc.) in your content
-- NEVER use lists of any kind in your content
-- ONLY write in paragraphs with full sentences
+- NEVER use bullet points (•, *, -) in your content
+- NEVER use markdown formatting (**, __, ~~, etc.) in your content
+- Numbered lists (1. 2. 3.) are acceptable when listing steps or items
+- ONLY write in paragraphs with full sentences or simple numbered lists
 - Each section MUST contain 2–5 full sentences in paragraph form
 - After each label: one blank line, then the paragraph
 - Never modify section labels
 - Never merge or remove sections
 - Never add new sections
 
-CRITICAL: Your responses must be ONLY flowing paragraphs. If you find yourself listing items with bullets, numbers, or dashes, you MUST rewrite them as connected sentences in paragraph form instead.
+FORMATTING GUIDELINES:
+- Use plain text only - no bold (**text**), italics, or other markdown
+- When listing items, use simple numbers: "1. First item" not "**1.** First item"
+- Keep formatting clean and minimal for easy reading
 
 IMPLICIT CHRISTIAN WORLDVIEW:
 Throughout ALL sections:
