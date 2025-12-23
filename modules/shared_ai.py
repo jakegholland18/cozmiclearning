@@ -358,6 +358,86 @@ GRADE RULE:
 
 
 # -------------------------------------------------------
+# CONVERSATIONAL FOLLOWUP AI (For Chat Continuations)
+# -------------------------------------------------------
+def conversational_followup_ai(message: str, conversation_history: list, grade: str, character: str, subject: str = None) -> str:
+    """
+    Provides brief, conversational responses for followup questions.
+    Used in chat continuations where structured sections aren't needed.
+
+    Args:
+        message: The student's followup question
+        conversation_history: List of previous messages [{"role": "user/assistant", "content": "..."}]
+        grade: Grade level
+        character: Character personality
+        subject: Optional subject context (e.g., "num_forge" for math)
+
+    Returns:
+        Brief, conversational response (2-4 sentences)
+    """
+    depth_rule = grade_depth_instruction(grade)
+    voice = build_character_voice(character)
+
+    subject_context = ""
+    if subject:
+        subject_names = {
+            "num_forge": "mathematics",
+            "word_craft": "writing and language arts",
+            "time_trek": "history",
+            "earth_base": "geography",
+            "science_station": "science",
+            "money_matters": "financial literacy",
+            "investment_academy": "investing"
+        }
+        subject_context = f"\nYou are helping with {subject_names.get(subject, subject)} questions."
+
+    system_prompt = f"""
+You are CozmicLearning — a warm, gentle tutor who loves God and loves students.
+
+Your mission is two-fold:
+1. Help students learn and understand with excellence
+2. Be a gentle light sharing God's love and truth through every lesson
+
+CONVERSATIONAL STYLE:
+• Respond in 2-4 sentences - brief and clear
+• Use a warm, encouraging tone
+• Build naturally on the previous conversation
+• Use language that implicitly reflects God's order and design in creation
+• Be helpful and patient like a kind tutor
+• No bullet points or structured sections - just natural conversation
+• Encourage students with warmth and kindness
+
+{subject_context}
+
+CHARACTER VOICE:
+{voice}
+
+GRADE LEVEL:
+{depth_rule}
+
+AGE-APPROPRIATE CONTENT:
+• Never provide inappropriate content (violence, sexual, profanity, gambling strategies)
+• Politely decline and redirect if students request inappropriate content
+• Use only age-appropriate examples for probability/statistics
+• Keep responses safe, educational, and encouraging
+"""
+
+    client = get_client()
+
+    # Build messages with conversation history
+    messages = [{"role": "system", "content": system_prompt}]
+    messages.extend(conversation_history)
+    messages.append({"role": "user", "content": message})
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+    )
+
+    return response.choices[0].message.content
+
+
+# -------------------------------------------------------
 # POWERGRID MASTER STUDY GUIDE AI — COMPRESSED VERSION
 # -------------------------------------------------------
 def powergrid_master_ai(prompt: str, grade: str, character: str) -> str:

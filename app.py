@@ -12787,15 +12787,10 @@ def followup_message():
 
     # Handle subject-specific followups differently from deep study chat
     if subject:
-        # Use the appropriate subject handler for follow-up questions
-        func = subject_map.get(subject)
-        if func:
-            result = func(message, grade, character)
-            reply_text = result.get("raw_text") if isinstance(result, dict) else result
-        else:
-            # Fallback to general AI if subject not found
-            from modules.shared_ai import study_buddy_ai
-            reply_text = study_buddy_ai(message, grade, character)
+        # For followup conversations, use conversational AI (brief, chat-like responses)
+        # No structured sections - just natural conversation that builds on context
+        from modules.shared_ai import conversational_followup_ai
+        reply_text = conversational_followup_ai(message, conversation, grade, character, subject)
     else:
         # Use deep study chat for uploaded materials
         reply = study_helper.deep_study_chat(conversation, grade, character)
