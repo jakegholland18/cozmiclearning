@@ -101,6 +101,18 @@ def run_migrations():
         logger.error(f"❌ Error in add_performance_indexes: {e}")
         success = False
 
+    # Migration 8: Add output moderation columns to QuestionLog
+    # Adds output_flagged and output_moderation_reason columns for tracking AI response moderation
+    try:
+        logger.info("\n📋 Migration 8: Add output moderation columns")
+        from migrations.add_output_moderation_columns import migrate as migrate_output_moderation
+        if not migrate_output_moderation():
+            logger.error("❌ Failed to add output moderation columns")
+            success = False
+    except Exception as e:
+        logger.error(f"❌ Error in add_output_moderation_columns: {e}")
+        success = False
+
     if success:
         logger.info("\n✅ All startup migrations completed successfully!")
     else:
