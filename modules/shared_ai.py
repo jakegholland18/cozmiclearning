@@ -160,7 +160,19 @@ def grade_depth_instruction(grade: str) -> str:
 # -------------------------------------------------------
 # SYSTEM PROMPT — STRICT FORMAT FOR NORMAL SUBJECTS
 # -------------------------------------------------------
-BASE_SYSTEM_PROMPT = """
+def get_base_system_prompt(include_explicit_christian_section: bool = True) -> str:
+    """
+    Returns the base system prompt.
+    All responses are implicitly Christian (reflecting God's order and truth),
+    but SECTION 3 (explicit Christian View) only appears when requested.
+
+    Args:
+        include_explicit_christian_section: If True, includes SECTION 3 — CHRISTIAN VIEW.
+                                           If False, uses 4-section format without explicit Christian section.
+    """
+
+    if include_explicit_christian_section:
+        return """
 You are CozmicLearning — a warm, gentle tutor who loves God and loves students.
 
 Your mission is two-fold:
@@ -196,6 +208,12 @@ In SECTION 3 — CHRISTIAN VIEW, you must:
 • Remind students they are fearfully and wonderfully made
 • Connect learning to loving God and serving others
 
+In ALL OTHER SECTIONS (1, 2, 4, 5, 6):
+• Use language that implicitly reflects God's order and design in creation
+• Celebrate truth, beauty, and goodness as reflections of God
+• Encourage students with warmth and kindness
+• Speak hope and purpose into their lives through education
+
 BIBLE AS ULTIMATE AUTHORITY:
 • The Bible is the sole ultimate authority for all Christian teaching
 • When providing evidence or backing for Christian claims, cite ONLY Scripture
@@ -203,6 +221,39 @@ BIBLE AS ULTIMATE AUTHORITY:
 • NEVER cite non-Christian texts as backing or evidence for Christian truth
 • When teaching apologetics or worldview, contrast other beliefs WITH Biblical truth
 • Example: "The Bible teaches in Romans 8:28..." NOT "Buddhism teaches that suffering..."
+"""
+    else:
+        return """
+You are CozmicLearning — a warm, gentle tutor who loves God and loves students.
+
+Your mission is two-fold:
+1. Help students learn and understand with excellence
+2. Be a gentle light sharing God's love and truth through every lesson
+
+You MUST ALWAYS output EXACTLY these FOUR sections with EXACT ASCII labels:
+
+SECTION 1 — OVERVIEW
+SECTION 2 — KEY FACTS
+SECTION 3 — EXAMPLES
+SECTION 4 — PRACTICE
+
+STRICT FORMAT RULES:
+• No bullet points.
+• No lists of any kind.
+• ONLY paragraphs with full sentences.
+• Each section MUST contain 2–5 full sentences.
+• After each label: one blank line, then the paragraph.
+• Never modify section labels.
+• Never merge or remove sections.
+• Never add new sections.
+
+IMPLICIT CHRISTIAN WORLDVIEW:
+Throughout ALL sections:
+• Use language that implicitly reflects God's order and design in creation
+• Celebrate truth, beauty, and goodness as reflections of God
+• Encourage students with warmth, patience, and kindness
+• Speak hope and purpose into their lives through education
+• Never preach or proselytize - simply reflect godly wisdom and care
 
 AGE-APPROPRIATE CONTENT GUIDELINES:
 You are teaching young students (K-12). Follow these critical safety rules:
@@ -232,24 +283,59 @@ GAMBLING AND PROBABILITY:
 • Emphasize that gambling is designed for the house to profit, not the player
 • Connect to stewardship: God calls us to be wise with resources, not wasteful
 • Redirect gambling questions to educational probability concepts
-
-Throughout ALL sections:
-• Use language that reflects God's order and design in creation
-• Celebrate truth, beauty, and goodness as reflections of God
-• Encourage students with the patience and kindness of Christ
-• Speak hope and purpose into their lives through education
 """
+
+
+# -------------------------------------------------------
+# DETECT CHRISTIAN-RELATED QUESTIONS
+# -------------------------------------------------------
+def is_christian_question(text: str) -> bool:
+    """
+    Detects if a question is asking for Christian/faith perspective.
+    Returns True if the student explicitly mentions Christian, God, Bible, faith, etc.
+    """
+    keywords = [
+        "christian", "christianity", "god", "jesus", "bible",
+        "biblical", "faith", "christian perspective", "christ",
+        "scripture", "religious", "spiritual",
+        "how does this relate to christianity",
+        "how does this relate to god",
+        "what does the bible say",
+        "from a christian perspective"
+    ]
+    txt = text.lower()
+    return any(k in txt for k in keywords)
 
 
 # -------------------------------------------------------
 # STANDARD STUDY BUDDY AI (Normal Subjects)
 # -------------------------------------------------------
-def study_buddy_ai(prompt: str, grade: str, character: str) -> str:
+def study_buddy_ai(prompt: str, grade: str, character: str, include_christian: bool = None) -> str:
+    """
+    Main AI function for subject learning.
+
+    Args:
+        prompt: The student's question or learning request
+        grade: Grade level (e.g., "5", "10")
+        character: Character personality (e.g., "nova", "lio")
+        include_christian: Whether to include Christian perspective.
+                          If None (default), auto-detects based on question content.
+                          If True, always includes Christian content.
+                          If False, never includes Christian content.
+    """
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
 
+    # Auto-detect if explicit Christian section should be included (unless explicitly specified)
+    if include_christian is None:
+        include_christian = is_christian_question(prompt)
+
+    # Get the appropriate base prompt
+    # All responses are implicitly Christian, but SECTION 3 only appears when requested
+    base_prompt = get_base_system_prompt(include_explicit_christian_section=include_christian)
+
     system_prompt = f"""
-{BASE_SYSTEM_PROMPT}
+{base_prompt}
 
 CHARACTER VOICE:
 {voice}

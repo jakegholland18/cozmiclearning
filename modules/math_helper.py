@@ -1,22 +1,8 @@
 # modules/math_helper.py
 
-from modules.shared_ai import study_buddy_ai, filter_gambling_content
+from modules.shared_ai import study_buddy_ai, filter_gambling_content, is_christian_question
 from modules.personality_helper import apply_personality
 from modules.answer_formatter import parse_into_sections, format_answer
-
-
-# -----------------------------------------------------------
-# Detect Christian-related math questions
-# -----------------------------------------------------------
-def is_christian_question(text: str) -> bool:
-    keywords = [
-        "christian", "christianity", "god", "jesus", "bible",
-        "biblical", "faith", "christian perspective",
-        "how does this relate to christianity",
-        "how does this relate to god"
-    ]
-    txt = text.lower()
-    return any(k in txt for k in keywords)
 
 
 # -----------------------------------------------------------

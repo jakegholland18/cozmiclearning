@@ -430,13 +430,17 @@ class QuestionLog(db.Model):
     # AI response
     ai_response = db.Column(db.Text, nullable=True)
     
-    # Moderation results
+    # Moderation results (input)
     flagged = db.Column(db.Boolean, default=False)
     allowed = db.Column(db.Boolean, default=True)  # Whether content was processed
     moderation_reason = db.Column(db.Text, nullable=True)  # Why flagged/blocked
     moderation_data_json = db.Column(db.Text, nullable=True)  # Full moderation details (JSON)
     severity = db.Column(db.String(20), nullable=True)  # "low", "medium", "high"
-    
+
+    # Output moderation results (AI response)
+    output_flagged = db.Column(db.Boolean, default=False)
+    output_moderation_reason = db.Column(db.Text, nullable=True)  # Why AI output was flagged
+
     # Admin review
     reviewed = db.Column(db.Boolean, default=False)
     reviewed_by = db.Column(db.String(100), nullable=True)  # Admin/teacher email

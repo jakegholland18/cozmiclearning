@@ -166,18 +166,19 @@ RECOMMENDED_ENV_VARS = [
     'ADMIN_PASSWORD',
 ]
 
-# Check required variables
-missing_required = [var for var in REQUIRED_ENV_VARS if not os.environ.get(var)]
-if missing_required:
-    print("=" * 60)
-    print("❌ CRITICAL ERROR: Missing Required Environment Variables")
-    print("=" * 60)
-    for var in missing_required:
-        print(f"   ❌ {var}")
-    print("\nSet these variables in your .env file before starting the app.")
-    print("Copy .env.example to .env and fill in the values.")
-    print("=" * 60)
-    sys.exit(1)
+# Check required variables (skip for migrations)
+if not os.environ.get('SKIP_STRIPE_CHECK'):
+    missing_required = [var for var in REQUIRED_ENV_VARS if not os.environ.get(var)]
+    if missing_required:
+        print("=" * 60)
+        print("❌ CRITICAL ERROR: Missing Required Environment Variables")
+        print("=" * 60)
+        for var in missing_required:
+            print(f"   ❌ {var}")
+        print("\nSet these variables in your .env file before starting the app.")
+        print("Copy .env.example to .env and fill in the values.")
+        print("=" * 60)
+        sys.exit(1)
 
 # Warn about missing recommended variables
 missing_recommended = [var for var in RECOMMENDED_ENV_VARS if not os.environ.get(var)]
@@ -12799,7 +12800,30 @@ def followup_message():
         # Use deep study chat for uploaded materials
         reply = study_helper.deep_study_chat(conversation, grade, character)
         reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
-    
+
+    # OUTPUT CONTENT MODERATION - Check AI response before sending to student
+    output_moderation = moderate_content(reply_text, student_id=student_id, context="ai_output")
+
+    if output_moderation.get("flagged", False):
+        # Log the flagged output
+        if log_entry:
+            log_entry.ai_response = reply_text[:5000]
+            log_entry.output_flagged = True
+            log_entry.output_moderation_reason = output_moderation.get("reason", "AI output flagged")
+            db.session.commit()
+
+        # If output is blocked, return safe error message
+        if not output_moderation.get("allowed", True):
+            safe_response = "I apologize, but I'm not able to provide that response. Let me try to help you in a different way - could you rephrase your question?"
+            conversation.append({"role": "assistant", "content": safe_response})
+            session["conversation"] = conversation
+            session.modified = True
+
+            return jsonify({
+                "reply": safe_response,
+                "warning": "Response was filtered for safety"
+            })
+
     # Update log with AI response
     if log_entry:
         log_entry.ai_response = reply_text[:5000]
@@ -12808,7 +12832,7 @@ def followup_message():
     conversation.append({"role": "assistant", "content": reply_text})
     session["conversation"] = conversation
     session.modified = True
-    
+
     # Increment question count
     increment_question_count()
 
