@@ -437,10 +437,9 @@ class QuestionLog(db.Model):
     moderation_data_json = db.Column(db.Text, nullable=True)  # Full moderation details (JSON)
     severity = db.Column(db.String(20), nullable=True)  # "low", "medium", "high"
 
-    # Output moderation results (AI response) - TEMPORARILY COMMENTED FOR MIGRATION
-    # These will be uncommented after migration adds the columns
-    # output_flagged = db.Column(db.Boolean, default=False)
-    # output_moderation_reason = db.Column(db.Text, nullable=True)  # Why AI output was flagged
+    # Output moderation results (AI response)
+    output_flagged = db.Column(db.Boolean, default=False)
+    output_moderation_reason = db.Column(db.Text, nullable=True)  # Why AI output was flagged
 
     # Admin review
     reviewed = db.Column(db.Boolean, default=False)

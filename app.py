@@ -12803,9 +12803,8 @@ def followup_message():
         # Log the flagged output
         if log_entry:
             log_entry.ai_response = reply_text[:5000]
-            # TEMPORARILY COMMENTED - will uncomment after migration adds columns
-            # log_entry.output_flagged = True
-            # log_entry.output_moderation_reason = output_moderation.get("reason", "AI output flagged")
+            log_entry.output_flagged = True
+            log_entry.output_moderation_reason = output_moderation.get("reason", "AI output flagged")
             db.session.commit()
 
         # If output is blocked, return safe error message
