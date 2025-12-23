@@ -12748,27 +12748,30 @@ def followup_message():
     grade = data.get("grade")
     character = data.get("character") or session.get("character", "nova")
     message = data.get("message", "")
+    subject = data.get("subject")  # Get subject from request for subject-specific followups
     
     # CONTENT MODERATION
     student_id = get_student_id_from_session()
     moderation_result = moderate_content(message, student_id=student_id, context="chat")
 
     # Log the message (only if student_id exists)
+    log_entry = None
     if student_id:
         log_entry = QuestionLog(
             student_id=student_id,
-        question_text=message,
-        sanitized_text=moderation_result.get("sanitized_text"),
-        context="deep_study_chat",
-        grade_level=grade,
-        flagged=moderation_result.get("flagged", False),
-        allowed=moderation_result.get("allowed", True),
-        moderation_reason=moderation_result.get("reason"),
-        moderation_data_json=str(moderation_result.get("moderation_data", {})),
-        severity=moderation_result.get("severity", "low")
-    )
-    db.session.add(log_entry)
-    db.session.commit()
+            question_text=message,
+            sanitized_text=moderation_result.get("sanitized_text"),
+            subject=subject,
+            context="subject_followup" if subject else "deep_study_chat",
+            grade_level=grade,
+            flagged=moderation_result.get("flagged", False),
+            allowed=moderation_result.get("allowed", True),
+            moderation_reason=moderation_result.get("reason"),
+            moderation_data_json=str(moderation_result.get("moderation_data", {})),
+            severity=moderation_result.get("severity", "low")
+        )
+        db.session.add(log_entry)
+        db.session.commit()
     
     # If blocked, return error
     if not moderation_result["allowed"]:
@@ -12781,12 +12784,26 @@ def followup_message():
     conversation = session.get("conversation", [])
     conversation.append({"role": "user", "content": message})
 
-    reply = study_helper.deep_study_chat(conversation, grade, character)
-    reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+    # Handle subject-specific followups differently from deep study chat
+    if subject:
+        # Use the appropriate subject handler for follow-up questions
+        func = subject_map.get(subject)
+        if func:
+            result = func(message, grade, character)
+            reply_text = result.get("raw_text") if isinstance(result, dict) else result
+        else:
+            # Fallback to general AI if subject not found
+            from modules.shared_ai import study_buddy_ai
+            reply_text = study_buddy_ai(message, grade, character)
+    else:
+        # Use deep study chat for uploaded materials
+        reply = study_helper.deep_study_chat(conversation, grade, character)
+        reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
     
     # Update log with AI response
-    log_entry.ai_response = reply_text[:5000]
-    db.session.commit()
+    if log_entry:
+        log_entry.ai_response = reply_text[:5000]
+        db.session.commit()
 
     conversation.append({"role": "assistant", "content": reply_text})
     session["conversation"] = conversation
