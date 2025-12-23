@@ -9941,25 +9941,35 @@ def teacher_regenerate_question():
     if not topic:
         return jsonify({"error": "Topic is required"}), 400
 
-    # Generate a single question
-    payload = assign_questions(
-        subject=subject,
-        topic=topic,
-        grade=grade,
-        character=character,
-        differentiation_mode=differentiation_mode,
-        student_ability=student_ability,
-        num_questions=1,  # Generate just one question
-    )
+    try:
+        # Generate a single question
+        print(f"🔄 Regenerating question: subject={subject}, topic={topic}, grade={grade}")
+        payload = assign_questions(
+            subject=subject,
+            topic=topic,
+            grade=grade,
+            character=character,
+            differentiation_mode=differentiation_mode,
+            student_ability=student_ability,
+            num_questions=1,  # Generate just one question
+        )
 
-    questions = payload.get("questions", [])
-    if not questions:
-        return jsonify({"error": "Failed to generate question"}), 500
+        questions = payload.get("questions", [])
+        if not questions:
+            print(f"❌ No questions returned from assign_questions")
+            return jsonify({"error": "Failed to generate question"}), 500
 
-    return jsonify({
-        "success": True,
-        "question": questions[0]
-    }), 200
+        print(f"✅ Question regenerated successfully")
+        return jsonify({
+            "success": True,
+            "question": questions[0]
+        }), 200
+
+    except Exception as e:
+        print(f"❌ Error regenerating question: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to generate question: {str(e)}"}), 500
 
 
 @csrf.exempt
