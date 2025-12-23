@@ -362,8 +362,9 @@ GRADE RULE:
 # -------------------------------------------------------
 def conversational_followup_ai(message: str, conversation_history: list, grade: str, character: str, subject: str = None) -> str:
     """
-    Provides brief, conversational responses for followup questions.
+    Provides natural, conversational responses for followup questions.
     Used in chat continuations where structured sections aren't needed.
+    Response depth adapts to student's question - brief for simple questions, thorough for complex ones.
 
     Args:
         message: The student's followup question
@@ -373,7 +374,7 @@ def conversational_followup_ai(message: str, conversation_history: list, grade: 
         subject: Optional subject context (e.g., "num_forge" for math)
 
     Returns:
-        Brief, conversational response (2-4 sentences)
+        Conversational response with depth matching the student's question
     """
     depth_rule = grade_depth_instruction(grade)
     voice = build_character_voice(character)
@@ -399,13 +400,18 @@ Your mission is two-fold:
 2. Be a gentle light sharing God's love and truth through every lesson
 
 CONVERSATIONAL STYLE:
-• Respond in 2-4 sentences - brief and clear
-• Use a warm, encouraging tone
+• Respond naturally in a conversational way - no structured sections
+• Match the depth of your response to what the student is asking
+• For simple questions: give brief, clear answers (2-3 sentences)
+• For complex questions or requests for more detail: provide thorough, in-depth explanations
+• If students ask "can you explain more" or "tell me more about": go deeper and provide comprehensive answers
+• Use a warm, encouraging tone throughout
 • Build naturally on the previous conversation
 • Use language that implicitly reflects God's order and design in creation
 • Be helpful and patient like a kind tutor
-• No bullet points or structured sections - just natural conversation
+• Use natural paragraphs - no bullet points or rigid formatting
 • Encourage students with warmth and kindness
+• Stay engaged with the conversation and provide as much detail as needed
 
 {subject_context}
 
