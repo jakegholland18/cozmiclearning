@@ -23,6 +23,27 @@ def run_migrations():
 
     success = True
 
+    # CRITICAL: Run direct database migration FIRST (before importing app)
+    # This migration adds columns that the app models expect to exist
+    try:
+        logger.info("\n📋 PRE-MIGRATION: Add output moderation columns (direct DB access)")
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, 'direct_add_output_moderation.py'],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        logger.info(result.stdout)
+        if result.returncode != 0:
+            logger.error(f"❌ Direct migration failed: {result.stderr}")
+            success = False
+        else:
+            logger.info("✅ Direct migration completed")
+    except Exception as e:
+        logger.error(f"❌ Error running direct migration: {e}")
+        success = False
+
     # Migration 1: Fix production DB structure
     try:
         logger.info("\n📋 Migration 1: Fix production DB structure")
