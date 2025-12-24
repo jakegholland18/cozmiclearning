@@ -12965,11 +12965,15 @@ Rules:
 # POWERGRID STUDY GUIDE + PDF
 # ============================================================
 
-@app.route("/powergrid_submit", methods=["POST"])
+@app.route("/powergrid_submit", methods=["GET", "POST"])
 @csrf.exempt
 @limiter.limit("20 per hour")  # PowerGrid is computationally expensive
 def powergrid_submit():
     init_user()
+
+    # Handle GET requests - redirect to PowerGrid entry point
+    if request.method == "GET":
+        return redirect("/ask-question?subject=power_grid")
 
     grade = request.form.get("grade")
     topic = request.form.get("topic", "").strip()
