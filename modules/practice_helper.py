@@ -580,13 +580,24 @@ FORMAT REQUIREMENTS:
 - Brief, instructional explanations
 - Standard academic tone
 
-⚠️ CRITICAL: DO NOT REFERENCE VISUALS
+⚠️ CRITICAL: DO NOT INCLUDE OR REFERENCE VISUALS
+- NEVER add "VISUAL DIAGRAM" sections
+- NEVER add ASCII art diagrams
 - NEVER write "Based on the diagram above..."
 - NEVER write "Look at the graph..."
 - NEVER write "In the picture shown..."
-- NEVER write "Using the visual..."
-- All questions must be self-contained with NO visual references
+- NEVER write "See the illustration..."
+- NEVER draw coordinate planes, quadrants, or graphs
+- All questions must be PURE TEXT with NO visual elements
+- Describe concepts with WORDS, not diagrams
 - Include all necessary information in the question text itself
+
+EXAMPLE - WRONG (DO NOT DO THIS):
+"VISUAL DIAGRAM: [any kind of drawing]"
+"4. VISUAL DIAGRAM ↑ y-axis..."
+
+EXAMPLE - CORRECT:
+"In a coordinate plane, Quadrant I is where both x and y are positive. Quadrant II is where x is negative and y is positive. Quadrant III is where both are negative. Quadrant IV is where x is positive and y is negative. Which quadrant contains the point (-3, 5)?"
 
 RETURN FORMAT - VALID JSON ONLY:
 {{
@@ -662,11 +673,14 @@ THE EXPERIENCE:
 - Hints should gently guide.
 - Explanations should be supportive, like a real tutor.
 
-⚠️ CRITICAL: DO NOT REFERENCE VISUALS
+⚠️ CRITICAL: DO NOT INCLUDE OR REFERENCE VISUALS
+- NEVER add "VISUAL DIAGRAM" sections or ASCII art
 - NEVER write "Based on the diagram above..."
 - NEVER write "Look at the graph..."
 - NEVER write "In the picture shown..."
-- All questions must be self-contained with NO visual references
+- NEVER draw coordinate planes, quadrants, or graphs
+- All questions must be PURE TEXT with NO visual elements
+- Describe concepts with WORDS, not diagrams
 - Include all necessary information in the question text itself
 
 RETURN ONLY VALID JSON:
