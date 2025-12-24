@@ -511,3 +511,213 @@ def get_recommended_strategies(profile):
         })
 
     return strategies
+
+
+def get_contextual_learning_tips(student_id, context='general'):
+    """
+    Get personalized learning tips based on context (assignment, study, test prep, etc.)
+
+    Args:
+        student_id: ID of the student
+        context: Where the student is (assignment, powergrid, test_prep, general)
+
+    Returns:
+        Dictionary with tips, tools, and strategies
+    """
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+
+    # Default tips if no profile
+    if not profile or not profile.quiz_completed:
+        return {
+            'has_profile': False,
+            'cta': 'Take the Learning Lab quiz to get personalized study tips!',
+            'cta_link': '/learning-lab/quiz'
+        }
+
+    tips = []
+    tools = []
+    quick_strategies = []
+
+    # Context-specific recommendations
+    if context == 'assignment':
+        # Assignment page tips
+        if profile.focus_preference in ['short_bursts', 'every_15_min']:
+            tips.append("Break this assignment into 15-minute chunks with quick breaks")
+            tools.append({'name': 'Pomodoro Timer', 'icon': '⏰', 'link': '/learning-lab/tools#pomodoro'})
+
+        if profile.primary_learning_style == 'visual':
+            tips.append("Create a visual outline or diagram before starting")
+            quick_strategies.append("Use colors to organize your work")
+
+        if profile.prefers_step_by_step:
+            tips.append("List out each small step before you begin")
+            tools.append({'name': 'Task Breakdown Tool', 'icon': '✂️', 'link': '/learning-lab/tools#task-breakdown'})
+
+    elif context == 'powergrid':
+        # PowerGrid study guide tips
+        if profile.primary_learning_style == 'visual':
+            tips.append("Pay special attention to diagrams and visual explanations")
+            quick_strategies.append("Highlight key concepts in different colors")
+
+        if profile.primary_learning_style == 'auditory':
+            tips.append("Read the study guide out loud or use text-to-speech")
+            tools.append({'name': 'Text-to-Speech', 'icon': '🔊', 'link': '/learning-lab/tools#tts'})
+
+        if profile.reading_preference == 'hear_it':
+            tools.append({'name': 'Text-to-Speech', 'icon': '🔊', 'link': '/learning-lab/tools#tts'})
+
+        if profile.focus_preference in ['short_bursts', 'every_15_min']:
+            tips.append("Study one section at a time with 5-minute breaks")
+
+    elif context == 'test_prep':
+        # Test preparation tips
+        if profile.primary_learning_style == 'kinesthetic':
+            tips.append("Use flashcards you can shuffle and sort physically")
+            quick_strategies.append("Try teaching the material to someone else")
+
+        if profile.memory_style == 'hear_words':
+            tips.append("Create songs or rhymes to remember key facts")
+            quick_strategies.append("Explain concepts aloud in your own words")
+
+        tools.append({'name': 'Study Schedule Generator', 'icon': '📅', 'link': '/learning-lab/tools#schedule'})
+
+    elif context == 'practice':
+        # Practice/quiz tips
+        if profile.focus_preference in ['short_bursts', 'every_15_min']:
+            tips.append("Do 5-10 questions, then take a 2-minute break")
+
+        if profile.primary_learning_style == 'visual':
+            tips.append("Draw out problems or create visual representations")
+
+    # General tips based on time of day
+    import datetime
+    current_hour = datetime.datetime.now().hour
+
+    if profile.best_study_time:
+        if profile.best_study_time == 'morning' and current_hour > 14:
+            tips.append("💡 You learn best in the morning - save harder tasks for tomorrow!")
+        elif profile.best_study_time == 'evening' and current_hour < 12:
+            tips.append("💡 Your peak learning time is evening - this is great for review!")
+        elif profile.best_study_time == 'night' and current_hour < 18:
+            tips.append("💡 You focus best at night - save deep learning for later!")
+
+    # Add universal helpful tools
+    if not tools:
+        if profile.uses_focus_timer or profile.focus_preference in ['short_bursts', 'medium_sessions']:
+            tools.append({'name': 'Focus Timer', 'icon': '⏰', 'link': '/learning-lab/tools#pomodoro'})
+
+    return {
+        'has_profile': True,
+        'tips': tips[:2],  # Limit to 2 tips
+        'tools': tools[:2],  # Limit to 2 tools
+        'quick_strategies': quick_strategies[:3],  # Limit to 3 strategies
+        'primary_style': profile.primary_learning_style.replace('_', ' ').title(),
+        'strengths_preview': profile.strengths_summary.split('|')[0].strip() if profile.strengths_summary else '',
+        'profile_link': '/learning-lab/profile'
+    }
+
+
+def adapt_content_to_learning_style(content, learning_style):
+    """
+    Add learning-style-specific prompts to content (for PowerGrid, etc.)
+
+    Args:
+        content: The original content text
+        learning_style: visual, auditory, kinesthetic, reading_writing
+
+    Returns:
+        Enhanced content with style-specific suggestions
+    """
+    enhancements = []
+
+    if learning_style == 'visual':
+        enhancements.append("\n\n💡 **Visual Learner Tip**: Try sketching a diagram of these concepts as you read.")
+        enhancements.append("Consider using highlighters or colored pens to organize information by category.")
+
+    elif learning_style == 'auditory':
+        enhancements.append("\n\n💡 **Auditory Learner Tip**: Read this guide aloud or use text-to-speech.")
+        enhancements.append("Try explaining each section to yourself in your own words before moving on.")
+
+    elif learning_style == 'kinesthetic':
+        enhancements.append("\n\n💡 **Hands-On Learner Tip**: Take a 2-minute movement break every 15 minutes.")
+        enhancements.append("If possible, create a hands-on activity or real-world example for each concept.")
+
+    elif learning_style == 'reading_writing':
+        enhancements.append("\n\n💡 **Reading/Writing Learner Tip**: Take detailed notes as you read.")
+        enhancements.append("Write a summary in your own words at the end of each section.")
+
+    return content + "\n".join(enhancements)
+
+
+def get_learning_toolkit_widget(student_id):
+    """
+    Get HTML for a persistent learning toolkit widget
+
+    Returns:
+        HTML string for widget
+    """
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+
+    if not profile or not profile.quiz_completed:
+        return f"""
+        <div class="learning-toolkit-widget">
+            <div class="toolkit-header">
+                <span class="toolkit-icon">🧠</span>
+                <span class="toolkit-title">Learning Lab</span>
+            </div>
+            <div class="toolkit-content">
+                <p class="toolkit-cta">Discover your learning superpowers!</p>
+                <a href="/learning-lab/quiz" class="toolkit-btn">Take Quiz →</a>
+            </div>
+        </div>
+        """
+
+    # Get top 3 most-used tools
+    top_tools = StrategyUsage.query.filter_by(student_id=student_id).order_by(
+        StrategyUsage.times_used.desc()
+    ).limit(3).all()
+
+    tools_html = ""
+    tool_links = {
+        'pomodoro_timer': '/learning-lab/tools#pomodoro',
+        'text_to_speech': '/learning-lab/tools#tts',
+        'task_breakdown': '/learning-lab/tools#task-breakdown',
+        'reading_customization': '/learning-lab/tools#reading',
+        'study_schedule': '/learning-lab/tools#schedule'
+    }
+
+    if top_tools:
+        for tool in top_tools:
+            link = tool_links.get(tool.strategy_key, '/learning-lab/tools')
+            tools_html += f'<a href="{link}" class="toolkit-quick-link">🔧 {tool.strategy_key.replace("_", " ").title()}</a>'
+    else:
+        # Default tools based on profile
+        if profile.focus_preference in ['short_bursts', 'every_15_min']:
+            tools_html += '<a href="/learning-lab/tools#pomodoro" class="toolkit-quick-link">⏰ Focus Timer</a>'
+        if profile.reading_preference in ['hear_it', 'all_methods']:
+            tools_html += '<a href="/learning-lab/tools#tts" class="toolkit-quick-link">🔊 Text-to-Speech</a>'
+        if profile.prefers_step_by_step:
+            tools_html += '<a href="/learning-lab/tools#task-breakdown" class="toolkit-quick-link">✂️ Task Breakdown</a>'
+
+    style_emoji = {
+        'visual': '👁️',
+        'auditory': '👂',
+        'kinesthetic': '🤸',
+        'reading_writing': '📝'
+    }
+
+    return f"""
+    <div class="learning-toolkit-widget">
+        <div class="toolkit-header">
+            <span class="toolkit-icon">{style_emoji.get(profile.primary_learning_style, '🧠')}</span>
+            <span class="toolkit-title">My Learning Tools</span>
+        </div>
+        <div class="toolkit-content">
+            <div class="toolkit-strength">{profile.strengths_summary.split('|')[0].strip() if profile.strengths_summary else 'Learning Profile Active'}</div>
+            <div class="toolkit-tools">
+                {tools_html if tools_html else '<a href="/learning-lab/tools" class="toolkit-quick-link">🔧 Explore Tools</a>'}
+            </div>
+            <a href="/learning-lab" class="toolkit-link">View All Strategies →</a>
+        </div>
+    </div>
+    """

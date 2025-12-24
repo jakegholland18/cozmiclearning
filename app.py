@@ -13397,6 +13397,11 @@ def powergrid_submit():
     session["deep_study_chat"] = []
     session.modified = True
 
+    # Get personalized learning tips
+    from modules.learning_lab_helper import get_contextual_learning_tips
+    student_id = session.get('student_id')
+    learning_tips = get_contextual_learning_tips(student_id, context='powergrid') if student_id else None
+
     return render_template(
         "powergrid.html",
         subject="power_grid",
@@ -13406,6 +13411,7 @@ def powergrid_submit():
         character=session.get("character", "nova"),
         conversation=session["conversation"],
         pdf_url=pdf_url,
+        learning_tips=learning_tips,
     )
 
 
