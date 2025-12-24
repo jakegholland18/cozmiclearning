@@ -506,12 +506,65 @@ body {
     box-shadow: 0 12px 35px rgba(0,242,255,0.6);
 }
 
+/* Support Panels */
+.support-panel {
+    margin: 20px 0;
+    background: linear-gradient(135deg, rgba(0,242,255,0.08), rgba(79,172,254,0.05));
+    border: 2px solid rgba(0,242,255,0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,242,255,0.2);
+    backdrop-filter: blur(10px);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panel-header {
+    background: linear-gradient(135deg, rgba(0,242,255,0.15), rgba(79,172,254,0.1));
+    padding: 18px 25px;
+    color: #00f2ff;
+    font-weight: 700;
+    font-size: 1.3rem;
+    border-bottom: 2px solid rgba(0,242,255,0.3);
+}
+
+.panel-content {
+    padding: 25px;
+    color: #c4d1ff;
+    line-height: 1.8;
+}
+
+.panel-content h4 {
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+.panel-content ul {
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+.panel-content li {
+    margin-bottom: 8px;
+    color: #c4d1ff;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .study-guide-wrapper {
         grid-template-columns: 1fr;
     }
-    
+
     .toc-panel {
         position: relative;
         top: 0;
@@ -584,6 +637,84 @@ body {
         </div>
     </div>
 
+    <!-- Learning Support Buttons -->
+    <div class="mode-selector" style="margin-bottom: 15px;">
+        <button type="button" class="mode-btn" onclick="togglePanel('studyTechniques')">📚 Study Techniques</button>
+        <button type="button" class="mode-btn" onclick="togglePanel('realWorld')">🌍 Real-World Connections</button>
+        <button type="button" class="mode-btn" onclick="togglePanel('learningSupport')">🧠 Learning Support</button>
+    </div>
+
+    <!-- Collapsible Panels -->
+    <div id="studyTechniques" class="support-panel" style="display: none;">
+        <div class="panel-header">📚 Study Techniques</div>
+        <div class="panel-content" id="studyTechniquesContent">
+            <p style="color: #c4d1ff;">Loading study techniques...</p>
+        </div>
+    </div>
+
+    <div id="realWorld" class="support-panel" style="display: none;">
+        <div class="panel-header">🌍 Real-World Connections</div>
+        <div class="panel-content" id="realWorldContent">
+            <p style="color: #c4d1ff;">Loading real-world connections...</p>
+        </div>
+    </div>
+
+    <div id="learningSupport" class="support-panel" style="display: none;">
+        <div class="panel-header">🧠 Learning Support Strategies</div>
+        <div class="panel-content" id="learningSupportContent">
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00f2ff; margin-bottom: 10px;">💡 ADHD-Friendly Strategies</h4>
+                <ul style="color: #c4d1ff; line-height: 1.8;">
+                    <li>Break content into micro-chunks (5-10 min sessions)</li>
+                    <li>Take movement breaks every 15-20 minutes</li>
+                    <li>Use fidget tools while studying (stress ball, fidget spinner)</li>
+                    <li>Minimize distractions (turn off notifications, quiet space)</li>
+                    <li>Use timers for focused study bursts (Pomodoro technique)</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00f2ff; margin-bottom: 10px;">📖 Dyslexia-Friendly Strategies</h4>
+                <ul style="color: #c4d1ff; line-height: 1.8;">
+                    <li>Use text-to-speech to hear content while reading</li>
+                    <li>Try colored overlays or change background colors</li>
+                    <li>Use visual organizers (mind maps, charts)</li>
+                    <li>Chunk text into smaller sections</li>
+                    <li>Highlight key words in different colors</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00f2ff; margin-bottom: 10px;">⏱️ Processing Support</h4>
+                <ul style="color: #c4d1ff; line-height: 1.8;">
+                    <li>Allow extra time to process information</li>
+                    <li>Review step-by-step breakdowns multiple times</li>
+                    <li>Use visual aids alongside text descriptions</li>
+                    <li>Practice with examples before trying new problems</li>
+                    <li>Ask for clarification when needed</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00f2ff; margin-bottom: 10px;">🧩 Memory Support</h4>
+                <ul style="color: #c4d1ff; line-height: 1.8;">
+                    <li>Use spaced repetition (review material multiple times)</li>
+                    <li>Create associations and connections to things you know</li>
+                    <li>Practice hands-on with real objects when possible</li>
+                    <li>Make up songs, rhymes, or stories to remember facts</li>
+                    <li>Use visual mnemonics and memory palaces</li>
+                </ul>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #00f2ff; margin-bottom: 10px;">✅ Executive Function Support</h4>
+                <ul style="color: #c4d1ff; line-height: 1.8;">
+                    <li>Use checklists to track what you need to do</li>
+                    <li>Set timers for different study tasks</li>
+                    <li>Create an organization system (folders, binders, digital)</li>
+                    <li>Break big tasks into smaller, manageable steps</li>
+                    <li>Prioritize: do the hardest tasks when you have most energy</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <!-- Action Bar -->
     <div class="action-bar">
         {% if pdf_url %}
@@ -653,6 +784,119 @@ function regenerateWithMode(mode) {
     // Set mode and submit form
     document.getElementById('selectedMode').value = mode;
     document.getElementById('modeForm').submit();
+}
+
+// Toggle Support Panels
+function togglePanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        // Extract content from study guide on first open
+        if (panelId === 'studyTechniques' && panel.dataset.loaded !== 'true') {
+            extractStudyTechniques();
+            panel.dataset.loaded = 'true';
+        } else if (panelId === 'realWorld' && panel.dataset.loaded !== 'true') {
+            extractRealWorld();
+            panel.dataset.loaded = 'true';
+        }
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+// Extract Study Techniques section from AI-generated content
+function extractStudyTechniques() {
+    const content = extractSection('STUDY TECHNIQUES');
+    const container = document.getElementById('studyTechniquesContent');
+    if (content) {
+        container.innerHTML = formatExtractedContent(content);
+    } else {
+        container.innerHTML = `
+            <ul style="color: #c4d1ff; line-height: 1.8;">
+                <li><strong style="color: #00f2ff;">Active Recall:</strong> Test yourself regularly instead of just re-reading</li>
+                <li><strong style="color: #00f2ff;">Spaced Repetition:</strong> Review material at increasing intervals</li>
+                <li><strong style="color: #00f2ff;">Teach Someone:</strong> Explain concepts to others to deepen understanding</li>
+                <li><strong style="color: #00f2ff;">Practice Problems:</strong> Do lots of examples to build mastery</li>
+                <li><strong style="color: #00f2ff;">Make Connections:</strong> Link new info to things you already know</li>
+            </ul>
+        `;
+    }
+}
+
+// Extract Real-World Connections section from AI-generated content
+function extractRealWorld() {
+    const content = extractSection('REAL-WORLD CONNECTIONS') || extractSection('REAL WORLD');
+    const container = document.getElementById('realWorldContent');
+    if (content) {
+        container.innerHTML = formatExtractedContent(content);
+    } else {
+        container.innerHTML = `
+            <p style="color: #c4d1ff;">This topic connects to many real-world applications. Look for examples in your daily life where these concepts appear!</p>
+        `;
+    }
+}
+
+// Extract a section from the study guide by title
+function extractSection(sectionTitle) {
+    const lines = studyText.split('\n');
+    let inSection = false;
+    let sectionContent = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        // Check if this line is the section header we're looking for
+        if (line.toUpperCase().includes(sectionTitle)) {
+            inSection = true;
+            continue;
+        }
+
+        // If we're in the section, collect content until next major header
+        if (inSection) {
+            // Stop if we hit another major section
+            if (line.match(/^[═=\-]+\s*[✦◆⟡⌁✧⚠]/) ||
+                (line === line.toUpperCase() && line.length > 10 && line.length < 100)) {
+                break;
+            }
+            if (line) {
+                sectionContent.push(line);
+            }
+        }
+    }
+
+    return sectionContent.length > 0 ? sectionContent.join('\n') : null;
+}
+
+// Format extracted content with proper HTML
+function formatExtractedContent(content) {
+    let html = '';
+    const lines = content.split('\n');
+    let inList = false;
+
+    lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+        if (line.match(/^[•\-\*]\s+/)) {
+            if (!inList) {
+                html += '<ul style="color: #c4d1ff; line-height: 1.8; margin: 10px 0; padding-left: 25px;">';
+                inList = true;
+            }
+            html += `<li>${processMarkdown(line.substring(1).trim())}</li>`;
+        } else {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+            html += `<p style="margin-bottom: 12px; color: #c4d1ff;">${processMarkdown(line)}</p>`;
+        }
+    });
+
+    if (inList) {
+        html += '</ul>';
+    }
+
+    return html || '<p style="color: #c4d1ff;">Content will appear here when generated.</p>';
 }
 
 // Initialize
