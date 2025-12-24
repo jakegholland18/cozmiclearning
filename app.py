@@ -38,7 +38,7 @@ print(f"📁 Database exists: {os.path.exists(DB_PATH)}")
 
 from flask import (
     Flask, render_template, request, redirect, session,
-    flash, jsonify, send_file, abort, make_response
+    flash, jsonify, send_file, abort, make_response, url_for
 )
 from flask import got_request_exception
 from werkzeug.security import generate_password_hash, check_password_hash
