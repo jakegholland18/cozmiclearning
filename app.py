@@ -13415,11 +13415,16 @@ def download_study_guide():
     return send_file(pdf, as_attachment=True)
 
 
-@app.route("/powergrid_regenerate", methods=["POST"])
+@app.route("/powergrid_regenerate", methods=["GET", "POST"])
 @csrf.exempt
 def powergrid_regenerate():
     """Regenerate PowerGrid study guide with different mode"""
     init_user()
+
+    # If GET request, redirect to PowerGrid (someone navigated directly to URL)
+    if request.method == "GET":
+        flash("Please use the mode buttons to regenerate your study guide.", "info")
+        return redirect("/powergrid")
 
     # Get new mode from form
     study_mode = request.form.get("study_mode", "standard")
