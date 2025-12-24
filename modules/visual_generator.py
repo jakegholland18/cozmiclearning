@@ -5,7 +5,7 @@ Generates ASCII art, Mermaid diagrams, and visual descriptions for educational c
 
 import os
 from typing import Dict, Optional, Literal
-from modules.ai_client import get_client
+from modules.ai_client import client
 
 VisualType = Literal["ascii", "mermaid", "description", "none"]
 
@@ -86,8 +86,6 @@ def generate_ascii_visual(prompt: str, context: str = "") -> str:
     Returns:
         ASCII art diagram as a string
     """
-    client = get_client()
-
     system_prompt = """You are an expert at creating clear ASCII art diagrams for education.
 
 GUIDELINES:
@@ -167,8 +165,6 @@ def generate_mermaid_diagram(prompt: str, context: str = "") -> str:
     Returns:
         Mermaid diagram code as a string
     """
-    client = get_client()
-
     system_prompt = """You are an expert at creating educational diagrams using Mermaid.js syntax.
 
 MERMAID DIAGRAM TYPES:
@@ -245,8 +241,6 @@ def generate_visual_description(prompt: str, context: str = "") -> str:
 
     Use this when ASCII/Mermaid aren't suitable but students need to visualize.
     """
-    client = get_client()
-
     system_prompt = """You are helping students visualize complex concepts through vivid descriptions.
 
 Create SHORT, clear visual descriptions that help students picture the concept mentally.
