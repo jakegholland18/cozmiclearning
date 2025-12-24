@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            background: linear-gradient(135deg, #5c6bff, #4facfe);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 10px 0 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .student-section {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #5c6bff;
+        }
+        .student-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #5c6bff;
+            margin-bottom: 15px;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #5c6bff;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .subjects-list {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .subjects-list h4 {
+            margin: 0 0 10px;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .subject-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #5c6bff, #4facfe);
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 4px;
+        }
+        .attention-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .attention-box h4 {
+            margin: 0 0 10px;
+            color: #856404;
+            font-size: 14px;
+        }
+        .attention-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #856404;
+        }
+        .footer {
+            background: #f8f9ff;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #5c6bff, #4facfe);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Weekly Progress Summary</h1>
+            <p>December 16, 2025 - December 22, 2025</p>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Hi Sarah Johnson,
+            </div>
+            <p>Here's how your children did on CozmicLearning this week!</p>
+
+            <!-- Student 1: Emma -->
+            <div class="student-section">
+                <div class="student-name">📚 Emma Johnson</div>
+
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Assignments Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">87%</div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">3.5</div>
+                        <div class="stat-label">Hours Learned</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Grades Received</div>
+                    </div>
+                </div>
+
+                <div class="subjects-list">
+                    <h4>Subjects Practiced</h4>
+                    <div>
+                        <span class="subject-tag">Math</span>
+                        <span class="subject-tag">Science</span>
+                        <span class="subject-tag">Reading</span>
+                        <span class="subject-tag">History</span>
+                    </div>
+                </div>
+
+                <div class="attention-box">
+                    <h4>⚠️ Areas Needing Attention</h4>
+                    <ul>
+                        <li>Math - scores below 70% on fractions</li>
+                        <li>3 incomplete assignments</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Student 2: Lucas -->
+            <div class="student-section">
+                <div class="student-name">📚 Lucas Johnson</div>
+
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Assignments Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">92%</div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">4.2</div>
+                        <div class="stat-label">Hours Learned</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Grades Received</div>
+                    </div>
+                </div>
+
+                <div class="subjects-list">
+                    <h4>Subjects Practiced</h4>
+                    <div>
+                        <span class="subject-tag">Math</span>
+                        <span class="subject-tag">Science</span>
+                        <span class="subject-tag">Reading</span>
+                        <span class="subject-tag">Writing</span>
+                        <span class="subject-tag">Bible</span>
+                    </div>
+                </div>
+
+                <!-- No attention areas - doing great! -->
+            </div>
+
+            <div style="text-align: center;">
+                <a href="https://cozmiclearning.com/parent/analytics" class="btn">View Detailed Analytics →</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Keep up the great work! 🌟</p>
+            <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                You're receiving this because you enabled weekly summaries.<br>
+                <a href="https://cozmiclearning.com/parent/email-preferences" style="color: #5c6bff;">Update email preferences</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

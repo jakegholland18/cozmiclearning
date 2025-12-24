@@ -16030,6 +16030,46 @@ app.register_blueprint(admin_migrate_bp)
 
 
 # ============================================================
+# EMAIL PREVIEW (for testing weekly summaries)
+# ============================================================
+
+@app.route("/preview/weekly-email")
+def preview_weekly_email():
+    """Preview what the weekly email looks like"""
+    # Generate sample data
+    sample_data = {
+        'parent': type('obj', (object,), {'name': 'Sarah Johnson', 'email': 'parent@example.com'})(),
+        'student_summaries': [
+            {
+                'student': type('obj', (object,), {'name': 'Emma Johnson'})(),
+                'assignments_completed': 12,
+                'average_score': 87,
+                'time_spent_hours': 3.5,
+                'grades_count': 8,
+                'subjects_practiced': ['Math', 'Science', 'Reading', 'History'],
+                'areas_needing_attention': ['Math - scores below 70% on fractions', '3 incomplete assignments']
+            },
+            {
+                'student': type('obj', (object,), {'name': 'Lucas Johnson'})(),
+                'assignments_completed': 15,
+                'average_score': 92,
+                'time_spent_hours': 4.2,
+                'grades_count': 10,
+                'subjects_practiced': ['Math', 'Science', 'Reading', 'Writing', 'Bible'],
+                'areas_needing_attention': []
+            }
+        ],
+        'week_start': 'December 16, 2025',
+        'week_end': 'December 22, 2025'
+    }
+
+    from modules.weekly_summary import render_email_template
+    html = render_email_template(sample_data)
+
+    return html
+
+
+# ============================================================
 # MAIN ENTRY (LOCAL DEV)
 # ============================================================
 
