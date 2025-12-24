@@ -39,6 +39,7 @@ class Parent(db.Model):
 
     # Email preferences (Phase 4)
     email_reports_enabled = db.Column(db.Boolean, default=True)
+    email_weekly_summary = db.Column(db.Boolean, default=True)  # Weekly summary emails
     last_report_sent = db.Column(db.DateTime, nullable=True)
 
     # Password reset tokens

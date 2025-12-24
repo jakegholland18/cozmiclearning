@@ -1,0 +1,242 @@
+/* Onboarding Tour Styles */
+
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 999998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.onboarding-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.onboarding-spotlight {
+    position: absolute;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75),
+                0 0 40px rgba(92, 107, 255, 0.6),
+                inset 0 0 20px rgba(92, 107, 255, 0.3);
+    border: 2px solid rgba(92, 107, 255, 0.8);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 999999;
+}
+
+.onboarding-tooltip {
+    position: absolute;
+    max-width: 420px;
+    background: linear-gradient(135deg, rgba(18, 18, 35, 0.98), rgba(28, 28, 52, 0.98));
+    border: 1px solid rgba(92, 107, 255, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(92, 107, 255, 0.3);
+    z-index: 1000000;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboarding-tooltip.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.onboarding-tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(92, 107, 255, 0.2);
+}
+
+.onboarding-tooltip-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(92, 107, 255, 0.5);
+}
+
+.onboarding-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.onboarding-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.onboarding-tooltip-body {
+    padding: 20px 24px;
+}
+
+.onboarding-tooltip-body p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #c4d1ff;
+}
+
+.onboarding-tooltip-body kbd {
+    display: inline-block;
+    padding: 3px 8px;
+    margin: 0 2px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(92, 107, 255, 0.3), rgba(79, 172, 254, 0.2));
+    border: 1px solid rgba(92, 107, 255, 0.4);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.onboarding-tooltip-footer {
+    padding: 16px 24px 20px;
+    border-top: 1px solid rgba(92, 107, 255, 0.2);
+}
+
+.onboarding-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.onboarding-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s;
+}
+
+.onboarding-dot.active {
+    width: 24px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #5c6bff, #4facfe);
+    box-shadow: 0 0 12px rgba(92, 107, 255, 0.6);
+}
+
+.onboarding-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.onboarding-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    outline: none;
+}
+
+.onboarding-btn-primary {
+    background: linear-gradient(135deg, #5c6bff, #4facfe);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(92, 107, 255, 0.4);
+}
+
+.onboarding-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(92, 107, 255, 0.6);
+}
+
+.onboarding-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.onboarding-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.onboarding-btn-skip {
+    background: transparent;
+    color: #c4d1ff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.onboarding-btn-skip:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Animations */
+@keyframes onboardingPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75),
+                    0 0 40px rgba(92, 107, 255, 0.6),
+                    inset 0 0 20px rgba(92, 107, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75),
+                    0 0 60px rgba(92, 107, 255, 0.8),
+                    inset 0 0 30px rgba(92, 107, 255, 0.5);
+    }
+}
+
+.onboarding-spotlight {
+    animation: onboardingPulse 2s ease-in-out infinite;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .onboarding-tooltip {
+        max-width: calc(100vw - 40px);
+        left: 20px !important;
+        right: 20px;
+        transform: translate(0, 0) !important;
+    }
+
+    .onboarding-tooltip.active {
+        transform: translate(0, 0) !important;
+    }
+
+    .onboarding-tooltip-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .onboarding-tooltip-body p {
+        font-size: 0.9rem;
+    }
+
+    .onboarding-actions {
+        justify-content: stretch;
+    }
+
+    .onboarding-btn {
+        flex: 1;
+        font-size: 0.85rem;
+        padding: 8px 16px;
+    }
+}

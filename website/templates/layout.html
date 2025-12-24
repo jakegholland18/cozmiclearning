@@ -253,11 +253,24 @@
 
     <!-- CozmicEnhancements for animations and effects -->
     <script src="/static/enhancements.js"></script>
+
+    <!-- Keyboard Shortcuts -->
+    <link rel="stylesheet" href="/static/keyboard-shortcuts.css">
+    <script src="/static/keyboard-shortcuts.js"></script>
+
+    <!-- Onboarding Tour -->
+    <link rel="stylesheet" href="/static/onboarding.css">
+    <script src="/static/onboarding.js"></script>
 </head>
 
-<body>
+<body data-user-role="{{ session.get('user_role', 'guest') }}">
     <div class="stars"></div>
     <div class="circuit-pattern"></div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="keyboard-shortcuts-hint" onclick="window.KeyboardShortcuts.show()">
+        Press <kbd>?</kbd> for keyboard shortcuts
+    </div>
 
     <!-- ADMIN MODE INDICATOR -->
     {% if session.get('admin_authenticated') %}

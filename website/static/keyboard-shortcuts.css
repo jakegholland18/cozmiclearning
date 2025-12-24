@@ -1,0 +1,222 @@
+/* Keyboard Shortcuts Modal Styles */
+
+.keyboard-shortcuts-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: none;
+}
+
+.shortcuts-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.shortcuts-modal-content {
+    position: relative;
+    max-width: 700px;
+    max-height: 80vh;
+    margin: 5vh auto;
+    background: linear-gradient(135deg, rgba(18, 18, 35, 0.95), rgba(28, 28, 52, 0.95));
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(92, 107, 255, 0.2);
+    overflow: hidden;
+}
+
+.shortcuts-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(92, 107, 255, 0.15), rgba(79, 172, 254, 0.1));
+    border-bottom: 1px solid rgba(118, 131, 255, 0.2);
+}
+
+.shortcuts-modal-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(92, 107, 255, 0.5);
+}
+
+.shortcuts-modal-header .close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.shortcuts-modal-header .close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.shortcuts-modal-body {
+    padding: 28px;
+    max-height: calc(80vh - 100px);
+    overflow-y: auto;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(92, 107, 255, 0.3);
+    border-radius: 4px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(92, 107, 255, 0.5);
+}
+
+.shortcuts-group {
+    margin-bottom: 32px;
+}
+
+.shortcuts-group:last-child {
+    margin-bottom: 0;
+}
+
+.shortcuts-group h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4facfe;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.shortcut-item:hover {
+    background: rgba(92, 107, 255, 0.08);
+    border-color: rgba(92, 107, 255, 0.3);
+    transform: translateX(4px);
+}
+
+.shortcut-item kbd {
+    display: inline-block;
+    padding: 4px 10px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(92, 107, 255, 0.3), rgba(79, 172, 254, 0.2));
+    border: 1px solid rgba(92, 107, 255, 0.4);
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+    margin-right: 4px;
+    min-width: 28px;
+    text-align: center;
+}
+
+.shortcut-item span {
+    color: #c4d1ff;
+    font-size: 0.95rem;
+}
+
+/* Keyboard shortcut indicator (shows active key sequence) */
+.keyboard-sequence-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, rgba(92, 107, 255, 0.95), rgba(79, 172, 254, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.2s;
+    pointer-events: none;
+}
+
+.keyboard-sequence-indicator.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Help button (press ? for shortcuts) */
+.keyboard-shortcuts-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 8px 14px;
+    background: rgba(92, 107, 255, 0.1);
+    border: 1px solid rgba(92, 107, 255, 0.3);
+    border-radius: 8px;
+    color: #c4d1ff;
+    font-size: 0.85rem;
+    z-index: 100;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.keyboard-shortcuts-hint:hover {
+    background: rgba(92, 107, 255, 0.2);
+    border-color: rgba(92, 107, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.keyboard-shortcuts-hint kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 0 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+/* Mobile - hide keyboard shortcuts */
+@media (max-width: 768px) {
+    .keyboard-shortcuts-hint {
+        display: none;
+    }
+
+    .shortcuts-modal-content {
+        margin: 2vh auto;
+        max-height: 96vh;
+        border-radius: 12px;
+    }
+}
