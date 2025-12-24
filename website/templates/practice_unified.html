@@ -431,7 +431,9 @@
                     <div class="question-text">${q.prompt}</div>
             `;
 
-            // Visual aids (ASCII diagrams, Mermaid charts, descriptions)
+            // Visual aids DISABLED - produces confusing results
+            // Keeping this code commented out in case we improve visuals in the future
+            /*
             if (q.visual_type && q.visual_type !== 'none') {
                 html += '<div class="visual-container">';
 
@@ -449,6 +451,7 @@
 
                 html += '</div>';
             }
+            */
 
             // Hint
             if (q.hint) {
