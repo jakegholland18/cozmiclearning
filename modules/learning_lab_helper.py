@@ -516,13 +516,14 @@ def get_recommended_strategies(profile):
 def get_contextual_learning_tips(student_id, context='general'):
     """
     Get personalized learning tips based on context (assignment, study, test prep, etc.)
+    Now returns MULTIPLE learning style approaches to prevent pigeon-holing students.
 
     Args:
         student_id: ID of the student
         context: Where the student is (assignment, powergrid, test_prep, general)
 
     Returns:
-        Dictionary with tips, tools, and strategies
+        Dictionary with tips, tools, strategies, and ALTERNATIVE approaches
     """
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
@@ -537,16 +538,81 @@ def get_contextual_learning_tips(student_id, context='general'):
     tips = []
     tools = []
     quick_strategies = []
+    alternative_approaches = []  # NEW: Alternative learning style suggestions
 
-    # Context-specific recommendations
+    # Helper to generate style-specific tips for ANY style
+    def get_style_tips_for_context(style, ctx):
+        """Generate tips for any learning style and context"""
+        style_tips = []
+
+        if ctx == 'assignment':
+            if style == 'visual':
+                style_tips.append("Create a visual outline or diagram before starting")
+            elif style == 'auditory':
+                style_tips.append("Talk through the assignment steps out loud")
+            elif style == 'kinesthetic':
+                style_tips.append("Use physical objects or manipulatives to model the problem")
+            elif style == 'reading_writing':
+                style_tips.append("Write out a detailed plan with clear sections")
+
+        elif ctx == 'powergrid':
+            if style == 'visual':
+                style_tips.append("Pay special attention to diagrams and visual explanations")
+            elif style == 'auditory':
+                style_tips.append("Read the study guide out loud or use text-to-speech")
+            elif style == 'kinesthetic':
+                style_tips.append("Take a 2-minute movement break every 15 minutes")
+            elif style == 'reading_writing':
+                style_tips.append("Take detailed notes as you read through each section")
+
+        elif ctx == 'test_prep':
+            if style == 'visual':
+                style_tips.append("Create color-coded study cards and visual summaries")
+            elif style == 'auditory':
+                style_tips.append("Create songs or rhymes to remember key facts")
+            elif style == 'kinesthetic':
+                style_tips.append("Use flashcards you can shuffle and sort physically")
+            elif style == 'reading_writing':
+                style_tips.append("Write practice questions and detailed answer explanations")
+
+        elif ctx == 'practice':
+            if style == 'visual':
+                style_tips.append("Draw out problems or create visual representations")
+            elif style == 'auditory':
+                style_tips.append("Explain your reasoning out loud as you solve each problem")
+            elif style == 'kinesthetic':
+                style_tips.append("Use movements or gestures to represent key concepts")
+            elif style == 'reading_writing':
+                style_tips.append("Write out your thought process step-by-step")
+
+        return style_tips
+
+    # PRIMARY STYLE TIPS (Recommended based on profile)
+    primary_style = profile.primary_learning_style
+    tips = get_style_tips_for_context(primary_style, context)
+
+    # ALTERNATIVE STYLE TIPS (Prevent pigeon-holing)
+    all_styles = ['visual', 'auditory', 'kinesthetic', 'reading_writing']
+    other_styles = [s for s in all_styles if s != primary_style]
+
+    # Add 2-3 alternative approaches
+    for alt_style in other_styles[:2]:
+        alt_tips = get_style_tips_for_context(alt_style, context)
+        if alt_tips:
+            alternative_approaches.append({
+                'style': alt_style.replace('_', ' ').title(),
+                'style_key': alt_style,
+                'icon': {'visual': '👁️', 'auditory': '👂', 'kinesthetic': '🤸', 'reading_writing': '📝'}.get(alt_style, '💡'),
+                'tip': alt_tips[0]
+            })
+
+    # Context-specific tools and strategies
     if context == 'assignment':
-        # Assignment page tips
         if profile.focus_preference in ['short_bursts', 'every_15_min']:
             tips.append("Break this assignment into 15-minute chunks with quick breaks")
             tools.append({'name': 'Pomodoro Timer', 'icon': '⏰', 'link': '/learning-lab/tools#pomodoro'})
 
         if profile.primary_learning_style == 'visual':
-            tips.append("Create a visual outline or diagram before starting")
             quick_strategies.append("Use colors to organize your work")
 
         if profile.prefers_step_by_step:
@@ -554,15 +620,6 @@ def get_contextual_learning_tips(student_id, context='general'):
             tools.append({'name': 'Task Breakdown Tool', 'icon': '✂️', 'link': '/learning-lab/tools#task-breakdown'})
 
     elif context == 'powergrid':
-        # PowerGrid study guide tips
-        if profile.primary_learning_style == 'visual':
-            tips.append("Pay special attention to diagrams and visual explanations")
-            quick_strategies.append("Highlight key concepts in different colors")
-
-        if profile.primary_learning_style == 'auditory':
-            tips.append("Read the study guide out loud or use text-to-speech")
-            tools.append({'name': 'Text-to-Speech', 'icon': '🔊', 'link': '/learning-lab/tools#tts'})
-
         if profile.reading_preference == 'hear_it':
             tools.append({'name': 'Text-to-Speech', 'icon': '🔊', 'link': '/learning-lab/tools#tts'})
 
@@ -570,24 +627,14 @@ def get_contextual_learning_tips(student_id, context='general'):
             tips.append("Study one section at a time with 5-minute breaks")
 
     elif context == 'test_prep':
-        # Test preparation tips
-        if profile.primary_learning_style == 'kinesthetic':
-            tips.append("Use flashcards you can shuffle and sort physically")
-            quick_strategies.append("Try teaching the material to someone else")
-
         if profile.memory_style == 'hear_words':
-            tips.append("Create songs or rhymes to remember key facts")
             quick_strategies.append("Explain concepts aloud in your own words")
 
         tools.append({'name': 'Study Schedule Generator', 'icon': '📅', 'link': '/learning-lab/tools#schedule'})
 
     elif context == 'practice':
-        # Practice/quiz tips
         if profile.focus_preference in ['short_bursts', 'every_15_min']:
             tips.append("Do 5-10 questions, then take a 2-minute break")
-
-        if profile.primary_learning_style == 'visual':
-            tips.append("Draw out problems or create visual representations")
 
     # General tips based on time of day
     import datetime
@@ -595,25 +642,28 @@ def get_contextual_learning_tips(student_id, context='general'):
 
     if profile.best_study_time:
         if profile.best_study_time == 'morning' and current_hour > 14:
-            tips.append("💡 You learn best in the morning - save harder tasks for tomorrow!")
+            tips.append("💡 You usually learn best in the morning - save harder tasks for tomorrow!")
         elif profile.best_study_time == 'evening' and current_hour < 12:
-            tips.append("💡 Your peak learning time is evening - this is great for review!")
+            tips.append("💡 Your peak learning time is often evening - this is great for review!")
         elif profile.best_study_time == 'night' and current_hour < 18:
-            tips.append("💡 You focus best at night - save deep learning for later!")
+            tips.append("💡 You often focus best at night - save deep learning for later!")
 
     # Add universal helpful tools
     if not tools:
-        if profile.uses_focus_timer or profile.focus_preference in ['short_bursts', 'medium_sessions']:
+        if profile.focus_preference in ['short_bursts', 'medium_sessions']:
             tools.append({'name': 'Focus Timer', 'icon': '⏰', 'link': '/learning-lab/tools#pomodoro'})
 
     return {
         'has_profile': True,
-        'tips': tips[:2],  # Limit to 2 tips
-        'tools': tools[:2],  # Limit to 2 tools
-        'quick_strategies': quick_strategies[:3],  # Limit to 3 strategies
-        'primary_style': profile.primary_learning_style.replace('_', ' ').title(),
+        'tips': tips[:2],  # Primary style tips (recommended)
+        'tools': tools[:2],  # Helpful tools
+        'quick_strategies': quick_strategies[:3],
+        'primary_style': primary_style.replace('_', ' ').title(),
+        'primary_style_key': primary_style,
+        'alternative_approaches': alternative_approaches,  # NEW: Other learning styles to try
         'strengths_preview': profile.strengths_summary.split('|')[0].strip() if profile.strengths_summary else '',
-        'profile_link': '/learning-lab/profile'
+        'profile_link': '/learning-lab/profile',
+        'flexibility_message': 'These are your preferences - feel free to mix and match what works best!'  # NEW: Growth mindset message
     }
 
 

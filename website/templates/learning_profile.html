@@ -177,33 +177,39 @@ body {
 <div class="profile-container">
     <div class="profile-header">
         <div class="profile-title">✨ Your Learning Profile ✨</div>
-        <div class="profile-subtitle">Discover your unique learning superpowers!</div>
+        <div class="profile-subtitle">Discover your unique learning preferences - you can learn any way that works for you!</div>
     </div>
 
     <!-- Strengths Banner -->
     <div class="strengths-banner">
-        <h2>🌟 Your Learning Strengths</h2>
+        <h2>🌟 Your Learning Preferences</h2>
         <div class="strengths-text">{{ profile.strengths_summary }}</div>
+        <p style="margin-top: 15px; font-size: 0.95rem; opacity: 0.9;">
+            💡 These are your <strong>preferences</strong>, not limitations. Feel free to try different learning approaches anytime!
+        </p>
     </div>
 
     <!-- Profile Details Grid -->
     <div class="profile-grid">
         <div class="profile-card">
-            <h3>🎨 Learning Style</h3>
+            <h3>🎨 Learning Preferences</h3>
             <div class="preference-item">
-                <span class="preference-label">Primary Style</span>
-                <span class="preference-value">{{ profile.primary_learning_style|replace('_', ' ')|title }}</span>
+                <span class="preference-label">You often prefer</span>
+                <span class="preference-value">{{ profile.primary_learning_style|replace('_', ' ')|title }} approaches</span>
             </div>
             {% if profile.secondary_learning_style %}
             <div class="preference-item">
-                <span class="preference-label">Secondary Style</span>
+                <span class="preference-label">Also works well</span>
                 <span class="preference-value">{{ profile.secondary_learning_style|replace('_', ' ')|title }}</span>
             </div>
             {% endif %}
             <div class="preference-item">
-                <span class="preference-label">Memory Style</span>
-                <span class="preference-value">{{ profile.memory_style|replace('_', ' ')|title if profile.memory_style else 'Not specified' }}</span>
+                <span class="preference-label">Memory works best with</span>
+                <span class="preference-value">{{ profile.memory_style|replace('_', ' ')|title if profile.memory_style else 'Mixed approaches' }}</span>
             </div>
+            <p style="font-size: 0.85rem; color: #999; margin-top: 12px; font-style: italic;">
+                Try different styles anytime - you're not locked in!
+            </p>
         </div>
 
         <div class="profile-card">
@@ -263,9 +269,9 @@ body {
 
     <!-- Recommended Strategies -->
     <div class="strategies-section">
-        <h2>🚀 Recommended Strategies for You</h2>
+        <h2>🚀 Strategies That Match Your Preferences</h2>
         <p style="text-align: center; color: #fff; margin-bottom: 25px;">
-            Based on your learning profile, these strategies are especially helpful for you:
+            Based on your learning preferences, these strategies might work well - but feel free to explore all strategies and find what works best for you!
         </p>
 
         {% for strategy in recommended_strategies %}

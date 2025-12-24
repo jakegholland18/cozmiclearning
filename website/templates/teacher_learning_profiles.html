@@ -246,7 +246,10 @@ body {
 
     <div class="page-header">
         <h1>🧠 Learning Profiles - {{ cls.class_name }}</h1>
-        <p>Understand how your students learn best and get personalized teaching strategies</p>
+        <p>Understand your students' learning preferences and get personalized teaching strategies</p>
+        <p style="font-size: 0.9rem; opacity: 0.85; margin-top: 8px;">
+            💡 Remember: These profiles show preferences, not limitations. Encourage students to explore all learning approaches!
+        </p>
     </div>
 
     <div class="stats-grid">
@@ -270,7 +273,7 @@ body {
 
     {% if learning_styles %}
     <div class="chart-section">
-        <h2>📊 Class Learning Style Distribution</h2>
+        <h2>📊 Class Learning Preference Distribution</h2>
         <div class="learning-style-bars">
             {% set max_count = learning_styles.values()|max %}
             {% for style, count in learning_styles.items() %}

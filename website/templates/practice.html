@@ -671,7 +671,7 @@
     <div style="background: linear-gradient(135deg, rgba(132,255,0,0.15), rgba(0,242,255,0.1)); border: 2px solid rgba(132,255,0,0.3); border-radius: 16px; padding: 20px; margin: 20px 0; box-shadow: 0 8px 24px rgba(132,255,0,0.2); backdrop-filter: blur(10px);">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
             <span style="font-size: 1.3rem;">💡</span>
-            <span style="font-weight: 700; color: #84ff00;">Tips for {{ learning_tips.primary_style }} Learners</span>
+            <span style="font-weight: 700; color: #84ff00;">Recommended for You ({{ learning_tips.primary_style }})</span>
         </div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
             {% if learning_tips.tips %}
@@ -685,6 +685,25 @@
                     {% for tool in learning_tips.tools %}
                     <a href="{{ tool.link }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(0,242,255,0.2); border: 1px solid rgba(0,242,255,0.3); border-radius: 20px; color: #00f2ff; text-decoration: none; transition: all 0.3s ease;">{{ tool.icon }} {{ tool.name }}</a>
                     {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Alternative Learning Approaches -->
+            {% if learning_tips.alternative_approaches %}
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(132,255,0,0.2);">
+                    <div style="color: #c4d1ff; font-size: 0.9rem; margin-bottom: 10px;">
+                        <strong>Or try these approaches:</strong> <span style="font-style: italic; font-size: 0.85rem; opacity: 0.9;">{{ learning_tips.flexibility_message }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        {% for approach in learning_tips.alternative_approaches %}
+                        <div style="background: rgba(0,242,255,0.1); border: 1px solid rgba(0,242,255,0.3); border-radius: 8px; padding: 10px;">
+                            <div style="color: #00f2ff; font-weight: 600; font-size: 0.85rem; margin-bottom: 5px;">
+                                {{ approach.icon }} {{ approach.style }}
+                            </div>
+                            <div style="color: #c4d1ff; font-size: 0.8rem;">{{ approach.tip }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             {% endif %}
         </div>
