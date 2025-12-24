@@ -14,27 +14,28 @@ def should_include_visual(question_text: str, topic: str = "") -> bool:
     """
     Determine if a question/lesson would benefit from a visual aid.
 
-    Returns True for math problems, science concepts, geography, timelines, etc.
+    CURRENTLY DISABLED - Visual generation produces confusing results.
+    Will be re-enabled once we have high-quality visual generation.
     """
-    visual_keywords = [
-        # Math
-        "graph", "plot", "coordinate", "triangle", "rectangle", "circle", "shape",
-        "diagram", "angle", "perimeter", "area", "volume", "fraction", "slope",
+    # Disabled for now - visuals are not good quality yet
+    return False
 
-        # Science
-        "atom", "molecule", "cell", "ecosystem", "food chain", "water cycle",
-        "solar system", "circuit", "force", "motion", "structure",
-
-        # History/Geography
-        "timeline", "map", "battle", "route", "territory", "continent",
-        "country", "region", "migration", "expansion",
-
-        # General
-        "flowchart", "process", "sequence", "comparison", "table", "chart"
-    ]
-
-    text_lower = (question_text + " " + topic).lower()
-    return any(keyword in text_lower for keyword in visual_keywords)
+    # Original logic (disabled):
+    # visual_keywords = [
+    #     # Math
+    #     "graph", "plot", "coordinate", "triangle", "rectangle", "circle", "shape",
+    #     "diagram", "angle", "perimeter", "area", "volume", "fraction", "slope",
+    #     # Science
+    #     "atom", "molecule", "cell", "ecosystem", "food chain", "water cycle",
+    #     "solar system", "circuit", "force", "motion", "structure",
+    #     # History/Geography
+    #     "timeline", "map", "battle", "route", "territory", "continent",
+    #     "country", "region", "migration", "expansion",
+    #     # General
+    #     "flowchart", "process", "sequence", "comparison", "table", "chart"
+    # ]
+    # text_lower = (question_text + " " + topic).lower()
+    # return any(keyword in text_lower for keyword in visual_keywords)
 
 
 def detect_visual_type(content: str, subject: str = "") -> VisualType:
