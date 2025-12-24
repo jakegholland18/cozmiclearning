@@ -13465,6 +13465,96 @@ def powergrid_regenerate():
     )
 
 
+@app.route("/powergrid/generate_flashcards", methods=["POST"])
+@csrf.exempt
+def powergrid_generate_flashcards():
+    """Generate AI-powered flashcards from PowerGrid study guide"""
+    init_user()
+
+    from modules.powergrid_study_tools import generate_flashcards
+
+    # Get data from request
+    data = request.get_json()
+    study_guide_text = data.get("study_guide_text", "")
+    subject = data.get("subject", "general")
+    topic = data.get("topic", "Study Guide")
+    grade_level = data.get("grade_level", session.get("grade", "8"))
+    count = int(data.get("count", 10))
+
+    if not study_guide_text:
+        return jsonify({"success": False, "error": "No study guide text provided"}), 400
+
+    try:
+        # Generate flashcards using AI
+        flashcards = generate_flashcards(
+            study_guide_text,
+            subject,
+            topic,
+            grade_level,
+            count=count
+        )
+
+        return jsonify({
+            "success": True,
+            "flashcards": flashcards,
+            "count": len(flashcards)
+        })
+
+    except Exception as e:
+        app.logger.error(f"Flashcard generation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate flashcards. Please try again."
+        }), 500
+
+
+@app.route("/powergrid/generate_quiz", methods=["POST"])
+@csrf.exempt
+def powergrid_generate_quiz():
+    """Generate AI-powered practice quiz from PowerGrid study guide"""
+    init_user()
+
+    from modules.powergrid_study_tools import generate_quiz
+
+    # Get data from request
+    data = request.get_json()
+    study_guide_text = data.get("study_guide_text", "")
+    subject = data.get("subject", "general")
+    topic = data.get("topic", "Study Guide")
+    grade_level = data.get("grade_level", session.get("grade", "8"))
+    num_questions = int(data.get("num_questions", 5))
+
+    if not study_guide_text:
+        return jsonify({"success": False, "error": "No study guide text provided"}), 400
+
+    try:
+        # Generate quiz using AI
+        questions = generate_quiz(
+            study_guide_text,
+            subject,
+            topic,
+            grade_level,
+            num_questions=num_questions
+        )
+
+        return jsonify({
+            "success": True,
+            "questions": questions,
+            "count": len(questions)
+        })
+
+    except Exception as e:
+        app.logger.error(f"Quiz generation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": "Failed to generate quiz. Please try again."
+        }), 500
+
+
 # ============================================================
 # GENERIC PRACTICE MODE (NOT TIED TO ASSIGNMENTS)
 # ============================================================

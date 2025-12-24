@@ -391,6 +391,18 @@ body {
     box-shadow: 0 8px 25px rgba(132,255,0,0.4);
 }
 
+.flashcard-number {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: rgba(132,255,0,0.3);
+    color: #84ff00;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
 .flashcard-term {
     color: #84ff00;
     font-weight: 700;
@@ -401,6 +413,13 @@ body {
 .flashcard-def {
     color: #c4d1ff;
     line-height: 1.6;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(132,255,0,0.2);
+}
+
+.flashcard.flipped {
+    background: linear-gradient(135deg, rgba(132,255,0,0.15), rgba(0,242,255,0.1));
 }
 
 /* Quiz Mode */
@@ -417,8 +436,26 @@ body {
     background: rgba(0,0,0,0.4);
     padding: 20px;
     border-radius: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border-left: 4px solid #ff6fd8;
+    position: relative;
+}
+
+.quiz-question-number {
+    color: #ff6fd8;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.quiz-question-text {
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
 }
 
 .quiz-q-text {
@@ -434,7 +471,7 @@ body {
 }
 
 .quiz-option {
-    padding: 12px 18px;
+    padding: 15px 20px;
     background: rgba(0,242,255,0.1);
     border: 2px solid rgba(0,242,255,0.3);
     border-radius: 12px;
@@ -449,9 +486,25 @@ body {
     transform: translateX(5px);
 }
 
+.quiz-option.selected {
+    background: linear-gradient(135deg, rgba(255,107,157,0.3), rgba(192,132,252,0.2));
+    border-color: #ff6fd8;
+    color: #fff;
+}
+
 .quiz-option.correct {
     background: rgba(132,255,0,0.2);
     border-color: #84ff00;
+}
+
+.quiz-explanation {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0,242,255,0.05);
+    border-left: 3px solid #00f2ff;
+    border-radius: 8px;
+    color: #c4d1ff;
+    line-height: 1.6;
 }
 
 .quiz-option.incorrect {
@@ -1117,43 +1170,250 @@ function handleModeChange(mode) {
     }
 }
 
-// Generate Flashcards
-function generateFlashcards() {
+// Generate Flashcards with AI
+async function generateFlashcards() {
     const container = document.getElementById('flashcardContainer');
-    container.innerHTML = '';
-    
-    // Extract key terms (simplified - would use AI in production)
-    const lines = studyText.split('\n');
-    const flashcards = [];
-    
-    lines.forEach(line => {
-        if (line.includes(':')) {
-            const [term, def] = line.split(':');
-            if (term && def && term.length < 50) {
-                flashcards.push({ term: term.trim(), def: def.trim() });
-            }
+    container.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 3rem; animation: spin 1s linear infinite;">🎴</div><p style="color: #00f2ff; margin-top: 20px;">AI is generating flashcards from your study guide...</p></div>';
+
+    try {
+        const response = await fetch('/powergrid/generate_flashcards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                study_guide_text: studyText,
+                subject: '{{ subject }}',
+                topic: '{{ question }}',
+                grade_level: '{{ grade }}',
+                count: 10
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.flashcards) {
+            container.innerHTML = '';
+
+            data.flashcards.forEach((card, index) => {
+                const div = document.createElement('div');
+                div.className = 'flashcard';
+                div.style.animationDelay = `${index * 0.1}s`;
+                div.innerHTML = `
+                    <div class="flashcard-number">${index + 1}</div>
+                    <div class="flashcard-term">${card.term}</div>
+                    <div class="flashcard-def" style="display:none;">${card.definition}</div>
+                    <div class="flashcard-hint" style="text-align: center; color: #6dd5ed; font-size: 0.85rem; margin-top: 10px;">
+                        Click to reveal answer
+                    </div>
+                `;
+                div.onclick = () => {
+                    const defElement = div.querySelector('.flashcard-def');
+                    const hintElement = div.querySelector('.flashcard-hint');
+                    if (defElement.style.display === 'none') {
+                        defElement.style.display = 'block';
+                        hintElement.style.display = 'none';
+                        div.classList.add('flipped');
+                    } else {
+                        defElement.style.display = 'none';
+                        hintElement.style.display = 'block';
+                        div.classList.remove('flipped');
+                    }
+                };
+                container.appendChild(div);
+            });
+
+            // Add a summary
+            const summary = document.createElement('div');
+            summary.style.cssText = 'text-align: center; margin-top: 30px; padding: 20px; background: rgba(0,242,255,0.1); border-radius: 12px;';
+            summary.innerHTML = `
+                <p style="color: #00f2ff; font-size: 1.1rem; margin: 0;">
+                    ✨ Generated ${data.flashcards.length} flashcards! Click each card to reveal the answer.
+                </p>
+            `;
+            container.appendChild(summary);
+        } else {
+            throw new Error(data.error || 'Failed to generate flashcards');
         }
-    });
-    
-    flashcards.slice(0, 10).forEach((card, index) => {
-        const div = document.createElement('div');
-        div.className = 'flashcard';
-        div.innerHTML = `
-            <div class="flashcard-term">${card.term}</div>
-            <div class="flashcard-def" style="display:none;">${card.def}</div>
+    } catch (error) {
+        console.error('Flashcard generation error:', error);
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <p style="color: #ff6fd8; font-size: 1.2rem;">⚠️ Oops! Couldn't generate flashcards.</p>
+                <p style="color: #c4d1ff; margin-top: 10px;">Try again or create your own flashcards from the study guide.</p>
+            </div>
         `;
-        div.onclick = () => {
-            div.querySelector('.flashcard-def').style.display = 
-                div.querySelector('.flashcard-def').style.display === 'none' ? 'block' : 'none';
-        };
-        container.appendChild(div);
+    }
+}
+
+// Generate Quiz with AI
+async function generateQuiz() {
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '<div style="text-align: center; padding: 40px;"><div style="font-size: 3rem; animation: spin 1s linear infinite;">🎯</div><p style="color: #ff6fd8; margin-top: 20px;">AI is creating practice questions...</p></div>';
+
+    try {
+        const response = await fetch('/powergrid/generate_quiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                study_guide_text: studyText,
+                subject: '{{ subject }}',
+                topic: '{{ question }}',
+                grade_level: '{{ grade }}',
+                num_questions: 5
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.questions) {
+            container.innerHTML = '';
+
+            let quizHTML = '<div class="quiz-questions">';
+
+            data.questions.forEach((q, index) => {
+                quizHTML += `
+                    <div class="quiz-question" data-question-index="${index}">
+                        <div class="quiz-question-number">Question ${index + 1}</div>
+                        <div class="quiz-question-text">${q.question}</div>
+                        <div class="quiz-options">
+                `;
+
+                q.options.forEach((option, optIndex) => {
+                    const letter = option.charAt(0); // A, B, C, or D
+                    quizHTML += `
+                        <div class="quiz-option" onclick="selectQuizAnswer(${index}, '${letter}')">
+                            ${option}
+                        </div>
+                    `;
+                });
+
+                quizHTML += `
+                        </div>
+                        <div class="quiz-explanation" style="display: none;">
+                            <strong style="color: #00f2ff;">Correct Answer: ${q.correct_answer}</strong><br>
+                            ${q.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+
+            quizHTML += '</div>';
+            quizHTML += `
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="power-btn" onclick="checkQuizAnswers()">📝 Check My Answers</button>
+                </div>
+            `;
+
+            container.innerHTML = quizHTML;
+
+            // Store quiz data globally
+            window.quizData = data.questions;
+            window.userAnswers = {};
+        } else {
+            throw new Error(data.error || 'Failed to generate quiz');
+        }
+    } catch (error) {
+        console.error('Quiz generation error:', error);
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <p style="color: #ff6fd8; font-size: 1.2rem;">⚠️ Oops! Couldn't generate quiz.</p>
+                <p style="color: #c4d1ff; margin-top: 10px;">Try again or review your study guide.</p>
+            </div>
+        `;
+    }
+}
+
+// Select quiz answer
+function selectQuizAnswer(questionIndex, answer) {
+    window.userAnswers[questionIndex] = answer;
+
+    // Update visual selection
+    const questionDiv = document.querySelector(`[data-question-index="${questionIndex}"]`);
+    const options = questionDiv.querySelectorAll('.quiz-option');
+
+    options.forEach(option => {
+        option.classList.remove('selected');
+        if (option.textContent.trim().startsWith(answer + ')')) {
+            option.classList.add('selected');
+        }
     });
 }
 
-// Generate Quiz
-function generateQuiz() {
-    const container = document.getElementById('quizContainer');
-    container.innerHTML = '<p style="color: #c4d1ff;">Quiz generation coming soon! AI will create practice questions from your study guide.</p>';
+// Check quiz answers
+function checkQuizAnswers() {
+    if (!window.quizData) return;
+
+    let correct = 0;
+    let total = window.quizData.length;
+
+    window.quizData.forEach((question, index) => {
+        const questionDiv = document.querySelector(`[data-question-index="${index}"]`);
+        const userAnswer = window.userAnswers[index];
+        const correctAnswer = question.correct_answer;
+        const options = questionDiv.querySelectorAll('.quiz-option');
+        const explanation = questionDiv.querySelector('.quiz-explanation');
+
+        // Show explanation
+        explanation.style.display = 'block';
+
+        // Highlight correct and incorrect
+        options.forEach(option => {
+            const letter = option.textContent.trim().charAt(0);
+            if (letter === correctAnswer) {
+                option.style.background = 'linear-gradient(135deg, rgba(0,255,0,0.2), rgba(0,255,0,0.1))';
+                option.style.borderColor = '#00ff00';
+            } else if (letter === userAnswer && userAnswer !== correctAnswer) {
+                option.style.background = 'linear-gradient(135deg, rgba(255,0,0,0.2), rgba(255,0,0,0.1))';
+                option.style.borderColor = '#ff0000';
+            }
+        });
+
+        if (userAnswer === correctAnswer) {
+            correct++;
+        }
+    });
+
+    // Show score
+    const percentage = Math.round((correct / total) * 100);
+    let message = '';
+    let emoji = '';
+
+    if (percentage >= 90) {
+        emoji = '🌟';
+        message = 'Outstanding! You really know this material!';
+    } else if (percentage >= 70) {
+        emoji = '✨';
+        message = 'Great job! You have a solid understanding!';
+    } else if (percentage >= 50) {
+        emoji = '💪';
+        message = 'Good effort! Review the explanations and try again.';
+    } else {
+        emoji = '📚';
+        message = 'Keep studying! Review the study guide and try again.';
+    }
+
+    const scoreDiv = document.createElement('div');
+    scoreDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea, #764ba2); padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); z-index: 10000; text-align: center; min-width: 300px;';
+    scoreDiv.innerHTML = `
+        <div style="font-size: 4rem; margin-bottom: 20px;">${emoji}</div>
+        <div style="font-size: 2rem; font-weight: 700; color: white; margin-bottom: 10px;">
+            ${correct} / ${total} Correct
+        </div>
+        <div style="font-size: 1.5rem; color: #f5576c; margin-bottom: 20px;">
+            ${percentage}%
+        </div>
+        <p style="color: white; font-size: 1.1rem; margin-bottom: 30px;">
+            ${message}
+        </p>
+        <button class="power-btn" onclick="this.parentElement.remove()" style="background: white; color: #667eea;">
+            Close
+        </button>
+    `;
+
+    document.body.appendChild(scoreDiv);
 }
 
 // Highlight Mode
