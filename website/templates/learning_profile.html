@@ -1,0 +1,298 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-header {
+    text-align: center;
+    margin: 30px 0;
+    color: #fff;
+}
+
+.profile-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.profile-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.strengths-banner {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.3), rgba(245, 87, 108, 0.3));
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 30px 0;
+    text-align: center;
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+
+.strengths-banner h2 {
+    font-size: 1.5rem;
+    margin: 0 0 15px 0;
+}
+
+.strengths-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    font-weight: 500;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.profile-card h3 {
+    color: #f5576c;
+    font-size: 1.3rem;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preference-item {
+    padding: 12px;
+    margin: 8px 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-left: 3px solid #667eea;
+    border-radius: 8px;
+}
+
+.preference-label {
+    font-weight: 700;
+    color: #333;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.preference-value {
+    color: #666;
+}
+
+.strategies-section {
+    margin: 40px 0;
+}
+
+.strategies-section h2 {
+    color: #fff;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 25px;
+}
+
+.strategy-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.strategy-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.strategy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.strategy-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f5576c;
+    margin: 0;
+}
+
+.strategy-category {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.strategy-description {
+    margin: 12px 0 0 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+.btn-profile {
+    padding: 12px 24px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+}
+
+.action-bar {
+    text-align: center;
+    margin: 30px 0;
+}
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-title">✨ Your Learning Profile ✨</div>
+        <div class="profile-subtitle">Discover your unique learning superpowers!</div>
+    </div>
+
+    <!-- Strengths Banner -->
+    <div class="strengths-banner">
+        <h2>🌟 Your Learning Strengths</h2>
+        <div class="strengths-text">{{ profile.strengths_summary }}</div>
+    </div>
+
+    <!-- Profile Details Grid -->
+    <div class="profile-grid">
+        <div class="profile-card">
+            <h3>🎨 Learning Style</h3>
+            <div class="preference-item">
+                <span class="preference-label">Primary Style</span>
+                <span class="preference-value">{{ profile.primary_learning_style|replace('_', ' ')|title }}</span>
+            </div>
+            {% if profile.secondary_learning_style %}
+            <div class="preference-item">
+                <span class="preference-label">Secondary Style</span>
+                <span class="preference-value">{{ profile.secondary_learning_style|replace('_', ' ')|title }}</span>
+            </div>
+            {% endif %}
+            <div class="preference-item">
+                <span class="preference-label">Memory Style</span>
+                <span class="preference-value">{{ profile.memory_style|replace('_', ' ')|title if profile.memory_style else 'Not specified' }}</span>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h3>🎯 Focus & Environment</h3>
+            <div class="preference-item">
+                <span class="preference-label">Focus Pattern</span>
+                <span class="preference-value">{{ profile.focus_preference|replace('_', ' ')|title }}</span>
+            </div>
+            <div class="preference-item">
+                <span class="preference-label">Break Frequency</span>
+                <span class="preference-value">{{ profile.break_frequency|replace('_', ' ')|title if profile.break_frequency else 'Not specified' }}</span>
+            </div>
+            <div class="preference-item">
+                <span class="preference-label">Study Environment</span>
+                <span class="preference-value">{{ profile.study_environment|replace('_', ' ')|title if profile.study_environment else 'Not specified' }}</span>
+            </div>
+            <div class="preference-item">
+                <span class="preference-label">Best Study Time</span>
+                <span class="preference-value">{{ profile.best_study_time|title if profile.best_study_time else 'Not specified' }}</span>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h3>⚙️ Processing Style</h3>
+            <div class="preference-item">
+                <span class="preference-label">Approach</span>
+                <span class="preference-value">
+                    {% if profile.prefers_step_by_step %}Step-by-Step{% elif profile.prefers_big_picture %}Big Picture First{% else %}Mixed Approach{% endif %}
+                </span>
+            </div>
+            <div class="preference-item">
+                <span class="preference-label">Processing Speed</span>
+                <span class="preference-value">{{ profile.processing_speed|title }}</span>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <h3>📚 Reading Preferences</h3>
+            <div class="preference-item">
+                <span class="preference-label">Reading Style</span>
+                <span class="preference-value">{{ profile.reading_preference|replace('_', ' ')|title if profile.reading_preference else 'Not specified' }}</span>
+            </div>
+            {% if profile.prefers_large_text %}
+            <div class="preference-item">
+                <span class="preference-label">Text Size</span>
+                <span class="preference-value">Prefers Larger Text</span>
+            </div>
+            {% endif %}
+            {% if profile.prefers_colored_backgrounds %}
+            <div class="preference-item">
+                <span class="preference-label">Visual Support</span>
+                <span class="preference-value">Benefits from Color Coding</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recommended Strategies -->
+    <div class="strategies-section">
+        <h2>🚀 Recommended Strategies for You</h2>
+        <p style="text-align: center; color: #fff; margin-bottom: 25px;">
+            Based on your learning profile, these strategies are especially helpful for you:
+        </p>
+
+        {% for strategy in recommended_strategies %}
+        <div class="strategy-card">
+            <div class="strategy-header">
+                <h4 class="strategy-name">{{ strategy.name }}</h4>
+                <span class="strategy-category">{{ strategy.category }}</span>
+            </div>
+            <p class="strategy-description">{{ strategy.description }}</p>
+        </div>
+        {% endfor %}
+
+        {% if recommended_strategies|length == 0 %}
+        <div class="strategy-card">
+            <p style="text-align: center; color: #666; margin: 0;">
+                Complete the quiz to see personalized strategy recommendations!
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <a href="/learning-lab/strategies" class="btn-profile">Explore All Strategies →</a>
+        <a href="/learning-lab/tools" class="btn-profile" style="margin-left: 15px;">Try Learning Tools 🛠️</a>
+        <a href="/learning-lab/quiz" class="btn-profile" style="margin-left: 15px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.4);">Retake Quiz</a>
+    </div>
+</div>
+
+{% endblock %}

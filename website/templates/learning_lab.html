@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* Learning Lab Theme - Brain & Growth Colors */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow-x: hidden;
+}
+
+.lab-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.lab-header {
+    text-align: center;
+    margin: 30px 0 40px;
+}
+
+.lab-title {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.lab-subtitle {
+    color: #fff;
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.disclaimer {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    color: #fff;
+    backdrop-filter: blur(10px);
+}
+
+.disclaimer h4 {
+    margin: 0 0 10px 0;
+    color: #f5576c;
+}
+
+.nav-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.nav-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    color: white;
+    display: block;
+}
+
+.nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+}
+
+.nav-card-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+
+.nav-card h3 {
+    font-size: 1.5rem;
+    margin: 0 0 10px 0;
+    color: #fff;
+}
+
+.nav-card p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.profile-preview {
+    background: linear-gradient(135deg, rgba(245, 87, 108, 0.2), rgba(240, 147, 251, 0.2));
+    border: 2px solid rgba(245, 87, 108, 0.4);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 30px 0;
+    backdrop-filter: blur(10px);
+}
+
+.profile-preview h3 {
+    color: #f5576c;
+    margin: 0 0 15px 0;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #f5576c;
+}
+
+.btn-lab {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+.btn-lab:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+}
+
+.btn-lab-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.btn-lab-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+</style>
+
+<div class="lab-container">
+    <!-- Header -->
+    <div class="lab-header">
+        <div class="lab-title">🧠 Learning Lab</div>
+        <div class="lab-subtitle">Discover How YOU Learn Best</div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <h4>⚠️ Important Information</h4>
+        <p>
+            <strong>Learning Lab helps you discover your learning preferences and strategies that work for you.</strong>
+            This tool does NOT diagnose learning disabilities, ADHD, or any medical conditions.
+        </p>
+        <p style="margin-top: 10px;">
+            If you're struggling significantly with learning, focus, reading, or memory, please talk to your
+            parents about getting a professional evaluation from a doctor or educational specialist.
+        </p>
+    </div>
+
+    {% if has_profile %}
+    <!-- Profile Preview -->
+    <div class="profile-preview">
+        <h3>Your Learning Profile</h3>
+        <div class="profile-stats">
+            <div class="stat-item">
+                <div class="stat-label">Primary Learning Style</div>
+                <div class="stat-value">{{ profile.primary_learning_style|title|replace('_', ' ') }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Focus Preference</div>
+                <div class="stat-value">{{ profile.focus_preference|title|replace('_', ' ') }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Strategies Tried</div>
+                <div class="stat-value">{{ strategies_count }}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Favorite Tools</div>
+                <div class="stat-value">{{ favorite_tools_count }}</div>
+            </div>
+        </div>
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="/learning-lab/profile" class="btn-lab">View Full Profile</a>
+            <a href="/learning-lab/quiz" class="btn-lab btn-lab-secondary" style="margin-left: 10px;">Retake Quiz</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Cards -->
+    <div class="nav-cards">
+        {% if not has_profile %}
+        <a href="/learning-lab/quiz" class="nav-card">
+            <div class="nav-card-icon">🎯</div>
+            <h3>Take the Quiz</h3>
+            <p>Discover your learning superpowers in just 5-10 minutes!</p>
+        </a>
+        {% endif %}
+
+        <a href="/learning-lab/strategies" class="nav-card">
+            <div class="nav-card-icon">📚</div>
+            <h3>Strategy Library</h3>
+            <p>Explore learning strategies organized by challenge type</p>
+        </a>
+
+        <a href="/learning-lab/tools" class="nav-card">
+            <div class="nav-card-icon">🛠️</div>
+            <h3>Learning Tools</h3>
+            <p>Text-to-speech, focus timer, task breakdown, and more</p>
+        </a>
+
+        {% if has_profile %}
+        <a href="/learning-lab/profile" class="nav-card">
+            <div class="nav-card-icon">✨</div>
+            <h3>Your Brain Profile</h3>
+            <p>See your unique learning strengths and preferences</p>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Quick Tips -->
+    <div style="margin-top: 40px; text-align: center;">
+        <h3 style="color: #fff; margin-bottom: 20px;">💡 Today's Learning Tip</h3>
+        <div style="background: rgba(255, 255, 255, 0.15); padding: 20px; border-radius: 16px; color: #fff; font-size: 1.1rem; backdrop-filter: blur(10px);">
+            {{ daily_tip }}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

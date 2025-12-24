@@ -1,0 +1,416 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* Quiz Theme */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.quiz-header {
+    text-align: center;
+    margin: 30px 0;
+    color: #fff;
+}
+
+.quiz-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.quiz-progress {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+}
+
+.progress-bar {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f093fb, #f5576c);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: #fff;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.question-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px;
+    margin: 30px 0;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.question-number {
+    color: #f5576c;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.question-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 15px 0 25px;
+}
+
+.answer-options {
+    display: grid;
+    gap: 15px;
+}
+
+.answer-option {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.answer-option:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    border-color: #667eea;
+    transform: translateX(5px);
+}
+
+.answer-option.selected {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
+    color: #fff;
+}
+
+.answer-option h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    color: inherit;
+}
+
+.answer-option p {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.answer-option.selected p {
+    opacity: 1;
+}
+
+.quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn-quiz {
+    padding: 14px 28px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-quiz:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+}
+
+.btn-quiz:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-quiz-secondary {
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <div class="quiz-title">🎯 Discover Your Learning Superpowers</div>
+        <p style="font-size: 1.1rem; opacity: 0.9;">Answer honestly - there are no wrong answers!</p>
+    </div>
+
+    <div class="quiz-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">Question 0 of 15</div>
+    </div>
+
+    <form id="quizForm" action="/learning-lab/quiz/submit" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div id="questionContainer">
+            <!-- Questions loaded by JavaScript -->
+        </div>
+
+        <div class="quiz-nav">
+            <button type="button" class="btn-quiz btn-quiz-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+            <button type="button" class="btn-quiz" id="nextBtn" onclick="nextQuestion()">Next →</button>
+            <button type="submit" class="btn-quiz" id="submitBtn" style="display: none;">See Results ✨</button>
+        </div>
+    </form>
+</div>
+
+<script>
+const questions = [
+    {
+        id: 'learning_style',
+        question: 'When learning something new, I remember it best when I:',
+        options: [
+            { value: 'visual', label: 'See It', description: 'Pictures, diagrams, videos, demonstrations' },
+            { value: 'auditory', label: 'Hear It', description: 'Lectures, podcasts, discussions, explanations' },
+            { value: 'kinesthetic', label: 'Do It', description: 'Hands-on practice, building, moving' },
+            { value: 'reading_writing', label: 'Read/Write It', description: 'Taking notes, reading, writing summaries' }
+        ]
+    },
+    {
+        id: 'focus_preference',
+        question: 'I can focus best when I study in:',
+        options: [
+            { value: 'short_bursts', label: 'Short Bursts', description: '5-15 minute sessions with frequent breaks' },
+            { value: 'medium_sessions', label: 'Medium Sessions', description: '20-45 minute focused blocks' },
+            { value: 'long_sessions', label: 'Long Sessions', description: '1+ hours of deep focus' },
+            { value: 'varies', label: 'It Varies', description: 'Depends on the day and subject' }
+        ]
+    },
+    {
+        id: 'study_environment',
+        question: 'My ideal study environment has:',
+        options: [
+            { value: 'complete_silence', label: 'Complete Silence', description: 'No sounds or distractions at all' },
+            { value: 'background_music', label: 'Background Music', description: 'Lo-fi, classical, or instrumental music' },
+            { value: 'nature_sounds', label: 'Nature Sounds', description: 'Rain, waves, forest sounds' },
+            { value: 'active_noise', label: 'Active Environment', description: 'Coffee shop, classroom, people around' }
+        ]
+    },
+    {
+        id: 'break_frequency',
+        question: 'When studying, I need a break about every:',
+        options: [
+            { value: 'every_15_min', label: 'Every 15 Minutes', description: 'I need frequent movement and breaks' },
+            { value: 'every_30_min', label: 'Every 30 Minutes', description: 'A short break every half hour' },
+            { value: 'every_hour', label: 'Every Hour', description: 'I can stay focused for longer periods' },
+            { value: 'rarely', label: 'Rarely', description: 'I prefer fewer, longer study sessions' }
+        ]
+    },
+    {
+        id: 'processing_style',
+        question: 'When solving problems, I prefer to:',
+        options: [
+            { value: 'step_by_step', label: 'Go Step-by-Step', description: 'Follow clear instructions in order' },
+            { value: 'big_picture', label: 'See the Big Picture First', description: 'Understand the whole concept, then details' },
+            { value: 'trial_and_error', label: 'Try Things Out', description: 'Experiment and learn by doing' },
+            { value: 'mixed', label: 'Mix of All', description: 'I use different approaches for different tasks' }
+        ]
+    },
+    {
+        id: 'memory_style',
+        question: 'I remember things best when I:',
+        options: [
+            { value: 'see_images', label: 'See Images', description: 'Pictures, colors, visual associations' },
+            { value: 'hear_words', label: 'Hear Words', description: 'Saying it aloud, songs, rhymes' },
+            { value: 'write_it_down', label: 'Write It Down', description: 'Taking notes, making lists' },
+            { value: 'do_actions', label: 'Do Actions', description: 'Acting it out, hands-on practice' }
+        ]
+    },
+    {
+        id: 'reading_preference',
+        question: 'When reading, I find it most helpful to:',
+        options: [
+            { value: 'just_read', label: 'Just Read', description: 'Standard text works great for me' },
+            { value: 'hear_it', label: 'Hear It Read Aloud', description: 'Audio support while reading' },
+            { value: 'highlight_visual', label: 'Highlight and Organize', description: 'Colors, notes, visual organization' },
+            { value: 'all_methods', label: 'Use All Methods', description: 'Read, listen, and take notes' }
+        ]
+    },
+    {
+        id: 'text_size',
+        question: 'When reading on screen or paper, I prefer:',
+        options: [
+            { value: 'standard', label: 'Standard Text Size', description: 'Normal size is comfortable' },
+            { value: 'larger', label: 'Larger Text', description: 'Bigger is easier to read' },
+            { value: 'adjustable', label: 'Adjustable', description: 'I like to change it based on what I\'m reading' },
+            { value: 'no_preference', label: 'No Strong Preference', description: 'Either works fine' }
+        ]
+    },
+    {
+        id: 'organization',
+        question: 'My study materials and assignments are usually:',
+        options: [
+            { value: 'very_organized', label: 'Very Organized', description: 'Everything labeled, filed, easy to find' },
+            { value: 'somewhat_organized', label: 'Somewhat Organized', description: 'Generally organized with some chaos' },
+            { value: 'needs_help', label: 'Could Use Help', description: 'I struggle to keep things organized' },
+            { value: 'creative_chaos', label: 'Creative Chaos', description: 'Looks messy but I know where things are' }
+        ]
+    },
+    {
+        id: 'time_management',
+        question: 'Starting assignments and managing time is:',
+        options: [
+            { value: 'easy', label: 'Pretty Easy', description: 'I start on time and finish without rushing' },
+            { value: 'sometimes_hard', label: 'Sometimes Hard', description: 'Some assignments I procrastinate on' },
+            { value: 'challenging', label: 'Challenging', description: 'I often wait until the last minute' },
+            { value: 'need_reminders', label: 'I Need Reminders', description: 'Timers and alerts really help me' }
+        ]
+    },
+    {
+        id: 'movement_while_learning',
+        question: 'When thinking or learning, I:',
+        options: [
+            { value: 'need_movement', label: 'Need to Move', description: 'Walking, fidgeting, pacing helps me think' },
+            { value: 'some_movement', label: 'Some Movement', description: 'Occasional movement breaks are good' },
+            { value: 'prefer_still', label: 'Prefer Sitting Still', description: 'I focus better when seated and still' },
+            { value: 'depends', label: 'Depends on Task', description: 'Some tasks need movement, others don\'t' }
+        ]
+    },
+    {
+        id: 'task_approach',
+        question: 'When facing a big project or assignment, I:',
+        options: [
+            { value: 'overwhelmed', label: 'Feel Overwhelmed', description: 'Need help breaking it into smaller steps' },
+            { value: 'make_plan', label: 'Make a Plan', description: 'Create a checklist and work through it' },
+            { value: 'just_start', label: 'Just Start', description: 'Jump in and figure it out as I go' },
+            { value: 'procrastinate', label: 'Procrastinate', description: 'Wait until closer to the deadline' }
+        ]
+    },
+    {
+        id: 'best_study_time',
+        question: 'I learn and focus best during:',
+        options: [
+            { value: 'morning', label: 'Morning', description: 'I\'m most alert early in the day' },
+            { value: 'afternoon', label: 'Afternoon', description: 'After lunch is my peak time' },
+            { value: 'evening', label: 'Evening', description: 'After dinner I can really focus' },
+            { value: 'night', label: 'Night', description: 'Late night is when I do my best work' }
+        ]
+    },
+    {
+        id: 'notetaking',
+        question: 'My note-taking style is:',
+        options: [
+            { value: 'detailed_linear', label: 'Detailed & Linear', description: 'Organized outlines and bullet points' },
+            { value: 'visual_diagrams', label: 'Visual Diagrams', description: 'Mind maps, sketches, flowcharts' },
+            { value: 'key_points', label: 'Key Points Only', description: 'Just the main ideas, not every detail' },
+            { value: 'struggle_notes', label: 'Struggle with Notes', description: 'Hard to know what to write down' }
+        ]
+    },
+    {
+        id: 'test_prep',
+        question: 'When preparing for a test, I prefer to:',
+        options: [
+            { value: 'review_notes', label: 'Review My Notes', description: 'Read over what I\'ve written' },
+            { value: 'practice_questions', label: 'Do Practice Questions', description: 'Test myself with problems' },
+            { value: 'explain_to_others', label: 'Explain to Someone', description: 'Teaching helps me understand' },
+            { value: 'multiple_methods', label: 'Use Multiple Methods', description: 'Mix of reviewing, practicing, discussing' }
+        ]
+    }
+];
+
+let currentQuestion = 0;
+let answers = {};
+
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    const container = document.getElementById('questionContainer');
+
+    let html = `
+        <div class="question-card">
+            <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+            <div class="question-text">${q.question}</div>
+            <div class="answer-options">
+    `;
+
+    q.options.forEach(option => {
+        const selected = answers[q.id] === option.value ? 'selected' : '';
+        html += `
+            <div class="answer-option ${selected}" onclick="selectAnswer('${q.id}', '${option.value}')">
+                <h4>${option.label}</h4>
+                <p>${option.description}</p>
+            </div>
+        `;
+    });
+
+    html += '</div></div>';
+    container.innerHTML = html;
+
+    // Update progress
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+
+    // Update buttons
+    document.getElementById('prevBtn').disabled = currentQuestion === 0;
+    document.getElementById('nextBtn').style.display = currentQuestion === questions.length - 1 ? 'none' : 'block';
+    document.getElementById('submitBtn').style.display = currentQuestion === questions.length - 1 ? 'block' : 'none';
+}
+
+function selectAnswer(questionId, value) {
+    answers[questionId] = value;
+
+    // Update visual selection
+    const options = document.querySelectorAll('.answer-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+
+    // Create hidden input for form submission
+    let input = document.querySelector(`input[name="${questionId}"]`);
+    if (!input) {
+        input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = questionId;
+        document.getElementById('quizForm').appendChild(input);
+    }
+    input.value = value;
+}
+
+function nextQuestion() {
+    if (answers[questions[currentQuestion].id]) {
+        currentQuestion++;
+        renderQuestion();
+    } else {
+        alert('Please select an answer before continuing');
+    }
+}
+
+function previousQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    renderQuestion();
+});
+</script>
+
+{% endblock %}
