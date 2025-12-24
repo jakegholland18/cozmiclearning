@@ -153,26 +153,14 @@ DEEP DIVE FORMAT:
 1. COMPREHENSIVE OVERVIEW (full paragraph)
 2. CORE CONCEPTS (detailed bullets with sub-points)
 3. IN-DEPTH ANALYSIS (multiple paragraphs)
-4. VISUAL DIAGRAMS (only if they clarify relationships/processes)
-   Rules for diagrams:
-   - Use simple ASCII art with clear labels
-   - Keep diagrams clean (≤ 8 lines)
-   - Show relationships, flows, or hierarchies
-   - Use boxes [  ], arrows →/↓, and labels
-   - Skip diagrams if text is clearer
-   Example patterns:
-     Process flow:  [Step 1] → [Step 2] → [Step 3]
-     Hierarchy:     [Parent]
-                      ↓
-                   [Child 1]  [Child 2]
-     Comparison:    Thing A  vs.  Thing B
-                    ✓ Pro        ✓ Pro
-                    ✗ Con        ✗ Con
+4. KEY RELATIONSHIPS (describe with clear text - NO diagrams or ASCII art)
 5. EXTENSIVE EXAMPLES (3-5 detailed examples)
 6. EDGE CASES & NUANCES (advanced understanding)
 7. COMMON MISTAKES (detailed explanations)
 8. PRACTICE PROBLEMS (with solutions)
 9. CHRISTIAN WORLDVIEW (expanded perspective)
+
+⚠️ DO NOT include ASCII art, diagrams, or visual elements - use descriptive text only!
 """
     elif mode == "socratic":
         word_limit = 1000
@@ -193,14 +181,12 @@ STANDARD FORMAT:
 1. OVERVIEW (3–5 sentences)
 2. CORE IDEAS (structured bullets)
 3. KEY CONCEPTS (micro-paragraphs)
-4. VISUAL DIAGRAM (optional - only if it adds clarity)
-   - Simple ASCII art (≤ 5 lines)
-   - Show key relationships or flow
-   - Use boxes [  ], arrows →, and clear labels
-   - Skip if concept is clear without diagram
+4. KEY RELATIONSHIPS (describe with clear text - NO diagrams)
 5. EXAMPLES (2-3 practical examples)
 6. COMMON MISTAKES (compact bullets)
 7. CHRISTIAN WORLDVIEW (1 paragraph)
+
+⚠️ DO NOT include ASCII art, diagrams, or "VISUAL DIAGRAM" sections!
 """
 
     # Learning style adjustments
@@ -208,12 +194,12 @@ STANDARD FORMAT:
     if learning_style == "visual":
         style_instructions = """
 VISUAL LEARNER EMPHASIS:
-- Include clear ASCII diagrams showing relationships/processes
-- Diagrams should be simple, well-labeled, and easy to scan
 - Use spatial organization and formatting (indentation, grouping)
 - Provide visual metaphors and imagery in explanations
-- "Picture this..." prompts with concrete visual descriptions
-- Keep diagrams purposeful - skip if they don't clarify the concept
+- Use "Picture this..." prompts with concrete visual descriptions
+- Describe concepts with vivid, descriptive language
+- Use clear text-based organization (numbered lists, bullet points)
+- ⚠️ NO ASCII diagrams or visual elements - describe visually with words!
 """
     elif learning_style == "auditory":
         style_instructions = """
