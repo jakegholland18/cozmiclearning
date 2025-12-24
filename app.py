@@ -5397,6 +5397,7 @@ def student_signup():
         session["user_role"] = "student"
         session["student_name"] = name
         session["student_email"] = email
+        session["show_learning_lab_welcome"] = True  # Flag for welcome experience
 
         flash(welcome_msg, "info")
 
@@ -5411,8 +5412,9 @@ def student_signup():
                 trial_days=7
             )
 
-        # Parent-linked students go straight to dashboard
-        return redirect("/dashboard")
+        # Parent-linked students: redirect to Learning Lab quiz for first-time setup
+        flash("Let's discover your learning superpowers! Take this quick 2-minute quiz.", "info")
+        return redirect("/learning-lab/quiz")
 
     return render_template("student_signup.html", selected_plan=selected_plan, selected_billing=selected_billing)
 
@@ -5439,6 +5441,9 @@ def student_login():
         now = datetime.utcnow()
         today = now.date()
 
+        # Check if this is first login ever
+        is_first_login = student.last_login is None
+
         if student.last_login:
             last_login_date = student.last_login.date()
             if last_login_date != today:
@@ -5461,6 +5466,17 @@ def student_login():
         session["student_name"] = student.student_name
         session["student_email"] = student.student_email
         session["login_time"] = now.isoformat()  # Track session start
+
+        # Check if student has completed Learning Lab quiz
+        from models import LearningProfile
+        profile = LearningProfile.query.filter_by(student_id=student.id).first()
+        has_completed_quiz = profile and profile.quiz_completed
+
+        # First-time login flow: Welcome and prompt Learning Lab quiz
+        if is_first_login and not has_completed_quiz:
+            flash(f"Welcome to CozmicLearning, {student.student_name}! Let's discover your learning superpowers!", "info")
+            session["show_learning_lab_welcome"] = True
+            return redirect("/learning-lab/quiz")
 
         flash(f"Welcome back, {student.student_name}!", "info")
         return redirect("/dashboard")
@@ -8534,6 +8550,10 @@ def learning_lab_quiz_submit():
             send_teacher_notification(student_id, profile)
         except Exception as e:
             print(f"Error sending notifications: {e}")
+
+        # Clear welcome flag after completing quiz
+        if 'show_learning_lab_welcome' in session:
+            del session['show_learning_lab_welcome']
 
         flash("Your Learning Profile has been created! Check out your results below.", "success")
         return redirect(url_for('learning_lab_profile'))
@@ -14398,6 +14418,10 @@ def related_topics():
 @app.route("/dashboard")
 def dashboard():
     init_user()
+
+    # Clear welcome flag if student skips quiz
+    if 'show_learning_lab_welcome' in session:
+        del session['show_learning_lab_welcome']
 
     # Check subscription status for students
     access_check = check_subscription_access("student")

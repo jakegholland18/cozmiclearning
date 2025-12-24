@@ -160,9 +160,26 @@ body {
 </style>
 
 <div class="quiz-container">
+    {% if session.get('show_learning_lab_welcome') %}
+    <div style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 30px; margin-bottom: 30px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); text-align: center;">
+        <h2 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.8rem;">🎉 Welcome to CozmicLearning!</h2>
+        <p style="color: #555; font-size: 1.1rem; line-height: 1.6; margin: 0 0 20px 0;">
+            Before we get started, let's discover your unique learning style! This quick 2-minute quiz will help us personalize your entire learning experience.
+        </p>
+        <p style="color: #666; font-size: 0.95rem; margin: 0;">
+            We'll show you personalized study tips, recommend the best learning tools for you, and help you learn more effectively.
+        </p>
+    </div>
+    {% endif %}
+
     <div class="quiz-header">
         <div class="quiz-title">🎯 Discover Your Learning Superpowers</div>
         <p style="font-size: 1.1rem; opacity: 0.9;">Answer honestly - there are no wrong answers!</p>
+        {% if session.get('show_learning_lab_welcome') %}
+        <a href="/dashboard" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 20px; color: #fff; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+            Skip for now (you can take this later)
+        </a>
+        {% endif %}
     </div>
 
     <div class="quiz-progress">
