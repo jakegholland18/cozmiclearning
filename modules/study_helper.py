@@ -153,12 +153,21 @@ DEEP DIVE FORMAT:
 1. COMPREHENSIVE OVERVIEW (full paragraph)
 2. CORE CONCEPTS (detailed bullets with sub-points)
 3. IN-DEPTH ANALYSIS (multiple paragraphs)
-4. KEY RELATIONSHIPS (describe with clear text - NO diagrams or ASCII art)
-5. EXTENSIVE EXAMPLES (3-5 detailed examples)
-6. EDGE CASES & NUANCES (advanced understanding)
-7. COMMON MISTAKES (detailed explanations)
-8. PRACTICE PROBLEMS (with solutions)
-9. CHRISTIAN WORLDVIEW (expanded perspective)
+4. STUDY TECHNIQUES (How to master this topic effectively)
+   - Memory techniques and mnemonics specific to this content
+   - Recommended study schedule and review strategies
+   - Active learning approaches (practice methods, self-testing)
+   - Tips for long-term retention
+5. REAL-WORLD CONNECTIONS (How this applies to everyday life)
+   - Practical applications students encounter daily
+   - Current events or modern examples
+   - Career and professional connections
+   - Why this matters beyond the classroom
+6. EXTENSIVE EXAMPLES (3-5 detailed examples)
+7. EDGE CASES & NUANCES (advanced understanding)
+8. COMMON MISTAKES (detailed explanations)
+9. PRACTICE PROBLEMS (with solutions)
+10. CHRISTIAN WORLDVIEW (expanded perspective)
 
 ⚠️ DO NOT include ASCII art, diagrams, or visual elements - use descriptive text only!
 """
@@ -181,10 +190,17 @@ STANDARD FORMAT:
 1. OVERVIEW (3–5 sentences)
 2. CORE IDEAS (structured bullets)
 3. KEY CONCEPTS (micro-paragraphs)
-4. KEY RELATIONSHIPS (describe with clear text - NO diagrams)
-5. EXAMPLES (2-3 practical examples)
-6. COMMON MISTAKES (compact bullets)
-7. CHRISTIAN WORLDVIEW (1 paragraph)
+4. STUDY TECHNIQUES (How to master this topic)
+   - Best memory techniques for this content
+   - Study and review strategies
+   - Active practice methods
+5. REAL-WORLD CONNECTIONS (Why this matters)
+   - Everyday applications
+   - Real-world examples
+   - Career connections
+6. EXAMPLES (2-3 practical examples)
+7. COMMON MISTAKES (compact bullets)
+8. CHRISTIAN WORLDVIEW (1 paragraph)
 
 ⚠️ DO NOT include ASCII art, diagrams, or "VISUAL DIAGRAM" sections!
 """
