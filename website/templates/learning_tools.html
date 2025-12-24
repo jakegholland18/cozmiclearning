@@ -1,0 +1,1011 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* Learning Tools Theme */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.tools-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.tools-header {
+    text-align: center;
+    margin: 30px 0;
+    color: #fff;
+}
+
+.tools-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.tools-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin: 30px 0;
+}
+
+.tool-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+}
+
+.tool-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tool-icon {
+    font-size: 2.5rem;
+    margin-right: 15px;
+}
+
+.tool-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin: 0;
+}
+
+.tool-description {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.tool-content {
+    margin-top: 20px;
+}
+
+/* Pomodoro Timer */
+.timer-display {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.timer-time {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #667eea;
+    font-family: 'Courier New', monospace;
+}
+
+.timer-status {
+    font-size: 1.1rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.timer-btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.timer-btn-start {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.timer-btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.timer-btn-pause {
+    background: rgba(245, 87, 108, 0.2);
+    color: #f5576c;
+    border: 2px solid #f5576c;
+}
+
+.timer-btn-reset {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.timer-settings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.timer-preset {
+    padding: 8px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timer-preset:hover, .timer-preset.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-color: #667eea;
+}
+
+/* Text-to-Speech */
+.tts-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    font-size: 1rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.tts-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.tts-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+.tts-btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    border: none;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tts-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.tts-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tts-settings {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.tts-slider {
+    flex: 1;
+    max-width: 150px;
+}
+
+/* Task Breakdown */
+.task-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.task-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.breakdown-result {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 12px;
+    display: none;
+}
+
+.breakdown-result.active {
+    display: block;
+}
+
+.breakdown-step {
+    padding: 12px;
+    background: white;
+    border-left: 4px solid #667eea;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.breakdown-step-number {
+    font-weight: 700;
+    color: #667eea;
+    margin-right: 8px;
+}
+
+/* Reading Customization */
+.reading-preview {
+    padding: 20px;
+    background: white;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    min-height: 150px;
+}
+
+.reading-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.reading-control {
+    display: flex;
+    flex-direction: column;
+}
+
+.reading-control label {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 8px;
+}
+
+.reading-control select,
+.reading-control input[type="range"] {
+    padding: 8px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.size-value {
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* Study Schedule */
+.schedule-form {
+    display: grid;
+    gap: 15px;
+}
+
+.schedule-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-input-group label {
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 8px;
+}
+
+.schedule-input-group input,
+.schedule-input-group select {
+    padding: 10px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.schedule-result {
+    margin-top: 20px;
+    display: none;
+}
+
+.schedule-result.active {
+    display: block;
+}
+
+.schedule-day {
+    padding: 15px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.schedule-date {
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+
+/* Distraction Blocker */
+.blocker-info {
+    padding: 15px;
+    background: rgba(245, 87, 108, 0.1);
+    border-left: 4px solid #f5576c;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.website-list {
+    list-style: none;
+    padding: 0;
+}
+
+.website-list li {
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    margin-bottom: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.website-list li::before {
+    content: "🚫";
+    margin-right: 10px;
+}
+
+.extension-links {
+    display: grid;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.extension-link {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    border-radius: 10px;
+    text-decoration: none;
+    color: #667eea;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.extension-link:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: translateX(5px);
+}
+
+.nav-back {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.btn-back {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+</style>
+
+<div class="tools-container">
+    <!-- Header -->
+    <div class="tools-header">
+        <div class="tools-title">🛠️ Learning Tools</div>
+        <div class="tools-subtitle">Interactive tools to support your learning journey</div>
+    </div>
+
+    <!-- Tools Grid -->
+    <div class="tools-grid">
+
+        <!-- Pomodoro Timer -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">⏰</div>
+                <h2 class="tool-title">Focus Timer</h2>
+            </div>
+            <div class="tool-description">
+                Use the Pomodoro Technique: work for 25 minutes, then take a 5-minute break. Perfect for maintaining focus!
+            </div>
+            <div class="tool-content">
+                <div class="timer-display">
+                    <div class="timer-time" id="timerDisplay">25:00</div>
+                    <div class="timer-status" id="timerStatus">Ready to start</div>
+                </div>
+                <div class="timer-controls">
+                    <button class="timer-btn timer-btn-start" id="startBtn" onclick="startTimer()">Start</button>
+                    <button class="timer-btn timer-btn-pause" id="pauseBtn" onclick="pauseTimer()" style="display: none;">Pause</button>
+                    <button class="timer-btn timer-btn-reset" onclick="resetTimer()">Reset</button>
+                </div>
+                <div class="timer-settings">
+                    <div class="timer-preset active" onclick="setTimer(25, 'work')">
+                        <div style="font-weight: 700;">25 min</div>
+                        <div style="font-size: 0.8rem;">Work</div>
+                    </div>
+                    <div class="timer-preset" onclick="setTimer(5, 'break')">
+                        <div style="font-weight: 700;">5 min</div>
+                        <div style="font-size: 0.8rem;">Break</div>
+                    </div>
+                    <div class="timer-preset" onclick="setTimer(15, 'custom')">
+                        <div style="font-weight: 700;">15 min</div>
+                        <div style="font-size: 0.8rem;">Custom</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text-to-Speech -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">🔊</div>
+                <h2 class="tool-title">Text-to-Speech</h2>
+            </div>
+            <div class="tool-description">
+                Paste any text and have it read aloud. Great for auditory learners or when you need a reading break!
+            </div>
+            <div class="tool-content">
+                <textarea class="tts-textarea" id="ttsText" placeholder="Paste text here to have it read aloud..."></textarea>
+                <div class="tts-controls">
+                    <button class="tts-btn" id="speakBtn" onclick="speakText()">▶ Speak</button>
+                    <button class="tts-btn" id="stopBtn" onclick="stopSpeaking()" style="display: none;">⏹ Stop</button>
+                    <div class="tts-settings">
+                        <label for="speedSlider" style="font-size: 0.9rem; color: #666;">Speed:</label>
+                        <input type="range" id="speedSlider" class="tts-slider" min="0.5" max="2" step="0.1" value="1" onchange="updateSpeed()">
+                        <span id="speedValue" style="font-weight: 600; color: #667eea;">1x</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Breakdown -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">✂️</div>
+                <h2 class="tool-title">Task Breakdown</h2>
+            </div>
+            <div class="tool-description">
+                Feeling overwhelmed by a big assignment? Break it down into smaller, manageable steps!
+            </div>
+            <div class="tool-content">
+                <input type="text" class="task-input" id="taskInput" placeholder="Enter your assignment or project...">
+                <button class="tts-btn" onclick="breakdownTask()">Break It Down</button>
+                <div class="breakdown-result" id="breakdownResult">
+                    <!-- Steps will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Customization -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">📖</div>
+                <h2 class="tool-title">Reading Customizer</h2>
+            </div>
+            <div class="tool-description">
+                Adjust text size, font, and background to make reading more comfortable for your eyes!
+            </div>
+            <div class="tool-content">
+                <div class="reading-preview" id="readingPreview">
+                    This is sample text. Adjust the settings below to find what works best for you. Many students find that changing the font, size, or background color makes reading easier and more comfortable.
+                </div>
+                <div class="reading-controls">
+                    <div class="reading-control">
+                        <label>Font Size</label>
+                        <input type="range" min="12" max="24" value="16" oninput="updateReading()">
+                        <div class="size-value" id="fontSize">16px</div>
+                    </div>
+                    <div class="reading-control">
+                        <label>Font Family</label>
+                        <select onchange="updateReading()">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Georgia', serif">Georgia</option>
+                            <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                            <option value="'Courier New', monospace">Courier</option>
+                            <option value="'OpenDyslexic', sans-serif">OpenDyslexic</option>
+                        </select>
+                    </div>
+                    <div class="reading-control">
+                        <label>Background</label>
+                        <select onchange="updateReading()">
+                            <option value="#ffffff">White</option>
+                            <option value="#f5f5dc">Beige</option>
+                            <option value="#fffacd">Light Yellow</option>
+                            <option value="#e0f0e0">Light Green</option>
+                            <option value="#e0e0ff">Light Blue</option>
+                        </select>
+                    </div>
+                    <div class="reading-control">
+                        <label>Line Spacing</label>
+                        <select onchange="updateReading()">
+                            <option value="1.4">Normal</option>
+                            <option value="1.8">Relaxed</option>
+                            <option value="2.2">Wide</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Schedule Builder -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">📅</div>
+                <h2 class="tool-title">Study Schedule</h2>
+            </div>
+            <div class="tool-description">
+                Create a spaced repetition schedule for an upcoming test. Study smarter, not harder!
+            </div>
+            <div class="tool-content">
+                <div class="schedule-form">
+                    <div class="schedule-input-group">
+                        <label>What are you studying?</label>
+                        <input type="text" id="studyTopic" placeholder="e.g., Chapter 5 History">
+                    </div>
+                    <div class="schedule-input-group">
+                        <label>Test Date</label>
+                        <input type="date" id="testDate">
+                    </div>
+                    <div class="schedule-input-group">
+                        <label>Study Sessions per Week</label>
+                        <select id="sessionsPerWeek">
+                            <option value="3">3 sessions</option>
+                            <option value="4">4 sessions</option>
+                            <option value="5" selected>5 sessions</option>
+                            <option value="6">6 sessions</option>
+                            <option value="7">Daily</option>
+                        </select>
+                    </div>
+                    <button class="tts-btn" onclick="generateSchedule()">Create Schedule</button>
+                </div>
+                <div class="schedule-result" id="scheduleResult">
+                    <!-- Schedule will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Distraction Blocker Guide -->
+        <div class="tool-card">
+            <div class="tool-header">
+                <div class="tool-icon">🎯</div>
+                <h2 class="tool-title">Focus Mode Guide</h2>
+            </div>
+            <div class="tool-description">
+                Tips and tools to minimize distractions and create your ideal study environment.
+            </div>
+            <div class="tool-content">
+                <div class="blocker-info">
+                    <strong>💡 Tip:</strong> Install a website blocker extension to help you stay focused during study sessions!
+                </div>
+                <h4 style="color: #667eea; margin-bottom: 10px;">Common Distractions to Block:</h4>
+                <ul class="website-list">
+                    <li>Social Media (Instagram, TikTok, Snapchat)</li>
+                    <li>YouTube</li>
+                    <li>Gaming Sites</li>
+                    <li>News & Entertainment Sites</li>
+                </ul>
+                <h4 style="color: #667eea; margin: 20px 0 10px;">Recommended Browser Extensions:</h4>
+                <div class="extension-links">
+                    <a href="https://chrome.google.com/webstore/detail/stayfocusd" target="_blank" class="extension-link">
+                        🌐 StayFocusd (Chrome)
+                    </a>
+                    <a href="https://addons.mozilla.org/en-US/firefox/addon/leechblock-ng/" target="_blank" class="extension-link">
+                        🦊 LeechBlock (Firefox)
+                    </a>
+                    <a href="https://www.forestapp.cc/" target="_blank" class="extension-link">
+                        🌳 Forest (Chrome/Firefox)
+                    </a>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 10px;">
+                    <h4 style="color: #667eea; margin: 0 0 10px 0;">Physical Environment Tips:</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #666;">
+                        <li>Put phone in another room or drawer</li>
+                        <li>Use noise-canceling headphones</li>
+                        <li>Clear your desk of non-study items</li>
+                        <li>Tell family/roommates you're studying</li>
+                        <li>Use "Do Not Disturb" mode</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Back to Learning Lab -->
+    <div class="nav-back">
+        <a href="/learning-lab" class="btn-back">← Back to Learning Lab</a>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// POMODORO TIMER
+// ============================================================
+let timerInterval;
+let timeRemaining = 25 * 60; // 25 minutes in seconds
+let isRunning = false;
+let currentMode = 'work';
+
+function setTimer(minutes, mode) {
+    if (isRunning) {
+        pauseTimer();
+    }
+    timeRemaining = minutes * 60;
+    currentMode = mode;
+    updateTimerDisplay();
+
+    // Update active preset
+    document.querySelectorAll('.timer-preset').forEach(preset => {
+        preset.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+}
+
+function startTimer() {
+    isRunning = true;
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('pauseBtn').style.display = 'inline-block';
+    document.getElementById('timerStatus').textContent = currentMode === 'work' ? 'Focus time! 💪' : 'Break time! 😌';
+
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('timerStatus').textContent = currentMode === 'work' ? 'Great work! Take a break! 🎉' : 'Break over! Ready to focus? 🚀';
+
+            // Play notification sound (browser notification)
+            if (Notification.permission === 'granted') {
+                new Notification('Pomodoro Timer', {
+                    body: currentMode === 'work' ? 'Focus session complete! Take a break.' : 'Break complete! Ready to focus?',
+                    icon: '⏰'
+                });
+            }
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    isRunning = false;
+    clearInterval(timerInterval);
+    document.getElementById('startBtn').style.display = 'inline-block';
+    document.getElementById('pauseBtn').style.display = 'none';
+    document.getElementById('timerStatus').textContent = 'Paused';
+}
+
+function resetTimer() {
+    pauseTimer();
+    timeRemaining = 25 * 60;
+    updateTimerDisplay();
+    document.getElementById('timerStatus').textContent = 'Ready to start';
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    document.getElementById('timerDisplay').textContent =
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Request notification permission
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// ============================================================
+// TEXT-TO-SPEECH
+// ============================================================
+let speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+
+function speakText() {
+    const text = document.getElementById('ttsText').value;
+    if (!text) {
+        alert('Please enter some text first!');
+        return;
+    }
+
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+    }
+
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    currentUtterance.rate = parseFloat(document.getElementById('speedSlider').value);
+
+    currentUtterance.onstart = () => {
+        document.getElementById('speakBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'inline-block';
+    };
+
+    currentUtterance.onend = () => {
+        document.getElementById('speakBtn').style.display = 'inline-block';
+        document.getElementById('stopBtn').style.display = 'none';
+    };
+
+    speechSynthesis.speak(currentUtterance);
+}
+
+function stopSpeaking() {
+    speechSynthesis.cancel();
+    document.getElementById('speakBtn').style.display = 'inline-block';
+    document.getElementById('stopBtn').style.display = 'none';
+}
+
+function updateSpeed() {
+    const speed = document.getElementById('speedSlider').value;
+    document.getElementById('speedValue').textContent = speed + 'x';
+}
+
+// ============================================================
+// TASK BREAKDOWN
+// ============================================================
+function breakdownTask() {
+    const task = document.getElementById('taskInput').value;
+    if (!task) {
+        alert('Please enter a task or assignment!');
+        return;
+    }
+
+    // Simple AI-like breakdown based on keywords
+    const steps = generateSteps(task);
+
+    const resultDiv = document.getElementById('breakdownResult');
+    resultDiv.innerHTML = '<h4 style="color: #667eea; margin-bottom: 15px;">Here\'s your step-by-step plan:</h4>';
+
+    steps.forEach((step, index) => {
+        resultDiv.innerHTML += `
+            <div class="breakdown-step">
+                <span class="breakdown-step-number">Step ${index + 1}:</span>
+                ${step}
+            </div>
+        `;
+    });
+
+    resultDiv.classList.add('active');
+}
+
+function generateSteps(task) {
+    const taskLower = task.toLowerCase();
+
+    // Essay/Writing
+    if (taskLower.includes('essay') || taskLower.includes('paper') || taskLower.includes('write')) {
+        return [
+            'Read the assignment instructions carefully',
+            'Choose your topic (if not assigned)',
+            'Research and gather sources',
+            'Create an outline with main points',
+            'Write the introduction paragraph',
+            'Write body paragraphs (one at a time)',
+            'Write the conclusion',
+            'Edit and proofread',
+            'Check citations and bibliography'
+        ];
+    }
+
+    // Reading
+    if (taskLower.includes('read') || taskLower.includes('chapter') || taskLower.includes('book')) {
+        return [
+            'Preview the chapter (headings, images, summary)',
+            'Read the introduction and conclusion first',
+            'Break reading into 10-page chunks',
+            'Take notes on key concepts as you read',
+            'Highlight important terms and definitions',
+            'Summarize each section in your own words',
+            'Review your notes after finishing'
+        ];
+    }
+
+    // Project
+    if (taskLower.includes('project') || taskLower.includes('presentation')) {
+        return [
+            'Understand the project requirements',
+            'Break project into main components',
+            'Research your topic',
+            'Create a timeline with deadlines for each part',
+            'Gather materials or create content',
+            'Build/create the project piece by piece',
+            'Practice presentation (if applicable)',
+            'Review and finalize'
+        ];
+    }
+
+    // Math/Problem Sets
+    if (taskLower.includes('math') || taskLower.includes('problem') || taskLower.includes('homework')) {
+        return [
+            'Review relevant notes or textbook sections',
+            'Try example problems first',
+            'Do easier problems to build confidence',
+            'Tackle harder problems one at a time',
+            'Show all your work clearly',
+            'Check your answers',
+            'Review problems you got wrong',
+            'Ask for help on anything still confusing'
+        ];
+    }
+
+    // Study for test
+    if (taskLower.includes('study') || taskLower.includes('test') || taskLower.includes('exam')) {
+        return [
+            'List all topics that will be covered',
+            'Gather notes, textbook, study guides',
+            'Create a study schedule (spread over multiple days)',
+            'Review notes and make flashcards',
+            'Practice with old quizzes or practice tests',
+            'Quiz yourself on key concepts',
+            'Focus extra time on weak areas',
+            'Get good sleep the night before'
+        ];
+    }
+
+    // Generic breakdown
+    return [
+        'Read through the full assignment carefully',
+        'Break the assignment into smaller parts',
+        'Set a deadline for each part',
+        'Gather materials and resources you\'ll need',
+        'Start with the easiest part to build momentum',
+        'Work on one section at a time',
+        'Take breaks between sections',
+        'Review your work before submitting'
+    ];
+}
+
+// ============================================================
+// READING CUSTOMIZATION
+// ============================================================
+function updateReading() {
+    const preview = document.getElementById('readingPreview');
+    const controls = document.querySelectorAll('.reading-control select, .reading-control input');
+
+    const fontSize = controls[0].value;
+    const fontFamily = controls[1].value;
+    const background = controls[2].value;
+    const lineSpacing = controls[3].value;
+
+    preview.style.fontSize = fontSize + 'px';
+    preview.style.fontFamily = fontFamily;
+    preview.style.backgroundColor = background;
+    preview.style.lineHeight = lineSpacing;
+
+    document.getElementById('fontSize').textContent = fontSize + 'px';
+
+    // Save preferences to localStorage
+    localStorage.setItem('readingPreferences', JSON.stringify({
+        fontSize, fontFamily, background, lineSpacing
+    }));
+}
+
+// Load saved preferences
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('readingPreferences');
+    if (saved) {
+        const prefs = JSON.parse(saved);
+        const controls = document.querySelectorAll('.reading-control select, .reading-control input');
+        controls[0].value = prefs.fontSize;
+        controls[1].value = prefs.fontFamily;
+        controls[2].value = prefs.background;
+        controls[3].value = prefs.lineSpacing;
+        updateReading();
+    }
+});
+
+// ============================================================
+// STUDY SCHEDULE BUILDER
+// ============================================================
+function generateSchedule() {
+    const topic = document.getElementById('studyTopic').value;
+    const testDate = document.getElementById('testDate').value;
+    const sessionsPerWeek = parseInt(document.getElementById('sessionsPerWeek').value);
+
+    if (!topic || !testDate) {
+        alert('Please fill in all fields!');
+        return;
+    }
+
+    const today = new Date();
+    const test = new Date(testDate);
+    const daysUntilTest = Math.ceil((test - today) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilTest < 0) {
+        alert('Test date must be in the future!');
+        return;
+    }
+
+    const resultDiv = document.getElementById('scheduleResult');
+    resultDiv.innerHTML = `<h4 style="color: #667eea; margin-bottom: 15px;">Study Schedule for: ${topic}</h4>`;
+    resultDiv.innerHTML += `<p style="color: #666; margin-bottom: 15px;">You have ${daysUntilTest} days until the test. Here's your spaced repetition schedule:</p>`;
+
+    // Create schedule based on spaced repetition principles
+    const schedule = [];
+    let currentDate = new Date(today);
+
+    // Initial study sessions
+    for (let i = 0; i < Math.min(daysUntilTest, 14); i++) {
+        const dayOfWeek = currentDate.getDay();
+        const shouldStudy = (sessionsPerWeek === 7) ||
+                           (sessionsPerWeek >= 6 && dayOfWeek !== 0) ||
+                           (sessionsPerWeek >= 5 && dayOfWeek > 0 && dayOfWeek < 6) ||
+                           (sessionsPerWeek <= 4 && [1, 3, 5, 6].slice(0, sessionsPerWeek).includes(dayOfWeek));
+
+        if (shouldStudy) {
+            const daysFromNow = i;
+            let focus = '';
+
+            if (daysFromNow <= 2) {
+                focus = 'Initial Learning - Review all material, make flashcards';
+            } else if (daysFromNow <= 5) {
+                focus = 'Deep Review - Practice problems, summarize key concepts';
+            } else if (daysFromNow <= 10) {
+                focus = 'Spaced Review - Quiz yourself, focus on weak areas';
+            } else if (daysFromNow === daysUntilTest - 1) {
+                focus = 'Final Review - Light review of all topics, get good sleep';
+            } else {
+                focus = 'Practice & Reinforcement - Active recall, teach concepts';
+            }
+
+            schedule.push({
+                date: new Date(currentDate),
+                focus: focus
+            });
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Render schedule
+    schedule.forEach(session => {
+        const dateStr = session.date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        resultDiv.innerHTML += `
+            <div class="schedule-day">
+                <div class="schedule-date">${dateStr}</div>
+                <div style="color: #666;">${session.focus}</div>
+            </div>
+        `;
+    });
+
+    resultDiv.classList.add('active');
+}
+</script>
+
+{% endblock %}

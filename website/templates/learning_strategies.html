@@ -1,0 +1,630 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.strategies-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.strategies-header {
+    text-align: center;
+    margin: 30px 0;
+    color: #fff;
+}
+
+.strategies-title {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.filter-bar {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    border-color: #f5576c;
+    transform: translateY(-2px);
+}
+
+.category-section {
+    margin: 40px 0;
+}
+
+.category-header {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.strategy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.strategy-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.strategy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.strategy-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.strategy-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.strategy-icon {
+    font-size: 2rem;
+}
+
+.strategy-description {
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.strategy-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.strategy-tag {
+    padding: 4px 10px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.try-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.try-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+.recommended-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, #84ff00, #00d4ff);
+    color: #333;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 10px;
+}
+</style>
+
+<div class="strategies-container">
+    <div class="strategies-header">
+        <div class="strategies-title">📚 Strategy Library</div>
+        <p style="font-size: 1.1rem; opacity: 0.9;">Explore learning strategies that work for many students</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterCategory('all')">All Strategies</button>
+            <button class="filter-btn" onclick="filterCategory('focus')">🎯 Focus</button>
+            <button class="filter-btn" onclick="filterCategory('reading')">📖 Reading</button>
+            <button class="filter-btn" onclick="filterCategory('memory')">🧩 Memory</button>
+            <button class="filter-btn" onclick="filterCategory('organization')">✅ Organization</button>
+            <button class="filter-btn" onclick="filterCategory('study')">📚 Study Methods</button>
+            <button class="filter-btn" onclick="filterCategory('test')">🎓 Test Prep</button>
+        </div>
+    </div>
+
+    <!-- Focus Strategies -->
+    <div class="category-section" data-category="focus">
+        <div class="category-header">
+            🎯 Focus & Attention Strategies
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Pomodoro Technique</h3>
+                    <span class="strategy-icon">⏰</span>
+                </div>
+                <p class="strategy-description">
+                    Study for 25 minutes of focused work, then take a 5-minute break. After 4 "pomodoros," take a longer 15-30 minute break. This keeps your brain fresh and prevents burnout.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Time Management</span>
+                    <span class="strategy-tag">Focus</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('pomodoro_timer', 'focus')">Try Pomodoro Timer</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Movement Breaks</h3>
+                    <span class="strategy-icon">🏃</span>
+                </div>
+                <p class="strategy-description">
+                    Take a 2-3 minute movement break every 15-20 minutes. Walk around, stretch, do jumping jacks, or dance. Movement helps reset your attention and boosts focus.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Active Learning</span>
+                    <span class="strategy-tag">Brain Break</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('movement_breaks', 'focus')">Set Movement Reminder</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Distraction-Free Zone</h3>
+                    <span class="strategy-icon">🔕</span>
+                </div>
+                <p class="strategy-description">
+                    Create a study space with minimal distractions. Turn off phone notifications, close unnecessary browser tabs, use website blockers during study time.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Environment</span>
+                    <span class="strategy-tag">Focus</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('distraction_free', 'focus')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Fidget-Friendly Studying</h3>
+                    <span class="strategy-icon">🎨</span>
+                </div>
+                <p class="strategy-description">
+                    Use fidget tools (stress ball, fidget spinner, putty) while studying. Gentle movement can actually help some brains focus better. Try doodling while listening!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Kinesthetic</span>
+                    <span class="strategy-tag">Focus</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('fidget_tools', 'focus')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reading Strategies -->
+    <div class="category-section" data-category="reading">
+        <div class="category-header">
+            📖 Reading Support Strategies
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Text-to-Speech</h3>
+                    <span class="strategy-icon">🔊</span>
+                </div>
+                <p class="strategy-description">
+                    Use built-in text-to-speech to hear content while you read along. This engages multiple senses and helps with comprehension and pronunciation.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Audio Support</span>
+                    <span class="strategy-tag">Multi-Sensory</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('text_to_speech', 'reading')">Enable Text-to-Speech</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Chunking Method</h3>
+                    <span class="strategy-icon">📄</span>
+                </div>
+                <p class="strategy-description">
+                    Break long reading into smaller chunks. Read one paragraph or section at a time, then summarize in your head before moving on. This improves comprehension.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Comprehension</span>
+                    <span class="strategy-tag">Processing</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('chunking_reading', 'reading')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Color Overlays</h3>
+                    <span class="strategy-icon">🌈</span>
+                </div>
+                <p class="strategy-description">
+                    Try reading with colored overlays or changing background colors. Some students find cream/beige backgrounds easier than bright white. Experiment to find what works!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Visual Support</span>
+                    <span class="strategy-tag">Reading</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('color_overlays', 'reading')">Try Color Options</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Active Reading</h3>
+                    <span class="strategy-icon">✏️</span>
+                </div>
+                <p class="strategy-description">
+                    Highlight key points, write questions in margins, underline important ideas. Engaging actively with text (not just reading passively) improves retention.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Active Learning</span>
+                    <span class="strategy-tag">Comprehension</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('active_reading', 'reading')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Strategies -->
+    <div class="category-section" data-category="memory">
+        <div class="category-header">
+            🧩 Memory & Retention Strategies
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Spaced Repetition</h3>
+                    <span class="strategy-icon">📅</span>
+                </div>
+                <p class="strategy-description">
+                    Review material at increasing intervals: after 1 day, then 3 days, then a week, then a month. This scientifically proven method moves info to long-term memory.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Memory</span>
+                    <span class="strategy-tag">Long-term Learning</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('spaced_repetition', 'memory')">Create Review Schedule</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Mnemonics & Memory Tricks</h3>
+                    <span class="strategy-icon">🎵</span>
+                </div>
+                <p class="strategy-description">
+                    Create silly sentences, rhymes, or songs to remember lists. Example: "My Very Educated Mother Just Served Us Nachos" for planet order. The sillier, the more memorable!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Memory</span>
+                    <span class="strategy-tag">Creative</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('mnemonics', 'memory')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Teach Someone Else</h3>
+                    <span class="strategy-icon">👥</span>
+                </div>
+                <p class="strategy-description">
+                    Explain concepts to a friend, family member, or even a stuffed animal! Teaching forces you to organize thoughts and identify gaps in understanding.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Active Learning</span>
+                    <span class="strategy-tag">Comprehension</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('teach_others', 'memory')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Memory Palace</h3>
+                    <span class="strategy-icon">🏰</span>
+                </div>
+                <p class="strategy-description">
+                    Associate information with locations in a familiar place (your house, school route). "Walk through" the space mentally to recall information. Ancient but powerful technique!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Visual Memory</span>
+                    <span class="strategy-tag">Advanced</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('memory_palace', 'memory')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organization Strategies -->
+    <div class="category-section" data-category="organization">
+        <div class="category-header">
+            ✅ Organization & Planning Strategies
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Task Breakdown</h3>
+                    <span class="strategy-icon">📋</span>
+                </div>
+                <p class="strategy-description">
+                    Break big projects into tiny, manageable steps. Instead of "Write essay," list: "Choose topic," "Research 3 sources," "Write outline," etc. Reduces overwhelm!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Organization</span>
+                    <span class="strategy-tag">Executive Function</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('task_breakdown', 'organization')">Use Task Breakdown Tool</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Checklist System</h3>
+                    <span class="strategy-icon">☑️</span>
+                </div>
+                <p class="strategy-description">
+                    Create checklists for assignments, study sessions, and daily tasks. Checking things off provides motivation and ensures nothing is forgotten.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Organization</span>
+                    <span class="strategy-tag">Tracking</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('checklists', 'organization')">Create Checklist</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Time Blocking</h3>
+                    <span class="strategy-icon">🕐</span>
+                </div>
+                <p class="strategy-description">
+                    Schedule specific times for specific tasks. "3-3:30pm: Math homework. 3:30-4pm: Reading." Having a plan reduces decision fatigue and procrastination.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Time Management</span>
+                    <span class="strategy-tag">Planning</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('time_blocking', 'organization')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Color-Coded Organization</h3>
+                    <span class="strategy-icon">🎨</span>
+                </div>
+                <p class="strategy-description">
+                    Assign colors to subjects or types of tasks. Use colored folders, highlighters, or digital tags. Your brain processes colors faster than words!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Visual Organization</span>
+                    <span class="strategy-tag">System</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('color_coding', 'organization')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Methods -->
+    <div class="category-section" data-category="study">
+        <div class="category-header">
+            📚 Study Methods
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Active Recall</h3>
+                    <span class="strategy-icon">💭</span>
+                </div>
+                <p class="strategy-description">
+                    Test yourself regularly instead of just re-reading. Close the book and try to recall key points. Struggling to remember actually strengthens memory!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Memory</span>
+                    <span class="strategy-tag">Effective Learning</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('active_recall', 'study')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Cornell Notes</h3>
+                    <span class="strategy-icon">📝</span>
+                </div>
+                <p class="strategy-description">
+                    Divide your page: notes on right, key questions on left, summary at bottom. This structured approach helps organize and review information effectively.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Note-Taking</span>
+                    <span class="strategy-tag">Organization</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('cornell_notes', 'study')">Get Template</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Mind Mapping</h3>
+                    <span class="strategy-icon">🗺️</span>
+                </div>
+                <p class="strategy-description">
+                    Create visual diagrams with the main topic in the center and related ideas branching out. Great for seeing connections and organizing complex information.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Visual Learning</span>
+                    <span class="strategy-tag">Organization</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('mind_mapping', 'study')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Study Groups</h3>
+                    <span class="strategy-icon">👫</span>
+                </div>
+                <p class="strategy-description">
+                    Study with classmates! Explain concepts to each other, quiz each other, discuss confusing topics. Social learning can make studying more engaging.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Collaborative</span>
+                    <span class="strategy-tag">Social Learning</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('study_groups', 'study')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Prep -->
+    <div class="category-section" data-category="test">
+        <div class="category-header">
+            🎓 Test Preparation Strategies
+        </div>
+        <div class="strategy-grid">
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Practice Tests</h3>
+                    <span class="strategy-icon">📄</span>
+                </div>
+                <p class="strategy-description">
+                    Take practice tests under real conditions. This builds familiarity with test format, reduces anxiety, and identifies areas needing more study.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Test Prep</span>
+                    <span class="strategy-tag">Practice</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('practice_tests', 'test')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Study Schedule</h3>
+                    <span class="strategy-icon">📆</span>
+                </div>
+                <p class="strategy-description">
+                    Start studying at least a week before a test. Review different topics each day rather than cramming everything the night before. Your brain needs time to process!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Planning</span>
+                    <span class="strategy-tag">Time Management</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('study_schedule', 'test')">Create Schedule</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Anxiety Management</h3>
+                    <span class="strategy-icon">😌</span>
+                </div>
+                <p class="strategy-description">
+                    Practice deep breathing, positive self-talk, and visualization before tests. "I've prepared well. I can do this." Physical relaxation helps mental performance.
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Mindset</span>
+                    <span class="strategy-tag">Wellness</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('anxiety_management', 'test')">I'll Try This</button>
+            </div>
+
+            <div class="strategy-card">
+                <div class="strategy-card-header">
+                    <h3 class="strategy-name">Sleep & Nutrition</h3>
+                    <span class="strategy-icon">😴</span>
+                </div>
+                <p class="strategy-description">
+                    Get 8-9 hours of sleep before a test. Eat a healthy breakfast. Your brain needs rest and fuel to perform its best. No all-nighters!
+                </p>
+                <div class="strategy-tags">
+                    <span class="strategy-tag">Health</span>
+                    <span class="strategy-tag">Performance</span>
+                </div>
+                <button class="try-btn" onclick="trackStrategy('sleep_nutrition', 'test')">I'll Try This</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterCategory(category) {
+    const sections = document.querySelectorAll('.category-section');
+    const buttons = document.querySelectorAll('.filter-btn');
+
+    // Update active button
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Show/hide sections
+    sections.forEach(section => {
+        if (category === 'all' || section.dataset.category === category) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+
+function trackStrategy(strategyKey, category) {
+    // Track strategy usage
+    fetch(`/learning-lab/strategies/${strategyKey}/use`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ category: category })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Great! Strategy tracked. Keep using what works for you!');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+
+{% endblock %}
