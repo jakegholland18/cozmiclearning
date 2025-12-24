@@ -8443,11 +8443,10 @@ def student_submit_assignment(assignment_id):
 @app.route("/learning-lab")
 def learning_lab():
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
-
-    student_id = session.get('student_id')
     student = Student.query.get(student_id)
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
@@ -8491,7 +8490,7 @@ def learning_lab():
 @app.route("/learning-lab/quiz")
 def learning_lab_quiz():
     init_user()
-    if session.get('user_role') != 'student':
+    if not session.get('student_id'):
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
@@ -8501,12 +8500,11 @@ def learning_lab_quiz():
 @app.route("/learning-lab/quiz/submit", methods=["POST"])
 def learning_lab_quiz_submit():
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         return jsonify({'error': 'Unauthorized'}), 403
 
     from modules.learning_lab_helper import process_quiz_results, send_parent_notification, send_teacher_notification
-
-    student_id = session.get('student_id')
 
     # Collect quiz answers
     quiz_answers = {}
@@ -8535,11 +8533,10 @@ def learning_lab_quiz_submit():
 @app.route("/learning-lab/profile")
 def learning_lab_profile():
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
-
-    student_id = session.get('student_id')
     student = Student.query.get(student_id)
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
@@ -8566,11 +8563,10 @@ def learning_lab_profile():
 @app.route("/learning-lab/strategies")
 def learning_lab_strategies():
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
-
-    student_id = session.get('student_id')
     student = Student.query.get(student_id)
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
@@ -8583,12 +8579,11 @@ def learning_lab_strategies():
 def track_strategy_use(strategy_key):
     """Track when a student uses a learning strategy"""
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         return jsonify({'error': 'Unauthorized'}), 403
 
     from datetime import datetime
-
-    student_id = session.get('student_id')
 
     # Find or create strategy usage record
     usage = StrategyUsage.query.filter_by(
@@ -8618,10 +8613,9 @@ def track_strategy_use(strategy_key):
 def rate_strategy(strategy_key):
     """Rate how helpful a strategy was"""
     init_user()
-    if session.get('user_role') != 'student':
-        return jsonify({'error': 'Unauthorized'}), 403
-
     student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
     rating = request.json.get('rating')  # 1-5 stars
     notes = request.json.get('notes', '')
 
@@ -8643,11 +8637,10 @@ def rate_strategy(strategy_key):
 def learning_lab_tools():
     """Learning tools page with interactive tools"""
     init_user()
-    if session.get('user_role') != 'student':
+    student_id = session.get('student_id')
+    if not student_id:
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
-
-    student_id = session.get('student_id')
     student = Student.query.get(student_id)
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
