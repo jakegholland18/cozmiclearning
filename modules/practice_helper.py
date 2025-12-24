@@ -580,6 +580,14 @@ FORMAT REQUIREMENTS:
 - Brief, instructional explanations
 - Standard academic tone
 
+⚠️ CRITICAL: DO NOT REFERENCE VISUALS
+- NEVER write "Based on the diagram above..."
+- NEVER write "Look at the graph..."
+- NEVER write "In the picture shown..."
+- NEVER write "Using the visual..."
+- All questions must be self-contained with NO visual references
+- Include all necessary information in the question text itself
+
 RETURN FORMAT - VALID JSON ONLY:
 {{
   "steps": [
@@ -653,6 +661,13 @@ THE EXPERIENCE:
 - Questions should be clear, unambiguous, and age-appropriate.
 - Hints should gently guide.
 - Explanations should be supportive, like a real tutor.
+
+⚠️ CRITICAL: DO NOT REFERENCE VISUALS
+- NEVER write "Based on the diagram above..."
+- NEVER write "Look at the graph..."
+- NEVER write "In the picture shown..."
+- All questions must be self-contained with NO visual references
+- Include all necessary information in the question text itself
 
 RETURN ONLY VALID JSON:
 
