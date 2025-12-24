@@ -7,6 +7,7 @@ import os
 import json
 from typing import Dict, List, Optional
 from modules.shared_ai import get_client, validate_lesson_content, filter_gambling_content
+from modules.visual_generator import add_visual_to_lesson
 
 
 # Lesson topics organized by subject and grade
@@ -345,6 +346,13 @@ Make it grade {grade} appropriate, engaging, and educational!"""
         # Log if content was flagged
         if lesson_data.get('content_flagged'):
             print(f"⚠️  Gambling content detected and filtered in {topic} lesson for grade {grade}")
+
+        # Add visual aids to lesson content where appropriate
+        lesson_data = add_visual_to_lesson(
+            lesson_data=lesson_data,
+            subject=subject,
+            grade=grade
+        )
 
         return {
             "success": True,

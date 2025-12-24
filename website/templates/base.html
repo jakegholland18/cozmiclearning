@@ -160,7 +160,57 @@
             background: linear-gradient(135deg, rgba(92, 107, 255, 0.3), rgba(0, 242, 255, 0.2));
             border-color: var(--accent);
         }
+
+        /* Visual Aid Styles */
+        .visual-container {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .visual-caption {
+            font-weight: 600;
+            color: #4facfe;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .ascii-diagram {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #fff;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+
+        .visual-description {
+            font-style: italic;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
     </style>
+
+    <!-- Mermaid.js for diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#5c6bff',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#4facfe',
+                lineColor: '#4facfe',
+                secondaryColor: '#00f2ff',
+                tertiaryColor: '#84ff00'
+            }
+        });
+    </script>
 </head>
 
 <body>

@@ -390,6 +390,8 @@ async function sendFollowup() {
     const text = msgBox.value.trim();
     if (!text) return;
 
+    // Disable input while processing
+    msgBox.disabled = true;
     msgBox.value = "";
 
     // Add user message
@@ -406,34 +408,42 @@ async function sendFollowup() {
     log.appendChild(typingDiv);
     log.scrollTop = log.scrollHeight;
 
-    // SEND request to backend
-    const response = await fetch("/followup_message", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            subject: "{{ subject }}",
-            grade: "{{ grade }}",
-            character: "{{ character }}",
-            message: text
-        })
-    });
+    try {
+        // SEND request to backend
+        const response = await fetch("/followup_message", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                subject: "{{ subject }}",
+                grade: "{{ grade }}",
+                character: "{{ character }}",
+                message: text
+            })
+        });
 
-    // Hide thinking
-    thinking.style.display = "none";
+        const data = await response.json();
+        const reply = data.reply || "I'm not sure — try rephrasing it!";
 
-    // Remove typing indicator
-    typingDiv.remove();
+        // Hide thinking and remove typing indicator
+        thinking.style.display = "none";
+        typingDiv.remove();
 
-    const data = await response.json();
-    const reply = data.reply || "I'm not sure — try rephrasing it!";
+        // Add AI response with streaming effect
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-msg msg-ai';
+        log.appendChild(aiMsg);
 
-    // Add AI response with streaming effect
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'chat-msg msg-ai';
-    log.appendChild(aiMsg);
-
-    await streamText(aiMsg, reply, 15);
-    log.scrollTop = log.scrollHeight;
+        await streamText(aiMsg, reply, 15);
+        log.scrollTop = log.scrollHeight;
+    } catch (error) {
+        console.error('Error:', error);
+        thinking.style.display = "none";
+        typingDiv.remove();
+        log.innerHTML += `<div class="chat-msg msg-ai">Oops! Something went wrong. Please try again.</div>`;
+    } finally {
+        msgBox.disabled = false;
+        msgBox.focus();
+    }
 }
 </script>
 

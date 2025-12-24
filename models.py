@@ -1027,120 +1027,6 @@ class GameStreak(db.Model):
 
 
 # ============================================================
-# DATABASE INDICES FOR PERFORMANCE
-# ============================================================
-# These indices dramatically improve query performance by allowing
-# the database to quickly locate rows without scanning entire tables.
-#
-# Index Strategy:
-# 1. Foreign keys (for JOIN operations)
-# 2. Frequently queried columns (email lookups, student_id, class_id)
-# 3. Columns used in WHERE clauses
-# 4. Columns used in ORDER BY
-#
-# Performance Impact: 100-1000x faster queries on large tables
-# ============================================================
-
-# Parent Indices
-db.Index('idx_parent_email', Parent.email)
-db.Index('idx_parent_access_code', Parent.access_code)
-
-# Teacher Indices
-db.Index('idx_teacher_email', Teacher.email)
-
-# Student Indices
-db.Index('idx_student_email', Student.student_email)
-db.Index('idx_student_parent_id', Student.parent_id)
-db.Index('idx_student_class_id', Student.class_id)
-db.Index('idx_student_created_at', Student.created_at)  # For recent students queries
-
-# Class Indices
-db.Index('idx_class_teacher_id', Class.teacher_id)
-
-# Message Indices (conversation history)
-db.Index('idx_message_student_id', Message.student_id)
-db.Index('idx_message_created_at', Message.created_at)  # For chronological sorting
-db.Index('idx_message_student_created_at', Message.student_id, Message.created_at)  # Composite for student history
-
-# Assigned Practice Indices
-db.Index('idx_assigned_practice_class_id', AssignedPractice.class_id)
-db.Index('idx_assigned_practice_teacher_id', AssignedPractice.teacher_id)
-db.Index('idx_assigned_practice_due_date', AssignedPractice.due_date)
-db.Index('idx_assigned_practice_open_date', AssignedPractice.open_date)
-
-# Assigned Question Indices
-db.Index('idx_assigned_question_practice_id', AssignedQuestion.practice_id)
-
-# Student Submission Indices
-db.Index('idx_student_submission_student_id', StudentSubmission.student_id)
-db.Index('idx_student_submission_assignment_id', StudentSubmission.assignment_id)
-db.Index('idx_student_submission_submitted_at', StudentSubmission.submitted_at)
-
-# Question Log Indices
-db.Index('idx_question_log_student_id', QuestionLog.student_id)
-db.Index('idx_question_log_created_at', QuestionLog.created_at)
-
-# Activity Log Indices
-db.Index('idx_activity_log_student_id', ActivityLog.student_id)
-db.Index('idx_activity_log_created_at', ActivityLog.created_at)
-db.Index('idx_activity_log_activity_type', ActivityLog.activity_type)
-
-# Student Achievement Indices
-db.Index('idx_student_achievement_student_id', StudentAchievement.student_id)
-db.Index('idx_student_achievement_achievement_id', StudentAchievement.achievement_id)
-
-# Game Session Indices
-db.Index('idx_game_session_student_id', GameSession.student_id)
-db.Index('idx_game_session_game_key', GameSession.game_key)
-db.Index('idx_game_session_started_at', GameSession.started_at)
-
-# Game Leaderboard Indices
-db.Index('idx_game_leaderboard_student_id', GameLeaderboard.student_id)
-db.Index('idx_game_leaderboard_game_key', GameLeaderboard.game_key)
-db.Index('idx_game_leaderboard_high_score', GameLeaderboard.high_score)  # For high score queries
-
-# Homeschool Lesson Plan Indices
-db.Index('idx_homeschool_lesson_plan_parent_id', HomeschoolLessonPlan.parent_id)
-db.Index('idx_homeschool_lesson_plan_subject', HomeschoolLessonPlan.subject)
-db.Index('idx_homeschool_lesson_plan_created_at', HomeschoolLessonPlan.created_at)
-
-# Arcade Enhancement Indices
-db.Index('idx_student_badge_student_id', StudentBadge.student_id)
-db.Index('idx_student_badge_badge_id', StudentBadge.badge_id)
-db.Index('idx_student_powerup_student_id', StudentPowerUp.student_id)
-db.Index('idx_daily_challenge_date', DailyChallenge.challenge_date)
-db.Index('idx_student_challenge_student_id', StudentChallengeProgress.student_id)
-db.Index('idx_student_challenge_challenge_id', StudentChallengeProgress.challenge_id)
-db.Index('idx_game_streak_student_id', GameStreak.student_id)
-
-# Assignment Template Indices
-db.Index('idx_assignment_template_teacher_id', AssignmentTemplate.teacher_id)
-db.Index('idx_assignment_template_parent_id', AssignmentTemplate.parent_id)
-db.Index('idx_assignment_template_subject', AssignmentTemplate.subject)
-db.Index('idx_assignment_template_is_public', AssignmentTemplate.is_public)
-db.Index('idx_assignment_template_created_at', AssignmentTemplate.created_at)
-
-# Chapter & Lesson Progress Indices
-db.Index('idx_chapter_progress_student_id', ChapterProgress.student_id)
-db.Index('idx_chapter_progress_subject_grade', ChapterProgress.subject, ChapterProgress.grade)
-db.Index('idx_chapter_progress_chapter_id', ChapterProgress.chapter_id)
-db.Index('idx_chapter_progress_student_chapter', ChapterProgress.student_id, ChapterProgress.subject, ChapterProgress.grade, ChapterProgress.chapter_id)
-
-db.Index('idx_lesson_progress_student_id', LessonProgress.student_id)
-db.Index('idx_lesson_progress_chapter_id', LessonProgress.chapter_id)
-db.Index('idx_lesson_progress_student_lesson', LessonProgress.student_id, LessonProgress.subject, LessonProgress.grade, LessonProgress.chapter_id)
-
-db.Index('idx_chapter_quiz_subject_grade_chapter', ChapterQuiz.subject, ChapterQuiz.grade, ChapterQuiz.chapter_id)
-db.Index('idx_chapter_quiz_question_order', ChapterQuiz.question_order)
-
-db.Index('idx_chapter_badge_badge_key', ChapterBadge.badge_key)
-db.Index('idx_chapter_badge_subject_grade_chapter', ChapterBadge.subject, ChapterBadge.grade, ChapterBadge.chapter_id)
-
-db.Index('idx_student_chapter_badge_student_id', StudentChapterBadge.student_id)
-db.Index('idx_student_chapter_badge_badge_id', StudentChapterBadge.badge_id)
-
-
-# ============================================================
 # ASYNCHRONOUS MULTIPLAYER MODELS
 # ============================================================
 
@@ -1262,24 +1148,6 @@ class TeamMatch(db.Model):
         return f'<TeamMatch {self.team_a_id} vs {self.team_b_id}>'
 
 
-# Indexes for async multiplayer
-db.Index('idx_async_challenge_challenger', AsyncChallenge.challenger_id)
-db.Index('idx_async_challenge_status', AsyncChallenge.status)
-db.Index('idx_async_challenge_expires', AsyncChallenge.expires_at)
-
-db.Index('idx_challenge_participant_student', ChallengeParticipant.student_id)
-db.Index('idx_challenge_participant_challenge', ChallengeParticipant.challenge_id)
-db.Index('idx_challenge_participant_completed', ChallengeParticipant.completed)
-
-db.Index('idx_arcade_team_code', ArcadeTeam.team_code)
-db.Index('idx_arcade_team_captain', ArcadeTeam.captain_id)
-
-db.Index('idx_team_member_student', TeamMember.student_id)
-db.Index('idx_team_member_team', TeamMember.team_id)
-
-db.Index('idx_team_match_status', TeamMatch.match_status)
-
-
 # ============================================================
 # AUDIT LOG
 # ============================================================
@@ -1316,16 +1184,5 @@ class AuditLog(db.Model):
 
     def __repr__(self):
         return f'<AuditLog {self.user_type}:{self.user_id} {self.action} {self.status}>'
-
-
-# Indexes for audit log queries
-db.Index('idx_audit_user', AuditLog.user_id, AuditLog.user_type)
-db.Index('idx_audit_action', AuditLog.action)
-db.Index('idx_audit_created', AuditLog.created_at)
-db.Index('idx_audit_resource', AuditLog.resource_type, AuditLog.resource_id)
-
-# PracticeSession Indices
-db.Index('idx_practice_session_student_id', PracticeSession.student_id)
-db.Index('idx_practice_session_started_at', PracticeSession.started_at)
 
 

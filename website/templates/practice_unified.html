@@ -431,6 +431,25 @@
                     <div class="question-text">${q.prompt}</div>
             `;
 
+            // Visual aids (ASCII diagrams, Mermaid charts, descriptions)
+            if (q.visual_type && q.visual_type !== 'none') {
+                html += '<div class="visual-container">';
+
+                if (q.visual_caption) {
+                    html += `<p class="visual-caption">${q.visual_caption}</p>`;
+                }
+
+                if (q.visual_type === 'ascii') {
+                    html += `<pre class="ascii-diagram">${q.visual_content}</pre>`;
+                } else if (q.visual_type === 'mermaid') {
+                    html += `<div class="mermaid">${q.visual_content}</div>`;
+                } else if (q.visual_type === 'description') {
+                    html += `<p class="visual-description">${q.visual_content}</p>`;
+                }
+
+                html += '</div>';
+            }
+
             // Hint
             if (q.hint) {
                 html += `
@@ -470,6 +489,12 @@
             html += `</div>`;
 
             document.getElementById('practice-content').innerHTML = html;
+
+            // Re-initialize Mermaid for any diagrams in the new content
+            if (typeof mermaid !== 'undefined') {
+                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            }
+
             answered = false;
         }
 

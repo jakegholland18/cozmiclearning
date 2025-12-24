@@ -180,7 +180,7 @@
 
     <h2 class="chat-title">⚡ PowerGrid Deep Study Tutor</h2>
 
-    <div id="chat-log" class="chat-log">
+    <div id="chatMessages" class="chat-log">
         {% for msg in conversation %}
             {% if msg.role == "user" %}
                 <div class="msg msg-user">{{ msg.content }}</div>
@@ -191,52 +191,81 @@
     </div>
 
     <div class="chat-input">
-        <textarea id="chat-msg" placeholder="Type your message…"></textarea>
-        <button onclick="sendMsg()">Send</button>
+        <input type="text" id="chatInput" placeholder="Type your question here..." style="flex: 1; height: auto; padding: 15px; border-radius: 10px; border: 2px solid rgba(139, 92, 246, 0.3); background: rgba(0, 0, 0, 0.3); color: white; outline: none; font-size: 1rem; transition: all 0.3s ease;">
+        <button id="chatSendBtn" onclick="sendMsg()">📤 Share my thoughts</button>
     </div>
 
 </div>
 
 <script>
 async function sendMsg() {
-    const msgBox = document.getElementById("chat-msg");
-    const log = document.getElementById("chat-log");
+    const chatInput = document.getElementById("chatInput");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatSendBtn = document.getElementById("chatSendBtn");
 
-    let text = msgBox.value.trim();
+    let text = chatInput.value.trim();
     if (!text) return;
-    msgBox.value = "";
+
+    // Disable input while processing
+    chatInput.disabled = true;
+    chatSendBtn.disabled = true;
+    chatInput.value = "";
 
     // Add user message
-    log.innerHTML += `<div class="msg msg-user">${text}</div>`;
-    log.scrollTop = log.scrollHeight;
+    chatMessages.innerHTML += `<div class="msg msg-user">${text}</div>`;
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
     // Add typing indicator
     const typingDiv = createTypingIndicator();
     typingDiv.className += ' msg msg-ai';
-    log.appendChild(typingDiv);
-    log.scrollTop = log.scrollHeight;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Send to backend
-    const response = await fetch("/deep_study_message", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ message: text })
-    });
+    try {
+        // Send to backend
+        const response = await fetch("/deep_study_message", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ message: text })
+        });
 
-    const data = await response.json();
-    let reply = data.reply || "I couldn't generate a response.";
+        const data = await response.json();
+        let reply = data.reply || "I couldn't generate a response.";
 
-    // Remove typing indicator
-    typingDiv.remove();
+        // Remove typing indicator
+        typingDiv.remove();
 
-    // Add AI reply with streaming effect
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'msg msg-ai';
-    log.appendChild(aiMsg);
+        // Add AI reply with streaming effect
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'msg msg-ai';
+        chatMessages.appendChild(aiMsg);
 
-    await streamText(aiMsg, reply, 15);
-    log.scrollTop = log.scrollHeight;
+        await streamText(aiMsg, reply, 15);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    } catch (error) {
+        console.error('Error:', error);
+        typingDiv.remove();
+        chatMessages.innerHTML += `<div class="msg msg-ai">Oops! Something went wrong. Please try again.</div>`;
+    } finally {
+        // Re-enable input
+        chatInput.disabled = false;
+        chatSendBtn.disabled = false;
+        chatInput.focus();
+    }
 }
+
+// Allow Enter key to send
+document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            const chatSendBtn = document.getElementById('chatSendBtn');
+            if (e.key === 'Enter' && !chatSendBtn.disabled) {
+                sendMsg();
+            }
+        });
+    }
+});
 </script>
 
 {% endblock %}

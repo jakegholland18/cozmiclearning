@@ -13,6 +13,7 @@ from typing import Dict, List, Optional
 from modules.practice_helper import generate_practice_session, apply_differentiation
 from modules.shared_ai import study_buddy_ai, build_character_voice, grade_depth_instruction
 from modules.answer_formatter import format_answer
+from modules.visual_generator import add_visual_to_question
 from models import db, Student, Teacher, Class, AssessmentResult
 
 
@@ -198,6 +199,17 @@ def assign_questions(
         # Preserve difficulty field for adaptive mode (used in hybrid adaptive assignments)
         if "difficulty" in s:
             question_data["difficulty"] = s["difficulty"]
+
+        # Add visual aid if appropriate for this question
+        visual_data = add_visual_to_question(
+            question_text=question_data["prompt"],
+            topic=topic,
+            subject=subject,
+            grade=grade
+        )
+        question_data["visual_type"] = visual_data["visual_type"]
+        question_data["visual_content"] = visual_data["visual_content"]
+        question_data["visual_caption"] = visual_data["visual_caption"]
 
         questions.append(question_data)
 

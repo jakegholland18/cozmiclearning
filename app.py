@@ -253,7 +253,7 @@ def auto_heal():
 
     # Skip timeout check for public routes
     public_routes = [
-        '/static/', '/choose_login_role', '/student/login', '/teacher/login',
+        '/', '/static/', '/choose_login_role', '/student/login', '/teacher/login',
         '/parent/login', '/student/signup', '/teacher/signup', '/parent/signup',
         '/forgot-password', '/reset-password'
     ]
@@ -716,7 +716,18 @@ def seed_owner():
         db.session.rollback()
 
 with app.app_context():
-    db.create_all()  # ensure tables exist
+    try:
+        db.create_all()  # ensure tables exist
+    except Exception as e:
+        # Handle duplicate table/index errors in PostgreSQL (can happen on reload or during init)
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicatetable" in error_msg or "duplicateobject" in error_msg:
+            # This is expected - tables/indexes already created
+            # SQLAlchemy's checkfirst doesn't always work perfectly with PostgreSQL indexes
+            pass
+        else:
+            # Unexpected error - re-raise
+            raise
 
     # ============================================================
     # DATABASE MIGRATION: Add open_date column if missing
@@ -12674,11 +12685,23 @@ CozmicLearning Team
         return redirect("/subjects")
 
     result = func(question, grade, character)
-    answer = result.get("raw_text") if isinstance(result, dict) else result
 
-    # Parse answer into sections for enhanced display
-    from modules.answer_formatter import parse_into_sections
-    sections = parse_into_sections(answer) if answer else None
+    # Extract answer and sections from result
+    if isinstance(result, dict):
+        answer = result.get("raw_text", "")
+        # Use pre-parsed sections if available, otherwise parse from raw_text
+        sections = {
+            "overview": result.get("overview", ""),
+            "key_facts": result.get("key_facts", ""),
+            "christian_view": result.get("christian_view", ""),
+            "agreement": result.get("agreement", ""),
+            "difference": result.get("difference", ""),
+            "practice": result.get("practice", "")
+        }
+    else:
+        answer = result
+        from modules.answer_formatter import parse_into_sections
+        sections = parse_into_sections(answer) if answer else None
 
     # Update log with AI response (only if log_entry exists)
     if log_entry:

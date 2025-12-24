@@ -366,6 +366,23 @@
     <div class="lesson-section">
         <div class="section-title">📖 Explanation</div>
         <div class="section-content">{{ lesson.explanation }}</div>
+
+        <!-- Visual aid for explanation (if present) -->
+        {% if lesson.visual and lesson.visual.visual_type != 'none' %}
+        <div class="visual-container">
+            {% if lesson.visual.visual_caption %}
+            <p class="visual-caption">{{ lesson.visual.visual_caption }}</p>
+            {% endif %}
+
+            {% if lesson.visual.visual_type == 'ascii' %}
+            <pre class="ascii-diagram">{{ lesson.visual.visual_content }}</pre>
+            {% elif lesson.visual.visual_type == 'mermaid' %}
+            <div class="mermaid">{{ lesson.visual.visual_content | safe }}</div>
+            {% elif lesson.visual.visual_type == 'description' %}
+            <p class="visual-description">{{ lesson.visual.visual_content }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 
     <!-- KEY CONCEPTS -->
@@ -382,6 +399,24 @@
         {% for example in lesson.examples %}
         <div class="example-box">
             <div class="example-scenario">{{ example.scenario }}</div>
+
+            <!-- Visual aid for example (if present) -->
+            {% if example.visual and example.visual.visual_type != 'none' %}
+            <div class="visual-container">
+                {% if example.visual.visual_caption %}
+                <p class="visual-caption">{{ example.visual.visual_caption }}</p>
+                {% endif %}
+
+                {% if example.visual.visual_type == 'ascii' %}
+                <pre class="ascii-diagram">{{ example.visual.visual_content }}</pre>
+                {% elif example.visual.visual_type == 'mermaid' %}
+                <div class="mermaid">{{ example.visual.visual_content | safe }}</div>
+                {% elif example.visual.visual_type == 'description' %}
+                <p class="visual-description">{{ example.visual.visual_content }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <div class="example-solution">{{ example.solution }}</div>
         </div>
         {% endfor %}
