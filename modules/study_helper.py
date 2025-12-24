@@ -147,7 +147,7 @@ QUICK SUMMARY FORMAT:
 5. REMEMBER THIS (1 key takeaway)
 """
     elif mode == "deep":
-        word_limit = 1500
+        word_limit = 1800
         format_instructions = """
 DEEP DIVE FORMAT:
 1. COMPREHENSIVE OVERVIEW (full paragraph)
@@ -158,16 +158,22 @@ DEEP DIVE FORMAT:
    - Recommended study schedule and review strategies
    - Active learning approaches (practice methods, self-testing)
    - Tips for long-term retention
-5. REAL-WORLD CONNECTIONS (How this applies to everyday life)
+5. LEARNING SUPPORT STRATEGIES (Specialized strategies for different learning needs)
+   - ADHD-friendly strategies: Breaking content into micro-chunks, movement breaks, fidget-friendly study tips, minimizing distractions
+   - Dyslexia-friendly strategies: Multi-sensory approaches, audio reinforcement, visual organizers, chunking text
+   - Processing differences: Extra time strategies, step-by-step breakdowns, visual aids with descriptions
+   - Memory support: Repetition patterns, association techniques, hands-on reinforcement
+   - Executive function support: Checklists, timers, organization systems, prioritization help
+6. REAL-WORLD CONNECTIONS (How this applies to everyday life)
    - Practical applications students encounter daily
    - Current events or modern examples
    - Career and professional connections
    - Why this matters beyond the classroom
-6. EXTENSIVE EXAMPLES (3-5 detailed examples)
-7. EDGE CASES & NUANCES (advanced understanding)
-8. COMMON MISTAKES (detailed explanations)
-9. PRACTICE PROBLEMS (with solutions)
-10. CHRISTIAN WORLDVIEW (expanded perspective)
+7. EXTENSIVE EXAMPLES (3-5 detailed examples)
+8. EDGE CASES & NUANCES (advanced understanding)
+9. COMMON MISTAKES (detailed explanations)
+10. PRACTICE PROBLEMS (with solutions)
+11. CHRISTIAN WORLDVIEW (expanded perspective)
 
 ⚠️ DO NOT include ASCII art, diagrams, or visual elements - use descriptive text only!
 """
@@ -184,7 +190,7 @@ SOCRATIC LEARNING FORMAT:
 5. CHRISTIAN PERSPECTIVE QUESTION (How does this relate to God's design?)
 """
     else:  # standard
-        word_limit = 800
+        word_limit = 1000
         format_instructions = """
 STANDARD FORMAT:
 1. OVERVIEW (3–5 sentences)
@@ -194,13 +200,19 @@ STANDARD FORMAT:
    - Best memory techniques for this content
    - Study and review strategies
    - Active practice methods
-5. REAL-WORLD CONNECTIONS (Why this matters)
+5. LEARNING SUPPORT STRATEGIES (Strategies for different learning needs)
+   - ADHD: Micro-chunks, movement breaks, focus tips
+   - Dyslexia: Multi-sensory methods, audio support
+   - Processing: Step-by-step breakdowns, extra time tips
+   - Memory: Repetition, association, hands-on practice
+   - Executive function: Checklists, timers, organization
+6. REAL-WORLD CONNECTIONS (Why this matters)
    - Everyday applications
    - Real-world examples
    - Career connections
-6. EXAMPLES (2-3 practical examples)
-7. COMMON MISTAKES (compact bullets)
-8. CHRISTIAN WORLDVIEW (1 paragraph)
+7. EXAMPLES (2-3 practical examples)
+8. COMMON MISTAKES (compact bullets)
+9. CHRISTIAN WORLDVIEW (1 paragraph)
 
 ⚠️ DO NOT include ASCII art, diagrams, or "VISUAL DIAGRAM" sections!
 """
