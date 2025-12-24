@@ -7173,6 +7173,10 @@ def student_start_assignment(assignment_id):
             print(f"   Pool sizes: E={len(question_pool['easy'])}, M={len(question_pool['medium'])}, H={len(question_pool['hard'])}")
             print(f"   Settings: Progressive hints={scaffold_state['progressive_hints']}, Adjust difficulty={scaffold_state['adjust_difficulty']}, Threshold={scaffold_state['wrong_threshold']}")
 
+    # Get personalized learning tips for assignment context
+    from modules.learning_lab_helper import get_contextual_learning_tips
+    learning_tips = get_contextual_learning_tips(student_id, context='assignment') if student_id else None
+
     # For HYBRID ADAPTIVE assignments (new system with difficulty fields)
     if is_hybrid_adaptive:
         print(f"🎯 [HYBRID ADAPTIVE] Loading assignment for student {student.id}")
@@ -7195,7 +7199,8 @@ def student_start_assignment(assignment_id):
                 submission=submission,
                 questions=free_questions,
                 saved_answers=saved_answers,
-                mc_phase_complete=True
+                mc_phase_complete=True,
+                learning_tips=learning_tips
             )
 
         # Check if MC phase is complete
@@ -7208,7 +7213,8 @@ def student_start_assignment(assignment_id):
                 submission=submission,
                 questions=free_questions,
                 saved_answers=saved_answers,
-                mc_phase_complete=True
+                mc_phase_complete=True,
+                learning_tips=learning_tips
             )
         else:
             # Show current MC question (one at a time)
@@ -7245,7 +7251,8 @@ def student_start_assignment(assignment_id):
                 current_index=current_idx,
                 total_questions=len(questions),
                 mc_phase_complete=False,
-                progress_percent=progress_percent
+                progress_percent=progress_percent,
+                learning_tips=learning_tips
             )
 
         # For scaffold mode, only show current question
@@ -7266,7 +7273,8 @@ def student_start_assignment(assignment_id):
             is_scaffold=True,
             scaffold_state=scaffold_state,
             questions_answered=len(scaffold_state["shown_questions"]) - 1,  # Don't count current question
-            total_questions=scaffold_state["target_count"]
+            total_questions=scaffold_state["target_count"],
+            learning_tips=learning_tips
         )
 
     # For adaptive assignments, initialize or load routing state
@@ -7319,7 +7327,8 @@ def student_start_assignment(assignment_id):
             is_adaptive=True,
             adaptive_state=adaptive_state,
             questions_answered=len(adaptive_state["shown_questions"]) - 1,  # Don't count current question
-            total_questions=adaptive_state["target_count"]
+            total_questions=adaptive_state["target_count"],
+            learning_tips=learning_tips
         )
 
     # For gap_fill assignments, initialize or load routing state
@@ -7371,7 +7380,8 @@ def student_start_assignment(assignment_id):
             is_gap_fill=True,
             gap_fill_state=gap_fill_state,
             questions_answered=len(gap_fill_state["shown_questions"]) - 1,
-            total_questions=gap_fill_state["target_count"]
+            total_questions=gap_fill_state["target_count"],
+            learning_tips=learning_tips
         )
 
     # For mastery assignments, initialize or load routing state
@@ -7430,7 +7440,8 @@ def student_start_assignment(assignment_id):
             is_mastery=True,
             mastery_state=mastery_state,
             questions_answered=len(mastery_state["shown_questions"]) - 1,
-            total_questions=mastery_state["target_count"]
+            total_questions=mastery_state["target_count"],
+            learning_tips=learning_tips
         )
 
     else:
@@ -7441,7 +7452,8 @@ def student_start_assignment(assignment_id):
             submission=submission,
             questions=questions,
             saved_answers=saved_answers,
-            is_adaptive=False
+            is_adaptive=False,
+            learning_tips=learning_tips
         )
 
 
@@ -14440,6 +14452,11 @@ def dashboard():
         
         progress_data["subjects"] = {subj.replace('_', ' ').title(): count for subj, count in subject_counts if subj}
 
+    # Get learning tips and toolkit widget
+    from modules.learning_lab_helper import get_contextual_learning_tips, get_learning_toolkit_widget
+    learning_tips = get_contextual_learning_tips(student_id, context='general') if student_id else None
+    toolkit_widget = get_learning_toolkit_widget(student_id) if student_id else None
+
     return render_template(
         "dashboard.html",
         student=student,
@@ -14464,6 +14481,8 @@ def dashboard():
         recent_activities=recent_activities,
         newly_unlocked=newly_unlocked,
         progress_data=progress_data,
+        learning_tips=learning_tips,
+        toolkit_widget=toolkit_widget,
     )
 
 

@@ -330,6 +330,39 @@
         </div>
     </div>
 
+    <!-- Personalized Learning Tips -->
+    {% if learning_tips and learning_tips.has_profile %}
+    <div style="background: linear-gradient(135deg, rgba(132,255,0,0.15), rgba(0,242,255,0.1)); border: 2px solid rgba(132,255,0,0.3); border-radius: 16px; padding: 20px; margin: 20px 0 30px; box-shadow: 0 8px 24px rgba(132,255,0,0.2); backdrop-filter: blur(10px);">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+            <span style="font-size: 1.3rem;">💡</span>
+            <span style="font-weight: 700; color: #84ff00;">Tips for {{ learning_tips.primary_style }} Learners</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% if learning_tips.tips %}
+                {% for tip in learning_tips.tips %}
+                <div style="color: #c4d1ff; font-size: 0.95rem; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid #84ff00;">✓ {{ tip }}</div>
+                {% endfor %}
+            {% endif %}
+            {% if learning_tips.tools %}
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+                    <span style="color: #00f2ff; font-weight: 600; margin-right: 8px;">Helpful Tools:</span>
+                    {% for tool in learning_tips.tools %}
+                    <a href="{{ tool.link }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(0,242,255,0.2); border: 1px solid rgba(0,242,255,0.3); border-radius: 20px; color: #00f2ff; text-decoration: none; transition: all 0.3s ease;">{{ tool.icon }} {{ tool.name }}</a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% elif learning_tips and not learning_tips.has_profile %}
+    <div style="background: rgba(102,126,234,0.1); border: 2px solid rgba(102,126,234,0.3); border-radius: 16px; padding: 20px; margin: 20px 0 30px; text-align: center; backdrop-filter: blur(10px);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <span style="font-size: 1.5rem;">🧠</span>
+            <span style="color: #c4d1ff; font-size: 1rem;">{{ learning_tips.cta }}</span>
+            <a href="{{ learning_tips.cta_link }}" style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 24px; text-decoration: none; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102,126,234,0.4);">Get Started →</a>
+        </div>
+    </div>
+    {% endif %}
+
     {% if mc_phase_complete %}
     <!-- Transition message before free response -->
     <div class="transition-message">
