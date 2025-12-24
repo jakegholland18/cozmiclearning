@@ -286,6 +286,11 @@ class AssignedQuestion(db.Model):
     explanation = db.Column(db.Text)
     difficulty_level = db.Column(db.String(20))  # easy / medium / hard
 
+    # Visual aids for questions (ASCII diagrams, Mermaid charts, etc.)
+    visual_type = db.Column(db.Text)  # ascii, mermaid, description, none
+    visual_content = db.Column(db.Text)  # The actual visual content
+    visual_caption = db.Column(db.Text)  # Caption for the visual
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
