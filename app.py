@@ -38,7 +38,7 @@ print(f"📁 Database exists: {os.path.exists(DB_PATH)}")
 
 from flask import (
     Flask, render_template, request, redirect, session,
-    flash, jsonify, send_file, abort, make_response, g
+    flash, jsonify, send_file, abort, make_response
 )
 from flask import got_request_exception
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8443,18 +8443,19 @@ def student_submit_assignment(assignment_id):
 @app.route("/learning-lab")
 def learning_lab():
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
-    student = Student.query.get(g.user_id)
-    profile = LearningProfile.query.filter_by(student_id=g.user_id).first()
+    student_id = session.get('student_id')
+    student = Student.query.get(student_id)
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
     # Get strategy usage count
     strategies_count = 0
     favorite_tools_count = 0
     if profile:
-        strategies_count = StrategyUsage.query.filter_by(student_id=g.user_id).count()
+        strategies_count = StrategyUsage.query.filter_by(student_id=student_id).count()
         # Count enabled tools
         favorite_tools_count = sum([
             profile.uses_text_to_speech,
@@ -8490,7 +8491,7 @@ def learning_lab():
 @app.route("/learning-lab/quiz")
 def learning_lab_quiz():
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
@@ -8500,10 +8501,12 @@ def learning_lab_quiz():
 @app.route("/learning-lab/quiz/submit", methods=["POST"])
 def learning_lab_quiz_submit():
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         return jsonify({'error': 'Unauthorized'}), 403
 
     from modules.learning_lab_helper import process_quiz_results, send_parent_notification, send_teacher_notification
+
+    student_id = session.get('student_id')
 
     # Collect quiz answers
     quiz_answers = {}
@@ -8512,13 +8515,13 @@ def learning_lab_quiz_submit():
             quiz_answers[key] = request.form.get(key)
 
     # Process and save profile
-    profile = process_quiz_results(g.user_id, quiz_answers)
+    profile = process_quiz_results(student_id, quiz_answers)
 
     if profile:
         # Send notifications to parent and teachers
         try:
-            send_parent_notification(g.user_id, profile)
-            send_teacher_notification(g.user_id, profile)
+            send_parent_notification(student_id, profile)
+            send_teacher_notification(student_id, profile)
         except Exception as e:
             print(f"Error sending notifications: {e}")
 
@@ -8532,12 +8535,13 @@ def learning_lab_quiz_submit():
 @app.route("/learning-lab/profile")
 def learning_lab_profile():
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
-    student = Student.query.get(g.user_id)
-    profile = LearningProfile.query.filter_by(student_id=g.user_id).first()
+    student_id = session.get('student_id')
+    student = Student.query.get(student_id)
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
     if not profile or not profile.quiz_completed:
         flash("Please take the Learning Strengths Quiz first!", "info")
@@ -8549,7 +8553,7 @@ def learning_lab_profile():
     recommended_strategies = get_recommended_strategies(profile)
 
     # Get usage stats
-    strategy_usage = StrategyUsage.query.filter_by(student_id=g.user_id).all()
+    strategy_usage = StrategyUsage.query.filter_by(student_id=student_id).all()
     most_used = sorted(strategy_usage, key=lambda x: x.times_used, reverse=True)[:5]
 
     return render_template('learning_profile.html',
@@ -8562,12 +8566,13 @@ def learning_lab_profile():
 @app.route("/learning-lab/strategies")
 def learning_lab_strategies():
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
-    student = Student.query.get(g.user_id)
-    profile = LearningProfile.query.filter_by(student_id=g.user_id).first()
+    student_id = session.get('student_id')
+    student = Student.query.get(student_id)
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
     return render_template('learning_strategies.html',
                          student=student,
@@ -8578,14 +8583,16 @@ def learning_lab_strategies():
 def track_strategy_use(strategy_key):
     """Track when a student uses a learning strategy"""
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         return jsonify({'error': 'Unauthorized'}), 403
 
     from datetime import datetime
 
+    student_id = session.get('student_id')
+
     # Find or create strategy usage record
     usage = StrategyUsage.query.filter_by(
-        student_id=g.user_id,
+        student_id=student_id,
         strategy_key=strategy_key
     ).first()
 
@@ -8595,7 +8602,7 @@ def track_strategy_use(strategy_key):
     else:
         category = request.json.get('category', 'general')
         usage = StrategyUsage(
-            student_id=g.user_id,
+            student_id=student_id,
             strategy_key=strategy_key,
             category=category,
             times_used=1
@@ -8611,14 +8618,15 @@ def track_strategy_use(strategy_key):
 def rate_strategy(strategy_key):
     """Rate how helpful a strategy was"""
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         return jsonify({'error': 'Unauthorized'}), 403
 
+    student_id = session.get('student_id')
     rating = request.json.get('rating')  # 1-5 stars
     notes = request.json.get('notes', '')
 
     usage = StrategyUsage.query.filter_by(
-        student_id=g.user_id,
+        student_id=student_id,
         strategy_key=strategy_key
     ).first()
 
@@ -8635,12 +8643,13 @@ def rate_strategy(strategy_key):
 def learning_lab_tools():
     """Learning tools page with interactive tools"""
     init_user()
-    if g.role != 'student':
+    if session.get('user_role') != 'student':
         flash("Learning Lab is for students only", "error")
         return redirect(url_for('dashboard'))
 
-    student = Student.query.get(g.user_id)
-    profile = LearningProfile.query.filter_by(student_id=g.user_id).first()
+    student_id = session.get('student_id')
+    student = Student.query.get(student_id)
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
     return render_template('learning_tools.html',
                          student=student,
