@@ -13639,6 +13639,11 @@ def practice():
 
     config = mode_config.get(mode, mode_config['interactive'])
 
+    # Get personalized learning tips for practice context
+    from modules.learning_lab_helper import get_contextual_learning_tips
+    student_id = session.get('student_id')
+    learning_tips = get_contextual_learning_tips(student_id, context='practice') if student_id else None
+
     return render_template(
         "practice.html",
         subject=subject,
@@ -13650,7 +13655,8 @@ def practice():
         grade=grade,
         subjects=SUBJECT_LABELS,
         config=config,
-        return_url=return_url
+        return_url=return_url,
+        learning_tips=learning_tips
     )
 
 
