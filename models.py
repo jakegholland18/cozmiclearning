@@ -1187,3 +1187,107 @@ class AuditLog(db.Model):
         return f'<AuditLog {self.user_type}:{self.user_id} {self.action} {self.status}>'
 
 
+# ============================================================
+# LEARNING LAB - Learning Preferences & Strategies
+# ============================================================
+
+class LearningProfile(db.Model):
+    """
+    Stores student's learning preferences and strategies that work for them.
+
+    IMPORTANT: This does NOT diagnose learning disabilities or medical conditions.
+    It tracks preferences, strengths, and helpful strategies discovered by the student.
+    """
+    __tablename__ = 'learning_profiles'
+    __table_args__ = (
+        db.Index('idx_learning_profile_student', 'student_id'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), unique=True, nullable=False)
+
+    # Quiz completion
+    quiz_completed = db.Column(db.Boolean, default=False)
+    quiz_completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Learning Style Preferences (based on quiz responses, not diagnosis)
+    primary_learning_style = db.Column(db.String(50), nullable=True)  # visual/auditory/kinesthetic/reading_writing
+    secondary_learning_style = db.Column(db.String(50), nullable=True)
+
+    # Study Preferences
+    focus_preference = db.Column(db.String(50), nullable=True)  # short_bursts/long_sessions/varies
+    best_study_time = db.Column(db.String(50), nullable=True)  # morning/afternoon/evening/night
+    study_environment = db.Column(db.String(50), nullable=True)  # quiet/music/nature_sounds/noise
+    break_frequency = db.Column(db.String(50), nullable=True)  # every_15_min/every_30_min/every_hour/rarely
+
+    # Processing Preferences
+    processing_speed = db.Column(db.String(50), nullable=True)  # fast/moderate/methodical
+    prefers_step_by_step = db.Column(db.Boolean, default=False)
+    prefers_big_picture = db.Column(db.Boolean, default=False)
+
+    # Memory Preferences
+    memory_style = db.Column(db.String(50), nullable=True)  # visual/verbal/hands_on/mixed
+    uses_mnemonics = db.Column(db.Boolean, default=False)
+
+    # Reading Preferences
+    reading_preference = db.Column(db.String(50), nullable=True)  # text_only/audio_support/visual_aids/all
+    prefers_large_text = db.Column(db.Boolean, default=False)
+    prefers_colored_backgrounds = db.Column(db.Boolean, default=False)
+
+    # Tool Usage (tracks what student actually uses)
+    uses_text_to_speech = db.Column(db.Boolean, default=False)
+    uses_focus_timer = db.Column(db.Boolean, default=False)
+    uses_task_breakdown = db.Column(db.Boolean, default=False)
+    uses_visual_organizers = db.Column(db.Boolean, default=False)
+    uses_movement_breaks = db.Column(db.Boolean, default=False)
+
+    # Effective Strategies (JSON array of strategy keys that work for this student)
+    effective_strategies = db.Column(db.Text, nullable=True)  # JSON: ["pomodoro", "movement_breaks", "visual_notes"]
+
+    # Profile strengths summary (generated after quiz)
+    strengths_summary = db.Column(db.Text, nullable=True)  # Friendly text describing student's learning superpowers
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    student = db.relationship("Student", backref=db.backref("learning_profile", uselist=False))
+
+    def __repr__(self):
+        return f'<LearningProfile student_id={self.student_id} style={self.primary_learning_style}>'
+
+
+class StrategyUsage(db.Model):
+    """
+    Tracks when students use different learning strategies and how helpful they find them.
+    Helps identify which strategies work best for each student.
+    """
+    __tablename__ = 'strategy_usage'
+    __table_args__ = (
+        db.Index('idx_strategy_usage_student', 'student_id'),
+        db.Index('idx_strategy_usage_key', 'strategy_key'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+
+    strategy_key = db.Column(db.String(100), nullable=False)  # e.g., "pomodoro_timer", "text_to_speech", "visual_notes"
+    category = db.Column(db.String(50), nullable=True)  # focus/reading/memory/organization/etc
+
+    # Usage tracking
+    times_used = db.Column(db.Integer, default=1)
+    first_used_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_used_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Effectiveness (student can rate how helpful it was)
+    helpfulness_rating = db.Column(db.Integer, nullable=True)  # 1-5 stars, null if not rated
+    student_notes = db.Column(db.Text, nullable=True)  # Student's own notes about the strategy
+
+    # Relationships
+    student = db.relationship("Student", backref="strategy_usage_logs")
+
+    def __repr__(self):
+        return f'<StrategyUsage student={self.student_id} strategy={self.strategy_key} used={self.times_used}x>'
+
+
