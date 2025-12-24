@@ -46,30 +46,31 @@ def detect_visual_type(content: str, subject: str = "") -> VisualType:
         "mermaid" - for flowcharts, timelines, graphs, org charts
         "description" - for complex scenes that need description
         "none" - if no visual needed
+
+    STRATEGY: Prefer descriptions over ASCII/Mermaid for most concepts.
+    ASCII and Mermaid often produce confusing results for math concepts.
     """
     content_lower = content.lower()
 
-    # Mermaid is best for:
+    # Mermaid is ONLY good for process flows and timelines:
     mermaid_keywords = [
-        "flowchart", "timeline", "sequence", "process", "steps", "flow",
-        "organizational", "hierarchy", "relationship", "comparison",
-        "before and after", "cause and effect", "coordinate", "x-axis",
-        "y-axis", "quadrant", "graph", "plot", "xy-plane"
+        "flowchart", "timeline", "sequence of events", "process steps",
+        "flow chart", "water cycle", "food chain", "before and after"
     ]
 
     if any(keyword in content_lower for keyword in mermaid_keywords):
         return "mermaid"
 
-    # ASCII is best for:
-    ascii_keywords = [
-        "triangle", "rectangle", "square", "shape", "angle",
-        "table", "grid", "simple diagram"
-    ]
-
-    if any(keyword in content_lower for keyword in ascii_keywords):
+    # ASCII is ONLY for very simple labeled shapes:
+    # Avoid: coordinate planes, quadrants, graphs, plots - they're confusing
+    if "triangle" in content_lower and any(dim in content_lower for dim in ["3", "4", "5", "6", "7", "8", "9", "10"]):
         return "ascii"
 
-    # If it seems visual-related but not a good fit for ASCII/Mermaid
+    if ("rectangle" in content_lower or "square" in content_lower) and any(dim in content_lower for dim in ["length", "width", "cm", "meters", "feet"]):
+        return "ascii"
+
+    # For most visual concepts, use clear text descriptions instead
+    # This includes: coordinate planes, quadrants, axes, graphs, complex diagrams
     if should_include_visual(content):
         return "description"
 
@@ -266,17 +267,34 @@ def generate_visual_description(prompt: str, context: str = "") -> str:
 
     Use this when ASCII/Mermaid aren't suitable but students need to visualize.
     """
-    system_prompt = """You are helping students visualize complex concepts through vivid descriptions.
+    system_prompt = """You are helping students visualize complex concepts through clear, helpful descriptions.
 
-Create SHORT, clear visual descriptions that help students picture the concept mentally.
+Create visual learning aids that help students understand the concept WITHOUT confusing ASCII art.
 
-Keep descriptions:
-- Brief (2-4 sentences max)
-- Concrete and specific
-- Age-appropriate
-- Focused on key visual elements
+GUIDELINES:
+- Use clear, structured text (bullet points, numbered lists)
+- Break down into simple steps or sections
+- Use analogies and real-world comparisons
+- Keep grade-appropriate and easy to follow
+- Focus on UNDERSTANDING, not decoration
 
-Example: "Picture a large cell like a tiny factory. The nucleus sits in the center like a control room with DNA blueprints. The mitochondria float around like little power plants, creating energy for the cell to use."
+EXAMPLES:
+
+For coordinate plane quadrants:
+"Think of the coordinate plane like a big plus sign (+) dividing a page into 4 sections:
+• Quadrant I (top-right): Both X and Y are positive numbers
+• Quadrant II (top-left): X is negative, Y is positive
+• Quadrant III (bottom-left): Both X and Y are negative
+• Quadrant IV (bottom-right): X is positive, Y is negative
+
+The center point where the lines cross is called the origin (0,0)."
+
+For a cell structure:
+"A cell is like a tiny factory:
+• Nucleus = Control room with DNA blueprints
+• Mitochondria = Power plants creating energy
+• Cell membrane = Security gate controlling what comes in/out
+• Cytoplasm = The factory floor where work happens"
 """
 
     user_prompt = f"""Create a brief visual description for this educational content:
@@ -294,8 +312,8 @@ Help students visualize this concept clearly."""
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.5,
-            max_tokens=300
+            temperature=0.4,
+            max_tokens=400  # Allow more detailed, structured descriptions
         )
 
         return response.choices[0].message.content.strip()
