@@ -88,6 +88,7 @@ body {
     padding: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #333;
 }
 
 .answer-option:hover {
@@ -105,16 +106,22 @@ body {
 .answer-option h4 {
     margin: 0 0 8px 0;
     font-size: 1.1rem;
-    color: inherit;
+    color: #333;
 }
 
 .answer-option p {
     margin: 0;
     font-size: 0.95rem;
-    opacity: 0.8;
+    color: #555;
+    opacity: 0.9;
+}
+
+.answer-option.selected h4 {
+    color: #fff;
 }
 
 .answer-option.selected p {
+    color: #fff;
     opacity: 1;
 }
 
