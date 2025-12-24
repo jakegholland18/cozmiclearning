@@ -53,7 +53,8 @@ def detect_visual_type(content: str, subject: str = "") -> VisualType:
     mermaid_keywords = [
         "flowchart", "timeline", "sequence", "process", "steps", "flow",
         "organizational", "hierarchy", "relationship", "comparison",
-        "before and after", "cause and effect"
+        "before and after", "cause and effect", "coordinate", "x-axis",
+        "y-axis", "quadrant", "graph", "plot", "xy-plane"
     ]
 
     if any(keyword in content_lower for keyword in mermaid_keywords):
@@ -61,8 +62,8 @@ def detect_visual_type(content: str, subject: str = "") -> VisualType:
 
     # ASCII is best for:
     ascii_keywords = [
-        "triangle", "rectangle", "square", "circle", "shape", "angle",
-        "coordinate", "graph", "plot", "table", "grid", "chart"
+        "triangle", "rectangle", "square", "shape", "angle",
+        "table", "grid", "simple diagram"
     ]
 
     if any(keyword in content_lower for keyword in ascii_keywords):
@@ -89,43 +90,51 @@ def generate_ascii_visual(prompt: str, context: str = "") -> str:
     system_prompt = """You are an expert at creating clear ASCII art diagrams for education.
 
 GUIDELINES:
-- Use only standard ASCII characters (no unicode)
-- Keep diagrams simple and clear
-- Label important parts
+- Use only standard ASCII characters (no unicode or special symbols)
+- Keep diagrams simple, clean, and well-spaced
+- Label ALL important parts clearly
 - Use consistent spacing and alignment
-- Maximum width: 60 characters
-- Include a brief caption above the diagram
+- Maximum width: 50 characters
+- Add a descriptive title/caption
+
+IMPORTANT TIPS:
+- Use box drawing with +, -, | for clean borders
+- Use plenty of spacing for readability
+- Align labels properly
+- Keep it minimal - don't overcomplicate
 
 EXAMPLES:
 
-For a right triangle problem:
+Right Triangle:
 ```
-Right Triangle ABC:
-        C
-        |\\
-        | \\
-     6  |  \\  10
-        |   \\
-        |    \\
-        |_____\\
-        A   8   B
+    C
+    |\
+    | \
+  6 |  \ 10 (hypotenuse)
+    |   \
+    |____\
+    A  8  B
 
-Angle C = 90°
-Find angle A.
+Right angle at C
 ```
 
-For a coordinate plane:
+Simple Table:
 ```
-y-axis
-  |
-4 |     * (3,4)
-  |
-2 |  * (1,2)
-  |
---+--+--+--+---> x-axis
-  0  2  4
++----------+----------+
+| Column A | Column B |
++----------+----------+
+|   Data1  |   Data2  |
+|   Data3  |   Data4  |
++----------+----------+
+```
 
-Plot these points
+Fraction Visual:
+```
+Numerator →  3
+           ----
+Denominator→ 4
+
+This represents 3/4 or 75%
 ```"""
 
     user_prompt = f"""Create a clear ASCII art diagram for this educational content:
@@ -172,12 +181,14 @@ MERMAID DIAGRAM TYPES:
 - graph: For relationships, connections
 - timeline: For historical events, sequences
 - pie: For percentages, proportions
+- quadrantChart: For coordinate planes, quadrant analysis, XY graphs
 
 GUIDELINES:
 - Use simple, clear labels
 - Limit complexity (max 10 nodes)
 - Use appropriate shapes for meaning
 - Include a title in the diagram
+- For math/coordinate systems, use quadrantChart
 
 EXAMPLE FLOWCHART:
 ```mermaid
@@ -198,6 +209,20 @@ timeline
     1773 : Boston Tea Party
     1775 : Battle of Lexington
     1776 : Declaration of Independence
+```
+
+EXAMPLE QUADRANT CHART (for coordinate planes):
+```mermaid
+quadrantChart
+    title Coordinate Plane Quadrants
+    x-axis Low X --> High X
+    y-axis Low Y --> High Y
+    quadrant-1 Quadrant I (x+, y+)
+    quadrant-2 Quadrant II (x-, y+)
+    quadrant-3 Quadrant III (x-, y-)
+    quadrant-4 Quadrant IV (x+, y-)
+    Point A: [0.7, 0.6]
+    Point B: [0.3, 0.8]
 ```"""
 
     user_prompt = f"""Create a Mermaid diagram for this educational content:
