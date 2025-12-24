@@ -543,7 +543,104 @@
         {% endfor %}
     </div>
     {% endif %}
-    
+
+    <!-- Learning Toolkit Widget -->
+    {% if toolkit_widget %}
+    <div style="max-width: 700px; margin: 40px auto;">
+        {{ toolkit_widget|safe }}
+    </div>
+    <style>
+    .learning-toolkit-widget {
+        background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.1));
+        border: 2px solid rgba(102,126,234,0.3);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 24px rgba(102,126,234,0.2);
+    }
+    .toolkit-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .toolkit-icon {
+        font-size: 1.8rem;
+    }
+    .toolkit-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text);
+    }
+    .toolkit-cta {
+        color: var(--muted-2);
+        font-size: 1.05rem;
+        margin-bottom: 16px;
+    }
+    .toolkit-btn {
+        display: inline-block;
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-decoration: none;
+        border-radius: 20px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    .toolkit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102,126,234,0.5);
+    }
+    .toolkit-strength {
+        color: #84ff00;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 16px;
+        padding: 12px;
+        background: rgba(132,255,0,0.1);
+        border-radius: 10px;
+        border-left: 3px solid #84ff00;
+    }
+    .toolkit-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .toolkit-quick-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(0,242,255,0.2);
+        border: 1px solid rgba(0,242,255,0.3);
+        border-radius: 20px;
+        color: #00f2ff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .toolkit-quick-link:hover {
+        background: rgba(0,242,255,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,242,255,0.4);
+    }
+    .toolkit-link {
+        display: inline-block;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+    .toolkit-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+    </style>
+    {% endif %}
+
     <!-- NEW: Recent Activity Feed -->
     {% if recent_activities %}
     <h2 class="section-title" style="margin-top: 40px;">📊 Recent Activity</h2>

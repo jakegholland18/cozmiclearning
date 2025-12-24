@@ -12024,6 +12024,76 @@ def teacher_student_report(student_id):
 
 
 # ============================================================
+# TEACHER - LEARNING LAB / STUDENT LEARNING PROFILES
+# ============================================================
+
+@app.route("/teacher/class/<int:class_id>/learning-profiles")
+def teacher_learning_profiles(class_id):
+    """View all student learning profiles for a class with teaching recommendations"""
+    teacher = get_current_teacher()
+    if not teacher:
+        return redirect("/teacher/login")
+
+    cls = Class.query.get_or_404(class_id)
+
+    # Check authorization
+    if not is_owner(teacher) and cls.teacher_id != teacher.id:
+        flash("Not authorized to view this class.", "error")
+        return redirect("/teacher/dashboard")
+
+    # Get all students in class with their learning profiles
+    students_data = []
+    for student in cls.students:
+        profile = LearningProfile.query.filter_by(student_id=student.id).first()
+
+        if profile and profile.quiz_completed:
+            students_data.append({
+                'student': student,
+                'profile': profile,
+                'has_profile': True
+            })
+        else:
+            students_data.append({
+                'student': student,
+                'profile': None,
+                'has_profile': False
+            })
+
+    # Calculate class-wide statistics
+    total_students = len(students_data)
+    students_with_profiles = sum(1 for s in students_data if s['has_profile'])
+    profile_completion_rate = (students_with_profiles / total_students * 100) if total_students > 0 else 0
+
+    # Learning style distribution
+    learning_styles = {}
+    for s in students_data:
+        if s['has_profile']:
+            style = s['profile'].primary_learning_style
+            learning_styles[style] = learning_styles.get(style, 0) + 1
+
+    # Focus preference distribution
+    focus_preferences = {}
+    for s in students_data:
+        if s['has_profile']:
+            pref = s['profile'].focus_preference
+            if pref:
+                focus_preferences[pref] = focus_preferences.get(pref, 0) + 1
+
+    return render_template(
+        'teacher_learning_profiles.html',
+        teacher=teacher,
+        cls=cls,
+        students_data=students_data,
+        total_students=total_students,
+        students_with_profiles=students_with_profiles,
+        profile_completion_rate=profile_completion_rate,
+        learning_styles=learning_styles,
+        focus_preferences=focus_preferences,
+        is_owner=is_owner(teacher)
+    )
+
+
+# ============================================================
 # ASSIGNMENT TEMPLATES (SHARED: TEACHERS & HOMESCHOOL)
 # ============================================================
 
