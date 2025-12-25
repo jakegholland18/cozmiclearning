@@ -16243,11 +16243,54 @@ Rewrite this with MORE advanced detail and depth:
 
 Provide ONLY the advanced version, no other text."""
 
-    from modules.shared_ai import study_buddy_ai
+    from modules.shared_ai import get_client, grade_depth_instruction, build_character_voice
 
     try:
-        reply = study_buddy_ai(prompt, grade, character)
-        adjusted_text = reply.get("raw_text") if isinstance(reply, dict) else reply
+        # Use a simple AI call WITHOUT the 6-section system prompt
+        # This prevents nesting issues where AI returns full 6-section structure
+        client = get_client()
+        depth_rule = grade_depth_instruction(grade)
+        voice = build_character_voice(character)
+
+        system_prompt = f"""
+You are CozmicLearning — a warm, gentle tutor who loves God and loves students.
+
+Your task is to rewrite the given content according to the student's request.
+Provide ONLY the rewritten content - no section headers, no labels, no extra text.
+Just the rewritten paragraph(s) matching the requested difficulty level.
+
+CHARACTER VOICE:
+{voice}
+
+GRADE LEVEL:
+{depth_rule}
+
+FORMATTING:
+- Use plain text only - no markdown, no bold, no italics
+- Write in natural paragraphs
+- No bullet points unless specifically needed for lists
+- Keep it conversational and clear
+"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        adjusted_text = response.choices[0].message.content
+
+        # OUTPUT MODERATION - Check adjusted content for safety
+        from modules.content_moderation import moderate_content
+        output_moderation = moderate_content(adjusted_text)
+
+        if output_moderation.get("flagged", False):
+            # Log the incident and return original content instead
+            app.logger.warning(f"🚨 Difficulty adjustment flagged by moderation: {output_moderation.get('reason')}")
+            adjusted_text = original_content
+
     except Exception as e:
         app.logger.error(f"Difficulty adjustment failed: {e}")
         adjusted_text = original_content
