@@ -8708,7 +8708,7 @@ def pomodoro_start():
         completed=False
     )
     db.session.add(pomodoro)
-    safe_db_commit()
+    safe_db_commit(db.session)
 
     return jsonify({
         'success': True,
@@ -8734,7 +8734,7 @@ def pomodoro_complete():
         pomodoro.completed = not interrupted
         pomodoro.interrupted = interrupted
         pomodoro.focus_rating = focus_rating
-        safe_db_commit()
+        safe_db_commit(db.session)
 
         return jsonify({'success': True})
 
@@ -8822,7 +8822,7 @@ def study_buddy_send():
         is_student=True
     )
     db.session.add(student_msg)
-    safe_db_commit()
+    safe_db_commit(db.session)
 
     # Get conversation history
     recent_messages = StudyBuddyMessage.query.filter_by(
@@ -8888,7 +8888,7 @@ def study_buddy_send():
             learning_style_used=learning_style
         )
         db.session.add(ai_msg)
-        safe_db_commit()
+        safe_db_commit(db.session)
 
         return jsonify({
             'success': True,
@@ -8987,7 +8987,7 @@ Provide 5-8 steps with estimated time for each. Format as JSON:
             )
             db.session.add(step)
 
-        safe_db_commit()
+        safe_db_commit(db.session)
 
         return jsonify({
             'success': True,
@@ -9027,7 +9027,7 @@ def complete_task_step(breakdown_id, step_id):
         breakdown.completed = True
         breakdown.completed_at = datetime.utcnow()
 
-    safe_db_commit()
+    safe_db_commit(db.session)
 
     return jsonify({
         'success': True,
