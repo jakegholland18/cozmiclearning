@@ -13426,7 +13426,7 @@ def subject_answer():
     
     # CONTENT MODERATION - Check question safety
     student_id = get_student_id_from_session()
-    moderation_result = moderate_content(question, student_id=student_id, context="question")
+    moderation_result = moderate_content(question)
 
     # Initialize log_entry as None (will be created if student_id exists)
     log_entry = None
@@ -13610,7 +13610,7 @@ def followup_message():
     
     # CONTENT MODERATION
     student_id = get_student_id_from_session()
-    moderation_result = moderate_content(message, student_id=student_id, context="chat")
+    moderation_result = moderate_content(message)
 
     # Log the message (only if student_id exists)
     log_entry = None
@@ -13654,7 +13654,7 @@ def followup_message():
         reply_text = reply.get("raw_text") if isinstance(reply, dict) else reply
 
     # OUTPUT CONTENT MODERATION - Check AI response before sending to student
-    output_moderation = moderate_content(reply_text, student_id=student_id, context="ai_output")
+    output_moderation = moderate_content(reply_text)
 
     if output_moderation.get("flagged", False):
         # Log the flagged output
@@ -13717,7 +13717,7 @@ def deep_study_message():
     
     # CONTENT MODERATION
     student_id = get_student_id_from_session()
-    moderation_result = moderate_content(message, student_id=student_id, context="deep_study_chat")
+    moderation_result = moderate_content(message)
 
     # Log the message (only if student_id exists)
     if student_id:
@@ -13898,7 +13898,7 @@ def powergrid_submit():
     if topic:
         # CONTENT MODERATION for topic
         student_id = get_student_id_from_session()
-        moderation_result = moderate_content(topic, student_id=student_id, context="powergrid")
+        moderation_result = moderate_content(topic)
 
         # Log the topic request (only if student_id exists)
         if student_id:
