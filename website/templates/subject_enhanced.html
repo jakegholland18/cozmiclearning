@@ -1136,7 +1136,7 @@
                     </button>
                 </div>
 
-                <a href="/learning-lab/study-buddy?return_url={{ request.path|urlencode }}" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #84ff00, #00f2ff); color: #0b0f1a; text-decoration: none; border-radius: 10px; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <a href="/learning-lab/study-buddy?return_url={{ request.full_path|urlencode }}" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #84ff00, #00f2ff); color: #0b0f1a; text-decoration: none; border-radius: 10px; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     💬 Start Conversation
                 </a>
             </div>
@@ -1147,8 +1147,8 @@
 function askStudyBuddy(prompt) {
     // Store the prompt in sessionStorage so Study Buddy can auto-fill it
     sessionStorage.setItem('study_buddy_prefill', prompt);
-    // Navigate to Study Buddy with return URL
-    const returnUrl = encodeURIComponent(window.location.pathname);
+    // Navigate to Study Buddy with return URL (include query parameters)
+    const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
     window.location.href = `/learning-lab/study-buddy?return_url=${returnUrl}`;
 }
 </script>
