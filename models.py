@@ -1333,10 +1333,18 @@ class StudyBuddyMessage(db.Model):
     learning_style_used = db.Column(db.String(50), nullable=True)  # Which style AI adapted to
     helpful_rating = db.Column(db.Integer, nullable=True)  # Student feedback on AI response
 
+    # SAFETY & MODERATION FIELDS
+    flagged = db.Column(db.Boolean, default=False)  # Content moderation flag
+    flagged_reason = db.Column(db.String(200), nullable=True)  # Why it was flagged
+    moderation_scores = db.Column(db.JSON, nullable=True)  # OpenAI moderation API scores
+    parent_notified = db.Column(db.Boolean, default=False)  # Parent notification sent
+    reviewed = db.Column(db.Boolean, default=False)  # Admin reviewed
+    reviewer_notes = db.Column(db.Text, nullable=True)  # Admin notes
+
     student = db.relationship('Student', backref='study_buddy_messages')
 
     def __repr__(self):
-        return f'<StudyBuddyMessage student={self.student_id} from_student={self.is_student}>'
+        return f'<StudyBuddyMessage student={self.student_id} from_student={self.is_student} flagged={self.flagged}>'
 
 
 class TaskBreakdown(db.Model):

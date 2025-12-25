@@ -8829,15 +8829,66 @@ def study_buddy_send():
     if recent_count >= 10:  # Max 10 messages per 5 minutes
         return jsonify({'error': 'Too many messages. Please wait a moment before sending more.'}), 429
 
+    # CONTENT MODERATION - Check for inappropriate content
+    from modules.content_moderation import moderate_content, check_academic_dishonesty, should_notify_parent
+
+    moderation_result = moderate_content(user_message)
+    cheating_result = check_academic_dishonesty(user_message)
+
+    # Check for serious violations
+    is_flagged = moderation_result['flagged']
+    flagged_reason = moderation_result['reason']
+
+    # Block seriously inappropriate content
+    if is_flagged:
+        categories = moderation_result['categories']
+        serious_violations = ['violence', 'sexual', 'self-harm']
+        has_serious_violation = any(
+            categories.get(cat, False) or categories.get(f"{cat}/graphic", False)
+            or categories.get(f"{cat}/intent", False) or categories.get(f"{cat}/instructions", False)
+            for cat in serious_violations
+        )
+
+        if has_serious_violation:
+            # Save flagged message for review
+            flagged_msg = StudyBuddyMessage(
+                student_id=student_id,
+                message=user_message,
+                is_student=True,
+                flagged=True,
+                flagged_reason=flagged_reason,
+                moderation_scores=moderation_result['category_scores']
+            )
+            db.session.add(flagged_msg)
+            safe_db_commit(db.session)
+
+            # TODO: Send parent notification (implement below)
+            # send_parent_notification_for_flagged_content(student_id, user_message, moderation_result)
+
+            return jsonify({
+                'error': 'Your message contains inappropriate content. A teacher has been notified. If you need help, please speak with a trusted adult.',
+                'success': False
+            }), 400
+
+    # Warn about cheating but allow (AI will handle with Socratic method)
+    if cheating_result['flagged']:
+        print(f"⚠️  Academic dishonesty attempt by student {student_id}: {cheating_result['keywords']}")
+        # Flag but don't block - let AI redirect to learning
+        is_flagged = True
+        flagged_reason = cheating_result['reason']
+
     # Get student profile for personalization
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
     learning_style = profile.primary_learning_style if profile else 'reading_writing'
 
-    # Save student message
+    # Save student message (with flagging if needed)
     student_msg = StudyBuddyMessage(
         student_id=student_id,
         message=user_message,
-        is_student=True
+        is_student=True,
+        flagged=is_flagged,
+        flagged_reason=flagged_reason if is_flagged else None,
+        moderation_scores=moderation_result.get('category_scores') if is_flagged else None
     )
     db.session.add(student_msg)
     safe_db_commit(db.session)
