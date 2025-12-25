@@ -409,6 +409,7 @@ from models import (
     LearningProfile,
     StrategyUsage,
     PomodoroSession,
+    StudyBuddyConversation,
     StudyBuddyMessage,
     TaskBreakdown,
     TaskStep,
@@ -8776,7 +8777,7 @@ def pomodoro_stats():
 
 @app.route("/learning-lab/study-buddy")
 def study_buddy():
-    """Study Buddy AI chat interface"""
+    """Study Buddy AI chat interface with conversation management"""
     init_user()
     student_id = session.get('student_id')
     if not student_id:
@@ -8786,16 +8787,55 @@ def study_buddy():
     student = Student.query.get(student_id)
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
 
-    # Get recent messages
+    # Get conversation_id from query params (if resuming)
+    conversation_id = request.args.get('conversation_id', type=int)
+
+    # Get or create active conversation
+    if conversation_id:
+        # Load specific conversation
+        conversation = StudyBuddyConversation.query.filter_by(
+            id=conversation_id,
+            student_id=student_id
+        ).first()
+
+        if not conversation:
+            flash("Conversation not found", "error")
+            return redirect('/learning-lab/study-buddy')
+
+        # Mark this as the active conversation
+        StudyBuddyConversation.query.filter_by(student_id=student_id).update({'is_active': False})
+        conversation.is_active = True
+        db.session.commit()
+    else:
+        # Get active conversation or create new one
+        conversation = StudyBuddyConversation.query.filter_by(
+            student_id=student_id,
+            is_active=True
+        ).first()
+
+        if not conversation:
+            # Create a new conversation
+            conversation = StudyBuddyConversation(
+                student_id=student_id,
+                title="New Conversation",
+                is_active=True
+            )
+            db.session.add(conversation)
+            db.session.commit()
+
+    # Get messages for this conversation
     messages = StudyBuddyMessage.query.filter_by(
-        student_id=student_id
-    ).order_by(StudyBuddyMessage.timestamp.desc()).limit(50).all()
-    messages.reverse()  # Show oldest first
+        conversation_id=conversation.id
+    ).order_by(StudyBuddyMessage.timestamp.asc()).limit(100).all()
+
+    # Store current conversation_id in session for the send endpoint
+    session['current_conversation_id'] = conversation.id
 
     return render_template('study_buddy.html',
                          student=student,
                          profile=profile,
-                         messages=messages)
+                         messages=messages,
+                         conversation=conversation)
 
 
 @app.route("/learning-lab/study-buddy/send", methods=["POST"])
@@ -8901,9 +8941,31 @@ def study_buddy_send():
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
     learning_style = profile.primary_learning_style if profile else 'reading_writing'
 
+    # Get current conversation from session
+    conversation_id = session.get('current_conversation_id')
+
+    # If no conversation exists, create one
+    if not conversation_id:
+        conversation = StudyBuddyConversation(
+            student_id=student_id,
+            title=user_message[:50] + ("..." if len(user_message) > 50 else ""),
+            is_active=True
+        )
+        db.session.add(conversation)
+        db.session.flush()  # Get the ID
+        conversation_id = conversation.id
+        session['current_conversation_id'] = conversation_id
+    else:
+        conversation = StudyBuddyConversation.query.get(conversation_id)
+
+        # Update conversation title from first message if still "New Conversation"
+        if conversation and conversation.title == "New Conversation" and conversation.message_count == 0:
+            conversation.title = user_message[:50] + ("..." if len(user_message) > 50 else "")
+
     # Save student message (with flagging if needed)
     student_msg = StudyBuddyMessage(
         student_id=student_id,
+        conversation_id=conversation_id,
         message=user_message,
         is_student=True,
         flagged=is_flagged,
@@ -8913,9 +8975,15 @@ def study_buddy_send():
     db.session.add(student_msg)
     safe_db_commit(db.session)
 
-    # Get conversation history
+    # Update conversation metadata
+    if conversation:
+        conversation.last_message_at = datetime.utcnow()
+        conversation.message_count = StudyBuddyMessage.query.filter_by(conversation_id=conversation_id).count()
+        db.session.commit()
+
+    # Get conversation history (only from current conversation)
     recent_messages = StudyBuddyMessage.query.filter_by(
-        student_id=student_id
+        conversation_id=conversation_id
     ).order_by(StudyBuddyMessage.timestamp.desc()).limit(10).all()
     recent_messages.reverse()
 
@@ -9041,12 +9109,18 @@ def study_buddy_send():
         if not output_moderation['flagged']:
             ai_msg = StudyBuddyMessage(
                 student_id=student_id,
+                conversation_id=conversation_id,
                 message=ai_message,  # Store original
                 is_student=False,
                 learning_style_used=learning_style
             )
             db.session.add(ai_msg)
             safe_db_commit(db.session)
+
+            # Update conversation message count again
+            if conversation:
+                conversation.message_count = StudyBuddyMessage.query.filter_by(conversation_id=conversation_id).count()
+                db.session.commit()
 
         return jsonify({
             'success': True,
@@ -9068,6 +9142,100 @@ def study_buddy_send():
             'error': 'Sorry, I encountered an error. Please try again in a moment.',
             'success': False
         }), 500
+
+
+@app.route("/learning-lab/study-buddy/new-conversation", methods=["POST"])
+@csrf.exempt
+def study_buddy_new_conversation():
+    """Create a new conversation and mark all others as inactive"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        # Mark all conversations as inactive
+        StudyBuddyConversation.query.filter_by(student_id=student_id).update({'is_active': False})
+
+        # Create new conversation
+        conversation = StudyBuddyConversation(
+            student_id=student_id,
+            title="New Conversation",
+            is_active=True
+        )
+        db.session.add(conversation)
+        db.session.commit()
+
+        # Update session
+        session['current_conversation_id'] = conversation.id
+
+        return jsonify({
+            'success': True,
+            'conversation_id': conversation.id,
+            'message': 'Started new conversation'
+        })
+
+    except Exception as e:
+        print(f"Error creating new conversation: {e}")
+        return jsonify({'error': 'Failed to create new conversation'}), 500
+
+
+@app.route("/learning-lab/study-buddy/delete-conversation/<int:conversation_id>", methods=["POST"])
+@csrf.exempt
+def study_buddy_delete_conversation(conversation_id):
+    """Delete a conversation and all its messages"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        # Verify conversation belongs to student
+        conversation = StudyBuddyConversation.query.filter_by(
+            id=conversation_id,
+            student_id=student_id
+        ).first()
+
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        # Delete conversation (cascade will delete messages)
+        db.session.delete(conversation)
+        db.session.commit()
+
+        # If this was the active conversation, clear session
+        if session.get('current_conversation_id') == conversation_id:
+            session.pop('current_conversation_id', None)
+
+        return jsonify({
+            'success': True,
+            'message': 'Conversation deleted'
+        })
+
+    except Exception as e:
+        print(f"Error deleting conversation: {e}")
+        return jsonify({'error': 'Failed to delete conversation'}), 500
+
+
+@app.route("/learning-lab/study-buddy/conversations")
+def study_buddy_conversations():
+    """Conversation library - view all past conversations"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        flash("Learning Lab is for students only", "error")
+        return redirect(url_for('dashboard'))
+
+    student = Student.query.get(student_id)
+
+    # Get all conversations for this student (most recent first)
+    conversations = StudyBuddyConversation.query.filter_by(
+        student_id=student_id
+    ).order_by(StudyBuddyConversation.last_message_at.desc()).all()
+
+    return render_template('study_buddy_conversations.html',
+                         student=student,
+                         conversations=conversations)
 
 
 # ============================================================

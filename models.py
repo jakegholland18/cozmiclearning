@@ -1315,6 +1315,34 @@ class PomodoroSession(db.Model):
         return f'<PomodoroSession student={self.student_id} duration={self.work_duration}min completed={self.completed}>'
 
 
+class StudyBuddyConversation(db.Model):
+    """
+    Represents a conversation thread in AI Study Buddy.
+    Students can have multiple conversations on different topics.
+    """
+    __tablename__ = 'study_buddy_conversation'
+    __table_args__ = (
+        db.Index('idx_conversation_student_created', 'student_id', 'created_at'),
+        db.Index('idx_conversation_student_updated', 'student_id', 'last_message_at'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    title = db.Column(db.String(200), nullable=False)  # Auto-generated from first question
+    subject = db.Column(db.String(50), nullable=True)  # Detected subject area
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_message_at = db.Column(db.DateTime, default=datetime.utcnow)
+    message_count = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)  # Current conversation
+    archived = db.Column(db.Boolean, default=False)
+
+    student = db.relationship('Student', backref='study_buddy_conversations')
+    messages = db.relationship('StudyBuddyMessage', backref='conversation', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<StudyBuddyConversation id={self.id} student={self.student_id} title="{self.title}">'
+
+
 class StudyBuddyMessage(db.Model):
     """
     Stores AI Study Buddy conversation history.
@@ -1322,10 +1350,12 @@ class StudyBuddyMessage(db.Model):
     __tablename__ = 'study_buddy_message'
     __table_args__ = (
         db.Index('idx_study_buddy_student_time', 'student_id', 'timestamp'),
+        db.Index('idx_study_buddy_conversation', 'conversation_id'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    conversation_id = db.Column(db.Integer, db.ForeignKey("study_buddy_conversation.id", ondelete="CASCADE"), nullable=True)
     message = db.Column(db.Text, nullable=False)
     is_student = db.Column(db.Boolean, nullable=False)  # True = from student, False = from AI
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
