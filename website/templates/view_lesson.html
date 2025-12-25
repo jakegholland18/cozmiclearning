@@ -331,6 +331,11 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.6; }
     }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <div id="lesson-loading">
@@ -482,7 +487,7 @@
                 </div>
                 <div style="display: grid; gap: 8px;">
                     {% for prompt in study_tips.study_buddy_prompts[:3] %}
-                    <button onclick="openStudyBuddy('{{ prompt }}')" style="
+                    <button onclick="openStudyBuddy({{ prompt|tojson }})" style="
                         padding: 10px 15px;
                         background: linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 242, 255, 0.15));
                         border: 2px solid rgba(132, 255, 0, 0.4);
@@ -559,6 +564,38 @@
 <script>
 // Open Study Buddy with pre-filled question
 function openStudyBuddy(prompt) {
+    // Show loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(4px);
+    `;
+    loadingDiv.innerHTML = `
+        <div style="
+            text-align: center;
+            color: white;
+            background: linear-gradient(135deg, rgba(92, 107, 255, 0.3), rgba(0, 242, 255, 0.3));
+            padding: 30px 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(132, 255, 0, 0.5);
+            box-shadow: 0 0 40px rgba(132, 255, 0, 0.4);
+        ">
+            <div style="font-size: 3rem; margin-bottom: 15px; animation: spin 1s linear infinite;">🤖</div>
+            <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 10px;">Opening AI Study Buddy...</div>
+            <div style="font-size: 0.95rem; color: #c4d1ff;">Loading your conversation</div>
+        </div>
+    `;
+    document.body.appendChild(loadingDiv);
+
     // Store the prompt in sessionStorage so Study Buddy can auto-fill it
     sessionStorage.setItem('study_buddy_prefill', prompt);
     // Navigate to Study Buddy with return URL (include query parameters)
