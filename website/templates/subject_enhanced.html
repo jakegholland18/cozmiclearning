@@ -1110,7 +1110,8 @@
             <div style="font-size: 3rem; flex-shrink: 0; margin-top: 5px;">🤖</div>
             <div style="flex: 1;">
                 <h3 style="color: #84ff00; margin: 0 0 8px 0; font-size: 1.3rem; font-weight: 700;">Want to Explore This Topic Deeper?</h3>
-                <p style="color: #c4d1ff; margin: 0 0 12px 0; line-height: 1.6;">The AI Study Buddy can help you understand <strong style="color: #84ff00;">{{ question }}</strong> through guided questions and personalized explanations!</p>
+                <p style="color: #c4d1ff; margin: 0 0 8px 0; line-height: 1.6;">The <strong style="color: #84ff00;">AI Study Buddy</strong> helps you learn through back-and-forth conversations. Ask questions, get hints, and explore <strong style="color: #84ff00;">{{ question }}</strong> at your own pace!</p>
+                <p style="color: #a78bfa; font-size: 0.85rem; margin: 0 0 12px 0; font-style: italic;">💡 Perfect for: Homework help, concept exploration, and guided practice</p>
 
                 <!-- Contextual Quick-Start Prompts -->
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
@@ -1150,6 +1151,30 @@ function askStudyBuddy(prompt) {
     window.location.href = '/learning-lab/study-buddy';
 }
 </script>
+</div>
+
+<!-- CHAT SECTION - Moved above practice section -->
+<div class="chat-section fade-in">
+    <div class="chat-title">💬 Chat with {{ character.title() }}</div>
+    <p style="text-align: center; color: #b8d4f0; margin-bottom: 8px;">
+        Have questions about this specific answer? Ask {{ character.title() }} anything about <strong style="color: #84ff00;">{{ question }}</strong>!
+    </p>
+    <p style="text-align: center; color: #a78bfa; font-size: 0.85rem; margin-bottom: 20px; font-style: italic;">
+        💡 Perfect for: Quick clarifications, follow-up questions, and understanding this answer better
+    </p>
+
+    <div class="chat-messages" id="chatMessages">
+        {% for msg in conversation %}
+            <div class="chat-message {{ 'user-message' if msg.role=='user' else 'ai-message' }}">
+                {{ msg.content }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-input-box">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Type your question here...">
+        <button class="chat-send-btn" id="chatSendBtn" onclick="sendFollowup()">📤 Share my thoughts</button>
+    </div>
 </div>
 
 <!-- FEATURE #13: Enhanced Practice Options -->
@@ -1203,27 +1228,6 @@ function askStudyBuddy(prompt) {
         <div class="note-item">
             <div class="note-section-ref">No notes yet. Click "Note" on any section to add one!</div>
         </div>
-    </div>
-</div>
-
-<!-- CHAT SECTION -->
-<div class="chat-section fade-in">
-    <div class="chat-title">💬 Chat with {{ character.title() }}</div>
-    <p style="text-align: center; color: #b8d4f0; margin-bottom: 20px;">
-        Have questions? Ask {{ character.title() }} anything about {{ subject_name }}!
-    </p>
-
-    <div class="chat-messages" id="chatMessages">
-        {% for msg in conversation %}
-            <div class="chat-message {{ 'user-message' if msg.role=='user' else 'ai-message' }}">
-                {{ msg.content }}
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="chat-input-box">
-        <input type="text" class="chat-input" id="chatInput" placeholder="Type your question here...">
-        <button class="chat-send-btn" id="chatSendBtn" onclick="sendFollowup()">📤 Share my thoughts</button>
     </div>
 </div>
 
