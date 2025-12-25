@@ -272,6 +272,14 @@ body {
                 <p style="margin: 8px 0 0 0;">Ask me anything! I'll help guide you to the answers using questions and hints.</p>
             </div>
             <div style="display: flex; gap: 10px; flex-shrink: 0;">
+                {% if return_url %}
+                <a href="{{ return_url }}"
+                   style="padding: 8px 16px; background: rgba(0, 242, 255, 0.2); border: 2px solid rgba(0, 242, 255, 0.4); border-radius: 10px; color: #00f2ff; text-decoration: none; font-weight: 600; font-size: 0.9rem; white-space: nowrap; transition: all 0.3s ease;"
+                   onmouseover="this.style.background='rgba(0, 242, 255, 0.3)'"
+                   onmouseout="this.style.background='rgba(0, 242, 255, 0.2)'">
+                    ← Back to Lesson
+                </a>
+                {% endif %}
                 <a href="/learning-lab/study-buddy/conversations"
                    style="padding: 8px 16px; background: rgba(167, 139, 250, 0.2); border: 2px solid rgba(167, 139, 250, 0.4); border-radius: 10px; color: #a78bfa; text-decoration: none; font-weight: 600; font-size: 0.9rem; white-space: nowrap; transition: all 0.3s ease;"
                    onmouseover="this.style.background='rgba(167, 139, 250, 0.3)'"

@@ -8790,6 +8790,19 @@ def study_buddy():
     # Get conversation_id from query params (if resuming)
     conversation_id = request.args.get('conversation_id', type=int)
 
+    # Get return_url for "Back to Lesson" button
+    return_url = request.args.get('return_url') or request.referrer
+
+    # Validate return_url is from our domain
+    if return_url and not return_url.startswith('/'):
+        # If it's a full URL, extract just the path
+        from urllib.parse import urlparse
+        parsed = urlparse(return_url)
+        if parsed.netloc in ['cozmiclearning.com', 'www.cozmiclearning.com', 'localhost', '127.0.0.1']:
+            return_url = parsed.path
+        else:
+            return_url = None
+
     # Get or create active conversation
     if conversation_id:
         # Load specific conversation
@@ -8835,7 +8848,8 @@ def study_buddy():
                          student=student,
                          profile=profile,
                          messages=messages,
-                         conversation=conversation)
+                         conversation=conversation,
+                         return_url=return_url)
 
 
 @app.route("/learning-lab/study-buddy/send", methods=["POST"])
