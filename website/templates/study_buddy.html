@@ -466,8 +466,15 @@ function addMessageToUI(text, isStudent) {
         emptyState.remove();
     }
 
+    // Decode HTML entities (like &#39; to ')
+    function decodeHTMLEntities(text) {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    }
+
     // Clean markdown formatting (bold, italic, etc.)
-    let cleanText = text
+    let cleanText = decodeHTMLEntities(text)
         .replace(/\*\*(.+?)\*\*/g, '$1')  // Remove **bold**
         .replace(/\*(.+?)\*/g, '$1')      // Remove *italic*
         .replace(/\_\_(.+?)\_\_/g, '$1')  // Remove __bold__
