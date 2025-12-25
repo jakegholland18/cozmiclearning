@@ -322,7 +322,7 @@
     <div class="chat-log" id="chat-log">
         {% for msg in conversation %}
             <div class="chat-msg {{ 'msg-user' if msg.role=='user' else 'msg-ai' }}">
-                {{ msg.content }}
+                {{ msg.content|safe }}
             </div>
         {% endfor %}
     </div>

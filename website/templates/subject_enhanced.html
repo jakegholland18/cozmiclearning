@@ -1166,7 +1166,7 @@ function askStudyBuddy(prompt) {
     <div class="chat-messages" id="chatMessages">
         {% for msg in conversation %}
             <div class="chat-message {{ 'user-message' if msg.role=='user' else 'ai-message' }}">
-                {{ msg.content }}
+                {{ msg.content|safe }}
             </div>
         {% endfor %}
     </div>
