@@ -13276,6 +13276,9 @@ def view_lesson():
     # Try to get cached lesson
     cached_lesson = session["lesson_cache"].get(cache_key)
 
+    # Get character (needed for both cached and fresh lessons)
+    character = session.get("character", "nova")
+
     # Get chapter info (needed for both cached and fresh lessons)
     chapter = None
     if chapter_id:
@@ -13309,7 +13312,6 @@ def view_lesson():
 
         # Generate the lesson
         from modules.student_lessons import generate_student_lesson
-        character = session.get("character", "nova")
 
         result = generate_student_lesson(
             subject,
