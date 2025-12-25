@@ -337,7 +337,7 @@ body {
                 </div>
                 <div>
                     <div class="message-bubble">
-                        {{ message.message }}
+                        {{ message.message|safe }}
                     </div>
                     <div class="message-time">{{ message.timestamp.strftime('%I:%M %p') }}</div>
                 </div>
