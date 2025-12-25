@@ -408,6 +408,11 @@ from models import (
     PracticeSession,
     LearningProfile,
     StrategyUsage,
+    PomodoroSession,
+    StudyBuddyMessage,
+    TaskBreakdown,
+    TaskStep,
+    AIAssignment,
 )
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
