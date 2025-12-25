@@ -8831,6 +8831,7 @@ def study_buddy_send():
 
     # CONTENT MODERATION - Check for inappropriate content
     from modules.content_moderation import moderate_content, check_academic_dishonesty, should_notify_parent
+    from modules.learning_lab_helper import send_parent_notification_flagged_content
 
     moderation_result = moderate_content(user_message)
     cheating_result = check_academic_dishonesty(user_message)
@@ -8862,8 +8863,18 @@ def study_buddy_send():
             db.session.add(flagged_msg)
             safe_db_commit(db.session)
 
-            # TODO: Send parent notification (implement below)
-            # send_parent_notification_for_flagged_content(student_id, user_message, moderation_result)
+            # Send parent notification
+            parent_notified = send_parent_notification_flagged_content(
+                student_id=student_id,
+                message_content=user_message,
+                flag_reason=flagged_reason,
+                flag_categories=categories
+            )
+
+            # Update parent_notified field if email was sent
+            if parent_notified:
+                flagged_msg.parent_notified = True
+                safe_db_commit(db.session)
 
             return jsonify({
                 'error': 'Your message contains inappropriate content. A teacher has been notified. If you need help, please speak with a trusted adult.',
@@ -8876,6 +8887,15 @@ def study_buddy_send():
         # Flag but don't block - let AI redirect to learning
         is_flagged = True
         flagged_reason = cheating_result['reason']
+
+        # Send parent notification for cheating too
+        if should_notify_parent(moderation_result, cheating_result):
+            send_parent_notification_flagged_content(
+                student_id=student_id,
+                message_content=user_message,
+                flag_reason=flagged_reason,
+                flag_categories={'academic_dishonesty': True}
+            )
 
     # Get student profile for personalization
     profile = LearningProfile.query.filter_by(student_id=student_id).first()
@@ -8957,6 +8977,30 @@ def study_buddy_send():
 
         ai_message = response.choices[0].message.content
 
+        # OUTPUT MODERATION - Check AI response for safety
+        output_moderation = moderate_content(ai_message)
+
+        if output_moderation['flagged']:
+            # Log the incident - AI generated inappropriate content
+            print(f"🚨 CRITICAL: AI response flagged by moderation for student {student_id}")
+            print(f"Reason: {output_moderation['reason']}")
+            print(f"Message preview: {ai_message[:100]}...")
+
+            # Don't send the flagged response - return a safe fallback
+            ai_message = "I apologize, but I'm having trouble generating an appropriate response. Let me try to help you in a different way. Could you rephrase your question?"
+
+            # Save flagged AI response for review
+            flagged_ai_msg = StudyBuddyMessage(
+                student_id=student_id,
+                message=ai_message,
+                is_student=False,
+                flagged=True,
+                flagged_reason=f"AI Output: {output_moderation['reason']}",
+                moderation_scores=output_moderation['category_scores']
+            )
+            db.session.add(flagged_ai_msg)
+            safe_db_commit(db.session)
+
         # OUTPUT SANITIZATION - Remove any potentially harmful content
         # Escape HTML to prevent XSS if message is ever rendered as HTML
         from markupsafe import escape
@@ -8979,14 +9023,16 @@ def study_buddy_send():
                 ai_message_safe = ai_message_safe.replace(pattern, '[removed]')
 
         # Save AI response (save original for logging, return sanitized)
-        ai_msg = StudyBuddyMessage(
-            student_id=student_id,
-            message=ai_message,  # Store original
-            is_student=False,
-            learning_style_used=learning_style
-        )
-        db.session.add(ai_msg)
-        safe_db_commit(db.session)
+        # Only save if not already saved as flagged
+        if not output_moderation['flagged']:
+            ai_msg = StudyBuddyMessage(
+                student_id=student_id,
+                message=ai_message,  # Store original
+                is_student=False,
+                learning_style_used=learning_style
+            )
+            db.session.add(ai_msg)
+            safe_db_commit(db.session)
 
         return jsonify({
             'success': True,

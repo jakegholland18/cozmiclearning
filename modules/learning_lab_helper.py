@@ -699,6 +699,222 @@ def adapt_content_to_learning_style(content, learning_style):
     return content + "\n".join(enhancements)
 
 
+def send_parent_notification_flagged_content(student_id, message_content, flag_reason, flag_categories):
+    """
+    Send email notification to parent about flagged AI Study Buddy content.
+
+    Args:
+        student_id: ID of the student
+        message_content: The flagged message text
+        flag_reason: Human-readable reason for flagging
+        flag_categories: Dictionary of flagged categories from moderation
+
+    Returns:
+        bool: True if notification sent successfully
+    """
+    from app import mail
+
+    student = Student.query.get(student_id)
+    if not student or not student.parent_id:
+        return False
+
+    parent = Parent.query.get(student.parent_id)
+    if not parent or not parent.email or not parent.email_reports_enabled:
+        return False
+
+    # Determine severity level
+    serious_categories = ['violence', 'violence/graphic', 'sexual', 'sexual/minors', 'self-harm', 'self-harm/intent', 'self-harm/instructions']
+    has_serious_violation = any(flag_categories.get(cat, False) for cat in serious_categories)
+
+    severity = "URGENT" if has_serious_violation else "Important"
+    severity_color = "#dc3545" if has_serious_violation else "#ffc107"
+
+    # Create email
+    subject = f"🚨 {severity}: AI Study Buddy Content Alert - {student.student_name}"
+
+    # Truncate message for email (show first 200 chars)
+    message_preview = message_content[:200] + "..." if len(message_content) > 200 else message_content
+
+    html_body = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 20px;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }}
+            .header {{
+                background: {severity_color};
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }}
+            .header h1 {{
+                margin: 0;
+                font-size: 28px;
+                font-weight: 700;
+            }}
+            .content {{
+                padding: 30px;
+            }}
+            .alert-box {{
+                background: #fff3cd;
+                border-left: 4px solid {severity_color};
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+            }}
+            .message-preview {{
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 15px 0;
+                font-family: monospace;
+                color: #495057;
+            }}
+            .categories {{
+                margin: 15px 0;
+            }}
+            .category-tag {{
+                display: inline-block;
+                background: #dc3545;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 0.85rem;
+                margin: 4px;
+            }}
+            .action-section {{
+                background: #e7f3ff;
+                border-left: 4px solid #0066cc;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+            }}
+            .btn {{
+                display: inline-block;
+                padding: 12px 30px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                margin-top: 10px;
+            }}
+            .footer {{
+                background: #f8f9ff;
+                padding: 20px;
+                text-align: center;
+                color: #666;
+                font-size: 14px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🚨 Content Safety Alert</h1>
+                <p>AI Study Buddy - CozmicLearning</p>
+            </div>
+
+            <div class="content">
+                <div class="alert-box">
+                    <strong>⚠️ {severity} Notice:</strong><br>
+                    {student.student_name}'s message to the AI Study Buddy was flagged for review.
+                </div>
+
+                <h3>Flagged Message:</h3>
+                <div class="message-preview">
+                    {message_preview}
+                </div>
+
+                <h3>Reason for Flagging:</h3>
+                <p><strong>{flag_reason}</strong></p>
+
+                <div class="categories">
+                    <strong>Flagged Categories:</strong><br>
+                    {' '.join([f'<span class="category-tag">{cat.replace("/", " / ").replace("_", " ").title()}</span>' for cat, flagged in flag_categories.items() if flagged])}
+                </div>
+
+                <div class="action-section">
+                    <h3>What Happens Next?</h3>
+                    <ul>
+                        <li>The message has been blocked and saved for teacher review</li>
+                        <li>{'A teacher will follow up within 24 hours' if has_serious_violation else 'This will be reviewed by your student\'s teacher'}</li>
+                        <li>We recommend having a conversation with {student.student_name} about appropriate AI tool usage</li>
+                    </ul>
+
+                    <h3>Content Safety Guidelines:</h3>
+                    <p>The AI Study Buddy is designed to help students learn through guided questions. Content that is violent, sexual, or involves cheating is not permitted.</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <p><strong>This is an automated notification from our content safety system.</strong></p>
+                    <a href="https://cozmiclearning.com/parent/analytics" class="btn">View Student Activity →</a>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Questions? Contact your student's teacher or CozmicLearning support.</p>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                    <a href="https://cozmiclearning.com/parent/email-preferences" style="color: #667eea;">Update email preferences</a>
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    text_body = f"""
+CozmicLearning - Content Safety Alert
+
+{severity} Notice:
+{student.student_name}'s message to the AI Study Buddy was flagged for review.
+
+Flagged Message:
+{message_preview}
+
+Reason: {flag_reason}
+
+What Happens Next:
+- The message has been blocked and saved for teacher review
+- {'A teacher will follow up within 24 hours' if has_serious_violation else 'This will be reviewed by your student\'s teacher'}
+- We recommend having a conversation with {student.student_name} about appropriate AI tool usage
+
+Content Safety Guidelines:
+The AI Study Buddy is designed to help students learn through guided questions. Content that is violent, sexual, or involves cheating is not permitted.
+
+View student activity: https://cozmiclearning.com/parent/analytics
+    """
+
+    msg = Message(
+        subject=subject,
+        recipients=[parent.email],
+        html=html_body,
+        body=text_body
+    )
+
+    try:
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Failed to send parent notification for flagged content: {e}")
+        return False
+
+
 def get_learning_toolkit_widget(student_id):
     """
     Get HTML for a persistent learning toolkit widget
@@ -742,7 +958,7 @@ def get_learning_toolkit_widget(student_id):
             tools_html += f'<a href="{link}" class="toolkit-quick-link">🔧 {tool.strategy_key.replace("_", " ").title()}</a>'
     else:
         # Default tools based on profile
-        if profile.focus_preference in ['short_bursts', 'every_15_min']:
+        if profile.focus_preference in ['short_burts', 'every_15_min']:
             tools_html += '<a href="/learning-lab/tools#pomodoro" class="toolkit-quick-link">⏰ Focus Timer</a>'
         if profile.reading_preference in ['hear_it', 'all_methods']:
             tools_html += '<a href="/learning-lab/tools#tts" class="toolkit-quick-link">🔊 Text-to-Speech</a>'

@@ -134,3 +134,19 @@ def should_notify_parent(moderation_result: dict, cheating_result: dict) -> bool
         return True
 
     return False
+
+
+def get_moderation_summary(moderation_result: dict) -> str:
+    """
+    Get a human-readable summary of moderation results.
+
+    Args:
+        moderation_result: Result from moderate_content()
+
+    Returns:
+        str: Summary like "Safe" or "Flagged for: Violence, Sexual"
+    """
+    if not moderation_result.get('flagged'):
+        return "Safe"
+
+    return moderation_result.get('reason', 'Flagged for policy violation')
