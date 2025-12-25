@@ -393,27 +393,57 @@ function addMessageToUI(text, isStudent) {
         emptyState.remove();
     }
 
+    // Clean markdown formatting (bold, italic, etc.)
+    let cleanText = text
+        .replace(/\*\*(.+?)\*\*/g, '$1')  // Remove **bold**
+        .replace(/\*(.+?)\*/g, '$1')      // Remove *italic*
+        .replace(/\_\_(.+?)\_\_/g, '$1')  // Remove __bold__
+        .replace(/\_(.+?)\_/g, '$1');     // Remove _italic_
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isStudent ? 'student' : 'ai'}`;
 
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
+    const messageBubble = document.createElement('div');
+    messageBubble.className = 'message-bubble';
+
     messageDiv.innerHTML = `
         <div class="message-avatar">
             ${isStudent ? '👤' : '🤖'}
         </div>
         <div>
-            <div class="message-bubble">
-                ${text}
-            </div>
             <div class="message-time">${timeStr}</div>
         </div>
     `;
 
+    // Insert bubble into the container div
+    messageDiv.querySelector('div:last-child').insertBefore(messageBubble, messageDiv.querySelector('.message-time'));
+
     // Insert before typing indicator
     messagesContainer.insertBefore(messageDiv, typingIndicator);
-    scrollToBottom();
+
+    // Typewriter effect for AI messages
+    if (!isStudent) {
+        let charIndex = 0;
+        messageBubble.textContent = '';
+
+        function typeChar() {
+            if (charIndex < cleanText.length) {
+                messageBubble.textContent += cleanText.charAt(charIndex);
+                charIndex++;
+                scrollToBottom();
+                setTimeout(typeChar, 15); // Adjust speed (ms per character)
+            }
+        }
+
+        typeChar();
+    } else {
+        // Student messages appear instantly
+        messageBubble.textContent = cleanText;
+        scrollToBottom();
+    }
 }
 
 // Event listeners
