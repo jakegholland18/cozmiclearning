@@ -16,14 +16,18 @@ def add_moderation_fields():
         print("Adding moderation fields to study_buddy_message table...")
 
         try:
-            # Add new columns
+            # Add new columns with PostgreSQL-compatible syntax
             with db.engine.connect() as conn:
-                # Check if columns exist first
-                result = conn.execute(text("PRAGMA table_info(study_buddy_message)"))
-                columns = [row[1] for row in result]
+                # Check if columns exist first (PostgreSQL method)
+                result = conn.execute(text("""
+                    SELECT column_name
+                    FROM information_schema.columns
+                    WHERE table_name='study_buddy_message'
+                """))
+                columns = [row[0] for row in result]
 
                 if 'flagged' not in columns:
-                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN flagged BOOLEAN DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN flagged BOOLEAN DEFAULT FALSE"))
                     print("  ✓ Added 'flagged' column")
 
                 if 'flagged_reason' not in columns:
@@ -31,15 +35,15 @@ def add_moderation_fields():
                     print("  ✓ Added 'flagged_reason' column")
 
                 if 'moderation_scores' not in columns:
-                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN moderation_scores JSON"))
+                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN moderation_scores JSONB"))
                     print("  ✓ Added 'moderation_scores' column")
 
                 if 'parent_notified' not in columns:
-                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN parent_notified BOOLEAN DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN parent_notified BOOLEAN DEFAULT FALSE"))
                     print("  ✓ Added 'parent_notified' column")
 
                 if 'reviewed' not in columns:
-                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN reviewed BOOLEAN DEFAULT 0"))
+                    conn.execute(text("ALTER TABLE study_buddy_message ADD COLUMN reviewed BOOLEAN DEFAULT FALSE"))
                     print("  ✓ Added 'reviewed' column")
 
                 if 'reviewer_notes' not in columns:
