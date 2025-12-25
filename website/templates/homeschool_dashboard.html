@@ -654,6 +654,54 @@
                         </div>
                     </div>
 
+                    {% if student.id in student_profiles %}
+                    {% set profile = student_profiles[student.id] %}
+                    <div style="background: linear-gradient(135deg, rgba(132,255,0,0.1), rgba(0,242,255,0.1)); border: 1px solid rgba(132,255,0,0.3); border-radius: 12px; padding: 16px; margin-top: 16px;">
+                        <h4 style="color: var(--success); margin-bottom: 12px; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
+                            🧠 Learning Profile
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div>
+                                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 4px;">Primary Learning Style</div>
+                                <div style="color: var(--text); font-weight: 600; font-size: 1rem;">
+                                    {% if profile.primary_learning_style == 'visual' %}👁️ Visual
+                                    {% elif profile.primary_learning_style == 'auditory' %}👂 Auditory
+                                    {% elif profile.primary_learning_style == 'kinesthetic' %}🤸 Kinesthetic
+                                    {% elif profile.primary_learning_style == 'reading_writing' %}📝 Reading/Writing
+                                    {% else %}{{ profile.primary_learning_style|title if profile.primary_learning_style else 'Not set' }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if profile.focus_preference %}
+                            <div>
+                                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 4px;">Focus Style</div>
+                                <div style="color: var(--text); font-weight: 600; font-size: 1rem;">{{ profile.focus_preference.replace('_', ' ')|title }}</div>
+                            </div>
+                            {% endif %}
+                            {% if profile.best_study_time %}
+                            <div>
+                                <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 4px;">Best Study Time</div>
+                                <div style="color: var(--text); font-weight: 600; font-size: 1rem;">{{ profile.best_study_time|title }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if profile.strengths_summary %}
+                        <div style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <div style="color: var(--muted-3); font-size: 0.85rem; margin-bottom: 4px;">Strengths</div>
+                            <div style="color: var(--muted-2); font-size: 0.9rem; line-height: 1.5;">{{ profile.strengths_summary }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div style="background: rgba(255,159,28,0.1); border: 1px solid rgba(255,159,28,0.3); border-radius: 12px; padding: 12px; margin-top: 16px; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">🧠</span>
+                        <div>
+                            <div style="color: var(--warning); font-weight: 600; font-size: 0.95rem;">Learning Profile Not Completed</div>
+                            <div style="color: var(--muted-3); font-size: 0.85rem;">Student hasn't taken the learning style quiz yet</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <a href="/parent/analytics?student_id={{ student.id }}" style="display: inline-block; margin-top: 12px; padding: 10px 20px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--text); text-decoration: none; border-radius: 8px; font-weight: 600;">
                         📊 View Full Report
                     </a>

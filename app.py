@@ -15188,10 +15188,18 @@ def parent_dashboard():
         )
         for s, data in session["progress"].items()
     }
-    
+
     # Get all planets for subject explorer from centralized config
     from subjects_config import get_subjects_for_display
     planets = get_subjects_for_display()
+
+    # Get learning profiles for linked students
+    student_profiles = {}
+    if parent and parent.students:
+        for student in parent.students:
+            profile = LearningProfile.query.filter_by(student_id=student.id).first()
+            if profile:
+                student_profiles[student.id] = profile
 
     return render_template(
         "parent_dashboard.html",
@@ -15209,6 +15217,7 @@ def parent_dashboard():
         assignments_limit=assignments_limit if assignments_limit != float('inf') else None,
         trial_days_remaining=trial_days_remaining,
         planets=planets,
+        student_profiles=student_profiles,
     )
 
 
@@ -15395,10 +15404,18 @@ def homeschool_dashboard():
         )
         for s, data in session["progress"].items()
     }
-    
+
     # Get all planets for subject explorer from centralized config
     from subjects_config import get_subjects_for_display
     planets = get_subjects_for_display()
+
+    # Get learning profiles for linked students
+    student_profiles = {}
+    if parent and parent.students:
+        for student in parent.students:
+            profile = LearningProfile.query.filter_by(student_id=student.id).first()
+            if profile:
+                student_profiles[student.id] = profile
 
     return render_template(
         "homeschool_dashboard.html",
@@ -15416,6 +15433,7 @@ def homeschool_dashboard():
         assignments_limit=assignments_limit if assignments_limit != float('inf') else None,
         trial_days_remaining=trial_days_remaining,
         planets=planets,
+        student_profiles=student_profiles,
     )
 
 
