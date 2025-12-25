@@ -1136,7 +1136,7 @@
                     </button>
                 </div>
 
-                <a href="/learning-lab/study-buddy?return_url={{ request.full_path|urlencode }}" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #84ff00, #00f2ff); color: #0b0f1a; text-decoration: none; border-radius: 10px; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <a href="/learning-lab/study-buddy?return_url={{ (request.path + '?' + request.query_string.decode() if request.query_string else request.path)|urlencode }}" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #84ff00, #00f2ff); color: #0b0f1a; text-decoration: none; border-radius: 10px; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     💬 Start Conversation
                 </a>
             </div>

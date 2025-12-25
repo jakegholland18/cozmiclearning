@@ -8795,11 +8795,11 @@ def study_buddy():
 
     # Validate return_url is from our domain
     if return_url and not return_url.startswith('/'):
-        # If it's a full URL, extract just the path
+        # If it's a full URL, extract the path and query string
         from urllib.parse import urlparse
         parsed = urlparse(return_url)
         if parsed.netloc in ['cozmiclearning.com', 'www.cozmiclearning.com', 'localhost', '127.0.0.1']:
-            return_url = parsed.path
+            return_url = parsed.path + ('?' + parsed.query if parsed.query else '')
         else:
             return_url = None
 
