@@ -699,6 +699,102 @@ def adapt_content_to_learning_style(content, learning_style):
     return content + "\n".join(enhancements)
 
 
+def get_study_tips_for_topic(student_id, topic_or_lesson_title, subject=None):
+    """
+    Generate personalized study tips based on what the student is currently learning.
+
+    Args:
+        student_id: ID of the student
+        topic_or_lesson_title: The lesson title or topic they're studying
+        subject: Optional subject area (math, science, history, etc.)
+
+    Returns:
+        Dictionary with personalized study tips and AI Study Buddy context
+    """
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+
+    # Default tips if no profile
+    if not profile or not profile.quiz_completed:
+        return {
+            'has_profile': False,
+            'tips': [
+                "Break this topic into smaller chunks and study one at a time",
+                "Try teaching the concept to someone else (or explain it out loud)",
+                "Create practice questions to test yourself"
+            ],
+            'study_buddy_prompt': f"I'm learning about {topic_or_lesson_title}. How should I study this topic effectively?",
+            'cta': 'Take the Learning Lab quiz to get personalized study tips!',
+            'cta_link': '/learning-lab/quiz'
+        }
+
+    # Get learning style
+    learning_style = profile.primary_learning_style
+
+    # Generate style-specific tips
+    tips = []
+    tools = []
+
+    if learning_style == 'visual':
+        tips.append(f"📊 Create a visual mind map or diagram of '{topic_or_lesson_title}'")
+        tips.append("🎨 Use different colors to highlight key concepts and relationships")
+        tips.append("📸 Draw pictures or find images that represent the main ideas")
+        tools.append({'name': 'Color-coded notes', 'icon': '🎨'})
+
+    elif learning_style == 'auditory':
+        tips.append(f"🗣️ Explain '{topic_or_lesson_title}' out loud in your own words")
+        tips.append("🎵 Create a song or rhyme to remember key facts")
+        tips.append("👂 Record yourself explaining the concept and listen back")
+        tools.append({'name': 'Text-to-Speech', 'icon': '🔊', 'link': '/learning-lab/tools#tts'})
+
+    elif learning_style == 'kinesthetic':
+        tips.append(f"🤸 Act out or build a model related to '{topic_or_lesson_title}'")
+        tips.append("🚶 Take a walk while reviewing the key concepts")
+        tips.append("✋ Use hand gestures or movements to represent different ideas")
+        tools.append({'name': 'Movement Breaks', 'icon': '🏃'})
+
+    elif learning_style == 'reading_writing':
+        tips.append(f"📝 Write a detailed summary of '{topic_or_lesson_title}' in your own words")
+        tips.append("📋 Create an outline with main points and sub-points")
+        tips.append("📚 Rewrite your notes in a different format (list, table, etc.)")
+        tools.append({'name': 'Note-taking strategies', 'icon': '📝'})
+
+    # Add focus-based tips
+    if profile.focus_preference in ['short_bursts', 'every_15_min']:
+        tips.append("⏰ Study for 15-25 minutes, then take a 5-minute break")
+        tools.append({'name': 'Pomodoro Timer', 'icon': '⏰', 'link': '/learning-lab/tools#pomodoro'})
+
+    # Subject-specific tips
+    subject_tips = {
+        'math': "Work through example problems step by step, then try similar ones on your own",
+        'science': "Connect concepts to real-world examples you can observe",
+        'history': "Create a timeline to see how events connect and flow",
+        'english': "Identify themes and make connections to your own experiences",
+        'bible': "Reflect on how the passage applies to modern life"
+    }
+
+    if subject and subject.lower() in subject_tips:
+        tips.append(f"📚 {subject_tips[subject.lower()]}")
+
+    # Generate AI Study Buddy prompts
+    study_buddy_prompts = [
+        f"I'm learning about {topic_or_lesson_title}. What are the most important concepts I should focus on?",
+        f"Can you help me understand {topic_or_lesson_title} using the Socratic method?",
+        f"I'm studying {topic_or_lesson_title}. What questions should I ask myself to test my understanding?",
+        f"How should I approach studying {topic_or_lesson_title} as a {learning_style.replace('_', ' ')} learner?"
+    ]
+
+    return {
+        'has_profile': True,
+        'learning_style': learning_style.replace('_', ' ').title(),
+        'tips': tips[:4],  # Top 4 tips
+        'tools': tools[:2],  # Top 2 tools
+        'study_buddy_prompts': study_buddy_prompts,
+        'recommended_prompt': study_buddy_prompts[0],
+        'topic': topic_or_lesson_title,
+        'study_buddy_link': '/learning-lab/study-buddy'
+    }
+
+
 def send_parent_notification_flagged_content(student_id, message_content, flag_reason, flag_categories):
     """
     Send email notification to parent about flagged AI Study Buddy content.

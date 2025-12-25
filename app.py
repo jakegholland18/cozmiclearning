@@ -13144,6 +13144,13 @@ def view_lesson():
     # Initialize chat history for this lesson
     session[f"lesson_chat_{topic}"] = []
 
+    # Get personalized study tips for this lesson
+    from modules.learning_lab_helper import get_study_tips_for_topic
+    student_id = session.get('student_id')
+    study_tips = None
+    if student_id:
+        study_tips = get_study_tips_for_topic(student_id, topic, subject)
+
     return render_template(
         "view_lesson.html",
         subject=subject,
@@ -13152,7 +13159,8 @@ def view_lesson():
         lesson=result["lesson"],
         character=character,
         chapter_id=chapter_id,
-        chapter=chapter if chapter_id else None
+        chapter=chapter if chapter_id else None,
+        study_tips=study_tips
     )
 
 

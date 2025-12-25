@@ -485,6 +485,21 @@ messageInput.addEventListener('keypress', (e) => {
     }
 });
 
+// Check for prefilled content from lesson page
+const prefilledPrompt = sessionStorage.getItem('study_buddy_prefill');
+if (prefilledPrompt) {
+    messageInput.value = prefilledPrompt;
+    sessionStorage.removeItem('study_buddy_prefill');  // Clear it after using
+
+    // Flash the input to draw attention
+    messageInput.style.border = '2px solid #84ff00';
+    messageInput.style.boxShadow = '0 0 20px rgba(132, 255, 0, 0.5)';
+    setTimeout(() => {
+        messageInput.style.border = '2px solid rgba(167, 139, 250, 0.3)';
+        messageInput.style.boxShadow = 'none';
+    }, 2000);
+}
+
 // Focus input on load
 messageInput.focus();
 

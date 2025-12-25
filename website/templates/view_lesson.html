@@ -456,6 +456,88 @@
         </div>
     </div>
 
+    <!-- AI STUDY BUDDY - HOW TO STUDY THIS TOPIC -->
+    {% if study_tips %}
+    <div class="lesson-section" style="background: linear-gradient(135deg, rgba(132, 255, 0, 0.12), rgba(0, 242, 255, 0.08)); border-color: rgba(132, 255, 0, 0.4);">
+        <div class="section-title" style="color: #84ff00;">🤖 AI Study Buddy - Study Tips for You</div>
+
+        {% if study_tips.has_profile %}
+        <div style="background: rgba(132, 255, 0, 0.1); border-left: 4px solid #84ff00; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="font-size: 0.9rem; color: #c4d1ff; margin-bottom: 12px;">
+                ✨ Personalized for <strong>{{ study_tips.learning_style }}</strong> learners
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #84ff00;">How to study "{{ study_tips.topic }}":</strong>
+                <ul style="margin: 10px 0; padding-left: 20px; color: #c5daf5;">
+                    {% for tip in study_tips.tips %}
+                    <li style="margin: 8px 0;">{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(132, 255, 0, 0.3);">
+                <div style="margin-bottom: 12px; color: #c4d1ff; font-size: 0.95rem;">
+                    <strong>💬 Ask the AI Study Buddy:</strong>
+                </div>
+                <div style="display: grid; gap: 8px;">
+                    {% for prompt in study_tips.study_buddy_prompts[:3] %}
+                    <button onclick="openStudyBuddy('{{ prompt }}')" style="
+                        padding: 10px 15px;
+                        background: linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 242, 255, 0.15));
+                        border: 2px solid rgba(132, 255, 0, 0.4);
+                        border-radius: 10px;
+                        color: #c5daf5;
+                        font-size: 0.9rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        text-align: left;
+                    " onmouseover="this.style.background='linear-gradient(135deg, rgba(132, 255, 0, 0.3), rgba(0, 242, 255, 0.2))'; this.style.borderColor='rgba(132, 255, 0, 0.6)'; this.style.transform='translateX(5px)';"
+                       onmouseout="this.style.background='linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 242, 255, 0.15))'; this.style.borderColor='rgba(132, 255, 0, 0.4)'; this.style.transform='translateX(0)';">
+                        💡 {{ prompt }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="{{ study_tips.study_buddy_link }}" style="
+                        display: inline-block;
+                        padding: 12px 25px;
+                        background: linear-gradient(135deg, #84ff00, #00f2ff);
+                        border-radius: 10px;
+                        color: #0a0e27;
+                        font-weight: 700;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 0 20px rgba(132, 255, 0, 0.4);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 0 30px rgba(132, 255, 0, 0.6)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 20px rgba(132, 255, 0, 0.4)';">
+                        🤖 Open AI Study Buddy
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="background: rgba(132, 255, 0, 0.1); border-left: 4px solid #84ff00; padding: 15px; border-radius: 8px;">
+            <p style="color: #c5daf5; margin: 0 0 15px 0;">
+                Want personalized study tips based on YOUR learning style?
+            </p>
+            <a href="{{ study_tips.cta_link }}" style="
+                display: inline-block;
+                padding: 12px 25px;
+                background: linear-gradient(135deg, #84ff00, #00f2ff);
+                border-radius: 10px;
+                color: #0a0e27;
+                font-weight: 700;
+                text-decoration: none;
+                transition: all 0.3s ease;
+            " onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                {{ study_tips.cta }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <!-- FOLLOW-UP CHAT -->
     <div class="chat-section">
         <div class="chat-title">💬 Chat with {{ character.title() }}</div>
@@ -475,6 +557,14 @@
 </div>
 
 <script>
+// Open Study Buddy with pre-filled question
+function openStudyBuddy(prompt) {
+    // Store the prompt in sessionStorage so Study Buddy can auto-fill it
+    sessionStorage.setItem('study_buddy_prefill', prompt);
+    // Navigate to Study Buddy
+    window.location.href = '/learning-lab/study-buddy';
+}
+
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
