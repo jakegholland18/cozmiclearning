@@ -1103,6 +1103,20 @@
             <pre class="section-content">{{ answer }}</pre>
         </div>
     {% endif %}
+
+    <!-- AI STUDY BUDDY INFO BOX - Positioned after answer when student might want ongoing help -->
+    <div style="max-width: 900px; margin: 20px auto; background: linear-gradient(135deg, rgba(132, 255, 0, 0.12), rgba(0, 242, 255, 0.08)); border: 2px solid rgba(132, 255, 0, 0.4); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 3rem; flex-shrink: 0;">🤖</div>
+            <div style="flex: 1;">
+                <h3 style="color: #84ff00; margin: 0 0 8px 0; font-size: 1.3rem; font-weight: 700;">Need Ongoing Help?</h3>
+                <p style="color: #c4d1ff; margin: 0 0 12px 0; line-height: 1.6;">The AI Study Buddy remembers your conversations and adapts to your learning style! Perfect for homework help and deeper understanding.</p>
+                <a href="/learning-lab/study-buddy" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #84ff00, #00f2ff); color: #0b0f1a; text-decoration: none; border-radius: 10px; font-weight: 700; transition: all 0.3s; box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    💬 Chat with AI Study Buddy
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- FEATURE #13: Enhanced Practice Options -->
