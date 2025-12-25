@@ -562,17 +562,6 @@
 </div>
 
 <script>
-// Attach event listeners to Study Buddy prompt buttons
-document.addEventListener('DOMContentLoaded', function() {
-    const promptButtons = document.querySelectorAll('.study-buddy-prompt-btn');
-    promptButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const prompt = this.getAttribute('data-prompt');
-            openStudyBuddy(prompt);
-        });
-    });
-});
-
 // Open Study Buddy with pre-filled question
 function openStudyBuddy(prompt) {
     console.log('openStudyBuddy called with:', prompt);
@@ -621,6 +610,19 @@ function openStudyBuddy(prompt) {
 const chatMessages = document.getElementById('chatMessages');
 const chatInput = document.getElementById('chatInput');
 const chatSendBtn = document.getElementById('chatSendBtn');
+
+// Attach event listeners to Study Buddy prompt buttons
+const promptButtons = document.querySelectorAll('.study-buddy-prompt-btn');
+console.log('Found', promptButtons.length, 'Study Buddy prompt buttons');
+promptButtons.forEach((button, index) => {
+    console.log('Attaching listener to button', index);
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const prompt = this.getAttribute('data-prompt');
+        console.log('Button clicked! Prompt:', prompt);
+        openStudyBuddy(prompt);
+    });
+});
 
 // Allow Enter key to send
 chatInput.addEventListener('keypress', (e) => {
