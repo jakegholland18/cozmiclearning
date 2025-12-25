@@ -8857,9 +8857,17 @@ def study_buddy_send():
     system_prompt += "\n\nIMPORTANT: Never give direct answers to homework. Use the Socratic method - ask questions that guide the student to discover the answer themselves. Be encouraging and supportive."
 
     try:
-        # Call OpenAI API using the existing ai_client module
+        # Import OpenAI client
         from modules.ai_client import client
 
+        # Check if OpenAI API key is configured
+        if not os.getenv('OPENAI_API_KEY'):
+            return jsonify({
+                'error': 'AI Study Buddy is not configured. Please contact your administrator.',
+                'success': False
+            }), 500
+
+        # Call OpenAI API
         response = client.chat.completions.create(
             model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
             messages=[
@@ -8887,11 +8895,20 @@ def study_buddy_send():
             'message': ai_message
         })
 
-    except Exception as e:
-        print(f"OpenAI API error: {e}")
+    except ImportError as e:
+        print(f"Import error: {e}")
         return jsonify({
-            'error': 'Sorry, I encountered an error. Please try again.',
-            'details': str(e)
+            'error': 'AI module not found. Please contact support.',
+            'success': False
+        }), 500
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Study Buddy AI error: {e}")
+        print(error_details)
+        return jsonify({
+            'error': 'Sorry, I encountered an error. Please try again in a moment.',
+            'success': False
         }), 500
 
 
