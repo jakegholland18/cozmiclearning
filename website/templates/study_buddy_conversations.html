@@ -1,0 +1,261 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+body {
+    background: linear-gradient(135deg, #2d3561 0%, #3d2d4f 100%);
+}
+
+.conversations-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(236, 72, 153, 0.15));
+    border: 2px solid rgba(167, 139, 250, 0.4);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.page-header h1 {
+    color: #e0d9ff;
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+}
+
+.page-header p {
+    color: #c4d1ff;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: rgba(167, 139, 250, 0.2);
+    border: 2px solid rgba(167, 139, 250, 0.4);
+    border-radius: 12px;
+    color: #a78bfa;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background: rgba(167, 139, 250, 0.3);
+    transform: translateX(-3px);
+}
+
+.conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.conversation-card {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+    border: 2px solid rgba(167, 139, 250, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.conversation-card:hover {
+    border-color: rgba(132, 255, 0, 0.5);
+    background: linear-gradient(135deg, rgba(132, 255, 0, 0.1), rgba(0, 242, 255, 0.05));
+    transform: translateX(5px);
+}
+
+.conversation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.conversation-title {
+    color: #e0d9ff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    flex: 1;
+}
+
+.conversation-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.conversation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.resume-btn {
+    background: linear-gradient(135deg, #84ff00, #00f2ff);
+    color: #0b0f1a;
+}
+
+.resume-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(132, 255, 0, 0.4);
+}
+
+.delete-btn {
+    background: rgba(255, 59, 59, 0.2);
+    border: 2px solid rgba(255, 59, 59, 0.4);
+    color: #ff3b3b;
+}
+
+.delete-btn:hover {
+    background: rgba(255, 59, 59, 0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #c4d1ff;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: #e0d9ff;
+    margin: 0 0 10px 0;
+}
+
+.empty-state p {
+    opacity: 0.8;
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+}
+
+.start-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #84ff00, #00f2ff);
+    color: #0b0f1a;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(132, 255, 0, 0.4);
+}
+
+.start-btn:hover {
+    transform: translateY(-2px);
+}
+
+.conversation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: rgba(0, 242, 255, 0.15);
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    border-radius: 12px;
+    color: #00f2ff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+</style>
+
+<div class="conversations-container">
+    <a href="/learning-lab/study-buddy" class="back-link">← Back to Study Buddy</a>
+
+    <div class="page-header">
+        <h1>📚 My Conversations</h1>
+        <p>Review and resume your past AI Study Buddy conversations</p>
+    </div>
+
+    {% if conversations|length > 0 %}
+        <div class="conversation-list">
+            {% for conv in conversations %}
+            <div class="conversation-card">
+                <div class="conversation-header">
+                    <div style="flex: 1;">
+                        <h3 class="conversation-title">{{ conv.title }}</h3>
+                        <div class="conversation-meta">
+                            <span>💬 {{ conv.message_count }} messages</span>
+                            <span>📅 {{ conv.last_message_at.strftime('%b %d, %Y') }}</span>
+                            {% if conv.is_active %}
+                            <span class="conversation-badge">✨ Active</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="conversation-actions">
+                        <a href="/learning-lab/study-buddy?conversation_id={{ conv.id }}" class="action-btn resume-btn">
+                            Resume
+                        </a>
+                        <button onclick="deleteConversation({{ conv.id }}, event)" class="action-btn delete-btn">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">💬</div>
+            <h3>No conversations yet!</h3>
+            <p>Start chatting with the AI Study Buddy to create your first conversation. Each topic will be saved so you can review it later.</p>
+            <a href="/learning-lab/study-buddy" class="start-btn">
+                Start Your First Conversation →
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+async function deleteConversation(conversationId, event) {
+    event.stopPropagation();  // Prevent card click
+
+    if (!confirm('Delete this conversation? This cannot be undone!')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/learning-lab/study-buddy/delete-conversation/${conversationId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Reload page to update list
+            window.location.reload();
+        } else {
+            alert('Failed to delete conversation. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error deleting conversation:', error);
+        alert('Failed to delete conversation. Please try again.');
+    }
+}
+</script>
+
+{% endblock %}
