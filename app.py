@@ -13450,21 +13450,21 @@ def subject_answer():
         log_entry = QuestionLog(
             student_id=student_id,
             question_text=question,
-            sanitized_text=moderation_result.get("sanitized_text"),
+            sanitized_text=question,  # No sanitization in moderate_content
             subject=subject,
             context="question",
             grade_level=grade,
             flagged=moderation_result.get("flagged", False),
-            allowed=moderation_result.get("allowed", True),
+            allowed=not moderation_result.get("flagged", False),  # Allowed = not flagged
             moderation_reason=moderation_result.get("reason"),
-            moderation_data_json=str(moderation_result.get("moderation_data", {})),
-            severity=moderation_result.get("severity", "low")
+            moderation_data_json=str(moderation_result.get("categories", {})),
+            severity="high" if moderation_result.get("flagged", False) else "low"
         )
         db.session.add(log_entry)
         db.session.commit()
     
-    # If content was blocked, show error and don't process
-    if not moderation_result["allowed"]:
+    # If content was flagged, show error and don't process
+    if moderation_result.get("flagged", False):
         warning = moderation_result.get("warning")
         if warning:
             flash(warning, "warning")
@@ -13632,21 +13632,21 @@ def followup_message():
         log_entry = QuestionLog(
             student_id=student_id,
             question_text=message,
-            sanitized_text=moderation_result.get("sanitized_text"),
+            sanitized_text=message,  # No sanitization in moderate_content
             subject=subject,
             context="subject_followup" if subject else "deep_study_chat",
             grade_level=grade,
             flagged=moderation_result.get("flagged", False),
-            allowed=moderation_result.get("allowed", True),
+            allowed=not moderation_result.get("flagged", False),  # Allowed = not flagged
             moderation_reason=moderation_result.get("reason"),
-            moderation_data_json=str(moderation_result.get("moderation_data", {})),
-            severity=moderation_result.get("severity", "low")
+            moderation_data_json=str(moderation_result.get("categories", {})),
+            severity="high" if moderation_result.get("flagged", False) else "low"
         )
         db.session.add(log_entry)
         db.session.commit()
-    
+
     # If blocked, return error
-    if not moderation_result["allowed"]:
+    if moderation_result.get("flagged", False):
         return jsonify({
             "error": moderation_result.get("reason", "Message could not be processed."),
             "warning": moderation_result.get("warning"),
@@ -13738,20 +13738,20 @@ def deep_study_message():
         log_entry = QuestionLog(
             student_id=student_id,
             question_text=message,
-            sanitized_text=moderation_result.get("sanitized_text"),
+            sanitized_text=message,  # No sanitization in moderate_content
             context="deep_study_message",
             grade_level=grade,
             flagged=moderation_result.get("flagged", False),
-            allowed=moderation_result.get("allowed", True),
+            allowed=not moderation_result.get("flagged", False),  # Allowed = not flagged
             moderation_reason=moderation_result.get("reason"),
-            moderation_data_json=str(moderation_result.get("moderation_data", {})),
-            severity=moderation_result.get("severity", "low")
+            moderation_data_json=str(moderation_result.get("categories", {})),
+            severity="high" if moderation_result.get("flagged", False) else "low"
         )
         db.session.add(log_entry)
         db.session.commit()
-    
+
     # If blocked, return error
-    if not moderation_result["allowed"]:
+    if moderation_result.get("flagged", False):
         return jsonify({
             "error": moderation_result.get("reason", "Message could not be processed."),
             "warning": moderation_result.get("warning"),
@@ -13919,21 +13919,21 @@ def powergrid_submit():
             log_entry = QuestionLog(
                 student_id=student_id,
                 question_text=topic,
-                sanitized_text=moderation_result.get("sanitized_text"),
+                sanitized_text=topic,  # No sanitization in moderate_content
                 subject="power_grid",
                 context="powergrid",
                 grade_level=grade,
                 flagged=moderation_result.get("flagged", False),
-                allowed=moderation_result.get("allowed", True),
+                allowed=not moderation_result.get("flagged", False),  # Allowed = not flagged
                 moderation_reason=moderation_result.get("reason"),
-                moderation_data_json=str(moderation_result.get("moderation_data", {})),
-                severity=moderation_result.get("severity", "low")
+                moderation_data_json=str(moderation_result.get("categories", {})),
+                severity="high" if moderation_result.get("flagged", False) else "low"
             )
             db.session.add(log_entry)
             db.session.commit()
-        
+
         # If blocked, redirect with error
-        if not moderation_result["allowed"]:
+        if moderation_result.get("flagged", False):
             warning = moderation_result.get("warning")
             if warning:
                 flash(warning, "warning")
