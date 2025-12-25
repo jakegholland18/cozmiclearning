@@ -322,8 +322,10 @@ body {
             id="messageInput"
             placeholder="Ask me a question..."
             autocomplete="off"
+            maxlength="1000"
         >
         <button id="sendButton">Send</button>
+        <span id="charCount" style="font-size: 0.75rem; color: #999; margin-left: 10px;">0/1000</span>
     </div>
 </div>
 
@@ -332,6 +334,14 @@ const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 const messagesContainer = document.getElementById('messagesContainer');
 const typingIndicator = document.getElementById('typingIndicator');
+const charCount = document.getElementById('charCount');
+
+// Update character count as user types
+messageInput.addEventListener('input', () => {
+    const length = messageInput.value.length;
+    charCount.textContent = `${length}/1000`;
+    charCount.style.color = length > 900 ? '#ff6b6b' : '#999';
+});
 
 // Auto-scroll to bottom
 function scrollToBottom() {
@@ -341,7 +351,22 @@ function scrollToBottom() {
 // Send message
 async function sendMessage() {
     const message = messageInput.value.trim();
+
+    // INPUT VALIDATION
     if (!message) return;
+
+    // Length validation
+    if (message.length > 1000) {
+        alert('Message is too long. Please keep it under 1000 characters.');
+        return;
+    }
+
+    // Basic content filtering (client-side first line of defense)
+    const suspiciousPatterns = /<script|javascript:|onerror=|onclick=/i;
+    if (suspiciousPatterns.test(message)) {
+        alert('Your message contains invalid characters. Please rephrase.');
+        return;
+    }
 
     // Disable input
     messageInput.disabled = true;
@@ -372,10 +397,16 @@ async function sendMessage() {
         if (data.success) {
             addMessageToUI(data.message, false);
         } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
+            // Handle rate limiting gracefully
+            if (response.status === 429) {
+                alert('You\'re sending messages too quickly. Please wait a moment and try again.');
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
         }
     } catch (error) {
         typingIndicator.style.display = 'none';
+        console.error('Send message error:', error);
         alert('Failed to send message. Please try again.');
     }
 
