@@ -1291,3 +1291,121 @@ class StrategyUsage(db.Model):
         return f'<StrategyUsage student={self.student_id} strategy={self.strategy_key} used={self.times_used}x>'
 
 
+class PomodoroSession(db.Model):
+    """
+    Tracks Pomodoro timer sessions for focus tracking and analytics.
+    """
+    __tablename__ = 'pomodoro_session'
+    __table_args__ = (
+        db.Index('idx_pomodoro_student_date', 'student_id', 'session_date'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    session_date = db.Column(db.DateTime, default=datetime.utcnow)
+    work_duration = db.Column(db.Integer)  # minutes completed
+    break_duration = db.Column(db.Integer)  # minutes
+    completed = db.Column(db.Boolean, default=False)
+    interrupted = db.Column(db.Boolean, default=False)
+    focus_rating = db.Column(db.Integer, nullable=True)  # 1-5, self-reported
+
+    student = db.relationship('Student', backref='pomodoro_sessions')
+
+    def __repr__(self):
+        return f'<PomodoroSession student={self.student_id} duration={self.work_duration}min completed={self.completed}>'
+
+
+class StudyBuddyMessage(db.Model):
+    """
+    Stores AI Study Buddy conversation history.
+    """
+    __tablename__ = 'study_buddy_message'
+    __table_args__ = (
+        db.Index('idx_study_buddy_student_time', 'student_id', 'timestamp'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_student = db.Column(db.Boolean, nullable=False)  # True = from student, False = from AI
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    topic = db.Column(db.String(100), nullable=True)  # What topic was discussed
+    learning_style_used = db.Column(db.String(50), nullable=True)  # Which style AI adapted to
+    helpful_rating = db.Column(db.Integer, nullable=True)  # Student feedback on AI response
+
+    student = db.relationship('Student', backref='study_buddy_messages')
+
+    def __repr__(self):
+        return f'<StudyBuddyMessage student={self.student_id} from_student={self.is_student}>'
+
+
+class TaskBreakdown(db.Model):
+    """
+    AI-generated task breakdowns for assignments.
+    """
+    __tablename__ = 'task_breakdown'
+    __table_args__ = (
+        db.Index('idx_task_breakdown_student', 'student_id'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    assignment_id = db.Column(db.Integer, nullable=True)  # Optional link to assignment
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed = db.Column(db.Boolean, default=False)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    student = db.relationship('Student', backref='task_breakdowns')
+    steps = db.relationship('TaskStep', backref='breakdown', cascade='all, delete-orphan', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<TaskBreakdown id={self.id} title="{self.title}" completed={self.completed}>'
+
+
+class TaskStep(db.Model):
+    """
+    Individual steps in a task breakdown.
+    """
+    __tablename__ = 'task_step'
+
+    id = db.Column(db.Integer, primary_key=True)
+    breakdown_id = db.Column(db.Integer, db.ForeignKey("task_breakdown.id", ondelete="CASCADE"), nullable=False)
+    step_number = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    estimated_minutes = db.Column(db.Integer, nullable=True)
+    completed = db.Column(db.Boolean, default=False)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    actual_minutes = db.Column(db.Integer, nullable=True)  # How long it actually took
+
+    def __repr__(self):
+        return f'<TaskStep breakdown={self.breakdown_id} step={self.step_number} completed={self.completed}>'
+
+
+class AIAssignment(db.Model):
+    """
+    AI-generated multi-modal assignments for teachers.
+    """
+    __tablename__ = 'ai_assignment'
+    __table_args__ = (
+        db.Index('idx_ai_assignment_teacher', 'teacher_id'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey("teachers.id", ondelete="CASCADE"), nullable=False)
+    topic = db.Column(db.String(200), nullable=False)
+    grade_level = db.Column(db.String(20))
+    subject = db.Column(db.String(100), nullable=True)
+    objectives = db.Column(db.Text)
+    generated_content = db.Column(db.JSON)  # All 4 learning style versions
+    rubric = db.Column(db.JSON)  # Scoring rubric
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_published = db.Column(db.Boolean, default=False)  # Has teacher shared it with students
+
+    teacher = db.relationship('Teacher', backref='ai_assignments')
+
+    def __repr__(self):
+        return f'<AIAssignment id={self.id} topic="{self.topic}" teacher={self.teacher_id}>'
+
+

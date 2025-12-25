@@ -8682,6 +8682,339 @@ def learning_lab_tools():
 
 
 # ============================================================
+# INTERACTIVE LEARNING TOOLS - POMODORO TIMER
+# ============================================================
+
+@app.route("/learning-lab/pomodoro/start", methods=["POST"])
+@csrf.exempt
+def pomodoro_start():
+    """Start a new Pomodoro session"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    work_duration = request.json.get('work_duration', 25)
+
+    # Create new session
+    pomodoro = PomodoroSession(
+        student_id=student_id,
+        work_duration=work_duration,
+        completed=False
+    )
+    db.session.add(pomodoro)
+    safe_db_commit()
+
+    return jsonify({
+        'success': True,
+        'session_id': pomodoro.id
+    })
+
+
+@app.route("/learning-lab/pomodoro/complete", methods=["POST"])
+@csrf.exempt
+def pomodoro_complete():
+    """Mark Pomodoro session as complete"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    session_id = request.json.get('session_id')
+    focus_rating = request.json.get('focus_rating')
+    interrupted = request.json.get('interrupted', False)
+
+    pomodoro = PomodoroSession.query.get(session_id)
+    if pomodoro and pomodoro.student_id == student_id:
+        pomodoro.completed = not interrupted
+        pomodoro.interrupted = interrupted
+        pomodoro.focus_rating = focus_rating
+        safe_db_commit()
+
+        return jsonify({'success': True})
+
+    return jsonify({'error': 'Session not found'}), 404
+
+
+@app.route("/learning-lab/pomodoro/stats")
+def pomodoro_stats():
+    """Get Pomodoro statistics"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return redirect('/student/login')
+
+    # Last 7 days
+    week_ago = datetime.utcnow() - timedelta(days=7)
+
+    sessions = PomodoroSession.query.filter(
+        PomodoroSession.student_id == student_id,
+        PomodoroSession.session_date >= week_ago,
+        PomodoroSession.completed == True
+    ).all()
+
+    total_sessions = len(sessions)
+    total_minutes = sum(s.work_duration for s in sessions if s.work_duration)
+    avg_focus = sum(s.focus_rating for s in sessions if s.focus_rating) / total_sessions if total_sessions > 0 else 0
+
+    return jsonify({
+        'total_sessions': total_sessions,
+        'total_minutes': total_minutes,
+        'average_focus': round(avg_focus, 1),
+        'sessions_today': len([s for s in sessions if s.session_date.date() == datetime.utcnow().date()])
+    })
+
+
+# ============================================================
+# INTERACTIVE LEARNING TOOLS - STUDY BUDDY AI
+# ============================================================
+
+@app.route("/learning-lab/study-buddy")
+def study_buddy():
+    """Study Buddy AI chat interface"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        flash("Learning Lab is for students only", "error")
+        return redirect(url_for('dashboard'))
+
+    student = Student.query.get(student_id)
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+
+    # Get recent messages
+    messages = StudyBuddyMessage.query.filter_by(
+        student_id=student_id
+    ).order_by(StudyBuddyMessage.timestamp.desc()).limit(50).all()
+    messages.reverse()  # Show oldest first
+
+    return render_template('study_buddy.html',
+                         student=student,
+                         profile=profile,
+                         messages=messages)
+
+
+@app.route("/learning-lab/study-buddy/send", methods=["POST"])
+@csrf.exempt
+def study_buddy_send():
+    """Send message to Study Buddy AI"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    user_message = request.json.get('message', '').strip()
+    if not user_message:
+        return jsonify({'error': 'Empty message'}), 400
+
+    # Get student profile for personalization
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+    learning_style = profile.primary_learning_style if profile else 'reading_writing'
+
+    # Save student message
+    student_msg = StudyBuddyMessage(
+        student_id=student_id,
+        message=user_message,
+        is_student=True
+    )
+    db.session.add(student_msg)
+    safe_db_commit()
+
+    # Get conversation history
+    recent_messages = StudyBuddyMessage.query.filter_by(
+        student_id=student_id
+    ).order_by(StudyBuddyMessage.timestamp.desc()).limit(10).all()
+    recent_messages.reverse()
+
+    # Build context for AI
+    conversation_history = []
+    for msg in recent_messages[:-1]:  # Exclude the message we just added
+        role = "user" if msg.is_student else "assistant"
+        conversation_history.append({
+            "role": role,
+            "content": msg.message
+        })
+
+    # Add the current message
+    conversation_history.append({
+        "role": "user",
+        "content": user_message
+    })
+
+    # System prompt based on learning style
+    system_prompts = {
+        'visual': "You are a helpful study buddy AI. When explaining concepts, prioritize visual descriptions, suggest creating diagrams, and use spatial language. Encourage the student to draw or visualize concepts.",
+        'auditory': "You are a helpful study buddy AI. When explaining concepts, use verbal explanations, suggest reading aloud, and use sound/rhythm analogies. Encourage discussion and talking through problems.",
+        'kinesthetic': "You are a helpful study buddy AI. When explaining concepts, suggest hands-on activities, use movement metaphors, and encourage physical demonstrations. Recommend building or acting out concepts.",
+        'reading_writing': "You are a helpful study buddy AI. When explaining concepts, provide detailed text explanations, suggest taking notes, and encourage written summaries. Use organized lists and outlines."
+    }
+
+    system_prompt = system_prompts.get(learning_style, system_prompts['reading_writing'])
+    system_prompt += "\n\nIMPORTANT: Never give direct answers to homework. Use the Socratic method - ask questions that guide the student to discover the answer themselves. Be encouraging and supportive."
+
+    try:
+        # Call OpenAI API using the existing ai_client module
+        from modules.ai_client import client
+
+        response = client.chat.completions.create(
+            model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
+            messages=[
+                {"role": "system", "content": system_prompt},
+                *conversation_history
+            ],
+            max_tokens=300,
+            temperature=0.7
+        )
+
+        ai_message = response.choices[0].message.content
+
+        # Save AI response
+        ai_msg = StudyBuddyMessage(
+            student_id=student_id,
+            message=ai_message,
+            is_student=False,
+            learning_style_used=learning_style
+        )
+        db.session.add(ai_msg)
+        safe_db_commit()
+
+        return jsonify({
+            'success': True,
+            'message': ai_message
+        })
+
+    except Exception as e:
+        print(f"OpenAI API error: {e}")
+        return jsonify({
+            'error': 'Sorry, I encountered an error. Please try again.',
+            'details': str(e)
+        }), 500
+
+
+# ============================================================
+# INTERACTIVE LEARNING TOOLS - TASK BREAKDOWN
+# ============================================================
+
+@app.route("/learning-lab/task-breakdown/create", methods=["POST"])
+@csrf.exempt
+def create_task_breakdown():
+    """Create AI-powered task breakdown"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    title = request.json.get('title', '')
+    description = request.json.get('description', '')
+
+    # Get student profile
+    profile = LearningProfile.query.filter_by(student_id=student_id).first()
+
+    # Create breakdown
+    breakdown = TaskBreakdown(
+        student_id=student_id,
+        title=title,
+        description=description
+    )
+    db.session.add(breakdown)
+    db.session.flush()  # Get ID
+
+    try:
+        # Use AI to generate steps
+        from modules.ai_client import client
+
+        focus_pref = profile.focus_preference if profile else 'medium_sessions'
+        step_size = "15-20 minutes" if focus_pref == 'short_bursts' else "30-45 minutes" if focus_pref == 'medium_sessions' else "60+ minutes"
+
+        prompt = f"""Break down this assignment into manageable steps for a student:
+
+Assignment: {title}
+Description: {description}
+
+Student prefers working in {step_size} chunks.
+
+Provide 5-8 steps with estimated time for each. Format as JSON:
+[
+  {{"step": 1, "description": "...", "minutes": 20}},
+  ...
+]"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=500
+        )
+
+        steps_text = response.choices[0].message.content.strip()
+
+        # Remove markdown code blocks if present
+        if steps_text.startswith("```"):
+            steps_text = steps_text.split("```")[1]
+            if steps_text.startswith("json"):
+                steps_text = steps_text[4:]
+            steps_text = steps_text.strip()
+
+        steps_json = json.loads(steps_text)
+
+        # Create steps
+        for step_data in steps_json:
+            step = TaskStep(
+                breakdown_id=breakdown.id,
+                step_number=step_data['step'],
+                description=step_data['description'],
+                estimated_minutes=step_data.get('minutes', 30)
+            )
+            db.session.add(step)
+
+        safe_db_commit()
+
+        return jsonify({
+            'success': True,
+            'breakdown_id': breakdown.id,
+            'steps': steps_json
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Task breakdown error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route("/learning-lab/task-breakdown/<int:breakdown_id>/step/<int:step_id>/complete", methods=["POST"])
+@csrf.exempt
+def complete_task_step(breakdown_id, step_id):
+    """Mark a task step as complete"""
+    init_user()
+    student_id = session.get('student_id')
+    if not student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    breakdown = TaskBreakdown.query.get_or_404(breakdown_id)
+    if breakdown.student_id != student_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    step = TaskStep.query.get_or_404(step_id)
+    if step.breakdown_id != breakdown_id:
+        return jsonify({'error': 'Invalid step'}), 400
+
+    step.completed = not step.completed  # Toggle
+    step.completed_at = datetime.utcnow() if step.completed else None
+
+    # Check if all steps are done
+    all_steps = TaskStep.query.filter_by(breakdown_id=breakdown_id).all()
+    if all(s.completed for s in all_steps):
+        breakdown.completed = True
+        breakdown.completed_at = datetime.utcnow()
+
+    safe_db_commit()
+
+    return jsonify({
+        'success': True,
+        'completed': step.completed,
+        'breakdown_completed': breakdown.completed
+    })
+
+
+# ============================================================
 # TEACHER - PREVIEW STORED AI MISSION
 # ============================================================
 

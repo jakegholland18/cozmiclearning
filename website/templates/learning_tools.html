@@ -497,18 +497,38 @@ body {
             </div>
         </div>
 
+        <!-- AI Study Buddy -->
+        <div class="tool-card" style="background: linear-gradient(135deg, rgba(132, 255, 0, 0.12), rgba(0, 242, 255, 0.08)); border-color: rgba(132, 255, 0, 0.4);">
+            <div class="tool-header">
+                <div class="tool-icon">🤖</div>
+                <h2 class="tool-title" style="color: #84ff00;">AI Study Buddy</h2>
+            </div>
+            <div class="tool-description">
+                Chat with an AI tutor that adapts to YOUR learning style! Get help with homework using the Socratic method.
+            </div>
+            <div class="tool-content">
+                <a href="/learning-lab/study-buddy" class="tts-btn" style="display: block; text-align: center; text-decoration: none; background: linear-gradient(135deg, #84ff00, #00f2ff);">
+                    💬 Start Chatting
+                </a>
+                <div style="margin-top: 15px; padding: 12px; background: rgba(132, 255, 0, 0.1); border-radius: 8px; font-size: 0.9rem; color: #c4d1ff;">
+                    <strong>✨ NEW!</strong> Your AI study buddy remembers your conversations and adapts to how you learn best.
+                </div>
+            </div>
+        </div>
+
         <!-- Task Breakdown -->
         <div class="tool-card">
             <div class="tool-header">
                 <div class="tool-icon">✂️</div>
-                <h2 class="tool-title">Task Breakdown</h2>
+                <h2 class="tool-title">AI Task Breakdown</h2>
             </div>
             <div class="tool-description">
-                Feeling overwhelmed by a big assignment? Break it down into smaller, manageable steps!
+                Feeling overwhelmed by a big assignment? Let AI break it down into smaller, manageable steps!
             </div>
             <div class="tool-content">
-                <input type="text" class="task-input" id="taskInput" placeholder="Enter your assignment or project...">
-                <button class="tts-btn" onclick="breakdownTask()">Break It Down</button>
+                <input type="text" class="task-input" id="taskTitle" placeholder="Assignment title (e.g., 'Essay on Romeo & Juliet')">
+                <textarea class="tts-textarea" id="taskDescription" placeholder="Add details about the assignment (optional)..." style="min-height: 80px; margin-bottom: 10px;"></textarea>
+                <button class="tts-btn" onclick="breakdownTask()" id="breakdownBtn">✨ AI Breakdown</button>
                 <div class="breakdown-result" id="breakdownResult">
                     <!-- Steps will be inserted here -->
                 </div>
@@ -665,6 +685,8 @@ let timerInterval;
 let timeRemaining = 25 * 60; // 25 minutes in seconds
 let isRunning = false;
 let currentMode = 'work';
+let currentSessionId = null;
+let startTime = null;
 
 function setTimer(minutes, mode) {
     if (isRunning) {
@@ -681,7 +703,30 @@ function setTimer(minutes, mode) {
     event.currentTarget.classList.add('active');
 }
 
-function startTimer() {
+async function startTimer() {
+    // Only create session for work mode (not breaks)
+    if (currentMode === 'work') {
+        try {
+            const response = await fetch('/learning-lab/pomodoro/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    work_duration: Math.floor(timeRemaining / 60)
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                currentSessionId = data.session_id;
+                startTime = Date.now();
+            }
+        } catch (error) {
+            console.error('Failed to start session:', error);
+        }
+    }
+
     isRunning = true;
     document.getElementById('startBtn').style.display = 'none';
     document.getElementById('pauseBtn').style.display = 'inline-block';
@@ -692,29 +737,75 @@ function startTimer() {
         updateTimerDisplay();
 
         if (timeRemaining <= 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-            document.getElementById('startBtn').style.display = 'inline-block';
-            document.getElementById('pauseBtn').style.display = 'none';
-            document.getElementById('timerStatus').textContent = currentMode === 'work' ? 'Great work! Take a break! 🎉' : 'Break over! Ready to focus? 🚀';
-
-            // Play notification sound (browser notification)
-            if (Notification.permission === 'granted') {
-                new Notification('Pomodoro Timer', {
-                    body: currentMode === 'work' ? 'Focus session complete! Take a break.' : 'Break complete! Ready to focus?',
-                    icon: '⏰'
-                });
-            }
+            completeTimer();
         }
     }, 1000);
 }
 
-function pauseTimer() {
+async function completeTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    document.getElementById('startBtn').style.display = 'inline-block';
+    document.getElementById('pauseBtn').style.display = 'none';
+    document.getElementById('timerStatus').textContent = currentMode === 'work' ? 'Great work! Take a break! 🎉' : 'Break over! Ready to focus? 🚀';
+
+    // Save session for work mode
+    if (currentMode === 'work' && currentSessionId) {
+        const rating = prompt('How focused were you? (1-5, where 5 is super focused)');
+        if (rating) {
+            try {
+                await fetch('/learning-lab/pomodoro/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        focus_rating: parseInt(rating),
+                        interrupted: false
+                    })
+                });
+            } catch (error) {
+                console.error('Failed to save session:', error);
+            }
+        }
+        currentSessionId = null;
+    }
+
+    // Play notification sound (browser notification)
+    if (Notification.permission === 'granted') {
+        new Notification('Pomodoro Timer', {
+            body: currentMode === 'work' ? 'Focus session complete! Take a break.' : 'Break complete! Ready to focus?',
+            icon: '⏰'
+        });
+    }
+}
+
+async function pauseTimer() {
     isRunning = false;
     clearInterval(timerInterval);
     document.getElementById('startBtn').style.display = 'inline-block';
     document.getElementById('pauseBtn').style.display = 'none';
     document.getElementById('timerStatus').textContent = 'Paused';
+
+    // Mark session as interrupted
+    if (currentMode === 'work' && currentSessionId) {
+        try {
+            await fetch('/learning-lab/pomodoro/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: currentSessionId,
+                    interrupted: true
+                })
+            });
+        } catch (error) {
+            console.error('Failed to mark session as interrupted:', error);
+        }
+        currentSessionId = null;
+    }
 }
 
 function resetTimer() {
@@ -783,29 +874,58 @@ function updateSpeed() {
 // ============================================================
 // TASK BREAKDOWN
 // ============================================================
-function breakdownTask() {
-    const task = document.getElementById('taskInput').value;
-    if (!task) {
-        alert('Please enter a task or assignment!');
+async function breakdownTask() {
+    const title = document.getElementById('taskTitle').value.trim();
+    const description = document.getElementById('taskDescription').value.trim();
+
+    if (!title) {
+        alert('Please enter a task or assignment title!');
         return;
     }
 
-    // Simple AI-like breakdown based on keywords
-    const steps = generateSteps(task);
+    const button = document.getElementById('breakdownBtn');
+    button.disabled = true;
+    button.textContent = '✨ AI is thinking...';
 
-    const resultDiv = document.getElementById('breakdownResult');
-    resultDiv.innerHTML = '<h4 style="color: #667eea; margin-bottom: 15px;">Here\'s your step-by-step plan:</h4>';
+    try {
+        const response = await fetch('/learning-lab/task-breakdown/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: title,
+                description: description || title
+            })
+        });
 
-    steps.forEach((step, index) => {
-        resultDiv.innerHTML += `
-            <div class="breakdown-step">
-                <span class="breakdown-step-number">Step ${index + 1}:</span>
-                ${step}
-            </div>
-        `;
-    });
+        const data = await response.json();
 
-    resultDiv.classList.add('active');
+        if (data.success) {
+            const resultDiv = document.getElementById('breakdownResult');
+            resultDiv.innerHTML = '<h4 style="color: #667eea; margin-bottom: 15px;">✨ AI-Generated Step-by-Step Plan:</h4>';
+
+            data.steps.forEach((step) => {
+                resultDiv.innerHTML += `
+                    <div class="breakdown-step">
+                        <span class="breakdown-step-number">Step ${step.step}:</span>
+                        ${step.description}
+                        <span style="float: right; color: #999; font-size: 0.85rem;">~${step.minutes} min</span>
+                    </div>
+                `;
+            });
+
+            resultDiv.classList.add('active');
+        } else {
+            alert('Error generating breakdown: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Breakdown error:', error);
+        alert('Failed to generate breakdown. Please try again.');
+    }
+
+    button.disabled = false;
+    button.textContent = '✨ AI Breakdown';
 }
 
 function generateSteps(task) {
