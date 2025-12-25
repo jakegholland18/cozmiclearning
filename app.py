@@ -9098,9 +9098,11 @@ def study_buddy_send():
             safe_db_commit(db.session)
 
         # OUTPUT SANITIZATION - Remove any potentially harmful content
-        # Escape HTML to prevent XSS if message is ever rendered as HTML
-        from markupsafe import escape
-        ai_message_safe = str(escape(ai_message))
+        # Note: We don't escape HTML here because:
+        # 1. JavaScript uses .textContent (automatically safe from XSS)
+        # 2. Template uses |safe filter (expects unescaped text)
+        # 3. Escaping causes &#39; to appear instead of apostrophes
+        ai_message_safe = ai_message
 
         # Additional content filtering - check for inappropriate patterns
         inappropriate_patterns = [
