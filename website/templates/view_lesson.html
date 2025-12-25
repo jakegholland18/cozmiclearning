@@ -487,7 +487,7 @@
                 </div>
                 <div style="display: grid; gap: 8px;">
                     {% for prompt in study_tips.study_buddy_prompts[:3] %}
-                    <button onclick="openStudyBuddy({{ prompt|tojson }})" style="
+                    <button type="button" class="study-buddy-prompt-btn" data-prompt="{{ prompt }}" style="
                         padding: 10px 15px;
                         background: linear-gradient(135deg, rgba(132, 255, 0, 0.2), rgba(0, 242, 255, 0.15));
                         border: 2px solid rgba(132, 255, 0, 0.4);
@@ -562,8 +562,21 @@
 </div>
 
 <script>
+// Attach event listeners to Study Buddy prompt buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const promptButtons = document.querySelectorAll('.study-buddy-prompt-btn');
+    promptButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const prompt = this.getAttribute('data-prompt');
+            openStudyBuddy(prompt);
+        });
+    });
+});
+
 // Open Study Buddy with pre-filled question
 function openStudyBuddy(prompt) {
+    console.log('openStudyBuddy called with:', prompt);
+
     // Show loading indicator
     const loadingDiv = document.createElement('div');
     loadingDiv.style.cssText = `
@@ -598,8 +611,10 @@ function openStudyBuddy(prompt) {
 
     // Store the prompt in sessionStorage so Study Buddy can auto-fill it
     sessionStorage.setItem('study_buddy_prefill', prompt);
+
     // Navigate to Study Buddy with return URL (include query parameters)
     const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+    console.log('Navigating to:', `/learning-lab/study-buddy?return_url=${returnUrl}`);
     window.location.href = `/learning-lab/study-buddy?return_url=${returnUrl}`;
 }
 
