@@ -3627,6 +3627,8 @@ def secret_admin_login():
         username = request.form.get("admin_id", "").strip()  # Changed from admin_id for consistency
         password = request.form.get("password", "").strip()
 
+        print(f"🔐 Admin login attempt - Username: '{username}', Password length: {len(password)}")
+
         if not username or not password:
             flash("Please enter both username and password.", "error")
             return render_template("secret_admin_login.html")
@@ -3637,8 +3639,11 @@ def secret_admin_login():
             (Admin.username == username) | (Admin.email == username)
         ).first()
 
+        print(f"🔍 Admin lookup result: {admin}")
+
         if not admin:
             # Don't reveal whether user exists
+            print(f"❌ No admin found for username: {username}")
             flash("Invalid credentials.", "error")
             return render_template("secret_admin_login.html")
 
