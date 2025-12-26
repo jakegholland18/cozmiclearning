@@ -45,6 +45,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import CSRFProtect
 from flask_mail import Mail, Message as EmailMessage
 import stripe
+import openai
 
 # ============================================================
 # FLASK APP SETUP
@@ -197,13 +198,24 @@ print("✅ All required environment variables are set")
 # OWNER + ADMIN
 # ============================================================
 
-OWNER_EMAIL = "jakegholland18@gmail.com"
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Cash&Ollie123')
+OWNER_EMAIL = os.environ.get('OWNER_EMAIL', 'jakegholland18@gmail.com')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+if not ADMIN_PASSWORD:
+    print("=" * 60)
+    print("⚠️  WARNING: ADMIN_PASSWORD not set")
+    print("=" * 60)
+    print("Admin login will not work without ADMIN_PASSWORD environment variable.")
+    print("Set ADMIN_PASSWORD in your .env file.")
+    print("=" * 60)
 
 # ============================================================
-# STRIPE CONFIGURATION
+# API CONFIGURATION
 # ============================================================
 
+# OpenAI Configuration
+openai.api_key = os.environ.get('OPENAI_API_KEY')
+
+# Stripe Configuration
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
 
@@ -233,6 +245,21 @@ STRIPE_PRICES = {
     'homeschool_complete_monthly': os.environ.get('STRIPE_HOMESCHOOL_COMPLETE_MONTHLY'),
     'homeschool_complete_yearly': os.environ.get('STRIPE_HOMESCHOOL_COMPLETE_YEARLY'),
 }
+
+# Validate Stripe Price IDs are configured (only if not skipping Stripe check)
+if not os.environ.get('SKIP_STRIPE_CHECK'):
+    missing_prices = [key for key, value in STRIPE_PRICES.items() if not value]
+    if missing_prices:
+        print("=" * 60)
+        print("⚠️  WARNING: Missing Stripe Price IDs")
+        print("=" * 60)
+        print("The following Stripe price IDs are not configured:")
+        for price_key in missing_prices:
+            env_var_name = f"STRIPE_{price_key.upper()}"
+            print(f"   ⚠️  {env_var_name}")
+        print("\nPayment processing will fail for these subscription types.")
+        print("Add these to your .env file or set them as environment variables.")
+        print("=" * 60)
 
 # ============================================================
 # SELF-HEALING: AUTO-FIX ERRORS
@@ -571,11 +598,12 @@ def log_audit(action, user_id=None, user_type=None, resource_type=None,
 
     except Exception as e:
         # Don't let audit logging failure break the application
+        app.logger.error(f"⚠️ Audit logging failed: {e}")
         print(f"⚠️ Audit logging failed: {e}")
         try:
             db.session.rollback()
-        except:
-            pass
+        except Exception as rollback_error:
+            app.logger.error(f"Failed to rollback after audit log error: {rollback_error}")
 
 # ------------------------------------------------------------
 # Simple backup/restore for teachers/classes/students
@@ -2368,10 +2396,17 @@ def update_streak():
         session["streak"] = 1
         return
 
-    last = datetime.strptime(last_str, "%Y-%m-%d").date()
+    try:
+        last = datetime.strptime(last_str, "%Y-%m-%d").date()
+    except (ValueError, TypeError) as e:
+        app.logger.error(f"Invalid last_visit date format: {last_str}, resetting to today. Error: {e}")
+        session["last_visit"] = str(today)
+        session["streak"] = 1
+        return
+
     if today != last:
         if today - last == timedelta(days=1):
-            session["streak"] += 1
+            session["streak"] = session.get("streak", 0) + 1
         else:
             session["streak"] = 1
         session["last_visit"] = str(today)
@@ -7162,7 +7197,16 @@ def student_start_assignment(assignment_id):
             mastery_state = submission_data.get("mastery_state")
         else:
             saved_answers = submission_data
-    except:
+    except json.JSONDecodeError as e:
+        app.logger.error(f"Failed to parse assignment answers JSON for submission {submission.id}: {e}")
+        flash("Error loading saved answers. Starting fresh.", "warning")
+        saved_answers = {}
+        adaptive_state = None
+        scaffold_state = None
+        gap_fill_state = None
+        mastery_state = None
+    except Exception as e:
+        app.logger.error(f"Unexpected error loading assignment state for submission {submission.id}: {e}")
         saved_answers = {}
         adaptive_state = None
         scaffold_state = None
