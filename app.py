@@ -1316,8 +1316,14 @@ def is_owner(teacher: Teacher | None) -> bool:
 
 
 def is_admin() -> bool:
-    """Check if current session user is admin (owner email in any role OR admin session flags)"""
-    # Check for admin session flags (secret admin login)
+    """
+    Check if current session user is admin.
+
+    Admins can be:
+    1. Database-backed admin users (via secret_admin_login)
+    2. Teacher/Parent/Student accounts with owner email
+    """
+    # Check for database-backed admin login
     if session.get("admin_authenticated") or session.get("is_owner"):
         return True
 
@@ -3614,19 +3620,70 @@ def trial_expired():
 
 @app.route("/secret_admin_login", methods=["GET", "POST"])
 @csrf.exempt
+@limiter.limit("10 per hour")  # Rate limit admin login attempts
 def secret_admin_login():
-    """Hidden admin login - accessed via secret button on landing page"""
+    """Database-backed admin login with security features"""
     if request.method == "POST":
-        admin_id = request.form.get("admin_id", "").strip()
+        username = request.form.get("admin_id", "").strip()  # Changed from admin_id for consistency
         password = request.form.get("password", "").strip()
 
-        # Simple check: ID = "admin" and password matches
-        if admin_id.lower() == "admin" and password == ADMIN_PASSWORD:
+        if not username or not password:
+            flash("Please enter both username and password.", "error")
+            return render_template("secret_admin_login.html")
+
+        # Look up admin user by username or email
+        from models import Admin
+        admin = Admin.query.filter(
+            (Admin.username == username) | (Admin.email == username)
+        ).first()
+
+        if not admin:
+            # Don't reveal whether user exists
+            flash("Invalid credentials.", "error")
+            return render_template("secret_admin_login.html")
+
+        # Check if account is locked
+        if admin.is_locked():
+            flash("Account is temporarily locked due to too many failed login attempts. Try again later.", "error")
+            return render_template("secret_admin_login.html")
+
+        # Check if account is active
+        if not admin.is_active:
+            flash("This admin account has been deactivated.", "error")
+            return render_template("secret_admin_login.html")
+
+        # Verify password
+        if check_password_hash(admin.password_hash, password):
+            # Successful login
+            admin.failed_login_attempts = 0
+            admin.last_login = datetime.utcnow()
+            admin.last_login_ip = request.remote_addr
+            admin.locked_until = None
+            db.session.commit()
+
+            # Set session
             session["admin_authenticated"] = True
-            flash("🔧 Admin access granted. Welcome!", "success")
+            session["admin_id"] = admin.id
+            session["admin_username"] = admin.username
+            session["is_super_admin"] = admin.is_super_admin
+
+            flash(f"🔧 Welcome back, {admin.full_name or admin.username}!", "success")
             return redirect("/admin")
         else:
-            flash("Invalid admin credentials.", "error")
+            # Failed login
+            admin.failed_login_attempts += 1
+
+            # Lock account after 5 failed attempts for 30 minutes
+            if admin.failed_login_attempts >= 5:
+                admin.locked_until = datetime.utcnow() + timedelta(minutes=30)
+                db.session.commit()
+                flash("Too many failed attempts. Account locked for 30 minutes.", "error")
+            else:
+                db.session.commit()
+                attempts_left = 5 - admin.failed_login_attempts
+                flash(f"Invalid credentials. {attempts_left} attempts remaining.", "error")
+
+            return render_template("secret_admin_login.html")
 
     return render_template("secret_admin_login.html")
 

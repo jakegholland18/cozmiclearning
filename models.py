@@ -1489,3 +1489,52 @@ class AIAssignment(db.Model):
         return f'<AIAssignment id={self.id} topic="{self.topic}" teacher={self.teacher_id}>'
 
 
+# ============================================================
+# ADMIN USERS
+# ============================================================
+
+class Admin(db.Model):
+    """
+    Admin users with full system access.
+    Separate from teachers/parents/students for better security.
+    """
+    __tablename__ = "admins"
+    __table_args__ = (
+        db.Index('idx_admin_email', 'email'),
+        db.Index('idx_admin_username', 'username'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    # Admin metadata
+    full_name = db.Column(db.String(120))
+    is_active = db.Column(db.Boolean, default=True)
+    is_super_admin = db.Column(db.Boolean, default=False)  # Super admin can manage other admins
+
+    # Security tracking
+    last_login = db.Column(db.DateTime)
+    last_login_ip = db.Column(db.String(45))  # IPv6 compatible
+    failed_login_attempts = db.Column(db.Integer, default=0)
+    locked_until = db.Column(db.DateTime)  # Account lockout after too many failed attempts
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('admins.id'))  # Which admin created this admin
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    creator = db.relationship('Admin', remote_side=[id], backref='created_admins')
+
+    def __repr__(self):
+        return f'<Admin id={self.id} username="{self.username}" email="{self.email}">'
+
+    def is_locked(self):
+        """Check if account is currently locked"""
+        if self.locked_until and self.locked_until > datetime.utcnow():
+            return True
+        return False
+
+
