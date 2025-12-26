@@ -1511,6 +1511,13 @@ def mark_lesson_complete(subject, grade, lesson_title, chapter_id=None, student_
 
         db.session.commit()
 
+        # Track subject progress for subjects page
+        try:
+            from modules.progress_tracker import track_lesson_completion
+            track_lesson_completion(student_id=student_id, subject_key=subject)
+        except Exception as e:
+            print(f"Failed to track lesson completion progress: {e}")
+
         # Update chapter progress if chapter_id is provided
         if chapter_id:
             update_chapter_progress(subject, grade, chapter_id, student_id)
@@ -8462,6 +8469,33 @@ def student_submit_assignment(assignment_id):
 
         # Commit all changes if everything succeeded
         db.session.commit()
+
+        # Track subject progress for subjects page
+        if mc_question_count > 0:
+            try:
+                from modules.progress_tracker import track_question_activity
+                # Get subject from assignment
+                subject = assignment.subject if hasattr(assignment, 'subject') else 'general'
+
+                # Track each correct answer
+                for _ in range(correct_count):
+                    track_question_activity(
+                        student_id=student.id,
+                        subject_key=subject,
+                        is_correct=True,
+                        time_spent_seconds=0
+                    )
+                # Track each incorrect answer
+                for _ in range(mc_question_count - correct_count):
+                    track_question_activity(
+                        student_id=student.id,
+                        subject_key=subject,
+                        is_correct=False,
+                        time_spent_seconds=0
+                    )
+            except Exception as e:
+                app.logger.error(f"Failed to track assignment progress: {e}")
+
         flash("Assignment submitted successfully!", "success")
 
     except Exception as e:
@@ -13148,6 +13182,15 @@ def learning_mode():
     session["grade"] = grade
     session["subject"] = subject
 
+    # Track subject visit for subjects page progress
+    student_id = session.get("student_id")
+    if student_id:
+        try:
+            from modules.progress_tracker import track_subject_visit
+            track_subject_visit(student_id=student_id, subject_key=subject)
+        except Exception as e:
+            print(f"Failed to track subject visit: {e}")
+
     subject_config = get_subject(subject)
 
     return render_template(
@@ -13765,6 +13808,18 @@ CozmicLearning Team
             )
         except Exception as e:
             print(f"Failed to log question activity: {e}")
+
+        # Track subject progress for subjects page
+        try:
+            from modules.progress_tracker import track_question_activity
+            track_question_activity(
+                student_id=student_id,
+                subject_key=subject,
+                is_correct=False,  # Questions don't have right/wrong - tracking engagement
+                time_spent_seconds=0  # Could add timing in future
+            )
+        except Exception as e:
+            print(f"Failed to track subject progress: {e}")
 
     # Increment question count for Basic plan tracking
     increment_question_count()
@@ -14917,6 +14972,28 @@ def save_practice_session():
 
         db.session.add(practice_session)
         db.session.commit()
+
+        # Track subject progress for subjects page
+        try:
+            from modules.progress_tracker import track_question_activity
+            # Track each correct answer
+            for _ in range(questions_correct):
+                track_question_activity(
+                    student_id=student_id,
+                    subject_key=subject,
+                    is_correct=True,
+                    time_spent_seconds=time_spent // total_questions if total_questions > 0 else 0
+                )
+            # Track each incorrect answer
+            for _ in range(questions_answered - questions_correct):
+                track_question_activity(
+                    student_id=student_id,
+                    subject_key=subject,
+                    is_correct=False,
+                    time_spent_seconds=time_spent // total_questions if total_questions > 0 else 0
+                )
+        except Exception as e:
+            app.logger.error(f"Failed to track practice progress: {e}")
 
         return jsonify({
             "success": True,
