@@ -1258,6 +1258,48 @@ class LearningProfile(db.Model):
         return f'<LearningProfile student_id={self.student_id} style={self.primary_learning_style}>'
 
 
+class StudentSubjectProgress(db.Model):
+    """
+    Tracks student progress and activity per subject for the subjects page.
+    Calculates mastery, XP, and last visit time for each learning planet.
+    """
+    __tablename__ = 'student_subject_progress'
+    __table_args__ = (
+        db.Index('idx_subject_progress_student', 'student_id'),
+        db.Index('idx_subject_progress_subject', 'subject_key'),
+        db.Index('idx_subject_progress_student_subject', 'student_id', 'subject_key'),
+        db.UniqueConstraint('student_id', 'subject_key', name='uq_student_subject'),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id", ondelete="CASCADE"), nullable=False)
+    subject_key = db.Column(db.String(50), nullable=False)  # num_forge, atom_sphere, etc.
+
+    # Activity tracking
+    questions_answered = db.Column(db.Integer, default=0)
+    correct_answers = db.Column(db.Integer, default=0)
+    total_time_minutes = db.Column(db.Integer, default=0)  # Total study time
+    last_visited = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # Progress metrics
+    xp_earned = db.Column(db.Integer, default=0)
+    mastery_percentage = db.Column(db.Integer, default=0)  # 0-100
+
+    # Milestones
+    lessons_completed = db.Column(db.Integer, default=0)
+    chapters_completed = db.Column(db.Integer, default=0)
+
+    # Timestamps
+    first_visit = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    student = db.relationship("Student", backref="subject_progress")
+
+    def __repr__(self):
+        return f'<StudentSubjectProgress student_id={self.student_id} subject={self.subject_key} mastery={self.mastery_percentage}%>'
+
+
 class StrategyUsage(db.Model):
     """
     Tracks when students use different learning strategies and how helpful they find them.

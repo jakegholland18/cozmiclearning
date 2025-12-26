@@ -308,25 +308,29 @@
             </div>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-            <!-- Sample "Continue" cards - would be dynamic based on student data -->
-            <div style="background: rgba(92,107,255,0.2); border: 1px solid rgba(118,131,255,0.4); border-radius: 12px; padding: 16px; text-align: center; transition: all 0.3s ease; cursor: pointer;" onclick="window.location.href='/choose-grade?subject=num_forge'" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(118,131,255,0.8)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(118,131,255,0.4)'">
-                <div style="font-size: 2.5rem; margin-bottom: 8px;">🔢</div>
-                <div style="font-weight: 700; color: var(--text); margin-bottom: 4px;">Num Forge</div>
-                <div style="font-size: 0.8rem; color: var(--muted-2); margin-bottom: 8px;">Last visited: Today</div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 4px; margin-bottom: 4px;">
-                    <div style="background: linear-gradient(90deg, #5c6bff, #00f2ff); height: 6px; width: 65%; border-radius: 3px;"></div>
+            {% if recently_visited %}
+                {% for progress in recently_visited %}
+                    {% set subject_config = get_subject(progress.subject_key) %}
+                    {% if subject_config %}
+                    <div style="background: rgba(92,107,255,0.2); border: 1px solid rgba(118,131,255,0.4); border-radius: 12px; padding: 16px; text-align: center; transition: all 0.3s ease; cursor: pointer;" onclick="window.location.href='/choose-grade?subject={{ progress.subject_key }}'" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(118,131,255,0.8)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(118,131,255,0.4)'">
+                        <div style="font-size: 2.5rem; margin-bottom: 8px;">{{ subject_config.icon }}</div>
+                        <div style="font-weight: 700; color: var(--text); margin-bottom: 4px;">{{ subject_config.name }}</div>
+                        <div style="font-size: 0.8rem; color: var(--muted-2); margin-bottom: 8px;">
+                            Last visited: {{ progress.last_visited.strftime('%b %d') if (now() - progress.last_visited).days > 0 else 'Today' }}
+                        </div>
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 4px; margin-bottom: 4px;">
+                            <div style="background: linear-gradient(90deg, #5c6bff, #00f2ff); height: 6px; width: {{ progress.mastery_percentage }}%; border-radius: 3px;"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--accent);">{{ progress.mastery_percentage }}% Mastery</div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--muted-2);">
+                    <div style="font-size: 2rem; margin-bottom: 12px;">🚀</div>
+                    <p>Start exploring a subject to see your progress here!</p>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--accent);">65% Mastery</div>
-            </div>
-            <div style="background: rgba(132,255,0,0.2); border: 1px solid rgba(132,255,0,0.4); border-radius: 12px; padding: 16px; text-align: center; transition: all 0.3s ease; cursor: pointer;" onclick="window.location.href='/choose-grade?subject=atom_sphere'" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='rgba(132,255,0,0.8)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(132,255,0,0.4)'">
-                <div style="font-size: 2.5rem; margin-bottom: 8px;">🔬</div>
-                <div style="font-weight: 700; color: var(--text); margin-bottom: 4px;">Atom Sphere</div>
-                <div style="font-size: 0.8rem; color: var(--muted-2); margin-bottom: 8px;">Last visited: Yesterday</div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 4px; margin-bottom: 4px;">
-                    <div style="background: linear-gradient(90deg, #84ff00, #00c853); height: 6px; width: 42%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.75rem; color: var(--success);">42% Mastery</div>
-            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -356,7 +360,9 @@
 
                 <!-- Progress Indicator -->
                 <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(118,131,255,0.2);">
-                    {% set mastery = [0, 0, 65, 42, 0, 28, 0][loop.index0 % 7] %}
+                    {% set subject_progress = progress_data.get(subject, {}) %}
+                    {% set mastery = subject_progress.get('mastery_percentage', 0) %}
+                    {% set xp = subject_progress.get('xp_earned', 0) %}
                     {% if mastery > 0 %}
                     <div style="margin-bottom: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -368,7 +374,7 @@
                         </div>
                     </div>
                     <div style="font-size: 0.7rem; color: var(--muted-3); text-align: center; margin-top: 6px;">
-                        {{ (mastery * 12) // 10 }} XP earned
+                        {{ xp }} XP earned
                     </div>
                     {% else %}
                     <div style="text-align: center; padding: 8px 0;">

@@ -2866,10 +2866,23 @@ def subjects():
     init_user()
     # Use centralized subject configuration
     planets = get_subjects_for_display()
+
+    # Get student progress data if logged in
+    student_id = session.get('student_id')
+    progress_data = {}
+    recently_visited = []
+
+    if student_id:
+        from modules.progress_tracker import get_student_progress_all_subjects, get_recently_visited_subjects
+        progress_data = get_student_progress_all_subjects(student_id)
+        recently_visited = get_recently_visited_subjects(student_id, limit=3)
+
     return render_template(
         "subjects.html",
         planets=planets,
         character=session.get("character", "nova"),
+        progress_data=progress_data,
+        recently_visited=recently_visited
     )
 
 
